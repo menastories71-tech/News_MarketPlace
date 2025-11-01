@@ -163,26 +163,49 @@ class AuthService {
     const user = await User.findByEmail(email);
     if (!user) {
       // Don't reveal if email exists or not for security
-      return { message: 'If an account with this email exists, a reset link has been sent.' };
+      return { message: 'If an account with this email exists, an OTP has been sent.' };
     }
 
-    const resetToken = jwt.sign(
-      { userId: user.id, type: 'password_reset' },
-      process.env.JWT_SECRET,
-      { expiresIn: '30m' }
-    );
+    // Generate and send OTP
+    const otp = this.generateOTP();
+    await user.setOTP(otp);
 
-    await emailService.sendPasswordReset(email, resetToken);
+    await emailService.sendOTP(email, otp, 'password_reset');
 
-    return { message: 'If an account with this email exists, a reset link has been sent.' };
+    return { message: 'If an account with this email exists, an OTP has been sent.' };
   }
 
-  // Reset password
-  async resetPassword(token, newPassword) {
+  // Verify forgot password OTP
+  async verifyForgotPasswordOTP(email, otp) {
+    const user = await User.findByEmail(email);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const isValidOTP = await user.verifyOTP(otp);
+    if (!isValidOTP) {
+      throw new Error('Invalid or expired OTP');
+    }
+
+    // Generate a temporary token for password reset (valid for 10 minutes)
+    const resetToken = jwt.sign(
+      { userId: user.id, type: 'password_reset_otp' },
+      process.env.JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+
+    return {
+      resetToken,
+      message: 'OTP verified successfully. You can now reset your password.'
+    };
+  }
+
+  // Reset password with OTP verification
+  async resetPasswordWithOTP(token, newPassword) {
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      if (decoded.type !== 'password_reset') {
+      if (decoded.type !== 'password_reset_otp') {
         throw new Error('Invalid reset token');
       }
 
@@ -198,6 +221,36 @@ class AuthService {
       await user.update({ password_hash });
 
       return { message: 'Password reset successfully' };
+    } catch (error) {
+      throw new Error('Invalid or expired reset token');
+    }
+  }
+
+  // Reset password (legacy method for backward compatibility with email links)
+  async resetPassword(token, newPassword) {
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Check if it's the old password_reset token type
+      if (decoded.type === 'password_reset') {
+        const user = await User.findById(decoded.userId);
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        // Hash new password
+        const bcrypt = require('bcryptjs');
+        const password_hash = await bcrypt.hash(newPassword, 12);
+
+        await user.update({ password_hash });
+
+        return { message: 'Password reset successfully' };
+      } else if (decoded.type === 'password_reset_otp') {
+        // Handle OTP-based reset
+        return this.resetPasswordWithOTP(token, newPassword);
+      } else {
+        throw new Error('Invalid reset token type');
+      }
     } catch (error) {
       throw new Error('Invalid or expired reset token');
     }

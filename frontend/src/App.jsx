@@ -5,6 +5,8 @@ import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
 import AuthModal from './components/auth/AuthModal';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
+import UserHeader from './components/common/UserHeader';
+import UserFooter from './components/common/UserFooter';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -50,31 +52,7 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div className="flex items-center">
-              <h1 className="heading-3 text-primary">News Marketplace</h1>
-            </div>
-            <nav className="flex items-center space-x-6">
-              {isAuthenticated ? (
-                <>
-                  <span className="body-regular">Welcome back!</span>
-                  <button className="btn-secondary">Dashboard</button>
-                </>
-              ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="btn-primary"
-                >
-                  Sign In
-                </button>
-              )}
-            </nav>
-          </div>
-        </div>
-      </header>
+      <UserHeader />
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -116,6 +94,8 @@ const HomePage = () => {
           )}
         </div>
       </main>
+
+      <UserFooter />
 
       {/* Auth Modal */}
       <AuthModal

@@ -9,6 +9,8 @@ router.post('/verify-registration', authController.otpValidation, authController
 router.post('/login', authController.loginValidation, authController.login);
 router.post('/verify-login', authController.otpValidation, authController.verifyLogin);
 router.post('/forgot-password', authController.forgotPasswordValidation, authController.forgotPassword);
+router.post('/verify-forgot-password-otp', authController.verifyForgotPasswordOTPValidation, authController.verifyForgotPasswordOTP);
+router.post('/reset-password-with-otp', authController.resetPasswordWithOTPValidation, authController.resetPasswordWithOTP);
 router.post('/reset-password', authController.resetPasswordValidation, authController.resetPassword);
 
 // Protected routes

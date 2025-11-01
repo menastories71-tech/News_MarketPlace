@@ -21,6 +21,8 @@ class EmailService {
 
     const subject = type === 'registration'
       ? 'Verify Your News Marketplace Account'
+      : type === 'password_reset'
+      ? 'Password Reset Verification Code'
       : 'Login Verification Code';
 
     const htmlContent = this.generateOTPTemplate(otp, type);
@@ -97,7 +99,11 @@ class EmailService {
 
   // Generate OTP email template
   generateOTPTemplate(otp, type) {
-    const action = type === 'registration' ? 'complete your registration' : 'log in to your account';
+    const action = type === 'registration'
+      ? 'complete your registration'
+      : type === 'password_reset'
+      ? 'reset your password'
+      : 'log in to your account';
 
     return `
       <!DOCTYPE html>

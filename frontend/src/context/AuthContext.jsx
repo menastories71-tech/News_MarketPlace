@@ -109,11 +109,31 @@ export const AuthProvider = ({ children }) => {
       const response = await api.post('/auth/forgot-password', { email });
       return response.data;
     } catch (error) {
-      throw error.response?.data?.error || 'Failed to send reset email';
+      throw error.response?.data?.error || 'Failed to send reset code';
     }
   };
 
-  // Reset password
+  // Verify forgot password OTP
+  const verifyForgotPasswordOTP = async (email, otp) => {
+    try {
+      const response = await api.post('/auth/verify-forgot-password-otp', { email, otp });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.error || 'OTP verification failed';
+    }
+  };
+
+  // Reset password with OTP
+  const resetPasswordWithOTP = async (token, password) => {
+    try {
+      const response = await api.post('/auth/reset-password-with-otp', { token, password });
+      return response.data;
+    } catch (error) {
+      throw error.response?.data?.error || 'Password reset failed';
+    }
+  };
+
+  // Reset password (legacy method for backward compatibility)
   const resetPassword = async (token, password) => {
     try {
       const response = await api.post('/auth/reset-password', { token, password });
@@ -133,6 +153,8 @@ export const AuthProvider = ({ children }) => {
     verifyLogin,
     logout,
     forgotPassword,
+    verifyForgotPasswordOTP,
+    resetPasswordWithOTP,
     resetPassword,
   };
 

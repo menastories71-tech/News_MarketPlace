@@ -3,10 +3,11 @@ import { useAuth } from '../../context/AuthContext';
 import Icon from '../common/Icon';
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState('email'); // 'email', 'otp', 'reset'
+  const [step, setStep] = useState('email'); // 'email', 'otp'
   const [formData, setFormData] = useState({
     email: '',
     otp: '',
+    resetToken: '',
     newPassword: '',
     confirmPassword: '',
   });
@@ -14,7 +15,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  const { forgotPassword, resetPassword } = useAuth();
+  const { forgotPassword, verifyForgotPasswordOTP, resetPasswordWithOTP } = useAuth();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -40,7 +41,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleResetPassword = async (e) => {
+  const handleVerifyOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -58,8 +59,15 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     }
 
     try {
-      const result = await resetPassword(formData.otp, formData.newPassword);
-      setMessage(result.message);
+      const result = await verifyForgotPasswordOTP(formData.email, formData.otp);
+      setFormData(prev => ({
+        ...prev,
+        resetToken: result.resetToken
+      }));
+
+      // Now reset the password immediately
+      const resetResult = await resetPasswordWithOTP(result.resetToken, formData.newPassword);
+      setMessage(resetResult.message);
       setStep('success');
     } catch (err) {
       setError(err);
@@ -68,10 +76,12 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     }
   };
 
+
   const resetForm = () => {
     setFormData({
       email: '',
       otp: '',
+      resetToken: '',
       newPassword: '',
       confirmPassword: '',
     });
@@ -98,8 +108,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
           <h2 className="heading-2 mb-2">Reset Password</h2>
           <p className="body-regular text-gray-600">
             {step === 'email' && 'Enter your email address to receive a reset code'}
-            {step === 'otp' && 'Enter the reset code sent to your email'}
-            {step === 'reset' && 'Create a new password'}
+            {step === 'otp' && 'Enter the reset code and create a new password'}
             {step === 'success' && 'Password reset successful!'}
           </p>
         </div>
@@ -145,7 +154,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         )}
 
         {step === 'otp' && (
-          <form onSubmit={handleResetPassword}>
+          <form onSubmit={handleVerifyOTP}>
             <div>
               <label htmlFor="otp" className="form-label">
                 Reset Code

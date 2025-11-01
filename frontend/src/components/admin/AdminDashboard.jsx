@@ -1,9 +1,68 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
+import Sidebar from './Sidebar';
+
+// ----------------- CHANGES START -----------------
+// Add a small theme/palette (tweak hex values to match PDF exactly if you want)
+const theme = {
+	primary: '#0D3B66',    // primary brand (PDF: primary color)
+	secondary: '#F95738',  // accent / CTA
+	accent: '#2EC4B6',     // accent / highlights
+	muted: '#F1F5F9',      // background surfaces
+	text: '#0F172A',       // primary text
+	success: '#16A34A',
+	warning: '#F59E0B',
+	danger: '#EF4444',
+	roleColors: {
+		super_admin: { bg: '#FFE6E6', color: '#991B1B' },
+		content_manager: { bg: '#F5E9FF', color: '#6B21A8' },
+		editor: { bg: '#E8F2FF', color: '#1E3A8A' },
+		registered_user: { bg: '#E6FFFA', color: '#065F46' },
+		agency: { bg: '#FFF7ED', color: '#92400E' },
+		other: { bg: '#F3F4F6', color: '#111827' }
+	}
+};
 
 const AdminDashboard = () => {
   const { admin, logout, hasRole, hasAnyRole, getRoleLevel } = useAdminAuth();
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+
+  // z-index layering constants (header must be topmost)
+  const headerZ = 1000;
+  const mobileOverlayZ = 500; // under header but above page content
+  const sidebarZ = 200;       // desktop sidebar z-index (under overlay and header)
+
+  // header height used for mobile overlay positioning
+  const headerHeight = 64;
+  // apply this as top padding for the main content so nothing scrolls underneath the header
+  const mainPaddingTop = headerHeight + 18;
+
+  // Sidebar styles and items
+  const sidebarWidth = 240;
+  const leftGap = 24; // extra gap between sidebar and centered content
+  const sidebarStyles = {
+    width: sidebarWidth,
+    backgroundColor: '#fff',
+    borderRight: `1px solid ${theme.muted}`,
+    padding: 16,
+    boxSizing: 'border-box',
+    borderRadius: 8
+  };
+  // single mobileSidebarOverlay definition (keeps headerHeight/sidebarWidth in sync)
+  const mobileSidebarOverlay = {
+    position: 'fixed',
+    top: headerHeight,
+    left: 0,
+    height: `calc(100vh - ${headerHeight}px)`,
+    zIndex: mobileOverlayZ,
+    backgroundColor: '#fff',
+    padding: 16,
+    boxSizing: 'border-box',
+    width: sidebarWidth,
+    boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
+  };
 
   const roleDisplayNames = {
     'super_admin': 'Super Administrator',
@@ -14,43 +73,126 @@ const AdminDashboard = () => {
     'other': 'Other'
   };
 
-  const getRoleColor = (role) => {
-    const colors = {
-      'super_admin': 'bg-red-100 text-red-800',
-      'content_manager': 'bg-purple-100 text-purple-800',
-      'editor': 'bg-blue-100 text-blue-800',
-      'registered_user': 'bg-green-100 text-green-800',
-      'agency': 'bg-yellow-100 text-yellow-800',
-      'other': 'bg-gray-100 text-gray-800'
-    };
-    return colors[role] || colors.other;
+  // Small shared button styles to reflect PDF palette (use inline so no CSS file needed)
+  const btnPrimary = {
+    backgroundColor: theme.primary,
+    color: '#fff',
+    padding: '0.625rem 1rem',
+    borderRadius: '0.5rem',
+    fontWeight: 600,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    cursor: 'pointer',
+    border: 'none'
   };
 
+  const btnSecondary = {
+    backgroundColor: '#fff',
+    color: theme.text,
+    border: `1px solid ${theme.muted}`,
+    padding: '0.5rem 0.875rem',
+    borderRadius: '0.5rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    boxSizing: 'border-box'
+  };
+
+  // Slightly improved role badge sizing/line-height
+  const getRoleStyle = (role) => {
+    const r = theme.roleColors[role] || theme.roleColors.other;
+    return {
+      backgroundColor: r.bg,
+      color: r.color,
+      padding: '0.125rem 0.5rem',
+      borderRadius: '9999px',
+      fontSize: '0.75rem',
+      fontWeight: 600,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.25rem',
+      lineHeight: 1
+    };
+  };
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  // lock body scroll when sidebar is open on mobile
+  useEffect(() => {
+    if (sidebarOpen && isMobile) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => { document.body.style.overflow = prev; };
+    }
+    return undefined;
+  }, [sidebarOpen, isMobile]);
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div
+      className="min-h-screen"
+      style={{ backgroundColor: theme.muted, color: theme.text, paddingBottom: '3rem' }}
+    >
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
+      <header
+        className="shadow-sm"
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: headerZ,
+          backgroundColor: '#ffffff',           // ensure header is opaque white
+          boxShadow: '0 6px 20px rgba(2,6,23,0.06)', // slightly stronger shadow
+          borderBottom: `1px solid ${theme.muted}`  // explicit bottom border to separate content
+        }}
+      >
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10" style={{ minHeight: 64 }}>
+          <div className="flex justify-between items-center py-3">
             <div className="flex items-center">
-              <Icon name="shield-check" size="lg" className="text-primary mr-3" />
-              <div>
-                <h1 className="heading-3 text-gray-900">Admin Dashboard</h1>
-                <p className="body-small text-gray-500">Manage your News Marketplace platform</p>
+              {/* Mobile toggle button */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="mr-3 md:hidden"
+                aria-label="Toggle sidebar"
+                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.text} strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+              </button>
+
+              {/* Desktop toggle button */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="mr-3 hidden md:block"
+                aria-label="Toggle sidebar"
+                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.text} strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <Icon name="shield-check" size="lg" style={{ color: theme.primary }} />
+                <span style={{ fontWeight: 700, fontSize: 18 }}>News Marketplace Admin</span>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="body-medium text-gray-900">{admin?.first_name} {admin?.last_name}</p>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRoleColor(admin?.role)}`}>
-                  {roleDisplayNames[admin?.role] || admin?.role}
-                </span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+              <button aria-label="Toggle theme" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+                {/* simple moon icon */}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.text} strokeWidth="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>
+              </button>
+
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 700 }}>{admin?.first_name ? `${admin.first_name} ${admin.last_name}` : 'Master Admin'}</div>
+                <div style={{ marginTop: 6 }}>
+                  <span style={getRoleStyle(admin?.role)}>{roleDisplayNames[admin?.role] || '—'}</span>
+                </div>
               </div>
-              <button
-                onClick={logout}
-                className="btn-secondary"
-              >
-                <Icon name="arrow-right-on-rectangle" size="sm" className="mr-2" />
+
+              <button onClick={logout} style={{ ...btnPrimary, padding: '0.45rem 0.75rem' }}>
+                <Icon name="arrow-right-on-rectangle" size="sm" style={{ color: '#fff', marginRight: 8 }} />
                 Logout
               </button>
             </div>
@@ -58,171 +200,124 @@ const AdminDashboard = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8 border border-gray-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="heading-2 text-gray-900 mb-2">
-                Welcome back, {admin?.first_name}!
-              </h2>
-              <p className="body-regular text-gray-600">
-                You have access to the administrative panel. Your role level is {getRoleLevel()}.
-              </p>
-            </div>
-            <div className="hidden md:block">
-              <Icon name="user-circle" size="3xl" className="text-primary" />
-            </div>
-          </div>
-        </div>
+      {/* Sidebar fixed on desktop (so it sits at viewport left) */}
+      <Sidebar
+        admin={admin}
+        roleDisplayNames={roleDisplayNames}
+        theme={theme}
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        sidebarStyles={sidebarStyles}
+        mobileSidebarOverlay={mobileSidebarOverlay}
+        isMobile={isMobile}
+        headerHeight={headerHeight}
+        sidebarWidth={sidebarWidth}
+        sidebarZ={sidebarZ}
+        mobileOverlayZ={mobileOverlayZ}
+      />
 
-        {/* Role-based Access Demo */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {/* Super Admin Only */}
-          {hasRole('super_admin') && (
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-red-200">
-              <div className="flex items-center mb-4">
-                <Icon name="key" size="lg" className="text-red-600 mr-3" />
-                <h3 className="heading-4 text-gray-900">Super Admin Panel</h3>
-              </div>
-              <p className="body-small text-gray-600 mb-4">
-                Full system access and configuration
-              </p>
-              <button className="btn-primary w-full">
-                Access System Settings
-              </button>
-            </div>
-          )}
-
-          {/* Content Manager and Above */}
-          {hasAnyRole(['super_admin', 'content_manager']) && (
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-purple-200">
-              <div className="flex items-center mb-4">
-                <Icon name="document-text" size="lg" className="text-purple-600 mr-3" />
-                <h3 className="heading-4 text-gray-900">Content Management</h3>
-              </div>
-              <p className="body-small text-gray-600 mb-4">
-                Manage articles, reviews, and publications
-              </p>
-              <button className="btn-secondary w-full">
-                Manage Content
-              </button>
-            </div>
-          )}
-
-          {/* Editor and Above */}
-          {hasAnyRole(['super_admin', 'content_manager', 'editor']) && (
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-blue-200">
-              <div className="flex items-center mb-4">
-                <Icon name="pencil-square" size="lg" className="text-blue-600 mr-3" />
-                <h3 className="heading-4 text-gray-900">Editorial Tools</h3>
-              </div>
-              <p className="body-small text-gray-600 mb-4">
-                Review and edit submitted content
-              </p>
-              <button className="btn-secondary w-full">
-                Editorial Dashboard
-              </button>
-            </div>
-          )}
-
-          {/* All Admin Roles */}
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-green-200">
-            <div className="flex items-center mb-4">
-              <Icon name="chart-bar" size="lg" className="text-green-600 mr-3" />
-              <h3 className="heading-4 text-gray-900">Analytics</h3>
-            </div>
-            <p className="body-small text-gray-600 mb-4">
-              View platform statistics and reports
-            </p>
-            <button className="btn-secondary w-full">
-              View Analytics
-            </button>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-yellow-200">
-            <div className="flex items-center mb-4">
-              <Icon name="users" size="lg" className="text-yellow-600 mr-3" />
-              <h3 className="heading-4 text-gray-900">User Management</h3>
-            </div>
-            <p className="body-small text-gray-600 mb-4">
-              Manage user accounts and permissions
-            </p>
-            <button className="btn-secondary w-full">
-              Manage Users
-            </button>
-          </div>
-
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-indigo-200">
-            <div className="flex items-center mb-4">
-              <Icon name="cog-6-tooth" size="lg" className="text-indigo-600 mr-3" />
-              <h3 className="heading-4 text-gray-900">Settings</h3>
-            </div>
-            <p className="body-small text-gray-600 mb-4">
-              Configure your profile and preferences
-            </p>
-            <button className="btn-secondary w-full">
-              Profile Settings
-            </button>
-          </div>
-        </div>
-
-        {/* Role Information */}
-        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
-          <h3 className="heading-3 text-gray-900 mb-4">Your Permissions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="heading-4 text-gray-900 mb-3">Current Role</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="body-regular text-gray-600">Role:</span>
-                  <span className="body-medium text-gray-900">{roleDisplayNames[admin?.role]}</span>
+      {/* Main Layout content (centered max width). On desktop add left margin equal to sidebar width + leftGap when sidebar visible.
+          mainPaddingTop prevents content from sliding under the sticky header when scrolling. */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10" style={{
+        paddingTop: mainPaddingTop,
+        marginLeft: !isMobile && sidebarOpen ? (sidebarWidth + leftGap) : 0,
+        transition: 'margin-left 0.28s ease-in-out'
+      }}>
+         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
+          <main style={{ flex: 1, minWidth: 0, paddingLeft: !isMobile ? leftGap : 0 }}>
+            {/* Hero / big title */}
+            <div style={{ background: '#fff', borderRadius: 12, padding: 28, border: `4px solid #000`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginTop: 0 }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e6f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="toggle-left" size="sm" style={{ color: theme.primary }} />
+                  </div>
+                  <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>News Marketplace Dashboard</h1>
                 </div>
-                <div className="flex justify-between">
-                  <span className="body-regular text-gray-600">Level:</span>
-                  <span className="body-medium text-gray-900">{getRoleLevel()}</span>
+                <p style={{ marginTop: 8, color: '#6b7280' }}>Manage news content, sources, and reports.</p>
+              </div>
+
+              <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
+                <div style={getRoleStyle(admin?.role)}>Role: {roleDisplayNames[admin?.role] || 'Master Admin'}</div>
+                <div style={{ fontSize: 12, color: '#6b7280' }}>Last login: {admin?.last_login ? new Date(admin.last_login).toLocaleString() : '—'}</div>
+                <button onClick={logout} style={{ ...btnPrimary, marginTop: 6 }}>Logout</button>
+              </div>
+            </div>
+
+            {/* Stats grid */}
+            {/* small helper data + render */}
+            {/* ...existing code... but replace with mapping below */}
+            {/* stats array & rendering */}
+            {(() => {
+              const stats = [
+                { id: 1, label: 'Total News', value: 1094, bg: '#e6f0ff', icon: 'document-text' },
+                { id: 2, label: 'Sections', value: 8, bg: '#dcfce7', icon: 'list-bullet' },
+                { id: 3, label: 'Sources', value: 165, bg: '#efe9ff', icon: 'boxes' },
+                { id: 4, label: 'Topics', value: 89, bg: '#fee2e2', icon: 'tag' },
+                { id: 5, label: 'Video Reports', value: 12, bg: '#e0f2fe', icon: 'video' },
+                { id: 6, label: 'Registered Users', value: 1, bg: '#fff7ed', icon: 'users' }
+              ];
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 18, marginTop: 20 }}>
+                  {stats.map(s => (
+                    <div key={s.id} style={{ background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 8px 20px rgba(2,6,23,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div style={{ width: 52, height: 52, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Icon name={s.icon} size="lg" style={{ color: theme.primary }} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12, color: '#6b7280' }}>{s.label}</div>
+                          <div style={{ fontSize: 22, fontWeight: 800 }}>{s.value}</div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex justify-between">
-                  <span className="body-regular text-gray-600">Last Login:</span>
-                  <span className="body-medium text-gray-900">
-                    {admin?.last_login ? new Date(admin.last_login).toLocaleString() : 'Never'}
-                  </span>
+              );
+            })()}
+
+            {/* Role Information (improved UI) */}
+            <div style={{ height: 24 }} /> {/* spacer */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              {/* Current Role Card */}
+              <div style={{ background: '#fff', borderRadius: 12, padding: 18, border: `1px solid ${theme.muted}`, boxShadow: '0 6px 18px rgba(2,6,23,0.04)' }}>
+                <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: theme.text }}>Your Permissions</h3>
+                <div style={{ marginTop: 12 }}>
+                  <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>Current Role</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ padding: '8px 12px', borderRadius: 999, background: (theme.roleColors[admin?.role]?.bg || theme.roleColors.other.bg), color: (theme.roleColors[admin?.role]?.color || theme.roleColors.other.color), fontWeight: 800 }}>
+                      {roleDisplayNames[admin?.role] || '—'}
+                    </div>
+                    <div style={{ fontSize: 12, color: '#6b7280' }}>
+                      <div>Level <strong style={{ color: theme.text }}>{getRoleLevel()}</strong></div>
+                      <div style={{ marginTop: 6 }}>Last Login <div style={{ fontWeight: 600 }}>{admin?.last_login ? new Date(admin.last_login).toLocaleString() : 'Never'}</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Access Rights Card */}
+              <div style={{ background: '#fff', borderRadius: 12, padding: 18, border: `1px solid ${theme.muted}`, boxShadow: '0 6px 18px rgba(2,6,23,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontSize: 13, color: '#6b7280', fontWeight: 700 }}>Access Rights</div>
+                </div>
+                <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {[
+                    { key: 'sys', label: 'System Administration', ok: hasRole('super_admin') },
+                    { key: 'content', label: 'Content Management', ok: hasAnyRole(['super_admin', 'content_manager']) },
+                    { key: 'editorial', label: 'Editorial Access', ok: hasAnyRole(['super_admin', 'content_manager', 'editor']) }
+                  ].map(item => (
+                    <div key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 999, background: item.ok ? (theme.roleColors.other.bg) : '#fff5f5', border: `1px solid ${item.ok ? 'transparent' : theme.danger}` }}>
+                      <Icon name={item.ok ? 'check-circle' : 'x-circle'} size="sm" style={{ color: item.ok ? theme.success : theme.danger }} />
+                      <div style={{ fontSize: 13, color: '#0f172a' }}>{item.label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-            <div>
-              <h4 className="heading-4 text-gray-900 mb-3">Access Rights</h4>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <Icon
-                    name={hasRole('super_admin') ? "check-circle" : "x-circle"}
-                    size="sm"
-                    className={`mr-2 ${hasRole('super_admin') ? 'text-green-600' : 'text-red-600'}`}
-                  />
-                  <span className="body-regular text-gray-600">System Administration</span>
-                </div>
-                <div className="flex items-center">
-                  <Icon
-                    name={hasAnyRole(['super_admin', 'content_manager']) ? "check-circle" : "x-circle"}
-                    size="sm"
-                    className={`mr-2 ${hasAnyRole(['super_admin', 'content_manager']) ? 'text-green-600' : 'text-red-600'}`}
-                  />
-                  <span className="body-regular text-gray-600">Content Management</span>
-                </div>
-                <div className="flex items-center">
-                  <Icon
-                    name={hasAnyRole(['super_admin', 'content_manager', 'editor']) ? "check-circle" : "x-circle"}
-                    size="sm"
-                    className={`mr-2 ${hasAnyRole(['super_admin', 'content_manager', 'editor']) ? 'text-green-600' : 'text-red-600'}`}
-                  />
-                  <span className="body-regular text-gray-600">Editorial Access</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </main>
+           </main>
+         </div>
+       </div>
     </div>
   );
 };

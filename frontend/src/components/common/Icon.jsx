@@ -1,74 +1,178 @@
 import React from 'react';
 
-// Icon component using Heroicons style
-const Icon = ({
-  name,
-  size = 'md',
-  color = 'current',
-  className = '',
-  ...props
-}) => {
-  const sizeMap = {
-    xs: 12,
-    sm: 16,
-    md: 24,
-    lg: 32,
-    xl: 48,
-  };
+/**
+ * Minimal inline SVG Icon component.
+ * - Props: name (string), size (one of 'sm','lg','xl','2xl' or number), className, style
+ * - Returns a mapped inline SVG for known names, otherwise a neutral placeholder.
+ *
+ * This avoids runtime "Icon not found" warnings and keeps the API compatible.
+ */
 
-  // Icon paths (using Heroicons v2 outline style)
-  const iconPaths = {
-    'home': 'M11.47 3.84a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.06l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 001.061 1.06l8.69-8.69z M12 5.432l-8.159 8.159c.03.05.058.101.086.152L12 21.742l8.159-8.159c.028-.05.056-.101.086-.152L12 5.432z',
-    'user': 'M10.5 8a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0zM10.5 14c0-1.5-3-2.5-4.5-2.5s-4.5.5-4.5 2.5',
-    'search': 'M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z',
-    'menu': 'M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5',
-    'close': 'M6 18L18 6M6 6l12 12',
-    'chevron-down': 'M19.5 8.25l-7.5 7.5-7.5-7.5',
-    'chevron-up': 'M4.5 15.75l7.5-7.5 7.5 7.5',
-    'arrow-left': 'M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18',
-    'arrow-right': 'M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3',
-    'plus': 'M12 4.5v15m7.5-7.5h-15',
-    'pencil': 'M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125',
-    'trash': 'M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0',
-    'check-circle': 'M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-    'x-circle': 'M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
-    'exclamation-triangle': 'M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z',
-    'information-circle': 'M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 3a.75.75 0 001.416.278l.708-3a2.25 2.25 0 00-2.122-2.658zM12 7.5a.75.75 0 100-1.5.75.75 0 000 1.5zM12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z',
-    'bell': 'M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0',
-    'eye': 'M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
-    'eye-slash': 'M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894l4.293 4.293m-4.293-4.293L21 21',
-    'lock-closed': 'M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z',
-    'lock-open': 'M13.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75M3.75 21.75h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H3.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z',
-    'envelope': 'M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25H4.5a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75',
-    'key': 'M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z',
-  };
-
-  const path = iconPaths[name];
-
-  if (!path) {
-    console.warn(`Icon "${name}" not found`);
-    return null;
-  }
-
-  return (
-    <svg
-      className={`icon icon--${size} ${className}`}
-      width={sizeMap[size]}
-      height={sizeMap[size]}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      style={{ color: color !== 'current' ? `var(--${color})` : undefined }}
-      {...props}
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="2"
-        d={path}
-      />
-    </svg>
-  );
+const SIZE_MAP = {
+  sm: 16,
+  md: 20,
+  lg: 24,
+  xl: 28,
+  '2xl': 32
 };
 
-export default Icon;
+export default function Icon({ name = '', size = 'md', className = '', style = {}, ...rest }) {
+  const s = typeof size === 'number' ? size : (SIZE_MAP[size] || SIZE_MAP.md);
+  const common = { width: s, height: s, viewBox: '0 0 24 24', fill: 'none', xmlns: 'http://www.w3.org/2000/svg', stroke: 'currentColor', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' };
+
+  // Simple mapping of icon names used in the admin UI -> inline SVG paths
+  switch (name) {
+    case 'shield-check':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M12 2l7 3v5c0 5-3.5 9.5-7 11-3.5-1.5-7-6-7-11V5l7-3z" />
+          <path d="M9 12l2 2 4-4" strokeWidth="2" />
+        </svg>
+      );
+
+    case 'arrow-right-on-rectangle':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <rect x="3" y="5" width="14" height="14" rx="2" />
+          <path d="M10 12h7" />
+          <path d="M14 8l4 4-4 4" />
+        </svg>
+      );
+
+    case 'document-text':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+          <path d="M14 2v6h6" />
+          <path d="M8 13h8M8 17h8M8 9h4" />
+        </svg>
+      );
+
+    case 'arrow-down-tray':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M12 3v12" />
+          <path d="M8 11l4 4 4-4" />
+          <path d="M21 21H3" />
+        </svg>
+      );
+
+    case 'cog-6-tooth':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z" />
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09c.7 0 1.27-.4 1.51-1a1.65 1.65 0 0 0-.33-1.82L4.3 6.3A2 2 0 0 1 7.12 3.47l.06.06c.5.5 1.2.66 1.82.33.44-.22.93-.33 1.42-.33H12a2 2 0 0 1 4 0h.09c.49 0 .98.11 1.42.33.62.33 1.32.17 1.82-.33l.06-.06A2 2 0 0 1 20.7 6.3l-.06.06c-.5.5-.66 1.2-.33 1.82.22.44.33.93.33 1.42V12a2 2 0 0 1 0 4h-.09c-.7 0-1.27.4-1.51 1z" />
+        </svg>
+      );
+
+    case 'toggle-left':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <rect x="2" y="7" width="20" height="10" rx="5" />
+          <circle cx="8" cy="12" r="3" />
+        </svg>
+      );
+
+    case 'list-bullet':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M8 6h13M8 12h13M8 18h13" />
+          <path d="M3 6h.01M3 12h.01M3 18h.01" />
+        </svg>
+      );
+
+    case 'boxes':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          <path d="M7 8.5l5 3 5-3" />
+        </svg>
+      );
+
+    case 'tag':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M20.59 13.41L13 6 4 6v8l9 8 9-8v-0z" />
+          <circle cx="7.5" cy="7.5" r="1.5" />
+        </svg>
+      );
+
+    case 'video':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <rect x="2" y="5" width="15" height="14" rx="2" />
+          <path d="M23 7l-6 4v2l6 4V7z" />
+        </svg>
+      );
+
+    case 'users':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M17 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M9 21v-2a4 4 0 0 1 3-3.87" />
+          <path d="M12 7a4 4 0 1 0 0 8" />
+        </svg>
+      );
+
+    case 'home':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M3 9l9-7 9 7" />
+          <path d="M9 22V12h6v10" />
+        </svg>
+      );
+
+    case 'key':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M3 11a5 5 0 1 0 7 7L21 7l-4-4L10 10" />
+        </svg>
+      );
+
+    case 'pencil-square':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M16 3l5 5" />
+          <path d="M17 6l-10 10H3v-4L13 2z" />
+        </svg>
+      );
+
+    case 'chart-bar':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M3 3v18h18" />
+          <path d="M7 12v6" />
+          <path d="M12 8v10" />
+          <path d="M17 4v14" />
+        </svg>
+      );
+
+    case 'check-circle':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9 12l2 2 4-4" />
+        </svg>
+      );
+
+    case 'x-circle':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <circle cx="12" cy="12" r="9" />
+          <path d="M15 9l-6 6M9 9l6 6" />
+        </svg>
+      );
+
+    default:
+      // neutral placeholder: square with first letter (keeps layout stable)
+      const label = (name || '').split('-').map(p => p[0]).join('').slice(0, 2).toUpperCase() || '?';
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <rect x="2" y="2" width="20" height="20" rx="3" fill="#e5e7eb" stroke="none" />
+          <text x="12" y="15" fontSize={s / 2.5} textAnchor="middle" fill="#374151" fontFamily="Arial, Helvetica, sans-serif" fontWeight="700">
+            {label}
+          </text>
+        </svg>
+      );
+  }
+}

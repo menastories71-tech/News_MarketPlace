@@ -29,6 +29,16 @@ class AuthController {
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
   ];
 
+  verifyForgotPasswordOTPValidation = [
+    body('email').isEmail().normalizeEmail(),
+    body('otp').isLength({ min: 6, max: 6 }).isNumeric().withMessage('OTP must be 6 digits'),
+  ];
+
+  resetPasswordWithOTPValidation = [
+    body('token').exists().withMessage('Reset token is required'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
+  ];
+
   // Register user
   async register(req, res) {
     try {
@@ -207,7 +217,51 @@ class AuthController {
     }
   }
 
-  // Reset password
+  // Verify forgot password OTP
+  async verifyForgotPasswordOTP(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: errors.array()
+        });
+      }
+
+      const { email, otp } = req.body;
+
+      const result = await authService.verifyForgotPasswordOTP(email, otp);
+
+      res.json(result);
+    } catch (error) {
+      console.error('Verify forgot password OTP error:', error);
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  // Reset password with OTP verification
+  async resetPasswordWithOTP(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: errors.array()
+        });
+      }
+
+      const { token, password } = req.body;
+
+      const result = await authService.resetPasswordWithOTP(token, password);
+
+      res.json(result);
+    } catch (error) {
+      console.error('Reset password with OTP error:', error);
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  // Reset password (legacy method for backward compatibility)
   async resetPassword(req, res) {
     try {
       const errors = validationResult(req);
