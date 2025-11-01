@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const authService = require('../services/authService');
+const adminAuthService = require('../services/adminAuthService');
 
-// Middleware to verify JWT token
+// Middleware to verify JWT token for regular users
 const verifyToken = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -19,7 +20,25 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-// Middleware to verify refresh token from cookies
+// Middleware to verify JWT token for admins
+const verifyAdminToken = (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+
+    if (!token) {
+      return res.status(401).json({ error: 'Admin access token required' });
+    }
+
+    const decoded = adminAuthService.verifyAccessToken(token);
+    req.admin = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid or expired admin token' });
+  }
+};
+
+// Middleware to verify refresh token from cookies for regular users
 const verifyRefreshToken = (req, res, next) => {
   try {
     const refreshToken = req.cookies.refreshToken;
@@ -33,6 +52,23 @@ const verifyRefreshToken = (req, res, next) => {
     next();
   } catch (error) {
     return res.status(401).json({ error: 'Invalid or expired refresh token' });
+  }
+};
+
+// Middleware to verify refresh token from cookies for admins
+const verifyAdminRefreshToken = (req, res, next) => {
+  try {
+    const refreshToken = req.cookies.adminRefreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: 'Admin refresh token required' });
+    }
+
+    const decoded = adminAuthService.verifyRefreshToken(refreshToken);
+    req.admin = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid or expired admin refresh token' });
   }
 };
 
@@ -68,6 +104,47 @@ const requireRole = (roles) => {
   };
 };
 
+// Middleware to check admin roles
+const requireAdminRole = (roles) => {
+  return (req, res, next) => {
+    if (!req.admin) {
+      return res.status(401).json({ error: 'Admin authentication required' });
+    }
+
+    if (!roles.includes(req.admin.role)) {
+      return res.status(403).json({ error: 'Insufficient admin permissions' });
+    }
+
+    next();
+  };
+};
+
+// Middleware to check admin role level (higher or equal)
+const requireAdminRoleLevel = (minLevel) => {
+  return (req, res, next) => {
+    if (!req.admin) {
+      return res.status(401).json({ error: 'Admin authentication required' });
+    }
+
+    const roleLevels = {
+      'super_admin': 5,
+      'content_manager': 4,
+      'editor': 3,
+      'registered_user': 2,
+      'agency': 1,
+      'other': 0
+    };
+
+    const adminLevel = roleLevels[req.admin.role] || 0;
+
+    if (adminLevel < minLevel) {
+      return res.status(403).json({ error: 'Insufficient admin role level' });
+    }
+
+    next();
+  };
+};
+
 // Middleware to check if user is verified
 const requireVerified = (req, res, next) => {
   if (!req.user) {
@@ -84,7 +161,11 @@ const requireVerified = (req, res, next) => {
 module.exports = {
   verifyToken,
   verifyRefreshToken,
+  verifyAdminToken,
+  verifyAdminRefreshToken,
   optionalAuth,
   requireRole,
+  requireAdminRole,
+  requireAdminRoleLevel,
   requireVerified
 };
