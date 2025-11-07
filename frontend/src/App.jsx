@@ -10,6 +10,7 @@ import UserFooter from './components/common/UserFooter';
 import FeatureSlider from './components/common/FeatureSlider';
 import TopHeader from './components/common/TopHeader';
 import ServiceHeader from './components/common/ServiceHeader';
+import TermsAndConditions from './pages/TermsAndConditions';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -18,11 +19,15 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Icon name="arrow-path" size="lg" className="animate-spin text-primary mx-auto mb-4" />
-          <p className="body-regular">Loading...</p>
+      <div className="min-h-screen flex flex-col">
+        <UserHeader />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Icon name="arrow-path" size="lg" className="animate-spin text-primary mx-auto mb-4" />
+            <p className="body-regular">Loading...</p>
+          </div>
         </div>
+        <UserFooter />
       </div>
     );
   }
@@ -37,10 +42,14 @@ const AdminProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <Icon name="arrow-path" size="lg" className="animate-spin text-primary mx-auto mb-4" />
-          <p className="body-regular">Loading admin panel...</p>
+        <UserHeader />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Icon name="arrow-path" size="lg" className="animate-spin text-primary mx-auto mb-4" />
+            <p className="body-regular">Loading admin panel...</p>
+          </div>
         </div>
+        <UserFooter />
       </div>
     );
   }
@@ -121,16 +130,7 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <h1 className="heading-3 text-primary">Dashboard</h1>
-            <button onClick={logout} className="btn-secondary">
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
+      <UserHeader />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-lg shadow-sm p-8">
@@ -156,6 +156,8 @@ const DashboardPage = () => {
           </div>
         </div>
       </main>
+
+      <UserFooter />
     </div>
   );
 };
@@ -169,6 +171,7 @@ function App() {
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
+            <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route
               path="/dashboard"
               element={

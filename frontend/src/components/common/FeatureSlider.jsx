@@ -11,8 +11,9 @@ const FeatureSlider = () => {
       subtitle: "Monetize Your Platform",
       icon: "tag",
       placeholderIcon: "bullhorn",
-      color: "emerald",
-      bgGradient: "from-emerald-400 to-teal-500",
+      color: "success",
+      bgGradient: "from-success-light to-success",
+      image: "/api/placeholder/400/320", // Relevant advertising/marketing image
       description: "Transform your platform into a revenue-generating powerhouse with our intelligent advertising solutions."
     },
     {
@@ -21,8 +22,9 @@ const FeatureSlider = () => {
       subtitle: "Earn from Content Creation",
       icon: "trending-up",
       placeholderIcon: "chart-bar",
-      color: "purple",
-      bgGradient: "from-purple-400 to-pink-500",
+      color: "info",
+      bgGradient: "from-info-light to-info",
+      image: "/api/placeholder/400/320", // Income/money growth image
       description: "Unlock new income streams through our comprehensive content monetization and contributor reward system."
     },
     {
@@ -31,8 +33,9 @@ const FeatureSlider = () => {
       subtitle: "Partner & Earn Commissions",
       icon: "users",
       placeholderIcon: "handshake",
-      color: "blue",
-      bgGradient: "from-blue-400 to-indigo-500",
+      color: "primary",
+      bgGradient: "from-primary-light to-primary",
+      image: "/api/placeholder/400/320", // Partnership/handshake image
       description: "Expand your network and earnings potential through our exclusive partnership and referral programmes."
     },
     {
@@ -41,8 +44,9 @@ const FeatureSlider = () => {
       subtitle: "Professional Content Creation",
       icon: "cog",
       placeholderIcon: "document-text",
-      color: "orange",
-      bgGradient: "from-orange-400 to-red-500",
+      color: "warning",
+      bgGradient: "from-warning-light to-warning",
+      image: "/api/placeholder/400/320", // Publishing/tools image
       description: "Elevate your content creation with cutting-edge tools designed for modern digital publishing."
     }
   ];
@@ -62,107 +66,83 @@ const FeatureSlider = () => {
   }, []);
 
   return (
-    <section className="bg-gradient-to-br from-gray-50 to-white py-16 relative overflow-hidden">
+    <section className="bg-gradient-to-br from-gray-50 to-white py-4 md:py-6 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='20' cy='20' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }}></div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <h2 className="heading-2 text-gray-900 mb-4">Platform Features</h2>
-          <p className="body-large text-gray-600 max-w-2xl mx-auto">
-            Discover powerful tools and opportunities designed to maximize your success on our news marketplace platform.
-          </p>
-        </div>
-
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="relative">
           {/* Slider Container */}
-          <div className="overflow-hidden rounded-2xl shadow-2xl">
+          <div className="overflow-hidden rounded-lg md:rounded-xl shadow-lg md:shadow-xl">
             <div
               className="flex transition-transform duration-500 ease-in-out"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
               {features.map((feature) => (
                 <div key={feature.id} className="w-full flex-shrink-0">
-                  <div className="bg-white relative">
-                    <div className="md:flex">
-                      {/* Icon Placeholder Section */}
-                      <div className="md:w-1/2 relative">
-                        <div className={`h-64 md:h-80 bg-gradient-to-br ${feature.bgGradient} flex flex-col items-center justify-center relative overflow-hidden`}>
-                          {/* Background Pattern */}
-                          <div className="absolute inset-0 opacity-10">
-                            <div className="absolute inset-0" style={{
-                              backgroundImage: `url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.3'%3E%3Cpath d='M20 20c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10zm10 0c0-5.5-4.5-10-10-10s-10 4.5-10 10 4.5 10 10 10 10-4.5 10-10z'/%3E%3C/g%3E%3C/svg%3E")`,
-                            }}></div>
-                          </div>
-                          
-                          {/* Main Icon */}
-                          <div className="relative z-10 mb-4">
-                            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-6 border border-white/30">
-                              <Icon name={feature.placeholderIcon} size="2xl" className="text-white" />
+                  <div className="bg-white relative min-h-[300px] md:h-64 lg:h-72">
+                    <div className="flex flex-col md:flex-row h-full">
+                      {/* Image Section - Full width on mobile, 1/3 on desktop */}
+                      <div className="w-full md:w-1/3 relative h-32 md:h-full">
+                        <img
+                          src={feature.image}
+                          alt={feature.title}
+                          className="w-full h-full object-cover md:border-r border-gray-200"
+                          onError={(e) => {
+                            // Fallback to icon-based placeholder if image fails
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                        {/* Icon Fallback */}
+                        <div className="absolute inset-0 bg-gray-100 hidden items-center justify-center md:border-r border-gray-200">
+                          <div className="text-center">
+                            <div className="w-12 h-12 md:w-16 md:h-16 mx-auto mb-2 md:mb-3 bg-gray-200 rounded-lg flex items-center justify-center">
+                              <Icon name={feature.placeholderIcon} size="lg" className="text-gray-500 md:text-xl" />
                             </div>
-                          </div>
-                          
-                          {/* Floating Icons */}
-                          <div className="absolute top-6 left-6 opacity-20">
-                            <Icon name="star" size="lg" className="text-white" />
-                          </div>
-                          <div className="absolute top-12 right-8 opacity-20">
-                            <Icon name="lightning-bolt" size="md" className="text-white" />
-                          </div>
-                          <div className="absolute bottom-8 left-8 opacity-20">
-                            <Icon name="heart" size="md" className="text-white" />
-                          </div>
-                          <div className="absolute bottom-12 right-6 opacity-20">
-                            <Icon name="sparkles" size="lg" className="text-white" />
-                          </div>
-                          
-                          {/* Title Overlay */}
-                          <div className="absolute bottom-0 left-0 right-0 bg-black/30 backdrop-blur-sm text-white p-4">
-                            <h4 className="text-lg font-bold">{feature.title}</h4>
-                            <p className="text-sm opacity-90">{feature.subtitle}</p>
+                            <p className="text-xs md:text-sm text-gray-500 font-medium px-2">{feature.title}</p>
                           </div>
                         </div>
                       </div>
-                      
-                      {/* Content Section */}
-                      <div className="md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative">
-                        <div className="flex items-center mb-6">
-                          <div className={`p-4 rounded-2xl bg-gradient-to-br ${feature.bgGradient} mr-6 shadow-lg border border-gray-100 transform rotate-3 hover:rotate-0 transition-transform duration-300`}>
-                            <Icon name={feature.icon} size="xl" className="text-white" />
+
+                      {/* Content Section - Full width on mobile, 2/3 on desktop */}
+                      <div className="w-full md:w-2/3 p-3 md:p-4 lg:p-6 flex flex-col justify-center">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center mb-3 md:mb-4">
+                          <div className={`p-2 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-br ${feature.bgGradient} mb-2 sm:mb-0 sm:mr-3 md:mr-4 shadow-md md:shadow-lg border border-gray-100 transform rotate-1 hover:rotate-0 transition-transform duration-300`}>
+                            <Icon name={feature.icon} size="md" className="text-gray-900 md:text-lg" />
                           </div>
-                          <div>
-                            <h3 className="text-2xl font-bold text-gray-900 mb-2">{feature.title}</h3>
-                            <p className="text-lg text-gray-600 font-semibold">{feature.subtitle}</p>
+                          <div className="flex-1">
+                            <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 leading-tight">{feature.title}</h3>
+                            <p className="text-sm md:text-base lg:text-lg text-gray-600 font-semibold">{feature.subtitle}</p>
                           </div>
                         </div>
                         
-                        <p className="text-gray-700 leading-relaxed mb-8 text-lg">
+                        <p className="text-gray-700 leading-relaxed mb-4 md:mb-6 text-sm md:text-base lg:text-lg">
                           {feature.description}
                         </p>
                         
-                        <div className="space-y-4">
-                          <button className={`w-full md:w-auto px-8 py-3 bg-gradient-to-r ${feature.bgGradient} text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300`}>
+                        <div className="space-y-3">
+                          <button className={`w-full sm:w-auto px-4 md:px-6 py-2 md:py-3 bg-white text-gray-900 border-2 border-gray-200 hover:border-${feature.color} font-semibold rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-300 text-sm md:text-base`}>
                             Learn More
                           </button>
                           
                           {/* Feature Highlights */}
-                          <div className="flex items-center space-x-6 text-sm text-gray-500 mt-6">
-                            <div className="flex items-center">
-                              <Icon name="check-circle" size="sm" className="text-green-500 mr-2" />
-                              <span>Easy Setup</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-3 lg:gap-4 text-xs md:text-sm text-gray-500 mt-3 md:mt-4">
+                            <div className="flex items-center justify-center sm:justify-start">
+                              <Icon name="check-circle" size="xs" className="text-green-500 mr-1 flex-shrink-0" />
+                              <span className="whitespace-nowrap">Easy Setup</span>
                             </div>
-                            <div className="flex items-center">
-                              <Icon name="check-circle" size="sm" className="text-green-500 mr-2" />
-                              <span>24/7 Support</span>
+                            <div className="flex items-center justify-center sm:justify-start">
+                              <Icon name="check-circle" size="xs" className="text-green-500 mr-1 flex-shrink-0" />
+                              <span className="whitespace-nowrap">24/7 Support</span>
                             </div>
-                            <div className="flex items-center">
-                              <Icon name="check-circle" size="sm" className="text-green-500 mr-2" />
-                              <span>Instant Results</span>
+                            <div className="flex items-center justify-center sm:justify-start">
+                              <Icon name="check-circle" size="xs" className="text-green-500 mr-1 flex-shrink-0" />
+                              <span className="whitespace-nowrap">Instant Results</span>
                             </div>
                           </div>
                         </div>
@@ -174,42 +154,26 @@ const FeatureSlider = () => {
             </div>
           </div>
 
-          {/* Navigation Arrows */}
-          <button
-            onClick={prevSlide}
-            className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm p-4 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 hover:border-blue-400 hover:bg-blue-50 z-20"
-            aria-label="Previous slide"
-          >
-            <Icon name="chevron-left" size="lg" className="text-gray-700 hover:text-blue-600" />
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/95 backdrop-blur-sm p-4 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-200 hover:border-blue-400 hover:bg-blue-50 z-20"
-            aria-label="Next slide"
-          >
-            <Icon name="chevron-right" size="lg" className="text-gray-700 hover:text-blue-600" />
-          </button>
-
           {/* Enhanced Dots Indicator */}
-          <div className="flex justify-center mt-8 space-x-4">
+          <div className="flex justify-center mt-4 md:mt-6 space-x-2 md:space-x-3">
             {features.map((feature, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentSlide(index)}
                 className={`relative transition-all duration-300 group ${
                   index === currentSlide
-                    ? 'scale-125'
-                    : 'hover:scale-110'
+                    ? 'scale-110 md:scale-125'
+                    : 'hover:scale-105 md:hover:scale-110'
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               >
-                <div className={`w-4 h-4 rounded-full transition-all duration-300 ${
+                <div className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all duration-300 ${
                   index === currentSlide
-                    ? `bg-gradient-to-r ${feature.bgGradient} shadow-lg`
-                    : 'bg-gray-300 hover:bg-gray-400 group-hover:shadow-md'
+                    ? `bg-${feature.color} shadow-md`
+                    : 'bg-gray-300 hover:bg-gray-400 group-hover:shadow-sm'
                 }`} />
                 {index === currentSlide && (
-                  <div className={`absolute inset-0 w-4 h-4 rounded-full bg-gradient-to-r ${feature.bgGradient} opacity-50 animate-ping`} />
+                  <div className={`absolute inset-0 w-2.5 h-2.5 md:w-3 md:h-3 rounded-full bg-${feature.color} opacity-50 animate-ping`} />
                 )}
               </button>
             ))}
