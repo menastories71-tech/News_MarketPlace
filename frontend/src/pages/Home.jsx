@@ -51,7 +51,7 @@ const Home = () => {
       <UserFooter />
 
       {/* Auth Modal */}
-      {showAuth && <AuthModal onClose={handleCloseAuth} />}
+      <AuthModal isOpen={showAuth} onClose={handleCloseAuth} />
     </div>
   );
 };

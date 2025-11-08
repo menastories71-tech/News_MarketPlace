@@ -33,4 +33,16 @@ router.get('/editor-plus', verifyAdminToken, requireAdminRole(['super_admin', 'c
   res.json({ message: 'This is accessible to editors and above' });
 });
 
+// User management routes
+router.get('/users', verifyAdminToken, requireAdminRole(['super_admin', 'content_manager']), async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const users = await User.findAll();
+    res.json({ users });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

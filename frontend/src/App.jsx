@@ -6,6 +6,7 @@ import AuthModal from './components/auth/AuthModal';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
 import ContactManagement from './components/admin/ContactManagement';
+import UserManagement from './components/admin/UserManagement';
 import UserHeader from './components/common/UserHeader';
 import UserFooter from './components/common/UserFooter';
 import FeatureSlider from './components/common/FeatureSlider';
@@ -114,9 +115,13 @@ const HomePage = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { isAuthenticated } = useAuth();
 
+  const handleShowAuth = () => {
+    setShowAuthModal(true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-80">
-      <UserHeader onShowAuth={() => setShowAuthModal(true)} />
+      <UserHeader onShowAuth={handleShowAuth} />
 
       {/* Feature Slider */}
       <FeatureSlider />
@@ -136,7 +141,7 @@ const HomePage = () => {
 
           {!isAuthenticated && (
             <button
-              onClick={() => setShowAuthModal(true)}
+              onClick={handleShowAuth}
               className="btn-primary text-lg px-10 py-4"
             >
               Get Started
@@ -259,6 +264,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <ContactManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <UserManagement />
                   </div>
                 </AdminProtectedRoute>
               }

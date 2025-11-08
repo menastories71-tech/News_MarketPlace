@@ -4,23 +4,34 @@ import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 
 // ----------------- CHANGES START -----------------
-// Add a small theme/palette (tweak hex values to match PDF exactly if you want)
+// Brand colors from Color palette .pdf - using only defined colors
 const theme = {
-	primary: '#0D3B66',    // primary brand (PDF: primary color)
-	secondary: '#F95738',  // accent / CTA
-	accent: '#2EC4B6',     // accent / highlights
-	muted: '#F1F5F9',      // background surfaces
-	text: '#0F172A',       // primary text
-	success: '#16A34A',
-	warning: '#F59E0B',
-	danger: '#EF4444',
+	primary: '#1976D2',        // Primary Blue
+	primaryDark: '#0D47A1',    // Primary Dark
+	primaryLight: '#E3F2FD',   // Primary Light
+	secondary: '#00796B',      // Secondary Teal
+	secondaryDark: '#004D40',  // Secondary Dark
+	secondaryLight: '#E0F2F1', // Secondary Light
+	success: '#4CAF50',        // Success Green
+	warning: '#FF9800',        // Warning Orange
+	danger: '#F44336',         // Error Red
+	info: '#9C27B0',           // Info Purple
+	textPrimary: '#212121',    // Text Primary
+	textSecondary: '#757575',  // Text Secondary
+	textDisabled: '#BDBDBD',   // Text Disabled
+	background: '#FFFFFF',     // Background
+	backgroundAlt: '#FAFAFA',  // Background Alt
+	backgroundSoft: '#F5F5F5', // Background Soft
+	borderLight: '#E0E0E0',    // Border Light
+	borderMedium: '#BDBDBD',   // Border Medium
+	borderDark: '#757575',     // Border Dark
 	roleColors: {
-		super_admin: { bg: '#FFE6E6', color: '#991B1B' },
-		content_manager: { bg: '#F5E9FF', color: '#6B21A8' },
-		editor: { bg: '#E8F2FF', color: '#1E3A8A' },
-		registered_user: { bg: '#E6FFFA', color: '#065F46' },
-		agency: { bg: '#FFF7ED', color: '#92400E' },
-		other: { bg: '#F3F4F6', color: '#111827' }
+		super_admin: { bg: '#E0F2F1', color: '#004D40' }, // Using secondary colors
+		content_manager: { bg: '#E3F2FD', color: '#0D47A1' }, // Using primary colors
+		editor: { bg: '#FAFAFA', color: '#212121' }, // Using neutral colors
+		registered_user: { bg: '#F5F5F5', color: '#757575' }, // Using neutral colors
+		agency: { bg: '#E0F2F1', color: '#00796B' }, // Using secondary colors
+		other: { bg: '#FAFAFA', color: '#757575' } // Using neutral colors
 	}
 };
 
@@ -44,8 +55,8 @@ const AdminDashboard = () => {
   const leftGap = 24; // extra gap between sidebar and centered content
   const sidebarStyles = {
     width: sidebarWidth,
-    backgroundColor: '#fff',
-    borderRight: `1px solid ${theme.muted}`,
+    backgroundColor: theme.background,
+    borderRight: `1px solid ${theme.borderLight}`,
     padding: 16,
     boxSizing: 'border-box',
     borderRadius: 8
@@ -73,10 +84,10 @@ const AdminDashboard = () => {
     'other': 'Other'
   };
 
-  // Small shared button styles to reflect PDF palette (use inline so no CSS file needed)
+  // Small shared button styles to reflect brand palette (use inline so no CSS file needed)
   const btnPrimary = {
     backgroundColor: theme.primary,
-    color: '#fff',
+    color: '#FFFFFF',
     padding: '0.625rem 1rem',
     borderRadius: '0.5rem',
     fontWeight: 600,
@@ -85,13 +96,14 @@ const AdminDashboard = () => {
     justifyContent: 'center',
     gap: '0.5rem',
     cursor: 'pointer',
-    border: 'none'
+    border: 'none',
+    boxShadow: `0 6px 18px rgba(25,118,210,0.14)`
   };
 
   const btnSecondary = {
-    backgroundColor: '#fff',
-    color: theme.text,
-    border: `1px solid ${theme.muted}`,
+    backgroundColor: '#FFFFFF',
+    color: theme.textPrimary,
+    border: `1px solid ${theme.borderLight}`,
     padding: '0.5rem 0.875rem',
     borderRadius: '0.5rem',
     fontWeight: 600,
@@ -144,9 +156,9 @@ const AdminDashboard = () => {
           position: 'sticky',
           top: 0,
           zIndex: headerZ,
-          backgroundColor: '#ffffff',           // ensure header is opaque white
+          backgroundColor: theme.background,           // ensure header is opaque white
           boxShadow: '0 6px 20px rgba(2,6,23,0.06)', // slightly stronger shadow
-          borderBottom: `1px solid ${theme.muted}`  // explicit bottom border to separate content
+          borderBottom: `1px solid ${theme.borderLight}`  // explicit bottom border to separate content
         }}
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10" style={{ minHeight: 64 }}>
@@ -173,7 +185,7 @@ const AdminDashboard = () => {
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Icon name="shield-check" size="lg" style={{ color: theme.primary }} />
+                <Icon name="shield-check" size="lg" style={{ color: '#1976D2' }} />
                 <span style={{ fontWeight: 700, fontSize: 18 }}>News Marketplace Admin</span>
               </div>
             </div>
@@ -230,16 +242,16 @@ const AdminDashboard = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e6f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name="toggle-left" size="sm" style={{ color: theme.primary }} />
+                    <Icon name="toggle-left" size="sm" style={{ color: '#1976D2' }} />
                   </div>
                   <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>News Marketplace Dashboard</h1>
                 </div>
-                <p style={{ marginTop: 8, color: '#6b7280' }}>Manage news content, sources, and reports.</p>
+                <p style={{ marginTop: 8, color: '#757575' }}>Manage news content, sources, and reports.</p>
               </div>
 
               <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
                 <div style={getRoleStyle(admin?.role)}>Role: {roleDisplayNames[admin?.role] || 'Master Admin'}</div>
-                <div style={{ fontSize: 12, color: '#6b7280' }}>Last login: {admin?.last_login ? new Date(admin.last_login).toLocaleString() : '—'}</div>
+                <div style={{ fontSize: 12, color: '#757575' }}>Last login: {admin?.last_login ? new Date(admin.last_login).toLocaleString() : '—'}</div>
                 <button onClick={logout} style={{ ...btnPrimary, marginTop: 6 }}>Logout</button>
               </div>
             </div>
@@ -263,10 +275,10 @@ const AdminDashboard = () => {
                     <div key={s.id} style={{ background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 8px 20px rgba(2,6,23,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                         <div style={{ width: 52, height: 52, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Icon name={s.icon} size="lg" style={{ color: theme.primary }} />
+                          <Icon name={s.icon} size="lg" style={{ color: '#1976D2' }} />
                         </div>
                         <div>
-                          <div style={{ fontSize: 12, color: '#6b7280' }}>{s.label}</div>
+                          <div style={{ fontSize: 12, color: '#757575' }}>{s.label}</div>
                           <div style={{ fontSize: 22, fontWeight: 800 }}>{s.value}</div>
                         </div>
                       </div>
@@ -283,12 +295,12 @@ const AdminDashboard = () => {
               <div style={{ background: '#fff', borderRadius: 12, padding: 18, border: `1px solid ${theme.muted}`, boxShadow: '0 6px 18px rgba(2,6,23,0.04)' }}>
                 <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: theme.text }}>Your Permissions</h3>
                 <div style={{ marginTop: 12 }}>
-                  <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 8 }}>Current Role</div>
+                  <div style={{ fontSize: 13, color: '#757575', marginBottom: 8 }}>Current Role</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                     <div style={{ padding: '8px 12px', borderRadius: 999, background: (theme.roleColors[admin?.role]?.bg || theme.roleColors.other.bg), color: (theme.roleColors[admin?.role]?.color || theme.roleColors.other.color), fontWeight: 800 }}>
                       {roleDisplayNames[admin?.role] || '—'}
                     </div>
-                    <div style={{ fontSize: 12, color: '#6b7280' }}>
+                    <div style={{ fontSize: 12, color: '#757575' }}>
                       <div>Level <strong style={{ color: theme.text }}>{getRoleLevel()}</strong></div>
                       <div style={{ marginTop: 6 }}>Last Login <div style={{ fontWeight: 600 }}>{admin?.last_login ? new Date(admin.last_login).toLocaleString() : 'Never'}</div></div>
                     </div>
@@ -299,7 +311,7 @@ const AdminDashboard = () => {
               {/* Access Rights Card */}
               <div style={{ background: '#fff', borderRadius: 12, padding: 18, border: `1px solid ${theme.muted}`, boxShadow: '0 6px 18px rgba(2,6,23,0.04)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: 13, color: '#6b7280', fontWeight: 700 }}>Access Rights</div>
+                  <div style={{ fontSize: 13, color: '#757575', fontWeight: 700 }}>Access Rights</div>
                 </div>
                 <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {[
@@ -309,7 +321,7 @@ const AdminDashboard = () => {
                   ].map(item => (
                     <div key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 999, background: item.ok ? (theme.roleColors.other.bg) : '#fff5f5', border: `1px solid ${item.ok ? 'transparent' : theme.danger}` }}>
                       <Icon name={item.ok ? 'check-circle' : 'x-circle'} size="sm" style={{ color: item.ok ? theme.success : theme.danger }} />
-                      <div style={{ fontSize: 13, color: '#0f172a' }}>{item.label}</div>
+                      <div style={{ fontSize: 13, color: '#212121' }}>{item.label}</div>
                     </div>
                   ))}
                 </div>

@@ -246,24 +246,28 @@ const ContactUs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#FAFAFA]">
       <UserHeader />
       <Toaster />
 
-      <main className="max-w-4xl mx-auto px-3 sm:px-4 lg:px-8 py-6 sm:py-12">
-        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 lg:p-8">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-5xl">
+        <div className="bg-[#FFFFFF] rounded-xl shadow-lg p-4 sm:p-6 lg:p-10 border border-[#E0E0E0]">
           <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 sm:mb-4">Contact Us</h1>
-            <p className="text-sm sm:text-base text-gray-600">
+            <div className="flex items-center justify-center mb-4">
+              <Icon name="chat-bubble-left" size="xl" style={{ color: '#1976D2', marginRight: '12px' }} />
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-[#212121]">Contact Us</h1>
+            </div>
+            <p className="text-sm sm:text-base text-[#757575] max-w-2xl mx-auto leading-relaxed">
               Get in touch with us. We'd love to hear from you.
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Name and Gender */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                  <Icon name="user" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
                   Name *
                 </label>
                 <input
@@ -271,78 +275,90 @@ const ContactUs = () => {
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
+                  className="w-full px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm sm:text-base bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
                   placeholder="Enter your full name"
                 />
-                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
+                {errors.name && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                  <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                  {errors.name}
+                </p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                  <Icon name="users" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
                   Gender *
                 </label>
                 <select
                   name="gender"
                   value={formData.gender}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
+                  className="w-full px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm sm:text-base bg-[#FFFFFF] text-[#212121] transition-all duration-200"
                 >
                   <option value="">Select gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
-                {errors.gender && <p className="text-red-500 text-sm mt-1">{errors.gender}</p>}
+                {errors.gender && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                  <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                  {errors.gender}
+                </p>}
               </div>
             </div>
 
-            {/* Number, Email, WhatsApp - Stack on mobile */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+            {/* Contact Information - Responsive Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Number *
+                <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                  <Icon name="phone" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
+                  Phone Number *
                 </label>
                 <input
                   type="tel"
                   name="number"
                   value={formData.number}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
+                  className="w-full px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm sm:text-base bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
                   placeholder="Enter phone number"
                 />
-                {errors.number && <p className="text-red-500 text-sm mt-1">{errors.number}</p>}
+                {errors.number && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                  <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                  {errors.number}
+                </p>}
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                  <Icon name="mail" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
                   Email *
                 </label>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
+                    className="flex-1 px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm sm:text-base bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
                     placeholder="Enter email"
                   />
                   <button
                     type="button"
                     onClick={() => sendOtp('email')}
                     disabled={otpSent.email || loading}
-                    className="px-3 sm:px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
+                    className="px-4 py-2.5 sm:py-3 bg-[#1976D2] text-[#FFFFFF] rounded-lg hover:bg-[#0D47A1] disabled:opacity-50 text-sm font-medium whitespace-nowrap transition-all duration-200 min-w-[100px]"
                   >
                     {otpSent.email ? 'Sent' : 'Send OTP'}
                   </button>
                 </div>
                 {otpSent.email && !otpVerified.email && (
-                  <div className="mt-2">
-                    <div className="flex gap-2">
+                  <div className="mt-3 space-y-2">
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <input
                         type="text"
                         value={otpValues.email}
                         onChange={(e) => handleOtpChange('email', e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
+                        className="flex-1 px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
                         placeholder="Enter OTP"
                         maxLength="6"
                       />
@@ -350,94 +366,111 @@ const ContactUs = () => {
                         type="button"
                         onClick={() => verifyOtp('email')}
                         disabled={loading}
-                        className="px-3 sm:px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
+                        className="px-4 py-2.5 bg-[#4CAF50] text-[#FFFFFF] rounded-lg hover:bg-[#388E3C] disabled:opacity-50 text-sm font-medium whitespace-nowrap transition-all duration-200 min-w-[100px]"
                       >
                         Verify
                       </button>
                     </div>
-                    <p className="text-sm text-blue-600 mt-1">
+                    <p className="text-xs sm:text-sm text-[#1976D2] flex items-start">
+                      <Icon name="information-circle" size="xs" style={{ color: '#1976D2', marginRight: '4px', marginTop: '2px', flexShrink: 0 }} />
                       Check your email for the OTP code. It may take a few minutes to arrive.
                     </p>
                   </div>
                 )}
                 {otpVerified.email && (
-                  <div className="mt-2 flex items-center text-green-600">
-                    <Icon name="check-circle" size="sm" className="mr-1" />
+                  <div className="mt-2 flex items-center text-[#4CAF50]">
+                    <Icon name="check-circle" size="sm" style={{ color: '#4CAF50', marginRight: '6px' }} />
                     <span className="text-sm">Email verified successfully!</span>
                   </div>
                 )}
-                {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
-                {errors.emailOtp && <p className="text-red-500 text-sm mt-1">{errors.emailOtp}</p>}
+                {errors.email && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                  <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                  {errors.email}
+                </p>}
+                {errors.emailOtp && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                  <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                  {errors.emailOtp}
+                </p>}
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  WhatsApp *
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="tel"
-                    name="whatsapp"
-                    value={formData.whatsapp}
-                    onChange={handleInputChange}
-                    className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
-                    placeholder="Enter WhatsApp number"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => sendOtp('whatsapp')}
-                    disabled={otpSent.whatsapp || loading}
-                    className="px-3 sm:px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dark disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
-                  >
-                    {otpSent.whatsapp ? 'Sent' : 'Send OTP'}
-                  </button>
-                </div>
-                {otpSent.whatsapp && !otpVerified.whatsapp && (
-                  <div className="mt-2">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={otpValues.whatsapp}
-                        onChange={(e) => handleOtpChange('whatsapp', e.target.value)}
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm sm:text-base"
-                        placeholder="Enter OTP"
-                        maxLength="6"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => verifyOtp('whatsapp')}
-                        disabled={loading}
-                        className="px-3 sm:px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:opacity-50 text-xs sm:text-sm whitespace-nowrap"
-                      >
-                        Verify
-                      </button>
-                    </div>
-                    <p className="text-sm text-blue-600 mt-1">
-                      Check your WhatsApp for the OTP code. It may take a few minutes to arrive.
-                    </p>
-                  </div>
-                )}
-                {otpVerified.whatsapp && (
-                  <div className="mt-2 flex items-center text-green-600">
-                    <Icon name="check-circle" size="sm" className="mr-1" />
-                    <span className="text-sm">WhatsApp verified successfully!</span>
-                  </div>
-                )}
-                {errors.whatsapp && <p className="text-red-500 text-sm mt-1">{errors.whatsapp}</p>}
-                {errors.whatsappOtp && <p className="text-red-500 text-sm mt-1">{errors.whatsappOtp}</p>}
+            {/* WhatsApp Number - Separate Line */}
+            <div>
+              <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                <Icon name="whatsapp" size="sm" style={{ color: '#25D366', marginRight: '8px' }} />
+                WhatsApp *
+              </label>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="tel"
+                  name="whatsapp"
+                  value={formData.whatsapp}
+                  onChange={handleInputChange}
+                  className="flex-1 px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm sm:text-base bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
+                  placeholder="Enter WhatsApp number"
+                />
+                <button
+                  type="button"
+                  onClick={() => sendOtp('whatsapp')}
+                  disabled={otpSent.whatsapp || loading}
+                  className="px-4 py-2.5 sm:py-3 bg-[#1976D2] text-[#FFFFFF] rounded-lg hover:bg-[#0D47A1] disabled:opacity-50 text-sm font-medium whitespace-nowrap transition-all duration-200 min-w-[100px]"
+                >
+                  {otpSent.whatsapp ? 'Sent' : 'Send OTP'}
+                </button>
               </div>
+              {otpSent.whatsapp && !otpVerified.whatsapp && (
+                <div className="mt-3 space-y-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <input
+                      type="text"
+                      value={otpValues.whatsapp}
+                      onChange={(e) => handleOtpChange('whatsapp', e.target.value)}
+                      className="flex-1 px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
+                      placeholder="Enter OTP"
+                      maxLength="6"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => verifyOtp('whatsapp')}
+                      disabled={loading}
+                      className="px-4 py-2.5 bg-[#4CAF50] text-[#FFFFFF] rounded-lg hover:bg-[#388E3C] disabled:opacity-50 text-sm font-medium whitespace-nowrap transition-all duration-200 min-w-[100px]"
+                    >
+                      Verify
+                    </button>
+                  </div>
+                  <p className="text-xs sm:text-sm text-[#1976D2] flex items-start">
+                    <Icon name="information-circle" size="xs" style={{ color: '#1976D2', marginRight: '4px', marginTop: '2px', flexShrink: 0 }} />
+                    Check your WhatsApp for the OTP code. It may take a few minutes to arrive.
+                  </p>
+                </div>
+              )}
+              {otpVerified.whatsapp && (
+                <div className="mt-2 flex items-center text-[#4CAF50]">
+                  <Icon name="check-circle" size="sm" style={{ color: '#4CAF50', marginRight: '6px' }} />
+                  <span className="text-sm">WhatsApp verified successfully!</span>
+                </div>
+              )}
+              {errors.whatsapp && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                {errors.whatsapp}
+              </p>}
+              {errors.whatsappOtp && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                {errors.whatsappOtp}
+              </p>}
             </div>
 
             {/* Query Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Query *
+              <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                <Icon name="question-mark-circle" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
+                Query Type *
               </label>
               <select
                 name="query"
                 value={formData.query}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-[#FFFFFF] text-[#212121] text-sm sm:text-base transition-all duration-200"
               >
                 <option value="">Select query type</option>
                 {queryOptions.map(option => (
@@ -446,88 +479,108 @@ const ContactUs = () => {
                   </option>
                 ))}
               </select>
-              {errors.query && <p className="text-red-500 text-sm mt-1">{errors.query}</p>}
+              {errors.query && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                {errors.query}
+              </p>}
             </div>
 
-            {/* Company Information - Stack on mobile */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Name
-                </label>
-                <input
-                  type="text"
-                  name="companyName"
-                  value={formData.companyName}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Enter company name"
-                />
-              </div>
+            {/* Company Information */}
+            <div className="bg-[#F8F9FA] p-4 sm:p-6 rounded-lg border border-[#E9ECEF]">
+              <h3 className="flex items-center text-lg font-semibold text-[#212121] mb-4">
+                <Icon name="building" size="sm" style={{ color: '#1976D2', marginRight: '8px' }} />
+                Company Information (Optional)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-[#212121] mb-2">
+                    Company Name
+                  </label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    value={formData.companyName}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
+                    placeholder="Enter company name"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Website
-                </label>
-                <input
-                  type="url"
-                  name="companyWebsite"
-                  value={formData.companyWebsite}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="https://example.com"
-                />
-              </div>
+                <div>
+                  <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                    <Icon name="globe-alt" size="xs" style={{ color: '#757575', marginRight: '6px' }} />
+                    Company Website
+                  </label>
+                  <input
+                    type="url"
+                    name="companyWebsite"
+                    value={formData.companyWebsite}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
+                    placeholder="https://example.com"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Company Social Media Links
-                </label>
-                <input
-                  type="text"
-                  name="companySocialMedia"
-                  value={formData.companySocialMedia}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Social media links"
-                />
+                <div className="md:col-span-2 xl:col-span-1">
+                  <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                    <Icon name="share" size="xs" style={{ color: '#757575', marginRight: '6px' }} />
+                    Social Media Links
+                  </label>
+                  <input
+                    type="text"
+                    name="companySocialMedia"
+                    value={formData.companySocialMedia}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
+                    placeholder="Social media links"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Individual Social Links */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Individual LinkedIn
-                </label>
-                <input
-                  type="url"
-                  name="individualLinkedin"
-                  value={formData.individualLinkedin}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="LinkedIn profile URL"
-                />
-              </div>
+            <div className="bg-[#F0F8FF] p-4 sm:p-6 rounded-lg border border-[#B3D9FF]">
+              <h3 className="flex items-center text-lg font-semibold text-[#212121] mb-4">
+                <Icon name="user" size="sm" style={{ color: '#1976D2', marginRight: '8px' }} />
+                Personal Social Media (Optional)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                  <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                    <Icon name="linkedin" size="xs" style={{ color: '#0077B5', marginRight: '6px' }} />
+                    LinkedIn Profile
+                  </label>
+                  <input
+                    type="url"
+                    name="individualLinkedin"
+                    value={formData.individualLinkedin}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-[#FFFFFF] text-[#212121] placeholder-[#757575] text-sm transition-all duration-200"
+                    placeholder="LinkedIn profile URL"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Individual Instagram
-                </label>
-                <input
-                  type="url"
-                  name="individualInstagram"
-                  value={formData.individualInstagram}
-                  onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Instagram profile URL"
-                />
+                <div>
+                  <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                    <Icon name="instagram" size="xs" style={{ color: '#E4405F', marginRight: '6px' }} />
+                    Instagram Profile
+                  </label>
+                  <input
+                    type="url"
+                    name="individualInstagram"
+                    value={formData.individualInstagram}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-[#FFFFFF] text-[#212121] placeholder-[#757575] text-sm transition-all duration-200"
+                    placeholder="Instagram profile URL"
+                  />
+                </div>
               </div>
             </div>
 
             {/* How did you hear about us */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                <Icon name="megaphone" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
                 How did you hear about us?
               </label>
               <input
@@ -535,84 +588,123 @@ const ContactUs = () => {
                 name="howDidYouHear"
                 value={formData.howDidYouHear}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                className="w-full px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-[#FFFFFF] text-[#212121] placeholder-[#757575] text-sm sm:text-base transition-all duration-200"
                 placeholder="How did you find us?"
               />
             </div>
 
             {/* Message */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
+                <Icon name="document-text" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
                 Message *
               </label>
               <textarea
                 name="message"
                 value={formData.message}
                 onChange={handleInputChange}
-                rows={5}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                rows={window.innerWidth < 640 ? 4 : 5}
+                className="w-full px-3 py-2.5 sm:py-3 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-[#FFFFFF] text-[#212121] placeholder-[#757575] text-sm sm:text-base resize-none transition-all duration-200"
                 placeholder="Enter your message (max 500 characters)"
                 maxLength={500}
               />
-              <p className="text-sm text-gray-500 mt-1">
-                {formData.message.length}/500 characters
-              </p>
-              {errors.message && <p className="text-red-500 text-sm mt-1">{errors.message}</p>}
+              <div className="flex justify-between items-center mt-2">
+                <p className="text-xs sm:text-sm text-[#757575]">
+                  {formData.message.length}/500 characters
+                </p>
+                {formData.message.length > 450 && (
+                  <p className="text-xs text-[#FF9800] flex items-center">
+                    <Icon name="exclamation-triangle" size="xs" style={{ color: '#FF9800', marginRight: '4px' }} />
+                    Approaching limit
+                  </p>
+                )}
+              </div>
+              {errors.message && <p className="text-[#F44336] text-sm mt-1 flex items-center">
+                <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                {errors.message}
+              </p>}
             </div>
 
-            {/* Captcha - Make responsive */}
+            {/* Captcha */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Captcha *
+              <label className="flex items-center text-sm font-medium text-[#212121] mb-3">
+                <Icon name="shield-check" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
+                Security Verification *
               </label>
-              <div className="flex justify-center sm:justify-start overflow-x-auto">
-                <ReCAPTCHA
-                  ref={recaptchaRef}
-                  sitekey="6LdNzrErAAAAAB1EB7ETPEhUrynf0wSQftMt-COT"
-                  onChange={handleRecaptchaChange}
-                  onExpired={() => setRecaptchaToken(null)}
-                  size={typeof window !== 'undefined' && window.innerWidth < 640 ? "compact" : "normal"}
-                />
+              <div className="flex justify-center lg:justify-start">
+                <div className="overflow-x-auto">
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LdNzrErAAAAAB1EB7ETPEhUrynf0wSQftMt-COT"
+                    onChange={handleRecaptchaChange}
+                    onExpired={() => setRecaptchaToken(null)}
+                    size={typeof window !== 'undefined' && window.innerWidth < 400 ? "compact" : "normal"}
+                    theme="light"
+                  />
+                </div>
               </div>
-              {errors.captcha && <p className="text-red-500 text-sm mt-1">{errors.captcha}</p>}
+              {errors.captcha && <p className="text-[#F44336] text-sm mt-2 flex items-center">
+                <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                {errors.captcha}
+              </p>}
             </div>
 
             {/* Terms and Conditions */}
-            <div>
-              <label className="flex items-start">
+            <div className="bg-[#FFF8E1] p-4 rounded-lg border border-[#FFE082]">
+              <label className="flex items-start cursor-pointer">
                 <input
                   type="checkbox"
                   name="termsAccepted"
                   checked={formData.termsAccepted}
                   onChange={handleInputChange}
-                  className="mt-1 mr-3 flex-shrink-0"
+                  className="mt-1 mr-3 flex-shrink-0 w-4 h-4 text-[#1976D2] border-[#BDBDBD] rounded focus:ring-[#1976D2] focus:ring-2"
                 />
-                <span className="text-sm text-gray-700 leading-relaxed">
-                  I accept the{' '}
-                  <a href="/terms-and-conditions" className="text-primary hover:underline">
+                <div className="text-sm text-[#795548] leading-relaxed">
+                  <span>I accept the </span>
+                  <a 
+                    href="/terms-and-conditions" 
+                    className="text-[#1976D2] hover:text-[#0D47A1] font-medium underline transition-colors duration-200"
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
                     Terms and Conditions
                   </a>
-                </span>
+                  <span> and understand that my information will be processed according to the Privacy Policy.</span>
+                </div>
               </label>
-              {errors.termsAccepted && <p className="text-red-500 text-sm mt-1">{errors.termsAccepted}</p>}
+              {errors.termsAccepted && <p className="text-[#F44336] text-sm mt-2 flex items-center">
+                <Icon name="exclamation-triangle" size="xs" style={{ color: '#F44336', marginRight: '4px' }} />
+                {errors.termsAccepted}
+              </p>}
             </div>
 
             {/* Submit Button */}
-            <div className="text-center pt-4">
+            <div className="text-center pt-4 sm:pt-6">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto px-8 py-3 bg-primary text-white rounded-md hover:bg-primary-dark disabled:opacity-50 font-medium transition-colors"
+                className="w-full sm:w-auto min-w-[200px] px-6 sm:px-8 py-3 sm:py-4 bg-[#1976D2] text-[#FFFFFF] rounded-lg hover:bg-[#0D47A1] disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
               >
                 {loading ? (
                   <div className="flex items-center justify-center">
-                    <Icon name="arrow-path" size="sm" className="animate-spin mr-2" />
+                    <Icon name="arrow-path" size="sm" className="animate-spin" style={{ color: '#FFFFFF', marginRight: '8px' }} />
                     Submitting...
                   </div>
                 ) : (
-                  'Submit Contact Form'
+                  <div className="flex items-center justify-center">
+                    <Icon name="paper-airplane" size="sm" style={{ color: '#FFFFFF', marginRight: '8px' }} />
+                    Submit Contact Form
+                  </div>
                 )}
               </button>
+            </div>
+
+            {/* Help Text */}
+            <div className="text-center pt-4">
+              <p className="text-xs sm:text-sm text-[#757575] flex items-center justify-center">
+                <Icon name="information-circle" size="xs" style={{ color: '#757575', marginRight: '6px' }} />
+                Need help? Contact us at support@newsmarketplace.com
+              </p>
             </div>
           </form>
         </div>

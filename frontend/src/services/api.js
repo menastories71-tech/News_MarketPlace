@@ -11,9 +11,14 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Check for admin token first, then regular user token
+    const adminToken = localStorage.getItem('adminAccessToken');
+    const userToken = localStorage.getItem('accessToken');
+
+    if (adminToken) {
+      config.headers.Authorization = `Bearer ${adminToken}`;
+    } else if (userToken) {
+      config.headers.Authorization = `Bearer ${userToken}`;
     }
     return config;
   },
@@ -34,21 +39,31 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
+        // Check if this is an admin request
+        const isAdminRequest = originalRequest.url?.includes('/admin/');
+        const refreshEndpoint = isAdminRequest ? '/api/admin/auth/refresh-token' : '/api/auth/refresh-token';
+        const tokenKey = isAdminRequest ? 'adminAccessToken' : 'accessToken';
+        const loginPath = isAdminRequest ? '/admin/login' : '/login';
+
         // Try to refresh token
-        const response = await axios.post('/api/auth/refresh-token', {}, {
+        const response = await axios.post(refreshEndpoint, {}, {
           withCredentials: true
         });
 
         const { accessToken } = response.data;
-        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem(tokenKey, accessToken);
 
         // Retry the original request with new token
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, redirect to login
-        localStorage.removeItem('accessToken');
-        window.location.href = '/login';
+        // Refresh failed, redirect to appropriate login
+        const isAdminRequest = originalRequest.url?.includes('/admin/');
+        const tokenKey = isAdminRequest ? 'adminAccessToken' : 'accessToken';
+        const loginPath = isAdminRequest ? '/admin/login' : '/login';
+
+        localStorage.removeItem(tokenKey);
+        window.location.href = loginPath;
         return Promise.reject(refreshError);
       }
     }
@@ -56,5 +71,13 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Admin API functions
+export const adminAPI = {
+  // Get all users
+  getUsers: () => api.get('/admin/auth/users'),
+
+  // Other admin functions can be added here
+};
 
 export default api;

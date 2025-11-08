@@ -47,6 +47,13 @@ class User {
     return result.rows[0] ? new User(result.rows[0]) : null;
   }
 
+  // Find all users
+  static async findAll() {
+    const sql = 'SELECT id, email, first_name, last_name, is_verified, is_active, role, created_at, updated_at, last_login FROM users ORDER BY created_at DESC';
+    const result = await query(sql);
+    return result.rows.map(row => new User(row));
+  }
+
   // Update user
   async update(updateData) {
     const fields = [];
