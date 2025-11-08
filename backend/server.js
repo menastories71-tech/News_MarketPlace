@@ -10,6 +10,7 @@ const { Pool } = require('pg');
 // Import routes
 const authRoutes = require('./src/routes/auth');
 const adminAuthRoutes = require('./src/routes/adminAuth');
+const contactRoutes = require('./src/routes/contact');
 // const userRoutes = require('./src/routes/users');
 // const articleRoutes = require('./src/routes/articles');
 // const paymentRoutes = require('./src/routes/payments');
@@ -71,6 +72,7 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/contact', contactRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/articles', articleRoutes);
 // app.use('/api/payments', paymentRoutes);
@@ -84,6 +86,7 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       adminAuth: '/api/admin/auth',
+      contact: '/api/contact',
       users: '/api/users',
       articles: '/api/articles',
       payments: '/api/payments',

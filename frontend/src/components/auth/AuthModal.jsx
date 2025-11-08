@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import ReCAPTCHA from 'react-google-recaptcha';
 import { useAuth } from '../../context/AuthContext';
 import Icon from '../common/Icon';
 import ForgotPasswordModal from './ForgotPasswordModal';
 
 const AuthModal = ({ isOpen, onClose }) => {
+  const recaptchaRef = useRef(null);
   const [mode, setMode] = useState('login'); // 'login' or 'register'
   const [step, setStep] = useState('form'); // 'form' or 'otp'
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -14,6 +16,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     lastName: '',
     otp: '',
     rememberMe: false,
+    recaptchaToken: null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -29,10 +32,23 @@ const AuthModal = ({ isOpen, onClose }) => {
     }));
   };
 
+  const handleCaptchaChange = (token) => {
+    setFormData(prev => ({
+      ...prev,
+      recaptchaToken: token
+    }));
+  };
+
   const handleRegister = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (!formData.recaptchaToken) {
+      setError('Please complete the reCAPTCHA verification');
+      setLoading(false);
+      return;
+    }
 
     try {
       const result = await register({
@@ -40,6 +56,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         password: formData.password,
         first_name: formData.firstName,
         last_name: formData.lastName,
+        recaptchaToken: formData.recaptchaToken,
       });
 
       setMessage(result.message);
@@ -72,8 +89,14 @@ const AuthModal = ({ isOpen, onClose }) => {
     setLoading(true);
     setError('');
 
+    if (!formData.recaptchaToken) {
+      setError('Please complete the reCAPTCHA verification');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await login(formData.email, formData.password, formData.rememberMe);
+      const result = await login(formData.email, formData.password, formData.rememberMe, formData.recaptchaToken);
       setMessage(result.message);
       setStep('otp');
     } catch (err) {
@@ -107,10 +130,14 @@ const AuthModal = ({ isOpen, onClose }) => {
       lastName: '',
       otp: '',
       rememberMe: false,
+      recaptchaToken: null,
     });
     setStep('form');
     setError('');
     setMessage('');
+    if (recaptchaRef.current) {
+      recaptchaRef.current.reset();
+    }
   };
 
   const switchMode = (newMode) => {
@@ -233,6 +260,15 @@ const AuthModal = ({ isOpen, onClose }) => {
                   </label>
                 </div>
               )}
+
+              <div>
+                <ReCAPTCHA
+                  ref={recaptchaRef}
+                  sitekey="6LclFwYsAAAAAHuO_Cd7uAWWYCMlqiqLIz_4NNuK"
+                  onChange={handleCaptchaChange}
+                  onExpired={() => setFormData(prev => ({ ...prev, recaptchaToken: null }))}
+                />
+              </div>
             </div>
 
             <button

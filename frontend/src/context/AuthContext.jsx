@@ -65,9 +65,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Login user
-  const login = async (email, password, rememberMe = false) => {
+  const login = async (email, password, rememberMe = false, recaptchaToken = null) => {
     try {
-      const response = await api.post('/auth/login', { email, password, rememberMe });
+      const response = await api.post('/auth/login', { email, password, rememberMe, recaptchaToken });
       return response.data;
     } catch (error) {
       throw error.response?.data?.error || 'Login failed';

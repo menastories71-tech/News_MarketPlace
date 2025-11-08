@@ -1,4 +1,4 @@
-const Brevo = require('@getbrevo/brevo');
+const SibApiV3Sdk = require('@getbrevo/brevo');
 
 class EmailService {
   constructor() {
@@ -7,39 +7,68 @@ class EmailService {
     this.fromName = process.env.BREVO_FROM_NAME;
 
     if (this.apiKey) {
-      Brevo.ApiClient.instance.authentications['api-key'].apiKey = this.apiKey;
-      this.apiInstance = new Brevo.TransactionalEmailsApi();
+      try {
+        // Initialize the API instance directly without ApiClient.instance
+        this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+        
+        // Set API key directly on the instance
+        this.apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, this.apiKey);
+        
+        console.log('Brevo API initialized successfully');
+      } catch (error) {
+        console.warn('Failed to initialize Brevo API client:', error.message);
+        this.apiInstance = null;
+      }
+    } else {
+      console.warn('Brevo API key not configured');
+      this.apiInstance = null;
     }
   }
 
   // Send OTP email
   async sendOTP(email, otp, type = 'verification') {
     if (!this.apiInstance) {
-      console.warn('Brevo API key not configured. Skipping email send.');
-      return;
+      console.warn('Brevo API not initialized. Using development mode.');
+      console.log(`DEVELOPMENT MODE - Email OTP for ${email}: ${otp}`);
+      return true;
     }
 
     const subject = type === 'registration'
       ? 'Verify Your News Marketplace Account'
       : type === 'password_reset'
       ? 'Password Reset Verification Code'
+      : type === 'contact_form'
+      ? 'Contact Form OTP Verification'
       : 'Login Verification Code';
 
     const htmlContent = this.generateOTPTemplate(otp, type);
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = { name: this.fromName, email: this.fromEmail };
-    sendSmtpEmail.to = [{ email: email }];
-    sendSmtpEmail.replyTo = { email: this.fromEmail, name: this.fromName };
-
     try {
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+      sendSmtpEmail.subject = subject;
+      sendSmtpEmail.htmlContent = htmlContent;
+      sendSmtpEmail.sender = { 
+        name: this.fromName || 'News Marketplace', 
+        email: this.fromEmail || 'madhavarora132005@gmail.com'
+      };
+      sendSmtpEmail.to = [{ email: email }];
+      sendSmtpEmail.replyTo = { 
+        email: this.fromEmail || 'madhavarora132005@gmail.com', 
+        name: this.fromName || 'News Marketplace'
+      };
+
       const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log('OTP email sent successfully:', result);
+      console.log('OTP email sent successfully:', result.messageId);
       return result;
     } catch (error) {
       console.error('Error sending OTP email:', error);
+      
+      // Fallback for development
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`DEVELOPMENT MODE - Email OTP for ${email}: ${otp}`);
+        return true;
+      }
+      
       throw new Error('Failed to send OTP email');
     }
   }
@@ -47,26 +76,38 @@ class EmailService {
   // Send password reset email
   async sendPasswordReset(email, resetToken) {
     if (!this.apiInstance) {
-      console.warn('Brevo API key not configured. Skipping email send.');
-      return;
+      console.warn('Brevo API not initialized. Using development mode.');
+      return true;
     }
 
     const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password?token=${resetToken}`;
     const htmlContent = this.generatePasswordResetTemplate(resetUrl);
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = 'Reset Your News Marketplace Password';
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = { name: this.fromName, email: this.fromEmail };
-    sendSmtpEmail.to = [{ email: email }];
-    sendSmtpEmail.replyTo = { email: this.fromEmail, name: this.fromName };
-
     try {
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+      sendSmtpEmail.subject = 'Reset Your News Marketplace Password';
+      sendSmtpEmail.htmlContent = htmlContent;
+      sendSmtpEmail.sender = { 
+        name: this.fromName || 'News Marketplace', 
+        email: this.fromEmail || 'madhavarora132005@gmail.com'
+      };
+      sendSmtpEmail.to = [{ email: email }];
+      sendSmtpEmail.replyTo = { 
+        email: this.fromEmail || 'madhavarora132005@gmail.com', 
+        name: this.fromName || 'News Marketplace'
+      };
+
       const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log('Password reset email sent successfully:', result);
+      console.log('Password reset email sent successfully:', result.messageId);
       return result;
     } catch (error) {
       console.error('Error sending password reset email:', error);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`DEVELOPMENT MODE - Password reset email for ${email}`);
+        return true;
+      }
+      
       throw new Error('Failed to send password reset email');
     }
   }
@@ -74,25 +115,37 @@ class EmailService {
   // Send welcome email
   async sendWelcome(email, firstName) {
     if (!this.apiInstance) {
-      console.warn('Brevo API key not configured. Skipping email send.');
-      return;
+      console.warn('Brevo API not initialized. Using development mode.');
+      return true;
     }
 
     const htmlContent = this.generateWelcomeTemplate(firstName);
 
-    const sendSmtpEmail = new Brevo.SendSmtpEmail();
-    sendSmtpEmail.subject = 'Welcome to News Marketplace!';
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = { name: this.fromName, email: this.fromEmail };
-    sendSmtpEmail.to = [{ email: email }];
-    sendSmtpEmail.replyTo = { email: this.fromEmail, name: this.fromName };
-
     try {
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+      sendSmtpEmail.subject = 'Welcome to News Marketplace!';
+      sendSmtpEmail.htmlContent = htmlContent;
+      sendSmtpEmail.sender = { 
+        name: this.fromName || 'News Marketplace', 
+        email: this.fromEmail || 'madhavarora132005@gmail.com'
+      };
+      sendSmtpEmail.to = [{ email: email }];
+      sendSmtpEmail.replyTo = { 
+        email: this.fromEmail || 'madhavarora132005@gmail.com', 
+        name: this.fromName || 'News Marketplace'
+      };
+
       const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log('Welcome email sent successfully:', result);
+      console.log('Welcome email sent successfully:', result.messageId);
       return result;
     } catch (error) {
       console.error('Error sending welcome email:', error);
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`DEVELOPMENT MODE - Welcome email for ${email}`);
+        return true;
+      }
+      
       throw new Error('Failed to send welcome email');
     }
   }
@@ -103,6 +156,8 @@ class EmailService {
       ? 'complete your registration'
       : type === 'password_reset'
       ? 'reset your password'
+      : type === 'contact_form'
+      ? 'verify your contact form submission'
       : 'log in to your account';
 
     return `

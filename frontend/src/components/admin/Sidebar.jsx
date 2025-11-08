@@ -130,6 +130,22 @@ export default function Sidebar({
               </a>
             </li>
 
+            <li style={{ marginBottom: 10 }}>
+              <a
+                href="/admin/contacts"
+                style={navItemBase}
+                onMouseEnter={e => e.currentTarget.style.background = '#e0f2fe'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.location.href = '/admin/contacts';
+                }}
+              >
+                <span style={navIconCircle('#e6f3ff')}><Icon name="chat-bubble-left-right" size="sm" style={{ color: '#0369a1' }} /></span>
+                <span>Contact Management</span>
+              </a>
+            </li>
+
             <li>
               <a
                 href="/admin/settings"
@@ -155,6 +171,7 @@ export default function Sidebar({
         <nav style={{ marginTop: 8 }}>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             <li style={{ marginBottom: 12 }}><a href="/admin/dashboard" style={{ color: theme.text, textDecoration: 'none', fontWeight: 600 }}>Dashboard</a></li>
+            <li style={{ marginBottom: 12 }}><a href="/admin/contacts" style={{ color: theme.text, textDecoration: 'none' }}>Contacts</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/news" style={{ color: theme.text, textDecoration: 'none' }}>News</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/media" style={{ color: theme.text, textDecoration: 'none' }}>Media</a></li>
             <li><a href="/admin/settings" style={{ color: theme.text, textDecoration: 'none' }}>Settings</a></li>

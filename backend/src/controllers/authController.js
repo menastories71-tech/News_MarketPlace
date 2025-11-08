@@ -1,5 +1,6 @@
 const authService = require('../services/authService');
 const { body, validationResult } = require('express-validator');
+const { verifyRecaptcha } = require('../services/recaptchaService');
 
 class AuthController {
   // Validation rules
@@ -8,11 +9,13 @@ class AuthController {
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
     body('first_name').trim().isLength({ min: 1 }).withMessage('First name is required'),
     body('last_name').trim().isLength({ min: 1 }).withMessage('Last name is required'),
+    body('recaptchaToken').notEmpty().withMessage('reCAPTCHA token is required'),
   ];
 
   loginValidation = [
     body('email').isEmail().normalizeEmail(),
     body('password').exists().withMessage('Password is required'),
+    body('recaptchaToken').notEmpty().withMessage('reCAPTCHA token is required'),
   ];
 
   otpValidation = [
@@ -51,7 +54,14 @@ class AuthController {
         });
       }
 
-      const { email, password, first_name, last_name } = req.body;
+      const { email, password, first_name, last_name, recaptchaToken } = req.body;
+
+      // Verify reCAPTCHA
+      const recaptchaScore = await verifyRecaptcha(recaptchaToken);
+
+      if (recaptchaScore === null || recaptchaScore < 0.5) {
+        return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' });
+      }
 
       const result = await authService.register({
         email,
@@ -114,7 +124,14 @@ class AuthController {
         });
       }
 
-      const { email, password, rememberMe } = req.body;
+      const { email, password, rememberMe, recaptchaToken } = req.body;
+
+      // Verify reCAPTCHA
+      const recaptchaScore = await verifyRecaptcha(recaptchaToken);
+
+      if (recaptchaScore === null || recaptchaScore < 0.5) {
+        return res.status(400).json({ error: 'reCAPTCHA verification failed. Please try again.' });
+      }
 
       const result = await authService.login(email, password, rememberMe);
 

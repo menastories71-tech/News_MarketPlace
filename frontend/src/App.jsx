@@ -5,6 +5,7 @@ import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
 import AuthModal from './components/auth/AuthModal';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
+import ContactManagement from './components/admin/ContactManagement';
 import UserHeader from './components/common/UserHeader';
 import UserFooter from './components/common/UserFooter';
 import FeatureSlider from './components/common/FeatureSlider';
@@ -13,6 +14,9 @@ import ServiceHeader from './components/common/ServiceHeader';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import AboutUs from './pages/AboutUs';
+import FAQ from './pages/FAQ';
+import ContactUs from './pages/ContactUs';
+import Home from './pages/Home';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -166,7 +170,7 @@ const HomePage = () => {
           )}
         </div>
       </main>
-
+      <FAQ />
       <UserFooter />
 
       {/* Auth Modal */}
@@ -224,8 +228,10 @@ function App() {
         <Router>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<Home />} />
             <Route path="/about-us" element={<AboutUs />} />
+            <Route path="/contact-us" element={<ContactUs />} />
+            <Route path="/faq" element={<FAQ />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route
@@ -244,6 +250,16 @@ function App() {
               element={
                 <AdminProtectedRoute>
                   <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/contacts"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <ContactManagement />
+                  </div>
                 </AdminProtectedRoute>
               }
             />
