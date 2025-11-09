@@ -14,12 +14,18 @@ import TopHeader from './components/common/TopHeader';
 import ServiceHeader from './components/common/ServiceHeader';
 import TermsAndConditions from './pages/TermsAndConditions';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import CookiePolicy from './pages/CookiePolicy';
+import RefundPolicy from './pages/RefundPolicy';
 import AboutUs from './pages/AboutUs';
 import FAQ from './pages/FAQ';
 import ContactUs from './pages/ContactUs';
 import Home from './pages/Home';
 import ServicesOverview from './pages/ServicesOverview';
 import HowItWorks from './pages/HowItWorks';
+import VideoTutorials from './pages/VideoTutorials';
+import HowToGuides from './pages/HowToGuides';
+import DownloadCenter from './pages/DownloadCenter';
+import ResourceLibrary from './pages/ResourceLibrary';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -241,6 +247,8 @@ function App() {
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms-and-conditions" element={<TermsAndConditions />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/cookie-policy" element={<CookiePolicy />} />
+            <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/services-overview" element={<ServicesOverview />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route
@@ -248,6 +256,38 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/video-tutorials"
+              element={
+                <ProtectedRoute>
+                  <VideoTutorials />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/how-to-guides"
+              element={
+                <ProtectedRoute>
+                  <HowToGuides />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/download-center"
+              element={
+                <ProtectedRoute>
+                  <DownloadCenter />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/resource-library"
+              element={
+                <ProtectedRoute>
+                  <ResourceLibrary />
                 </ProtectedRoute>
               }
             />

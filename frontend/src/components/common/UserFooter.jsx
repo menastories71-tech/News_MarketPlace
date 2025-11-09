@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Icon from './Icon';
 
 export default function UserFooter() {
@@ -45,11 +46,12 @@ export default function UserFooter() {
           <div>
             <h4 className="heading-4 text-gray-900 mb-4">Legal & Policies</h4>
             <ul className="space-y-2">
-              <li><a href="#privacy-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Privacy Policy</a></li>
+              <li><Link to="/privacy-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/cookie-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Cookie Policy</Link></li>
+              <li><Link to="/refund-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Refund Policy</Link></li>
+              <li><Link to="/terms-and-conditions" className="body-small text-gray-600 hover:text-primary transition-colors">Terms of Service</Link></li>
               <li><a href="#trademark-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Trademark and Logo Policy</a></li>
               <li><a href="#data-protection" className="body-small text-gray-600 hover:text-primary transition-colors">Data Protection Policy</a></li>
-              <li><a href="#refund-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Refund Policy</a></li>
-              <li><a href="#terms-service" className="body-small text-gray-600 hover:text-primary transition-colors">Terms of Service</a></li>
               <li><a href="#reselling-agreement" className="body-small text-gray-600 hover:text-primary transition-colors">Reselling Agreement</a></li>
             </ul>
           </div>
@@ -58,14 +60,14 @@ export default function UserFooter() {
           <div>
             <h4 className="heading-4 text-gray-900 mb-4">Company</h4>
             <ul className="space-y-2">
-              <li><a href="/about-us" className="body-small text-gray-600 hover:text-primary transition-colors">About Us</a></li>
-              <li><a href="/services-overview" className="body-small text-gray-600 hover:text-primary transition-colors">Services Overview</a></li>
-              <li><a href="/how-it-works" className="body-small text-gray-600 hover:text-primary transition-colors">How It Works</a></li>
+              <li><Link to="/about-us" className="body-small text-gray-600 hover:text-primary transition-colors">About Us</Link></li>
+              <li><Link to="/services-overview" className="body-small text-gray-600 hover:text-primary transition-colors">Services Overview</Link></li>
+              <li><Link to="/how-it-works" className="body-small text-gray-600 hover:text-primary transition-colors">How It Works</Link></li>
               <li><a href="#blog" className="body-small text-gray-600 hover:text-primary transition-colors">Blog Section</a></li>
               <li><a href="#csr" className="body-small text-gray-600 hover:text-primary transition-colors">CSR</a></li>
               <li><a href="#career" className="body-small text-gray-600 hover:text-primary transition-colors">Career</a></li>
-              <li><a href="/contact-us" className="body-small text-gray-600 hover:text-primary transition-colors">Contact US</a></li>
-              <li><a href="/faq" className="body-small text-gray-600 hover:text-primary transition-colors">FAQ</a></li>
+              <li><Link to="/contact-us" className="body-small text-gray-600 hover:text-primary transition-colors">Contact US</Link></li>
+              <li><Link to="/faq" className="body-small text-gray-600 hover:text-primary transition-colors">FAQ</Link></li>
             </ul>
           </div>
 
@@ -91,9 +93,10 @@ export default function UserFooter() {
               © 2024 News MarketPlace. All rights reserved.
             </p>
             <div className="flex items-center space-x-6">
-              <a href="#privacy" className="body-small text-gray-600 hover:text-primary transition-colors">Privacy</a>
-              <a href="#terms" className="body-small text-gray-600 hover:text-primary transition-colors">Terms</a>
-              <a href="#cookies" className="body-small text-gray-600 hover:text-primary transition-colors">Cookies</a>
+              <Link to="/privacy-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Privacy</Link>
+              <Link to="/terms-and-conditions" className="body-small text-gray-600 hover:text-primary transition-colors">Terms</Link>
+              <Link to="/cookie-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Cookies</Link>
+              <Link to="/refund-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Refunds</Link>
             </div>
           </div>
         </div>
