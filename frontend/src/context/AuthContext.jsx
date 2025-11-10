@@ -143,6 +143,29 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Check if user has specific role
+  const hasRole = (role) => {
+    return user?.role === role;
+  };
+
+  // Check if user has any of the specified roles
+  const hasAnyRole = (roles) => {
+    return roles.includes(user?.role);
+  };
+
+  // Get user role level
+  const getRoleLevel = () => {
+    const roleLevels = {
+      'super_admin': 5,
+      'content_manager': 4,
+      'editor': 3,
+      'registered_user': 2,
+      'agency': 1,
+      'other': 0
+    };
+    return roleLevels[user?.role] || 0;
+  };
+
   const value = {
     user,
     loading,
@@ -156,6 +179,9 @@ export const AuthProvider = ({ children }) => {
     verifyForgotPasswordOTP,
     resetPasswordWithOTP,
     resetPassword,
+    hasRole,
+    hasAnyRole,
+    getRoleLevel,
   };
 
   return (

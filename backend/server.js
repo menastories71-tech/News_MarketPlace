@@ -11,6 +11,9 @@ const { Pool } = require('pg');
 const authRoutes = require('./src/routes/auth');
 const adminAuthRoutes = require('./src/routes/adminAuth');
 const contactRoutes = require('./src/routes/contact');
+const groupRoutes = require('./src/routes/groups');
+const publicationRoutes = require('./src/routes/publications');
+const notificationRoutes = require('./src/routes/notifications');
 // const userRoutes = require('./src/routes/users');
 // const articleRoutes = require('./src/routes/articles');
 // const paymentRoutes = require('./src/routes/payments');
@@ -73,6 +76,9 @@ app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/groups', groupRoutes);
+app.use('/api/publications', publicationRoutes);
+app.use('/api/notifications', notificationRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/articles', articleRoutes);
 // app.use('/api/payments', paymentRoutes);
@@ -87,6 +93,9 @@ app.get('/', (req, res) => {
       auth: '/api/auth',
       adminAuth: '/api/admin/auth',
       contact: '/api/contact',
+      groups: '/api/groups',
+      publications: '/api/publications',
+      notifications: '/api/notifications',
       users: '/api/users',
       articles: '/api/articles',
       payments: '/api/payments',
@@ -110,9 +119,12 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
-
+// Export app for testing
 module.exports = app;
+
+// Start server only if not in test environment
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}

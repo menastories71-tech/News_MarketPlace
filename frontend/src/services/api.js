@@ -63,9 +63,38 @@ api.interceptors.response.use(
         const loginPath = isAdminRequest ? '/admin/login' : '/login';
 
         localStorage.removeItem(tokenKey);
-        window.location.href = loginPath;
+
+        // For admin requests, redirect to admin login
+        if (isAdminRequest) {
+          window.location.href = '/admin/login';
+        } else {
+          window.location.href = '/login';
+        }
+
         return Promise.reject(refreshError);
       }
+    }
+
+    return Promise.reject(error);
+  },
+  async (error) => {
+    // Handle 403 Forbidden errors (insufficient permissions)
+    if (error.response?.status === 403) {
+      console.error('Access denied:', error.response.data);
+
+      // Show user-friendly error message
+      const errorMessage = error.response.data.error || 'Access denied. You do not have permission to perform this action.';
+
+      // For admin panel access, redirect to appropriate page
+      if (window.location.pathname.startsWith('/admin')) {
+        alert(errorMessage);
+        window.location.href = '/';
+        return Promise.reject(error);
+      }
+
+      // For other access denied errors, show alert
+      alert(errorMessage);
+      return Promise.reject(error);
     }
 
     return Promise.reject(error);

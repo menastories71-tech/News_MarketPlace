@@ -89,6 +89,11 @@ class User {
     await this.update({ otp_code: code, otp_expires_at });
   }
 
+  // Check if OTP exists and is valid
+  hasValidOTP() {
+    return this.otp_code && this.otp_expires_at && new Date() < new Date(this.otp_expires_at);
+  }
+
   // Verify OTP
   async verifyOTP(code) {
     if (!this.otp_code || !this.otp_expires_at) return false;

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import Icon from './Icon';
+import PublicationSubmissionForm from '../user/PublicationSubmissionForm';
 
 const UserHeader = ({ onShowAuth }) => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, hasRole, hasAnyRole, getRoleLevel } = useAuth();
   const [language, setLanguage] = useState('en');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showPublicationForm, setShowPublicationForm] = useState(false);
 
   const socialMediaIcons = [
     { name: 'facebook', href: '#', label: 'Facebook', color: 'hover:text-blue-600' },
@@ -135,15 +137,23 @@ const UserHeader = ({ onShowAuth }) => {
               </>
             ) : (
               <>
-                <div className="flex items-center space-x-2 px-3 py-1.5 bg-white/60 backdrop-blur-sm rounded-lg border border-white/20">
+                <a href="/profile" className="flex items-center space-x-2 px-3 py-1.5 bg-white/60 backdrop-blur-sm rounded-lg border border-white/20 hover:bg-white/80 transition-all duration-300">
                   <div className="w-6 h-6 bg-gradient-to-r from-[#1976D2] to-[#0D47A1] rounded-full flex items-center justify-center">
                     <Icon name="user" size="xs" className="text-white" />
                   </div>
                   <span className="text-[#212121] font-medium text-sm">
                     {user?.email || `Welcome, ${user?.first_name}!`}
                   </span>
-                </div>
-                <button className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                </a>
+                {hasAnyRole(['super_admin', 'content_manager']) && (
+                  <a href="/admin/publications" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF9800] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                    Admin Panel
+                  </a>
+                )}
+                <button
+                  onClick={() => setShowPublicationForm(true)}
+                  className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20"
+                >
                   Submit Publication
                 </button>
                 <button onClick={logout} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#F44336] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
@@ -191,7 +201,10 @@ const UserHeader = ({ onShowAuth }) => {
                     <button className="w-full bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Editor Registration
                     </button>
-                    <button className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
+                    <button
+                      onClick={() => setShowPublicationForm(true)}
+                      className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm"
+                    >
                       Submit Publication
                     </button>
                     <button onClick={onShowAuth} className="w-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-bold py-3 rounded-lg hover:from-[#0D47A1] hover:to-[#0D47A1] transition-all duration-300 shadow-md text-sm">
@@ -203,15 +216,23 @@ const UserHeader = ({ onShowAuth }) => {
                   </>
                 ) : (
                   <>
-                    <div className="flex items-center space-x-2 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-white/20">
+                    <a href="/profile" className="flex items-center space-x-2 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-white/20 hover:bg-white/80 transition-all duration-300">
                       <div className="w-8 h-8 bg-gradient-to-r from-[#1976D2] to-[#0D47A1] rounded-full flex items-center justify-center">
                         <Icon name="user" size="sm" className="text-white" />
                       </div>
                       <span className="text-[#212121] font-medium text-sm">
                         {user?.email || `Welcome, ${user?.first_name}!`}
                       </span>
-                    </div>
-                    <button className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
+                    </a>
+                    {hasAnyRole(['super_admin', 'content_manager']) && (
+                      <a href="/admin/publications" className="w-full bg-white/60 backdrop-blur-sm text-[#FF9800] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
+                        Admin Panel
+                      </a>
+                    )}
+                    <button
+                      onClick={() => setShowPublicationForm(true)}
+                      className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm"
+                    >
                       Submit Publication
                     </button>
                     <button onClick={logout} className="w-full bg-white/60 backdrop-blur-sm text-[#F44336] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
@@ -265,6 +286,14 @@ const UserHeader = ({ onShowAuth }) => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Publication Submission Form Modal */}
+        {showPublicationForm && (
+          <PublicationSubmissionForm
+            onClose={() => setShowPublicationForm(false)}
+            onSuccess={() => setShowPublicationForm(false)}
+          />
         )}
       </div>
     </header>

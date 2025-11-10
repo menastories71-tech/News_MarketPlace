@@ -273,6 +273,44 @@ class EmailService {
       </html>
     `;
   }
+
+  // Send custom email (generic method for custom content)
+  async sendCustomEmail(email, subject, htmlContent) {
+    if (!this.apiInstance) {
+      console.warn('Brevo API not initialized. Using development mode.');
+      console.log(`DEVELOPMENT MODE - Custom email to ${email} with subject: ${subject}`);
+      return true;
+    }
+
+    try {
+      const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+      sendSmtpEmail.subject = subject;
+      sendSmtpEmail.htmlContent = htmlContent;
+      sendSmtpEmail.sender = {
+        name: this.fromName || 'News Marketplace',
+        email: this.fromEmail || 'madhavarora132005@gmail.com'
+      };
+      sendSmtpEmail.to = [{ email: email }];
+      sendSmtpEmail.replyTo = {
+        email: this.fromEmail || 'madhavarora132005@gmail.com',
+        name: this.fromName || 'News Marketplace'
+      };
+
+      const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
+      console.log('Custom email sent successfully:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('Error sending custom email:', error);
+
+      // Fallback for development
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`DEVELOPMENT MODE - Custom email to ${email} with subject: ${subject}`);
+        return true;
+      }
+
+      throw new Error('Failed to send custom email');
+    }
+  }
 }
 
 module.exports = new EmailService();

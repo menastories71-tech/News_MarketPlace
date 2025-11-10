@@ -110,9 +110,13 @@ class AuthService {
     // For login, we can allow unverified users but may want to prompt for verification
     // Generate OTP for login verification
     const otp = this.generateOTP();
-    await user.setOTP(otp);
-
-    await emailService.sendOTP(email, otp, 'login');
+    try {
+      await user.setOTP(otp);
+      await emailService.sendOTP(email, otp, 'login');
+    } catch (error) {
+      console.error('Error setting OTP for login:', error);
+      throw new Error('Failed to send login OTP. Please try again.');
+    }
 
     return {
       user: user.toJSON(),

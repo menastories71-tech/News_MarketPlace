@@ -30,6 +30,15 @@ export const AdminAuthProvider = ({ children }) => {
           localStorage.removeItem('adminAccessToken');
           setAdmin(null);
           setIsAuthenticated(false);
+          // If token is invalid, redirect to login
+          if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+            window.location.href = '/admin/login';
+          }
+        }
+      } else {
+        // No token, redirect to login if on admin pages
+        if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+          window.location.href = '/admin/login';
         }
       }
       setLoading(false);

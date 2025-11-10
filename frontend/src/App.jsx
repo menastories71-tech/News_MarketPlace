@@ -5,8 +5,10 @@ import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
 import AuthModal from './components/auth/AuthModal';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
+import GroupManagement from './components/admin/GroupManagement';
 import ContactManagement from './components/admin/ContactManagement';
 import UserManagement from './components/admin/UserManagement';
+import PublicationManagement from './components/admin/PublicationManagement';
 import UserHeader from './components/common/UserHeader';
 import UserFooter from './components/common/UserFooter';
 import FeatureSlider from './components/common/FeatureSlider';
@@ -26,6 +28,8 @@ import VideoTutorials from './pages/VideoTutorials';
 import HowToGuides from './pages/HowToGuides';
 import DownloadCenter from './pages/DownloadCenter';
 import ResourceLibrary from './pages/ResourceLibrary';
+import PublicationsPage from './pages/PublicationsPage';
+import UserProfile from './pages/UserProfile';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -291,6 +295,15 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/publications" element={<PublicationsPage />} />
+            <Route
+              path="/profile"
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
+                </ProtectedRoute>
+              }
+            />
 
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -299,6 +312,16 @@ function App() {
               element={
                 <AdminProtectedRoute>
                   <AdminDashboard />
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/groups"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <GroupManagement />
+                  </div>
                 </AdminProtectedRoute>
               }
             />
@@ -318,6 +341,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <UserManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/publications"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PublicationManagement />
                   </div>
                 </AdminProtectedRoute>
               }

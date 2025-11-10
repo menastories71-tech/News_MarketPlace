@@ -230,6 +230,7 @@ class AuthController {
       res.json(result);
     } catch (error) {
       console.error('Forgot password error:', error);
+      // Don't expose internal errors for security
       res.status(500).json({ error: 'Internal server error' });
     }
   }

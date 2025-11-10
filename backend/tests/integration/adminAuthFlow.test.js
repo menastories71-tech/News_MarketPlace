@@ -1,11 +1,14 @@
 const request = require('supertest');
-const app = require('../server');
+const app = require('../../server');
 const { query } = require('../../src/config/database');
 
 // Mock database for testing
 jest.mock('../../src/config/database');
+jest.mock('../../src/models/Admin');
 
 describe('Admin Authentication Flow Integration Tests', () => {
+  let mockAdmin;
+
   beforeAll(async () => {
     // Set up test database connection
     // Note: In a real scenario, you'd use a test database
@@ -15,8 +18,47 @@ describe('Admin Authentication Flow Integration Tests', () => {
     // Clean up test data
   });
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+
+    // Mock admin data
+    mockAdmin = {
+      id: 1,
+      email: 'superadmin@newsmarketplace.com',
+      first_name: 'Super',
+      last_name: 'Admin',
+      role: 'super_admin',
+      is_active: true,
+      password_hash: 'hashed_password',
+      created_at: new Date(),
+      updated_at: new Date(),
+      last_login: new Date(),
+      verifyPassword: jest.fn().mockResolvedValue(true),
+      updateLastLogin: jest.fn(),
+      toJSON: jest.fn().mockReturnValue({
+        id: 1,
+        email: 'superadmin@newsmarketplace.com',
+        first_name: 'Super',
+        last_name: 'Admin',
+        role: 'super_admin',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date(),
+        last_login: new Date()
+      })
+    };
+
+    // Mock Admin model methods
+    const Admin = require('../../src/models/Admin');
+    Admin.findByEmail = jest.fn();
+    Admin.findById = jest.fn();
+  });
+
   describe('POST /api/admin/auth/login', () => {
     it('should login admin with valid credentials', async () => {
+      const Admin = require('../../src/models/Admin');
+      Admin.findByEmail.mockResolvedValue(mockAdmin);
+
       const loginData = {
         email: 'superadmin@newsmarketplace.com',
         password: 'SuperAdmin123!'
@@ -41,6 +83,9 @@ describe('Admin Authentication Flow Integration Tests', () => {
     });
 
     it('should reject login with invalid email', async () => {
+      const Admin = require('../../src/models/Admin');
+      Admin.findByEmail.mockResolvedValue(null);
+
       const loginData = {
         email: 'invalid@admin.com',
         password: 'password123'
@@ -55,6 +100,10 @@ describe('Admin Authentication Flow Integration Tests', () => {
     });
 
     it('should reject login with invalid password', async () => {
+      const Admin = require('../../src/models/Admin');
+      const invalidPasswordAdmin = { ...mockAdmin, verifyPassword: jest.fn().mockResolvedValue(false) };
+      Admin.findByEmail.mockResolvedValue(invalidPasswordAdmin);
+
       const loginData = {
         email: 'superadmin@newsmarketplace.com',
         password: 'wrongpassword'
@@ -98,6 +147,9 @@ describe('Admin Authentication Flow Integration Tests', () => {
 
     beforeAll(async () => {
       // Login to get access token
+      const Admin = require('../../src/models/Admin');
+      Admin.findByEmail.mockResolvedValue(mockAdmin);
+
       const loginResponse = await request(app)
         .post('/api/admin/auth/login')
         .send({
@@ -109,6 +161,9 @@ describe('Admin Authentication Flow Integration Tests', () => {
     });
 
     it('should get admin profile with valid token', async () => {
+      const Admin = require('../../src/models/Admin');
+      Admin.findById.mockResolvedValue(mockAdmin);
+
       const response = await request(app)
         .get('/api/admin/auth/profile')
         .set('Authorization', `Bearer ${accessToken}`)

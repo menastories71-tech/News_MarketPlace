@@ -158,6 +158,129 @@ const requireVerified = (req, res, next) => {
   next();
 };
 
+// Middleware to check if user owns the resource (for user-specific data)
+const requireOwnership = (resourceType) => {
+  return async (req, res, next) => {
+    if (!req.user) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+
+    const resourceId = req.params.id || req.params.publicationId || req.params.userId;
+
+    if (!resourceId) {
+      return res.status(400).json({ error: 'Resource ID required' });
+    }
+
+    try {
+      let resourceOwnerId;
+
+      switch (resourceType) {
+        case 'publication':
+          const Publication = require('../models/Publication');
+          const publication = await Publication.findById(resourceId);
+          if (!publication) {
+            return res.status(404).json({ error: 'Publication not found' });
+          }
+          resourceOwnerId = publication.submitted_by;
+          break;
+
+        case 'user':
+          resourceOwnerId = resourceId;
+          break;
+
+        default:
+          return res.status(400).json({ error: 'Invalid resource type' });
+      }
+
+      if (req.user.userId !== resourceOwnerId) {
+        return res.status(403).json({ error: 'Access denied: You can only access your own data' });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Ownership check error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+};
+
+// Middleware to check if admin has permission for specific actions
+const requireAdminPermission = (permission) => {
+  return (req, res, next) => {
+    if (!req.admin) {
+      return res.status(401).json({ error: 'Admin authentication required' });
+    }
+
+    const roleLevels = {
+      'super_admin': 5,
+      'content_manager': 4,
+      'editor': 3,
+      'registered_user': 2,
+      'agency': 1,
+      'other': 0
+    };
+
+    const adminLevel = roleLevels[req.admin.role] || 0;
+
+    const permissionLevels = {
+      'manage_publications': 1,
+      'approve_publications': 2,
+      'manage_users': 3,
+      'manage_admins': 4,
+      'system_admin': 5
+    };
+
+    const requiredLevel = permissionLevels[permission] || 5;
+
+    if (adminLevel < requiredLevel) {
+      return res.status(403).json({
+        error: 'Insufficient permissions',
+        required: permission,
+        currentLevel: adminLevel
+      });
+    }
+
+    next();
+  };
+};
+
+// Middleware to check if user can submit publications (rate limiting and verification)
+const requirePublicationSubmissionRights = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  // Additional checks can be added here (e.g., user verification status, account status)
+  // For now, just ensure user is authenticated
+
+  next();
+};
+
+// Middleware to validate admin access to admin panel
+const requireAdminPanelAccess = (req, res, next) => {
+  if (!req.admin) {
+    return res.status(401).json({ error: 'Admin authentication required' });
+  }
+
+  const roleLevels = {
+    'super_admin': 5,
+    'content_manager': 4,
+    'editor': 3,
+    'registered_user': 2,
+    'agency': 1,
+    'other': 0
+  };
+
+  const adminLevel = roleLevels[req.admin.role] || 0;
+
+  // Minimum level 1 (agency) can access admin panel
+  if (adminLevel < 1) {
+    return res.status(403).json({ error: 'Insufficient role level for admin panel access' });
+  }
+
+  next();
+};
+
 module.exports = {
   verifyToken,
   verifyRefreshToken,
@@ -167,5 +290,9 @@ module.exports = {
   requireRole,
   requireAdminRole,
   requireAdminRoleLevel,
-  requireVerified
+  requireVerified,
+  requireOwnership,
+  requireAdminPermission,
+  requirePublicationSubmissionRights,
+  requireAdminPanelAccess
 };

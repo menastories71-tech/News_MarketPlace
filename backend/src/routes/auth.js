@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { verifyToken, verifyRefreshToken } = require('../middleware/auth');
+const { verifyToken, verifyRefreshToken, requireOwnership } = require('../middleware/auth');
 
 // Public routes
 router.post('/register', authController.registerValidation, authController.register);
@@ -17,5 +17,8 @@ router.post('/reset-password', authController.resetPasswordValidation, authContr
 router.post('/refresh-token', verifyRefreshToken, authController.refreshToken);
 router.post('/logout', verifyToken, authController.logout);
 router.get('/profile', verifyToken, authController.getProfile);
+
+// User-specific routes (ensure users can only access their own data)
+router.get('/profile/:userId', verifyToken, requireOwnership('user'), authController.getProfile);
 
 module.exports = router;
