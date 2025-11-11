@@ -4,9 +4,9 @@ class RateLimiter {
   constructor() {
     this.limits = {
       publication_submit: {
-        windowMs: 60 * 60 * 1000, // 1 hour
+        windowMs: 60 * 1000, // 1 minute
         maxRequests: 1,
-        message: 'You can only submit one publication per hour. Please try again later.'
+        message: 'You can only submit one publication per minute. Please try again later.'
       }
     };
   }

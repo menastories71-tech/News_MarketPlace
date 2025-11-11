@@ -605,6 +605,10 @@ const PublicationManagement = () => {
     fetchPublications();
     setShowBulkUploadModal(false);
     setMessage({ type: 'success', text: 'Bulk upload completed successfully!' });
+    // Force a page refresh to ensure the UI shows the updated data
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   const handleBulkEditSave = () => {
@@ -637,9 +641,9 @@ const PublicationManagement = () => {
   };
 
   const handleDownloadTemplate = () => {
-    // Download the sample data.xlsx file
+    // Download the bulk-upload-sample.xlsx file from backend
     const link = document.createElement('a');
-    link.href = '/Website_Workflow/sample data.xlsx';
+    link.href = '/bulk-upload-sample.xlsx';
     link.download = 'publications_template.xlsx';
     document.body.appendChild(link);
     link.click();
@@ -2648,74 +2652,80 @@ const PublicationManagement = () => {
                 <p style={{ marginTop: 8, color: '#757575' }}>Manage news publications and their details</p>
               </div>
 
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap', maxWidth: '100%', overflow: 'hidden' }}>
                 <button
                   onClick={handleDownloadTemplate}
                   style={{
                     backgroundColor: '#10b981',
                     color: '#fff',
-                    padding: '12px 20px',
-                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    borderRadius: '6px',
                     fontWeight: 600,
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.5rem',
+                    gap: '0.25rem',
                     cursor: 'pointer',
                     border: 'none',
-                    boxShadow: '0 6px 18px rgba(16,185,129,0.14)',
-                    fontSize: '14px'
+                    boxShadow: '0 4px 12px rgba(16,185,129,0.14)',
+                    fontSize: '13px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}
                   disabled={!hasAnyRole(['super_admin', 'content_manager'])}
                 >
-                  <Icon name="document-arrow-down" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                  Download Template
+                  <Icon name="document-arrow-down" size="sm" style={{ color: '#fff' }} />
+                  Template
                 </button>
                 {selectedPublications.length > 0 && (
-                  <div style={{ display: 'flex', gap: '8px', marginRight: '16px' }}>
+                  <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                     <button
                       onClick={() => setShowBulkEditModal(true)}
                       style={{
-                        padding: '8px 16px',
+                        padding: '8px 12px',
                         backgroundColor: '#f59e0b',
                         color: '#fff',
-                        borderRadius: '8px',
+                        borderRadius: '6px',
                         fontWeight: 600,
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.5rem',
+                        gap: '0.25rem',
                         cursor: 'pointer',
                         border: 'none',
-                        boxShadow: '0 6px 18px rgba(245,158,11,0.14)',
-                        fontSize: '14px'
+                        boxShadow: '0 4px 12px rgba(245,158,11,0.14)',
+                        fontSize: '13px',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
                       }}
                       disabled={!hasRole('super_admin')}
                     >
-                      <Icon name="pencil" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                      Bulk Edit ({selectedPublications.length})
+                      <Icon name="pencil" size="sm" style={{ color: '#fff' }} />
+                      Edit ({selectedPublications.length})
                     </button>
                     <button
                       onClick={() => setShowBulkDeleteModal(true)}
                       style={{
-                        padding: '8px 16px',
+                        padding: '8px 12px',
                         backgroundColor: '#ef4444',
                         color: '#fff',
-                        borderRadius: '8px',
+                        borderRadius: '6px',
                         fontWeight: 600,
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        gap: '0.5rem',
+                        gap: '0.25rem',
                         cursor: 'pointer',
                         border: 'none',
-                        boxShadow: '0 6px 18px rgba(239,68,68,0.14)',
-                        fontSize: '14px'
+                        boxShadow: '0 4px 12px rgba(239,68,68,0.14)',
+                        fontSize: '13px',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
                       }}
                       disabled={!hasRole('super_admin')}
                     >
-                      <Icon name="trash" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                      Bulk Delete ({selectedPublications.length})
+                      <Icon name="trash" size="sm" style={{ color: '#fff' }} />
+                      Delete ({selectedPublications.length})
                     </button>
                   </div>
                 )}
@@ -2724,30 +2734,48 @@ const PublicationManagement = () => {
                   style={{
                     backgroundColor: '#8b5cf6',
                     color: '#fff',
-                    padding: '12px 20px',
-                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    borderRadius: '6px',
                     fontWeight: 600,
                     display: 'inline-flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.5rem',
+                    gap: '0.25rem',
                     cursor: 'pointer',
                     border: 'none',
-                    boxShadow: '0 6px 18px rgba(139,92,246,0.14)',
-                    fontSize: '14px'
+                    boxShadow: '0 4px 12px rgba(139,92,246,0.14)',
+                    fontSize: '13px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
                   }}
                   disabled={!hasRole('super_admin')}
                 >
-                  <Icon name="cloud-arrow-up" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                  Bulk Upload
+                  <Icon name="cloud-arrow-up" size="sm" style={{ color: '#fff' }} />
+                  Upload
                 </button>
                 <button
                   onClick={handleCreatePublication}
-                  style={{ ...btnPrimary, fontSize: '14px', padding: '12px 20px' }}
+                  style={{
+                    backgroundColor: theme.primary,
+                    color: '#fff',
+                    padding: '10px 16px',
+                    borderRadius: '6px',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.25rem',
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: `0 4px 12px rgba(25,118,210,0.14)`,
+                    fontSize: '13px',
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
                   disabled={!hasRole('super_admin')}
                 >
-                  <Icon name="plus" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                  Add Publication
+                  <Icon name="plus" size="sm" style={{ color: '#fff' }} />
+                  Add
                 </button>
               </div>
             </div>

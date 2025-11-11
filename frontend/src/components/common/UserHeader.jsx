@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from './Icon';
 import PublicationSubmissionForm from '../user/PublicationSubmissionForm';
 
 const UserHeader = ({ onShowAuth }) => {
   const { isAuthenticated, user, logout, hasRole, hasAnyRole, getRoleLevel } = useAuth();
+  const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
   const [language, setLanguage] = useState('en');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showPublicationForm, setShowPublicationForm] = useState(false);
@@ -125,7 +127,11 @@ const UserHeader = ({ onShowAuth }) => {
                 <button className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Editor Registration
                 </button>
-                <button className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                <button
+                  onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : onShowAuth}
+                  disabled={isAdminAuthenticated}
+                  className={`px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20 ${isAdminAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
                   Submit Publication
                 </button>
                 <button onClick={onShowAuth} className="px-5 py-2 bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-bold text-sm rounded-lg hover:from-[#0D47A1] hover:to-[#0D47A1] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg backdrop-blur-sm">
@@ -145,11 +151,6 @@ const UserHeader = ({ onShowAuth }) => {
                     {user?.email || `Welcome, ${user?.first_name}!`}
                   </span>
                 </a>
-                {hasAnyRole(['super_admin', 'content_manager']) && (
-                  <a href="/admin/publications" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF9800] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
-                    Admin Panel
-                  </a>
-                )}
                 <button
                   onClick={() => setShowPublicationForm(true)}
                   className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20"
@@ -202,8 +203,9 @@ const UserHeader = ({ onShowAuth }) => {
                       Editor Registration
                     </button>
                     <button
-                      onClick={() => setShowPublicationForm(true)}
-                      className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm"
+                      onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : onShowAuth}
+                      disabled={isAdminAuthenticated}
+                      className={`w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm ${isAdminAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       Submit Publication
                     </button>
@@ -224,11 +226,6 @@ const UserHeader = ({ onShowAuth }) => {
                         {user?.email || `Welcome, ${user?.first_name}!`}
                       </span>
                     </a>
-                    {hasAnyRole(['super_admin', 'content_manager']) && (
-                      <a href="/admin/publications" className="w-full bg-white/60 backdrop-blur-sm text-[#FF9800] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
-                        Admin Panel
-                      </a>
-                    )}
                     <button
                       onClick={() => setShowPublicationForm(true)}
                       className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm"

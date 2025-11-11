@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../common/Icon';
 import api from '../../services/api';
@@ -7,6 +8,7 @@ import api from '../../services/api';
 // Publication Submission Form Component for Users
 const PublicationSubmissionForm = ({ onClose, onSuccess }) => {
   const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -42,14 +44,20 @@ const PublicationSubmissionForm = ({ onClose, onSuccess }) => {
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', 'error'
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or if admin is logged in
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
       return;
     }
+    if (isAdminAuthenticated) {
+      // If admin is logged in, close the form and show message
+      alert('Admins should submit publications through the admin panel.');
+      onClose();
+      return;
+    }
     fetchGroups();
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isAdminAuthenticated, navigate, onClose]);
 
   const fetchGroups = async () => {
     try {
@@ -60,39 +68,70 @@ const PublicationSubmissionForm = ({ onClose, onSuccess }) => {
     }
   };
 
-  // Load reCAPTCHA script
+  // Load reCAPTCHA script and render widget
   useEffect(() => {
-    // Load reCAPTCHA script if not already loaded
-    if (!window.grecaptcha) {
-      const script = document.createElement('script');
-      script.src = `https://www.google.com/recaptcha/enterprise.js?render=${import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
+    const loadRecaptcha = () => {
+      if (!window.grecaptcha) {
+        const script = document.createElement('script');
+        script.src = `https://www.google.com/recaptcha/api.js?render=explicit`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
 
-      script.onload = () => {
-        if (window.grecaptcha) {
-          window.grecaptcha.ready(() => {
-            console.log('reCAPTCHA ready');
-          });
-        }
-      };
-    }
-
-    // Listen for reCAPTCHA events
-    const handleRecaptchaSuccess = (event) => setRecaptchaToken(event.detail);
-    const handleRecaptchaExpired = () => setRecaptchaToken('');
-    const handleRecaptchaError = () => setRecaptchaToken('');
-
-    window.addEventListener('recaptchaSuccess', handleRecaptchaSuccess);
-    window.addEventListener('recaptchaExpired', handleRecaptchaExpired);
-    window.addEventListener('recaptchaError', handleRecaptchaError);
-
-    return () => {
-      window.removeEventListener('recaptchaSuccess', handleRecaptchaSuccess);
-      window.removeEventListener('recaptchaExpired', handleRecaptchaExpired);
-      window.removeEventListener('recaptchaError', handleRecaptchaError);
+        script.onload = () => {
+          if (window.grecaptcha) {
+            window.grecaptcha.ready(() => {
+              console.log('reCAPTCHA ready');
+              renderRecaptcha();
+            });
+          }
+        };
+      } else {
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+          renderRecaptcha();
+        }, 100);
+      }
     };
+
+    const renderRecaptcha = () => {
+      const container = document.getElementById('recaptcha-container');
+      if (!container) {
+        console.log('reCAPTCHA container not found');
+        return;
+      }
+
+      // Check if already rendered
+      if (container.hasChildNodes()) {
+        console.log('reCAPTCHA already rendered, skipping');
+        return;
+      }
+
+      const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LdNzrErAAAAAB1EB7ETPEhUrynf0wSQftMt-COT";
+
+      try {
+        const widgetId = window.grecaptcha.render('recaptcha-container', {
+          'sitekey': siteKey,
+          'callback': (token) => {
+            setRecaptchaToken(token);
+            setErrors(prev => ({ ...prev, recaptcha: '' }));
+          },
+          'expired-callback': () => {
+            setRecaptchaToken('');
+            setErrors(prev => ({ ...prev, recaptcha: 'reCAPTCHA expired. Please try again.' }));
+          },
+          'error-callback': () => {
+            setRecaptchaToken('');
+            setErrors(prev => ({ ...prev, recaptcha: 'reCAPTCHA error. Please try again.' }));
+          }
+        });
+        console.log('reCAPTCHA rendered with widget ID:', widgetId);
+      } catch (error) {
+        console.error('Error rendering reCAPTCHA:', error);
+      }
+    };
+
+    loadRecaptcha();
   }, []);
 
   const handleInputChange = (e) => {
@@ -232,8 +271,8 @@ const PublicationSubmissionForm = ({ onClose, onSuccess }) => {
     }
   };
 
-  if (!isAuthenticated) {
-    return null; // Will redirect in useEffect
+  if (!isAuthenticated || isAdminAuthenticated) {
+    return null; // Will redirect in useEffect or close if admin
   }
 
   const theme = {
@@ -280,7 +319,8 @@ const PublicationSubmissionForm = ({ onClose, onSuccess }) => {
     width: '100%',
     maxHeight: '90vh',
     overflowY: 'auto',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+    margin: 'auto'
   };
 
   const formGroupStyle = {
@@ -718,11 +758,8 @@ const PublicationSubmissionForm = ({ onClose, onSuccess }) => {
           {/* reCAPTCHA */}
           <div style={{ marginTop: '24px', marginBottom: '24px' }}>
             <div
-              className="g-recaptcha"
-              data-sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI"}
-              data-callback="onRecaptchaSuccess"
-              data-expired-callback="onRecaptchaExpired"
-              data-error-callback="onRecaptchaError"
+              id="recaptcha-container"
+              style={{ display: 'inline-block' }}
             ></div>
             {errors.recaptcha && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.recaptcha}</div>}
             <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '8px' }}>

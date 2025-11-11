@@ -1039,6 +1039,7 @@ class PublicationController {
           console.log('Validation errors found, returning 400');
           console.log('Group errors:', groupValidationErrors.length);
           console.log('Publication errors:', publicationValidationErrors.length);
+          BulkOperations.cleanupFile(filePath);
           return res.status(400).json({
             error: 'Validation failed for some records',
             groupValidationErrors: groupValidationErrors,
@@ -1110,9 +1111,12 @@ class PublicationController {
               const existingPublication = await Publication.findBySN(publication.publication_sn);
 
               if (existingPublication) {
-                // Update existing publication
+                // Update existing publication and reactivate if soft deleted
                 console.log(`Updating existing publication ${publication.publication_sn}`);
-                const updatedPublication = await existingPublication.update(publicationWithGroupId);
+                const updatedPublication = await existingPublication.update({
+                  ...publicationWithGroupId,
+                  is_active: true // Reactivate if it was soft deleted
+                });
                 updatedPublications.push(updatedPublication.toJSON());
                 console.log(`Publication updated successfully:`, updatedPublication.id);
               } else {
@@ -1133,6 +1137,7 @@ class PublicationController {
           }
         }
 
+        console.log(`Bulk upload completed. ${createdGroups.length} groups created, ${createdPublications.length} publications created, and ${updatedPublications.length} publications updated successfully.`);
         res.status(201).json({
           message: `Bulk upload completed. ${createdGroups.length} groups created, ${createdPublications.length} publications created, and ${updatedPublications.length} publications updated successfully.`,
           createdGroups: createdGroups.length,
