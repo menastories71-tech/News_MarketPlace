@@ -45,7 +45,7 @@ class PublicationController {
   createValidation = [
     body('group_id').isInt().withMessage('Group ID must be an integer'),
     body('publication_sn').trim().isLength({ min: 1 }).withMessage('Publication SN is required'),
-    body('publication_grade').trim().isLength({ min: 1 }).withMessage('Publication grade is required'),
+    body('publication_grade').trim().isLength({ min: 1, max: 10 }).withMessage('Publication grade must be between 1 and 10 characters'),
     body('publication_name').trim().isLength({ min: 1 }).withMessage('Publication name is required'),
     body('publication_website').isURL().withMessage('Valid publication website URL is required'),
     body('publication_price').isFloat({ min: 0 }).withMessage('Publication price must be a positive number'),
@@ -64,7 +64,7 @@ class PublicationController {
   updateValidation = [
     body('group_id').optional().isInt().withMessage('Group ID must be an integer'),
     body('publication_sn').optional().trim().isLength({ min: 1 }).withMessage('Publication SN is required'),
-    body('publication_grade').optional().trim().isLength({ min: 1 }).withMessage('Publication grade is required'),
+    body('publication_grade').optional().trim().isLength({ min: 1, max: 10 }).withMessage('Publication grade must be between 1 and 10 characters'),
     body('publication_name').optional().trim().isLength({ min: 1 }).withMessage('Publication name is required'),
     body('publication_website').optional().isURL().withMessage('Valid publication website URL is required'),
     body('publication_price').optional().isFloat({ min: 0 }).withMessage('Publication price must be a positive number'),
@@ -137,7 +137,8 @@ class PublicationController {
         group_id,
         publication_name,
         group_name,
-        region
+        region,
+        show_deleted = 'false'
       } = req.query;
 
       const filters = {};
@@ -151,6 +152,9 @@ class PublicationController {
         filters.status = 'approved';
         filters.is_active = true;
         filters.live_on_platform = true;
+      } else if (req.admin && show_deleted !== 'true') {
+        // For admins, by default only show active publications unless explicitly requesting deleted ones
+        filters.is_active = true;
       }
 
       // Add search filters
@@ -177,7 +181,15 @@ class PublicationController {
       }
 
       const offset = (page - 1) * limit;
-      const publications = await Publication.findAll(filters, searchSql, searchValues, limit, offset);
+      let publications;
+
+      if (req.admin && show_deleted === 'true') {
+        // Show deleted publications for admins
+        publications = await Publication.getDeleted(filters, searchSql, searchValues, limit, offset);
+      } else {
+        // Show active publications
+        publications = await Publication.findAll(filters, searchSql, searchValues, limit, offset);
+      }
 
       res.json({
         publications: publications.map(pub => pub.toJSON()),
@@ -253,6 +265,32 @@ class PublicationController {
       res.json({ message: 'Publication deleted successfully' });
     } catch (error) {
       console.error('Delete publication error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Hard delete publication (permanent delete)
+  async hardDelete(req, res) {
+    try {
+      const { id } = req.params;
+      const publication = await Publication.findById(id);
+
+      if (!publication) {
+        return res.status(404).json({ error: 'Publication not found' });
+      }
+
+      // Check if publication is already soft deleted
+      if (!publication.is_active) {
+        return res.status(400).json({ error: 'Publication is already deleted' });
+      }
+
+      // Perform hard delete
+      const { query } = require('../config/database');
+      await query('DELETE FROM publications WHERE id = $1', [id]);
+
+      res.json({ message: 'Publication permanently deleted successfully' });
+    } catch (error) {
+      console.error('Hard delete publication error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -383,6 +421,243 @@ class PublicationController {
     }
   }
 
+  // Bulk approve publications
+  async bulkApprove(req, res) {
+    try {
+      const { ids } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'IDs array is required' });
+      }
+
+      // Admin verification for bulk operations
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin authentication required for bulk operations' });
+      }
+
+      // Check admin role level (minimum content_manager for bulk approve operations)
+      const roleLevels = {
+        'super_admin': 5,
+        'content_manager': 4,
+        'editor': 3,
+        'registered_user': 2,
+        'agency': 1,
+        'other': 0
+      };
+
+      const adminLevel = roleLevels[req.admin.role] || 0;
+      if (adminLevel < 4) { // content_manager level required for bulk approve
+        return res.status(403).json({
+          error: 'Insufficient permissions for bulk approve operations',
+          required: 'Content Manager or higher',
+          currentLevel: adminLevel
+        });
+      }
+
+      const adminId = req.admin?.adminId;
+      if (!adminId) {
+        return res.status(403).json({ error: 'Admin authentication required' });
+      }
+
+      const approvedPublications = [];
+      const errors = [];
+
+      for (let i = 0; i < ids.length; i++) {
+        try {
+          const publication = await Publication.findById(ids[i]);
+
+          if (!publication) {
+            errors.push({ index: i, error: 'Publication not found' });
+            continue;
+          }
+
+          if (publication.status === 'approved') {
+            errors.push({ index: i, error: 'Publication is already approved' });
+            continue;
+          }
+
+          const updateData = {
+            status: 'approved',
+            approved_at: new Date(),
+            approved_by: adminId,
+            rejected_at: null,
+            rejected_by: null,
+            rejection_reason: null
+          };
+
+          const updatedPublication = await publication.update(updateData);
+          approvedPublications.push(updatedPublication.toJSON());
+
+          // Create in-app notification
+          try {
+            await UserNotification.create({
+              user_id: publication.submitted_by,
+              type: 'publication_approved',
+              title: 'Publication Approved!',
+              message: `Your publication "${publication.publication_name}" has been approved and is now live on our platform.`,
+              related_id: publication.id
+            });
+          } catch (notificationError) {
+            console.error('Failed to create approval notification:', notificationError);
+          }
+
+          // Send approval email notification
+          try {
+            await this.sendApprovalNotification(updatedPublication);
+          } catch (emailError) {
+            console.error('Failed to send approval email:', emailError);
+            // Log email failure but don't fail the approval process
+            try {
+              await UserNotification.create({
+                user_id: publication.submitted_by,
+                type: 'system',
+                title: 'Email Delivery Issue',
+                message: 'We were unable to send you an email confirmation for your approved publication. Please check your notifications for details.',
+                related_id: publication.id
+              });
+            } catch (notificationError) {
+              console.error('Failed to create email failure notification:', notificationError);
+            }
+          }
+        } catch (error) {
+          errors.push({ index: i, error: error.message });
+        }
+      }
+
+      res.json({
+        message: `Approved ${approvedPublications.length} publications successfully`,
+        approved: approvedPublications.length,
+        errors: errors.length,
+        approvedPublications: approvedPublications,
+        errors: errors
+      });
+    } catch (error) {
+      console.error('Bulk approve publications error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Bulk reject publications
+  async bulkReject(req, res) {
+    try {
+      const { ids, rejection_reason, admin_comments } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'IDs array is required' });
+      }
+
+      if (!rejection_reason || rejection_reason.trim().length === 0) {
+        return res.status(400).json({ error: 'Rejection reason is required' });
+      }
+
+      // Admin verification for bulk operations
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin authentication required for bulk operations' });
+      }
+
+      // Check admin role level (minimum content_manager for bulk reject operations)
+      const roleLevels = {
+        'super_admin': 5,
+        'content_manager': 4,
+        'editor': 3,
+        'registered_user': 2,
+        'agency': 1,
+        'other': 0
+      };
+
+      const adminLevel = roleLevels[req.admin.role] || 0;
+      if (adminLevel < 4) { // content_manager level required for bulk reject
+        return res.status(403).json({
+          error: 'Insufficient permissions for bulk reject operations',
+          required: 'Content Manager or higher',
+          currentLevel: adminLevel
+        });
+      }
+
+      const adminId = req.admin?.adminId;
+      if (!adminId) {
+        return res.status(403).json({ error: 'Admin authentication required' });
+      }
+
+      const rejectedPublications = [];
+      const errors = [];
+
+      for (let i = 0; i < ids.length; i++) {
+        try {
+          const publication = await Publication.findById(ids[i]);
+
+          if (!publication) {
+            errors.push({ index: i, error: 'Publication not found' });
+            continue;
+          }
+
+          if (publication.status === 'rejected') {
+            errors.push({ index: i, error: 'Publication is already rejected' });
+            continue;
+          }
+
+          const updateData = {
+            status: 'rejected',
+            rejected_at: new Date(),
+            rejected_by: adminId,
+            rejection_reason: rejection_reason.trim(),
+            approved_at: null,
+            approved_by: null,
+            admin_comments: admin_comments || null
+          };
+
+          const updatedPublication = await publication.update(updateData);
+          rejectedPublications.push(updatedPublication.toJSON());
+
+          // Create in-app notification
+          try {
+            await UserNotification.create({
+              user_id: publication.submitted_by,
+              type: 'publication_rejected',
+              title: 'Publication Review Update',
+              message: `Your publication "${publication.publication_name}" has been reviewed. Please check your email for details.`,
+              related_id: publication.id
+            });
+          } catch (notificationError) {
+            console.error('Failed to create rejection notification:', notificationError);
+          }
+
+          // Send rejection email notification
+          try {
+            await this.sendRejectionNotification(updatedPublication);
+          } catch (emailError) {
+            console.error('Failed to send rejection email:', emailError);
+            // Log email failure but don't fail the rejection process
+            try {
+              await UserNotification.create({
+                user_id: publication.submitted_by,
+                type: 'system',
+                title: 'Email Delivery Issue',
+                message: 'We were unable to send you an email about your publication review. Please check your notifications for the rejection details.',
+                related_id: publication.id
+              });
+            } catch (notificationError) {
+              console.error('Failed to create email failure notification:', notificationError);
+            }
+          }
+        } catch (error) {
+          errors.push({ index: i, error: error.message });
+        }
+      }
+
+      res.json({
+        message: `Rejected ${rejectedPublications.length} publications successfully`,
+        rejected: rejectedPublications.length,
+        errors: errors.length,
+        rejectedPublications: rejectedPublications,
+        errors: errors
+      });
+    } catch (error) {
+      console.error('Bulk reject publications error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Bulk delete publications
   async bulkDelete(req, res) {
     try {
@@ -477,7 +752,7 @@ class PublicationController {
   async approvePublication(req, res) {
     try {
       const { id } = req.params;
-      const { admin_comments } = req.body;
+      const admin_comments = req.body?.admin_comments;
 
       const publication = await Publication.findById(id);
       if (!publication) {
@@ -625,7 +900,7 @@ class PublicationController {
     }
   }
 
-  // Bulk upload publications from CSV/Excel file
+  // Bulk upload groups and publications from CSV/Excel file
   async bulkUpload(req, res) {
     // Admin verification for bulk operations
     if (!req.admin) {
@@ -690,89 +965,185 @@ class PublicationController {
           return res.status(400).json({ error: 'No file uploaded' });
         }
 
-      const filePath = req.file.path;
-      const mimetype = req.file.mimetype;
+        const filePath = req.file.path;
+        const mimetype = req.file.mimetype;
 
-      // Parse the file
-      const rawData = await BulkOperations.parseFile(filePath, mimetype);
+        // Parse the file
+        const rawData = await BulkOperations.parseFile(filePath, mimetype);
 
-      if (!rawData || rawData.length === 0) {
-        BulkOperations.cleanupFile(filePath);
-        return res.status(400).json({ error: 'File is empty or contains no valid data' });
-      }
+        if (!rawData || rawData.length === 0) {
+          BulkOperations.cleanupFile(filePath);
+          return res.status(400).json({ error: 'File is empty or contains no valid data' });
+        }
 
-      // Validate and transform data
-      const validationErrors = [];
-      const validPublications = [];
+        // Extract and validate groups first
+        const groupData = BulkOperations.transformGroupData(rawData);
+        console.log('Group data extracted:', groupData.length, 'groups');
+        console.log('First group sample:', groupData[0]);
+        const validGroups = [];
+        const groupValidationErrors = [];
 
-      for (let i = 0; i < rawData.length; i++) {
-        const row = rawData[i];
-        const errors = BulkOperations.validatePublicationData(row);
+        for (let i = 0; i < groupData.length; i++) {
+          const group = groupData[i];
+          const errors = BulkOperations.validateGroupData(group);
+          console.log(`Group ${i} validation:`, errors);
 
-        if (errors.length > 0) {
-          validationErrors.push({
-            row: i + 1,
-            errors: errors
-          });
-        } else {
-          try {
-            const transformedData = BulkOperations.transformPublicationData([row])[0];
+          if (errors.length > 0) {
+            groupValidationErrors.push({
+              group_sn: group.group_sn,
+              errors: errors
+            });
+          } else {
+            validGroups.push({
+              ...group,
+              submitted_by: req.user?.userId,
+              submitted_by_admin: req.admin?.adminId,
+              status: 'approved' // Admin bulk uploads create approved groups
+            });
+          }
+        }
+
+        // Extract and validate publications
+        const publicationData = BulkOperations.transformPublicationData(rawData);
+        console.log('Publication data extracted:', publicationData.length, 'publications');
+        console.log('First publication sample:', publicationData[0]);
+        const validPublications = [];
+        const publicationValidationErrors = [];
+
+        for (let i = 0; i < publicationData.length; i++) {
+          const publication = publicationData[i];
+          const errors = BulkOperations.validatePublicationData(publication);
+          console.log(`Publication ${i} validation:`, errors);
+
+          if (errors.length > 0) {
+            publicationValidationErrors.push({
+              row: i + 1,
+              publication_sn: publication.publication_sn,
+              errors: errors
+            });
+          } else {
             validPublications.push({
-              ...transformedData,
+              ...publication,
               submitted_by: req.user?.userId,
               submitted_by_admin: req.admin?.adminId,
               status: 'approved' // Admin bulk uploads create approved publications
             });
-          } catch (transformError) {
-            validationErrors.push({
-              row: i + 1,
-              errors: [`Data transformation error: ${transformError.message}`]
-            });
           }
         }
-      }
 
-      // Clean up the uploaded file
-      BulkOperations.cleanupFile(filePath);
+        // Clean up the uploaded file
+        BulkOperations.cleanupFile(filePath);
 
-      // If there are validation errors, return them
-      if (validationErrors.length > 0) {
-        return res.status(400).json({
-          error: 'Validation failed for some records',
-          validationErrors: validationErrors,
-          validRecords: validPublications.length,
-          totalRecords: rawData.length
-        });
-      }
+        // If there are validation errors, return them
+        if (groupValidationErrors.length > 0 || publicationValidationErrors.length > 0) {
+          console.log('Validation errors found, returning 400');
+          console.log('Group errors:', groupValidationErrors.length);
+          console.log('Publication errors:', publicationValidationErrors.length);
+          return res.status(400).json({
+            error: 'Validation failed for some records',
+            groupValidationErrors: groupValidationErrors,
+            publicationValidationErrors: publicationValidationErrors,
+            validGroups: validGroups.length,
+            validPublications: validPublications.length,
+            totalRecords: rawData.length
+          });
+        }
 
-      // Create publications in batches to avoid overwhelming the database
-      const createdPublications = [];
-      const creationErrors = [];
+        // Create groups first
+        const Group = require('../models/Group');
+        const createdGroups = [];
+        const groupCreationErrors = [];
 
-      const batchSize = 10;
-      for (let i = 0; i < validPublications.length; i += batchSize) {
-        const batch = validPublications.slice(i, i + batchSize);
-
-        for (let j = 0; j < batch.length; j++) {
+        for (let i = 0; i < validGroups.length; i++) {
           try {
-            const publication = await Publication.create(batch[j]);
-            createdPublications.push(publication.toJSON());
+            const group = await Group.create(validGroups[i]);
+            createdGroups.push(group.toJSON());
           } catch (error) {
-            creationErrors.push({
-              index: i + j,
+            groupCreationErrors.push({
+              group_sn: validGroups[i].group_sn,
               error: error.message
             });
           }
         }
-      }
 
-      res.status(201).json({
-        message: `Bulk upload completed. ${createdPublications.length} publications created successfully.`,
-        created: createdPublications.length,
-        errors: creationErrors.length,
-        creationErrors: creationErrors,
-        totalProcessed: validPublications.length
-      });
+        // Create a map of group_sn to group_id for publications
+        // Use the original group_sn from the Excel file, not the modified one from the database
+        const groupMap = new Map();
+        createdGroups.forEach((group, index) => {
+          // Map back to the original group_sn from validGroups array
+          const originalGroupSn = validGroups[index].group_sn;
+          groupMap.set(originalGroupSn, group.id);
+        });
+        console.log('Created group mapping:', groupMap);
+
+        // Create or update publications with correct group_id
+        const createdPublications = [];
+        const updatedPublications = [];
+        const publicationCreationErrors = [];
+        console.log('Creating/updating publications with group mapping:', groupMap);
+
+        const batchSize = 10;
+        for (let i = 0; i < validPublications.length; i += batchSize) {
+          const batch = validPublications.slice(i, i + batchSize);
+
+          for (let j = 0; j < batch.length; j++) {
+            try {
+              const publication = batch[j];
+              const groupId = groupMap.get(publication.group_sn);
+              console.log(`Publication ${publication.publication_sn} looking for group SN: ${publication.group_sn}, found group ID: ${groupId}`);
+
+              if (!groupId) {
+                publicationCreationErrors.push({
+                  index: i + j,
+                  publication_sn: publication.publication_sn,
+                  error: `Group with SN '${publication.group_sn}' not found`
+                });
+                continue;
+              }
+
+              // Remove group_sn and add group_id
+              const { group_sn, ...publicationData } = publication;
+              const publicationWithGroupId = { ...publicationData, group_id: groupId };
+              console.log(`Processing publication:`, publicationWithGroupId);
+
+              // Check if publication already exists
+              const existingPublication = await Publication.findBySN(publication.publication_sn);
+
+              if (existingPublication) {
+                // Update existing publication
+                console.log(`Updating existing publication ${publication.publication_sn}`);
+                const updatedPublication = await existingPublication.update(publicationWithGroupId);
+                updatedPublications.push(updatedPublication.toJSON());
+                console.log(`Publication updated successfully:`, updatedPublication.id);
+              } else {
+                // Create new publication
+                console.log(`Creating new publication ${publication.publication_sn}`);
+                const createdPublication = await Publication.create(publicationWithGroupId);
+                createdPublications.push(createdPublication.toJSON());
+                console.log(`Publication created successfully:`, createdPublication.id);
+              }
+            } catch (error) {
+              console.error(`Error processing publication ${batch[j].publication_sn}:`, error);
+              publicationCreationErrors.push({
+                index: i + j,
+                publication_sn: batch[j].publication_sn,
+                error: error.message
+              });
+            }
+          }
+        }
+
+        res.status(201).json({
+          message: `Bulk upload completed. ${createdGroups.length} groups created, ${createdPublications.length} publications created, and ${updatedPublications.length} publications updated successfully.`,
+          createdGroups: createdGroups.length,
+          createdPublications: createdPublications.length,
+          updatedPublications: updatedPublications.length,
+          groupErrors: groupCreationErrors.length,
+          publicationErrors: publicationCreationErrors.length,
+          groupCreationErrors: groupCreationErrors,
+          publicationCreationErrors: publicationCreationErrors,
+          totalProcessed: validGroups.length + validPublications.length
+        });
 
       } catch (error) {
         console.error('Bulk upload error:', error);

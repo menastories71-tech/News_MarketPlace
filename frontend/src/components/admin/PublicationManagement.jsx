@@ -582,6 +582,69 @@ const PublicationManagement = () => {
   const [selectedStatusFilters, setSelectedStatusFilters] = useState([]);
   const [selectedIndustryFilters, setSelectedIndustryFilters] = useState([]);
   const [selectedRegionFilters, setSelectedRegionFilters] = useState([]);
+  const [showDeleted, setShowDeleted] = useState(false);
+  const [showBulkUploadModal, setShowBulkUploadModal] = useState(false);
+  const [showBulkEditModal, setShowBulkEditModal] = useState(false);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
+  const [message, setMessage] = useState(null);
+
+  // Memoize groups map for stable reference
+  const groupsMap = useMemo(() => {
+    return groups.reduce((map, group) => {
+      map[group.id] = group.group_name;
+      return map;
+    }, {});
+  }, [groups]);
+
+  const handleFormSave = () => {
+    fetchPublications();
+    setMessage({ type: 'success', text: 'Publication saved successfully!' });
+  };
+
+  const handleBulkUploadSave = () => {
+    fetchPublications();
+    setShowBulkUploadModal(false);
+    setMessage({ type: 'success', text: 'Bulk upload completed successfully!' });
+  };
+
+  const handleBulkEditSave = () => {
+    fetchPublications();
+    setShowBulkEditModal(false);
+    setSelectedPublications([]);
+    setMessage({ type: 'success', text: 'Bulk edit completed successfully!' });
+  };
+
+  const handleBulkDeleteConfirm = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${selectedPublications.length} publications?`)) return;
+
+    try {
+      setLoading(true);
+      await api.delete('/publications/bulk', { data: { ids: selectedPublications } });
+
+      fetchPublications();
+      setSelectedPublications([]);
+      setShowBulkDeleteModal(false);
+      setMessage({ type: 'success', text: `${selectedPublications.length} publications deleted successfully!` });
+    } catch (error) {
+      console.error('Bulk delete error:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Bulk delete failed. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    // Download the sample data.xlsx file
+    const link = document.createElement('a');
+    link.href = '/Website_Workflow/sample data.xlsx';
+    link.download = 'publications_template.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -680,8 +743,8 @@ const PublicationManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchPublications();
         await fetchGroups();
+        await fetchPublications();
       } catch (error) {
         console.error('Error fetching data:', error);
         // If unauthorized, the API interceptor will handle redirect
@@ -693,7 +756,11 @@ const PublicationManagement = () => {
 
   const fetchPublications = async () => {
     try {
-      const response = await api.get('/publications/admin');
+      const params = new URLSearchParams();
+      if (showDeleted) {
+        params.append('show_deleted', 'true');
+      }
+      const response = await api.get(`/publications/admin?${params.toString()}`);
       setPublications(response.data.publications || []);
     } catch (error) {
       console.error('Error fetching publications:', error);
@@ -702,7 +769,7 @@ const PublicationManagement = () => {
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
       } else {
-        setError('Failed to load publications. Please try again.');
+        alert('Failed to load publications. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -711,7 +778,7 @@ const PublicationManagement = () => {
 
   const fetchGroups = async () => {
     try {
-      const response = await api.get('/groups');
+      const response = await api.get('/groups/admin');
       setGroups(response.data.groups || []);
     } catch (error) {
       console.error('Error fetching groups:', error);
@@ -719,6 +786,14 @@ const PublicationManagement = () => {
         // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
+      } else if (error.response?.status === 403) {
+        // Permission denied, try regular groups endpoint
+        try {
+          const fallbackResponse = await api.get('/groups');
+          setGroups(fallbackResponse.data.groups || []);
+        } catch (fallbackError) {
+          console.error('Fallback groups fetch failed:', fallbackError);
+        }
       }
     }
   };
@@ -727,6 +802,37 @@ const PublicationManagement = () => {
   const [searchIndex, setSearchIndex] = useState(null);
   const [searchSuggestions, setSearchSuggestions] = useState([]);
   const [searchStats, setSearchStats] = useState({ totalSearches: 0, avgResponseTime: 0 });
+
+  // Advanced caching system for search results
+  const [searchCache, setSearchCache] = useState(new Map());
+  const [lastSearchTime, setLastSearchTime] = useState(0);
+
+  // Cache search results to avoid redundant computations
+  const getCachedSearch = (query, filters) => {
+    const cacheKey = JSON.stringify({ query, filters });
+    const cached = searchCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 30000) { // 30 second cache
+      return cached.results;
+    }
+    return null;
+  };
+
+  const setCachedSearch = (query, filters, results) => {
+    const cacheKey = JSON.stringify({ query, filters });
+    setSearchCache(prev => {
+      const newCache = new Map(prev);
+      newCache.set(cacheKey, {
+        results,
+        timestamp: Date.now()
+      });
+      // Limit cache size to prevent memory issues
+      if (newCache.size > 50) {
+        const oldestKey = newCache.keys().next().value;
+        newCache.delete(oldestKey);
+      }
+      return newCache;
+    });
+  };
 
   // Build search index using Trie data structure for O(1) prefix searches
   const buildSearchIndex = useMemo(() => {
@@ -914,36 +1020,6 @@ const PublicationManagement = () => {
     setSearchSuggestions(Array.from(suggestions).slice(0, 5));
   }, [searchTerm, buildSearchIndex]);
 
-  // Advanced caching system for search results
-  const [searchCache, setSearchCache] = useState(new Map());
-  const [lastSearchTime, setLastSearchTime] = useState(0);
-
-  // Cache search results to avoid redundant computations
-  const getCachedSearch = (query, filters) => {
-    const cacheKey = JSON.stringify({ query, filters });
-    const cached = searchCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 30000) { // 30 second cache
-      return cached.results;
-    }
-    return null;
-  };
-
-  const setCachedSearch = (query, filters, results) => {
-    const cacheKey = JSON.stringify({ query, filters });
-    setSearchCache(prev => {
-      const newCache = new Map(prev);
-      newCache.set(cacheKey, {
-        results,
-        timestamp: Date.now()
-      });
-      // Limit cache size to prevent memory issues
-      if (newCache.size > 50) {
-        const oldestKey = newCache.keys().next().value;
-        newCache.delete(oldestKey);
-      }
-      return newCache;
-    });
-  };
 
   // Debounced search effect with caching
   useEffect(() => {
@@ -972,7 +1048,7 @@ const PublicationManagement = () => {
   useEffect(() => {
     const filters = [];
     if (debouncedSearchTerm) filters.push({ type: 'search', value: debouncedSearchTerm, label: `Search: "${debouncedSearchTerm}"` });
-    if (groupFilter) filters.push({ type: 'group', value: groupFilter, label: `Group: ${groups.find(g => g.id === parseInt(groupFilter))?.group_name || groupFilter}` });
+    if (groupFilter) filters.push({ type: 'group', value: groupFilter, label: `Group: ${groupsMap[parseInt(groupFilter)] || groupFilter}` });
     if (regionFilter) filters.push({ type: 'region', value: regionFilter, label: `Region: ${regionFilter}` });
     if (industryFilter) filters.push({ type: 'industry', value: industryFilter, label: `Industry: ${industryFilter}` });
     if (selectedStatusFilters.length > 0) filters.push({ type: 'status', value: selectedStatusFilters, label: `Status: ${selectedStatusFilters.join(', ')}` });
@@ -987,8 +1063,9 @@ const PublicationManagement = () => {
     if (sponsoredFilter !== '') filters.push({ type: 'sponsored', value: sponsoredFilter, label: sponsoredFilter === 'true' ? 'Sponsored Only' : 'Non-sponsored Only' });
     if (liveFilter !== '') filters.push({ type: 'live', value: liveFilter, label: liveFilter === 'true' ? 'Live Only' : 'Not Live Only' });
     if (dofollowFilter !== '') filters.push({ type: 'dofollow', value: dofollowFilter, label: dofollowFilter === 'true' ? 'Do-follow Only' : 'No-follow Only' });
+    if (showDeleted) filters.push({ type: 'deleted', value: true, label: 'Showing Deleted Publications' });
     setAppliedFilters(filters);
-  }, [debouncedSearchTerm, groupFilter, regionFilter, industryFilter, selectedStatusFilters, priceRange, daRange, drRange, newsIndexRange, wordsLimitRange, imagesRange, languageFilter, tatFilter, sponsoredFilter, liveFilter, dofollowFilter, groups]);
+  }, [debouncedSearchTerm, groupFilter, regionFilter, industryFilter, selectedStatusFilters, priceRange, daRange, drRange, newsIndexRange, wordsLimitRange, imagesRange, languageFilter, tatFilter, sponsoredFilter, liveFilter, dofollowFilter, showDeleted, groupsMap]);
 
   // Advanced filtering logic with AI-optimized search
   const filteredPublications = useMemo(() => {
@@ -1149,11 +1226,31 @@ const PublicationManagement = () => {
     }
   };
 
+  const hasActiveFilters = () => {
+    return debouncedSearchTerm ||
+           groupFilter ||
+           regionFilter ||
+           industryFilter ||
+           selectedStatusFilters.length > 0 ||
+           priceRange[0] > 0 || priceRange[1] < 2000 ||
+           daRange[0] > 0 || daRange[1] < 100 ||
+           drRange[0] > 0 || drRange[1] < 100 ||
+           newsIndexRange[0] > 0 || newsIndexRange[1] < 100 ||
+           wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
+           imagesRange[0] > 0 || imagesRange[1] < 50 ||
+           languageFilter ||
+           tatFilter.length > 0 ||
+           sponsoredFilter !== '' ||
+           liveFilter !== '' ||
+           dofollowFilter !== '';
+  };
+
   const getPublicationStats = () => {
-    const total = publications.length;
-    const approved = publications.filter(p => p.status === 'approved').length;
-    const pending = publications.filter(p => p.status === 'pending').length;
-    const active = publications.filter(p => p.is_active).length;
+    const dataSource = hasActiveFilters() ? filteredPublications : publications;
+    const total = dataSource.length;
+    const approved = dataSource.filter(p => p.status === 'approved').length;
+    const pending = dataSource.filter(p => p.status === 'pending').length;
+    const active = dataSource.filter(p => p.is_active).length;
 
     return { total, approved, pending, active };
   };
@@ -1234,6 +1331,7 @@ const PublicationManagement = () => {
     setSponsoredFilter('');
     setLiveFilter('');
     setDofollowFilter('');
+    setShowDeleted(false);
   };
 
   const toggleTatFilter = (tatOption) => {
@@ -1242,6 +1340,14 @@ const PublicationManagement = () => {
         ? prev.filter(t => t !== tatOption)
         : [...prev, tatOption]
     );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedPublications.length === filteredPublications.length) {
+      setSelectedPublications([]);
+    } else {
+      setSelectedPublications(filteredPublications.map(p => p.id));
+    }
   };
 
   // CRUD operations
@@ -1255,68 +1361,6 @@ const PublicationManagement = () => {
     setShowFormModal(true);
   };
 
-  const handleDeletePublication = async (publicationId) => {
-    if (!window.confirm('Are you sure you want to delete this publication?')) return;
-
-    try {
-      await api.delete(`/publications/${publicationId}`);
-      fetchPublications();
-    } catch (error) {
-      console.error('Error deleting publication:', error);
-      alert('Error deleting publication. Please try again.');
-    }
-  };
-
-  const handleStatusChange = async (publicationId, newStatus) => {
-    try {
-      await api.patch(`/publications/${publicationId}/status`, { status: newStatus });
-      fetchPublications();
-    } catch (error) {
-      console.error('Error updating status:', error);
-      alert('Error updating status. Please try again.');
-    }
-  };
-
-  const handleApprovePublication = async (publicationId) => {
-    if (!window.confirm('Are you sure you want to approve this publication? The user will be notified via email.')) return;
-
-    try {
-      await api.post(`/publications/${publicationId}/approve`);
-      fetchPublications();
-      alert('Publication approved successfully! User has been notified via email.');
-    } catch (error) {
-      console.error('Error approving publication:', error);
-      alert('Error approving publication. Please try again.');
-    }
-  };
-
-  const handleRejectPublication = async (publicationId) => {
-    const reason = prompt('Please provide a reason for rejection:');
-    if (reason === null) return; // User cancelled
-
-    if (!reason.trim()) {
-      alert('Rejection reason is required.');
-      return;
-    }
-
-    try {
-      await api.post(`/publications/${publicationId}/reject`, {
-        rejection_reason: reason.trim(),
-        admin_comments: 'Rejected via admin panel'
-      });
-      fetchPublications();
-      alert('Publication rejected successfully! User has been notified via email.');
-    } catch (error) {
-      console.error('Error rejecting publication:', error);
-      alert('Error rejecting publication. Please try again.');
-    }
-  };
-
-  const handleFormSave = () => {
-    fetchPublications();
-  };
-
-  // Bulk operations
   const handleSelectPublication = (publicationId) => {
     setSelectedPublications(prev =>
       prev.includes(publicationId)
@@ -1325,79 +1369,201 @@ const PublicationManagement = () => {
     );
   };
 
-  const handleSelectAll = () => {
-    if (selectedPublications.length === filteredPublications.length) {
-      setSelectedPublications([]);
-    } else {
-      setSelectedPublications(filteredPublications.map(p => p.id));
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${selectedPublications.length} publications?`)) return;
-
-    try {
-      await api.delete('/publications/bulk', { data: { ids: selectedPublications } });
-      setSelectedPublications([]);
-      fetchPublications();
-    } catch (error) {
-      console.error('Error bulk deleting:', error);
-      alert('Error deleting publications. Please try again.');
-    }
-  };
-
-  const handleBulkStatusChange = async (newStatus) => {
-    try {
-      const updates = selectedPublications.map(id => ({ id, status: newStatus }));
-      await api.put('/publications/bulk', { updates });
-      setSelectedPublications([]);
-      fetchPublications();
-    } catch (error) {
-      console.error('Error bulk updating status:', error);
-      alert('Error updating publications. Please try again.');
-    }
-  };
-
   const handleBulkApprove = async () => {
-    if (!window.confirm(`Are you sure you want to approve ${selectedPublications.length} publications? Users will be notified via email.`)) return;
+    if (selectedPublications.length === 0) return;
+
+    if (!window.confirm(`Are you sure you want to approve ${selectedPublications.length} publications?`)) return;
 
     try {
-      // Approve each publication individually to trigger email notifications
-      for (const publicationId of selectedPublications) {
-        await api.post(`/publications/${publicationId}/approve`);
-      }
+      setLoading(true);
+      await api.put('/publications/bulk-approve', { ids: selectedPublications });
       setSelectedPublications([]);
       fetchPublications();
-      alert('Publications approved successfully! Users have been notified via email.');
+      setMessage({ type: 'success', text: 'Publications approved successfully!' });
     } catch (error) {
-      console.error('Error bulk approving publications:', error);
-      alert('Error approving publications. Please try again.');
+      console.error('Error bulk approving:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error approving publications. Please try again.'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleBulkReject = async () => {
-    const reason = prompt('Please provide a reason for bulk rejection:');
-    if (reason === null) return; // User cancelled
+    if (selectedPublications.length === 0) return;
 
-    if (!reason.trim()) {
-      alert('Rejection reason is required.');
-      return;
-    }
+    if (!window.confirm(`Are you sure you want to reject ${selectedPublications.length} publications?`)) return;
 
     try {
-      // Reject each publication individually to trigger email notifications
-      for (const publicationId of selectedPublications) {
-        await api.post(`/publications/${publicationId}/reject`, {
-          rejection_reason: reason.trim(),
-          admin_comments: 'Rejected via bulk action'
-        });
-      }
+      setLoading(true);
+      await api.put('/publications/bulk-reject', { ids: selectedPublications });
       setSelectedPublications([]);
       fetchPublications();
-      alert('Publications rejected successfully! Users have been notified via email.');
+      setMessage({ type: 'success', text: 'Publications rejected successfully!' });
     } catch (error) {
-      console.error('Error bulk rejecting publications:', error);
-      alert('Error rejecting publications. Please try again.');
+      console.error('Error bulk rejecting:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error rejecting publications. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBulkStatusChange = async (newStatus) => {
+    if (selectedPublications.length === 0) return;
+
+    if (!window.confirm(`Are you sure you want to change the status of ${selectedPublications.length} publications to ${newStatus}?`)) return;
+
+    try {
+      setLoading(true);
+      await api.put('/publications/bulk-status', { ids: selectedPublications, status: newStatus });
+      setSelectedPublications([]);
+      fetchPublications();
+      setMessage({ type: 'success', text: `Publications status updated to ${newStatus} successfully!` });
+    } catch (error) {
+      console.error('Error bulk status change:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error updating publications status. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApprovePublication = async (publicationId) => {
+    try {
+      setLoading(true);
+      await api.put(`/publications/admin/${publicationId}/approve`);
+      fetchPublications();
+      setMessage({ type: 'success', text: 'Publication approved successfully!' });
+    } catch (error) {
+      console.error('Error approving publication:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error approving publication. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRejectPublication = async (publicationId) => {
+    try {
+      setLoading(true);
+      await api.put(`/publications/admin/${publicationId}/reject`);
+      fetchPublications();
+      setMessage({ type: 'success', text: 'Publication rejected successfully!' });
+    } catch (error) {
+      console.error('Error rejecting publication:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error rejecting publication. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fix the delete function to use admin route
+  const handleDeletePublication = async (publicationId) => {
+    if (!window.confirm('Are you sure you want to delete this publication?')) return;
+
+    try {
+      setLoading(true);
+      // Use admin route instead of user route
+      await api.delete(`/publications/admin/${publicationId}`);
+
+      // Refresh the publications list
+      fetchPublications();
+
+      // Show success message
+      setMessage({ type: 'success', text: 'Publication deleted successfully!' });
+    } catch (error) {
+      console.error('Error deleting publication:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error deleting publication. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Hard delete publication (permanent delete)
+  const handleHardDeletePublication = async (publicationId) => {
+    if (!window.confirm('Are you sure you want to PERMANENTLY DELETE this publication? This action cannot be undone!')) return;
+
+    try {
+      setLoading(true);
+      // Use admin hard delete route
+      await api.delete(`/publications/admin/${publicationId}/hard`);
+
+      // Refresh the publications list
+      fetchPublications();
+
+      // Show success message
+      setMessage({ type: 'success', text: 'Publication permanently deleted successfully!' });
+    } catch (error) {
+      console.error('Error hard deleting publication:', error);
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error permanently deleting publication. Please try again.'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Also fix bulk delete if you have it
+  const handleBulkDelete = async () => {
+    if (selectedPublications.length === 0) return;
+    
+    if (!window.confirm(`Are you sure you want to delete ${selectedPublications.length} publications?`)) return;
+
+    try {
+      setLoading(true);
+      // Use admin bulk delete route
+      await api.delete('/publications/bulk', { 
+        data: { ids: selectedPublications } 
+      });
+      
+      setSelectedPublications([]);
+      fetchPublications();
+      
+      setMessage({ type: 'success', text: 'Publications deleted successfully!' });
+    } catch (error) {
+      console.error('Error bulk deleting:', error);
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.message || 'Error deleting publications. Please try again.' 
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Make sure all admin operations use admin routes
+  const handleUpdatePublication = async (publicationId, updateData) => {
+    try {
+      setLoading(true);
+      // Use admin route for updates too
+      await api.put(`/publications/admin/${publicationId}`, updateData);
+      
+      fetchPublications();
+      setMessage({ type: 'success', text: 'Publication updated successfully!' });
+    } catch (error) {
+      console.error('Error updating publication:', error);
+      setMessage({ 
+        type: 'error', 
+        text: error.response?.data?.message || 'Error updating publication. Please try again.' 
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -2471,7 +2637,7 @@ const PublicationManagement = () => {
 
           <main style={{ flex: 1, minWidth: 0, paddingLeft: !isMobile ? leftGap : 0 }}>
             {/* Page Header */}
-            <div style={{ background: '#fff', borderRadius: 12, padding: 28, border: `4px solid #000`, display: 'flex', justifyContent: 'space-between', gap: 16, marginBottom: 24, alignItems: 'center' }}>
+            <div style={{ background: '#fff', borderRadius: 12, padding: 28, border: `4px solid #000`, display: 'flex', justifyContent: 'space-between', gap: '16px', marginBottom: 24, alignItems: 'center' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e6f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2484,9 +2650,101 @@ const PublicationManagement = () => {
 
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
                 <button
+                  onClick={handleDownloadTemplate}
+                  style={{
+                    backgroundColor: '#10b981',
+                    color: '#fff',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: '0 6px 18px rgba(16,185,129,0.14)',
+                    fontSize: '14px'
+                  }}
+                  disabled={!hasAnyRole(['super_admin', 'content_manager'])}
+                >
+                  <Icon name="document-arrow-down" size="sm" style={{ color: '#fff', marginRight: 8 }} />
+                  Download Template
+                </button>
+                {selectedPublications.length > 0 && (
+                  <div style={{ display: 'flex', gap: '8px', marginRight: '16px' }}>
+                    <button
+                      onClick={() => setShowBulkEditModal(true)}
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#f59e0b',
+                        color: '#fff',
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
+                        border: 'none',
+                        boxShadow: '0 6px 18px rgba(245,158,11,0.14)',
+                        fontSize: '14px'
+                      }}
+                      disabled={!hasRole('super_admin')}
+                    >
+                      <Icon name="pencil" size="sm" style={{ color: '#fff', marginRight: 8 }} />
+                      Bulk Edit ({selectedPublications.length})
+                    </button>
+                    <button
+                      onClick={() => setShowBulkDeleteModal(true)}
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: '#ef4444',
+                        color: '#fff',
+                        borderRadius: '8px',
+                        fontWeight: 600,
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        cursor: 'pointer',
+                        border: 'none',
+                        boxShadow: '0 6px 18px rgba(239,68,68,0.14)',
+                        fontSize: '14px'
+                      }}
+                      disabled={!hasRole('super_admin')}
+                    >
+                      <Icon name="trash" size="sm" style={{ color: '#fff', marginRight: 8 }} />
+                      Bulk Delete ({selectedPublications.length})
+                    </button>
+                  </div>
+                )}
+                <button
+                  onClick={() => setShowBulkUploadModal(true)}
+                  style={{
+                    backgroundColor: '#8b5cf6',
+                    color: '#fff',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: '0 6px 18px rgba(139,92,246,0.14)',
+                    fontSize: '14px'
+                  }}
+                  disabled={!hasRole('super_admin')}
+                >
+                  <Icon name="cloud-arrow-up" size="sm" style={{ color: '#fff', marginRight: 8 }} />
+                  Bulk Upload
+                </button>
+                <button
                   onClick={handleCreatePublication}
                   style={{ ...btnPrimary, fontSize: '14px', padding: '12px 20px' }}
-                  disabled={!hasAnyRole(['super_admin', 'content_manager'])}
+                  disabled={!hasRole('super_admin')}
                 >
                   <Icon name="plus" size="sm" style={{ color: '#fff', marginRight: 8 }} />
                   Add Publication
@@ -2738,33 +2996,18 @@ const PublicationManagement = () => {
                     <select
                       onChange={(e) => {
                         if (e.target.value) {
-                          if (e.target.value === 'approve_bulk') {
-                            handleBulkApprove();
-                          } else if (e.target.value === 'reject_bulk') {
-                            handleBulkReject();
-                          } else {
-                            handleBulkStatusChange(e.target.value);
+                          if (e.target.value === 'delete_bulk') {
+                            setShowBulkDeleteModal(true);
                           }
                           e.target.value = '';
                         }
                       }}
                       style={{ padding: '6px 12px', border: '1px solid #d1d5db', borderRadius: '6px', fontSize: '14px' }}
-                      disabled={!hasAnyRole(['super_admin', 'content_manager'])}
-                    >
-                      <option value="">Bulk Actions</option>
-                      <option value="approve_bulk">Approve Selected</option>
-                      <option value="reject_bulk">Reject Selected</option>
-                      <option value="approved">Set Approved</option>
-                      <option value="rejected">Set Rejected</option>
-                      <option value="pending">Set Pending</option>
-                    </select>
-                    <button
-                      onClick={handleBulkDelete}
-                      style={{ padding: '6px 12px', backgroundColor: '#f44336', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '14px', cursor: 'pointer' }}
                       disabled={!hasRole('super_admin')}
                     >
-                      Delete Selected
-                    </button>
+                      <option value="">Bulk Actions</option>
+                      <option value="delete_bulk">Delete Selected</option>
+                    </select>
                   </div>
                 </div>
               </div>
@@ -2842,7 +3085,7 @@ const PublicationManagement = () => {
                             pub.status
                           ].join(','))
                         ].join('\n');
-
+ 
                         const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
                         const link = document.createElement('a');
                         const url = URL.createObjectURL(blob);
@@ -2865,6 +3108,21 @@ const PublicationManagement = () => {
                       }}
                     >
                       Export CSV
+                    </button>
+                    <button
+                      onClick={() => setShowDeleted(!showDeleted)}
+                      style={{
+                        padding: '8px 16px',
+                        backgroundColor: showDeleted ? theme.warning : '#f3f4f6',
+                        color: showDeleted ? '#fff' : theme.textPrimary,
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {showDeleted ? 'Hide Deleted' : 'Show Deleted'}
                     </button>
                   </div>
                 </div>
@@ -3224,7 +3482,7 @@ const PublicationManagement = () => {
                                 fontWeight: '600',
                                 transition: 'background-color 0.2s'
                               }}
-                              disabled={!hasAnyRole(['super_admin', 'content_manager'])}
+                              disabled={!hasRole('super_admin')}
                               onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                               onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                             >
@@ -3406,8 +3664,504 @@ const PublicationManagement = () => {
         groups={groups}
         onSave={handleFormSave}
       />
+
+      {/* Bulk Upload Modal */}
+      <BulkUploadModal
+        isOpen={showBulkUploadModal}
+        onClose={() => setShowBulkUploadModal(false)}
+        onSave={handleBulkUploadSave}
+      />
+
+      {/* Bulk Edit Modal */}
+      <BulkEditModal
+        isOpen={showBulkEditModal}
+        onClose={() => setShowBulkEditModal(false)}
+        onSave={handleBulkEditSave}
+        selectedCount={selectedPublications.length}
+        selectedPublications={selectedPublications}
+      />
+
+      {/* Bulk Delete Modal */}
+      <BulkDeleteModal
+        isOpen={showBulkDeleteModal}
+        onClose={() => setShowBulkDeleteModal(false)}
+        onConfirm={handleBulkDeleteConfirm}
+        selectedCount={selectedPublications.length}
+      />
     </div>
   );
 };
+
+// Bulk Upload Modal Component
+const BulkUploadModal = ({ isOpen, onClose, onSave }) => {
+  const [file, setFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState(null);
+
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      // Validate file type
+      const allowedTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-excel',
+        'text/csv',
+        'application/csv'
+      ];
+
+      if (!allowedTypes.includes(selectedFile.type)) {
+        alert('Please select a valid Excel (.xlsx, .xls) or CSV file.');
+        return;
+      }
+
+      // Validate file size (10MB limit)
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        alert('File size must be less than 10MB.');
+        return;
+      }
+
+      setFile(selectedFile);
+      setUploadResult(null);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (!file) {
+      alert('Please select a file to upload.');
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await api.post('/publications/bulk-upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      setUploadResult({
+        success: true,
+        message: `Successfully processed ${response.data.createdPublications || 0} publications created and ${response.data.updatedPublications || 0} publications updated.`,
+        details: response.data
+      });
+
+      onSave();
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Upload failed. Please try again.';
+      setUploadResult({
+        success: false,
+        message: errorMessage,
+        details: error.response?.data
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleDownloadTemplate = () => {
+    const link = document.createElement('a');
+    link.href = '/Website_Workflow/sample data.xlsx';
+    link.download = 'publications_template.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  if (!isOpen) return null;
+
+  const modalStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000,
+    padding: '20px'
+  };
+
+  const contentStyle = {
+    background: '#fff',
+    borderRadius: '12px',
+    padding: '24px',
+    maxWidth: '500px',
+    width: '100%',
+    maxHeight: '80vh',
+    overflowY: 'auto',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+  };
+
+  const buttonStyle = {
+    padding: '10px 20px',
+    borderRadius: '8px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    border: 'none',
+    marginRight: '12px'
+  };
+
+  return (
+    <div style={modalStyle} onClick={onClose}>
+      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
+            Bulk Upload Publications
+          </h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
+            ×
+          </button>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <p style={{ marginBottom: '16px', color: '#666' }}>
+            Upload an Excel (.xlsx) or CSV file containing publication data. Make sure to follow the template format.
+          </p>
+
+          <button
+            onClick={handleDownloadTemplate}
+            style={{
+              ...buttonStyle,
+              backgroundColor: '#10b981',
+              color: '#fff',
+              marginBottom: '16px',
+              width: '100%'
+            }}
+          >
+            <Icon name="document-arrow-down" size="sm" style={{ marginRight: '8px' }} />
+            Download Template
+          </button>
+        </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#212121', marginBottom: '8px' }}>
+            Select File
+          </label>
+          <input
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            onChange={handleFileChange}
+            style={{
+              width: '100%',
+              padding: '10px',
+              border: '2px dashed #d1d5db',
+              borderRadius: '8px',
+              backgroundColor: '#f9fafb',
+              cursor: 'pointer'
+            }}
+          />
+          {file && (
+            <p style={{ marginTop: '8px', fontSize: '14px', color: '#10b981' }}>
+              Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+            </p>
+          )}
+        </div>
+
+        {uploadResult && (
+          <div style={{
+            marginBottom: '20px',
+            padding: '12px',
+            borderRadius: '8px',
+            backgroundColor: uploadResult.success ? '#dcfce7' : '#fee2e2',
+            border: `1px solid ${uploadResult.success ? '#10b981' : '#ef4444'}`
+          }}>
+            <p style={{
+              margin: 0,
+              color: uploadResult.success ? '#065f46' : '#991b1b',
+              fontWeight: '600'
+            }}>
+              {uploadResult.message}
+            </p>
+            {uploadResult.details && uploadResult.details.errors && uploadResult.details.errors > 0 && (
+              <p style={{ margin: '8px 0 0 0', color: '#991b1b', fontSize: '14px' }}>
+                Errors: {uploadResult.details.errors}
+              </p>
+            )}
+          </div>
+        )}
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+          <button
+            onClick={onClose}
+            style={{ ...buttonStyle, backgroundColor: '#f3f4f6', color: '#374151' }}
+            disabled={uploading}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleUpload}
+            style={{ ...buttonStyle, backgroundColor: '#1976D2', color: '#fff' }}
+            disabled={!file || uploading}
+          >
+            {uploading ? 'Uploading...' : 'Upload & Process'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Bulk Edit Modal Component
+const BulkEditModal = ({ isOpen, onClose, onSave, selectedCount, selectedPublications }) => {
+  const [formData, setFormData] = useState({
+    publication_price: '',
+    agreement_tat: '',
+    practical_tat: '',
+    tags_badges: ''
+  });
+  const [updating, setUpdating] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setUpdating(true);
+
+    try {
+      const dataToSend = {};
+      if (formData.publication_price) dataToSend.publication_price = parseFloat(formData.publication_price);
+      if (formData.agreement_tat) dataToSend.agreement_tat = parseInt(formData.agreement_tat);
+      if (formData.practical_tat) dataToSend.practical_tat = parseInt(formData.practical_tat);
+      if (formData.tags_badges) dataToSend.tags_badges = formData.tags_badges;
+
+      await api.patch('/publications/bulk-edit', {
+        ids: selectedPublications,
+        updates: dataToSend
+      });
+
+      onSave();
+    } catch (error) {
+      console.error('Bulk edit error:', error);
+      alert(error.response?.data?.error || 'Bulk edit failed. Please try again.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  const modalStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000,
+    padding: '20px'
+  };
+
+  const contentStyle = {
+    background: '#fff',
+    borderRadius: '12px',
+    padding: '24px',
+    maxWidth: '600px',
+    width: '100%',
+    maxHeight: '80vh',
+    overflowY: 'auto',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+  };
+
+  const formGroupStyle = {
+    marginBottom: '16px'
+  };
+
+  const labelStyle = {
+    display: 'block',
+    fontSize: '14px',
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: '6px'
+  };
+
+  const inputStyle = {
+    width: '100%',
+    padding: '10px 12px',
+    border: '1px solid #d1d5db',
+    borderRadius: '8px',
+    fontSize: '14px',
+    boxSizing: 'border-box'
+  };
+
+  const buttonStyle = {
+    padding: '10px 20px',
+    borderRadius: '8px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    border: 'none',
+    marginRight: '12px'
+  };
+
+  return (
+    <div style={modalStyle} onClick={onClose}>
+      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
+            Bulk Edit {selectedCount} Publications
+          </h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Price ($)</label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={formData.publication_price}
+                onChange={(e) => setFormData({ ...formData, publication_price: e.target.value })}
+                style={inputStyle}
+                placeholder="Leave empty to keep unchanged"
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Agreement TAT (days)</label>
+              <input
+                type="number"
+                min="0"
+                value={formData.agreement_tat}
+                onChange={(e) => setFormData({ ...formData, agreement_tat: e.target.value })}
+                style={inputStyle}
+                placeholder="Leave empty to keep unchanged"
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Practical TAT (days)</label>
+              <input
+                type="number"
+                min="0"
+                value={formData.practical_tat}
+                onChange={(e) => setFormData({ ...formData, practical_tat: e.target.value })}
+                style={inputStyle}
+                placeholder="Leave empty to keep unchanged"
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Tags/Badges</label>
+              <input
+                type="text"
+                value={formData.tags_badges}
+                onChange={(e) => setFormData({ ...formData, tags_badges: e.target.value })}
+                style={inputStyle}
+                placeholder="Leave empty to keep unchanged"
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{ ...buttonStyle, backgroundColor: '#f3f4f6', color: '#374151' }}
+              disabled={updating}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              style={{ ...buttonStyle, backgroundColor: '#1976D2', color: '#fff' }}
+              disabled={updating}
+            >
+              {updating ? 'Updating...' : 'Update All'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Bulk Delete Modal Component
+const BulkDeleteModal = ({ isOpen, onClose, onConfirm, selectedCount }) => {
+  if (!isOpen) return null;
+
+  const modalStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10000,
+    padding: '20px'
+  };
+
+  const contentStyle = {
+    background: '#fff',
+    borderRadius: '12px',
+    padding: '24px',
+    maxWidth: '400px',
+    width: '100%',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+  };
+
+  const buttonStyle = {
+    padding: '10px 20px',
+    borderRadius: '8px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    border: 'none',
+    marginRight: '12px'
+  };
+
+  return (
+    <div style={modalStyle} onClick={onClose}>
+      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
+            Confirm Bulk Delete
+          </h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
+            ×
+          </button>
+        </div>
+
+        <div style={{ marginBottom: '24px' }}>
+          <p style={{ marginBottom: '16px', color: '#666' }}>
+            Are you sure you want to delete <strong>{selectedCount}</strong> publications? This action cannot be undone.
+          </p>
+          <div style={{ backgroundColor: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '12px' }}>
+            <p style={{ margin: 0, color: '#991b1b', fontWeight: '600' }}>
+              ⚠️ Warning: This will permanently remove the selected publications from the database.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
+          <button
+            onClick={onClose}
+            style={{ ...buttonStyle, backgroundColor: '#f3f4f6', color: '#374151' }}
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            style={{ ...buttonStyle, backgroundColor: '#dc2626', color: '#fff' }}
+          >
+            Delete {selectedCount} Publications
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 export default PublicationManagement;

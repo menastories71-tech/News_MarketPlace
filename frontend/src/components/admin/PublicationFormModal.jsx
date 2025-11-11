@@ -108,9 +108,9 @@ const PublicationFormModal = ({ isOpen, onClose, publication, groups, onSave }) 
       };
 
       if (publication) {
-        await api.put(`/publications/${publication.id}`, dataToSend);
+        await api.put(`/publications/admin/${publication.id}`, dataToSend);
       } else {
-        await api.post('/publications', dataToSend);
+        await api.post('/publications/admin', dataToSend);
       }
 
       onSave();

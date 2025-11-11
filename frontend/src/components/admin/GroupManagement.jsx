@@ -15,6 +15,16 @@ const GroupFormModal = ({ isOpen, onClose, group, onSave }) => {
     group_linkedin: '',
     group_instagram: ''
   });
+
+  // Generate unique group SN when component mounts
+  useEffect(() => {
+    if (!group) {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 100000);
+      const uniqueId = `${timestamp}${random}`.slice(-12); // Take last 12 digits for uniqueness
+      setFormData(prev => ({ ...prev, group_sn: `GRP-${uniqueId}` }));
+    }
+  }, [group]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -54,7 +64,8 @@ const GroupFormModal = ({ isOpen, onClose, group, onSave }) => {
       onClose();
     } catch (error) {
       console.error('Error saving group:', error);
-      alert('Error saving group. Please try again.');
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error saving group. Please try again.';
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -393,14 +404,26 @@ const GroupManagement = () => {
 
   const fetchGroups = async () => {
     try {
-      const response = await api.get('/groups');
+      // Try admin endpoint first
+      const response = await api.get('/groups/admin');
       setGroups(response.data.groups || []);
     } catch (error) {
-      console.error('Error fetching groups:', error);
+      console.error('Error fetching groups from admin endpoint:', error);
       if (error.response?.status === 401) {
         // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
+        return;
+      }
+
+      // For any other error, try regular groups endpoint as fallback
+      try {
+        console.log('Trying fallback groups endpoint...');
+        const fallbackResponse = await api.get('/groups');
+        setGroups(fallbackResponse.data.groups || []);
+      } catch (fallbackError) {
+        console.error('Fallback groups fetch failed:', fallbackError);
+        alert('Failed to load groups. Please try again.');
       }
     } finally {
       setLoading(false);

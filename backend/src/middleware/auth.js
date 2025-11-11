@@ -32,8 +32,10 @@ const verifyAdminToken = (req, res, next) => {
 
     const decoded = adminAuthService.verifyAccessToken(token);
     req.admin = decoded;
+    console.log('Admin token verified:', { adminId: decoded.adminId, role: decoded.role });
     next();
   } catch (error) {
+    console.log('Admin token verification failed:', error.message);
     return res.status(401).json({ error: 'Invalid or expired admin token' });
   }
 };
@@ -136,9 +138,15 @@ const requireAdminRoleLevel = (minLevel) => {
     };
 
     const adminLevel = roleLevels[req.admin.role] || 0;
+    console.log('Admin role check:', { role: req.admin.role, level: adminLevel, required: minLevel });
 
     if (adminLevel < minLevel) {
-      return res.status(403).json({ error: 'Insufficient admin role level' });
+      return res.status(403).json({
+        error: 'Insufficient admin role level',
+        currentRole: req.admin.role,
+        currentLevel: adminLevel,
+        requiredLevel: minLevel
+      });
     }
 
     next();

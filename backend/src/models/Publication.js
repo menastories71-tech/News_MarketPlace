@@ -4,6 +4,7 @@ class Publication {
   constructor(data) {
     this.id = data.id;
     this.group_id = data.group_id;
+    this.group_name = data.group_name; // Include group_name from joined query
     this.publication_sn = data.publication_sn;
     this.publication_grade = data.publication_grade;
     this.publication_name = data.publication_name;
@@ -175,6 +176,44 @@ class Publication {
     return result.rows.map(row => new Publication(row));
   }
 
+  // Get deleted publications (soft deleted)
+  static async getDeleted(filters = {}, searchSql = '', searchValues = [], limit = null, offset = null) {
+    let sql = 'SELECT p.*, g.group_name FROM publications p LEFT JOIN groups g ON p.group_id = g.id WHERE p.is_active = false';
+    const values = [];
+    let paramCount = 1;
+
+    if (filters.group_id) {
+      sql += ` AND p.group_id = $${paramCount}`;
+      values.push(filters.group_id);
+      paramCount++;
+    }
+
+    // Add search conditions
+    if (searchSql) {
+      sql += searchSql;
+      values.push(...searchValues);
+      paramCount += searchValues.length;
+    }
+
+    sql += ' ORDER BY p.updated_at DESC';
+
+    // Add pagination
+    if (limit) {
+      sql += ` LIMIT $${paramCount}`;
+      values.push(limit);
+      paramCount++;
+    }
+
+    if (offset) {
+      sql += ` OFFSET $${paramCount}`;
+      values.push(offset);
+      paramCount++;
+    }
+
+    const result = await query(sql, values);
+    return result.rows.map(row => new Publication(row));
+  }
+
   // Update publication
   async update(updateData) {
     const fields = [];
@@ -271,6 +310,7 @@ class Publication {
     return {
       id: this.id,
       group_id: this.group_id,
+      group_name: this.group_name, // Include group_name if available
       publication_sn: this.publication_sn,
       publication_grade: this.publication_grade,
       publication_name: this.publication_name,

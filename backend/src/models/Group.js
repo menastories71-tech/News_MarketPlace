@@ -30,13 +30,29 @@ class Group {
       submitted_by_admin
     } = groupData;
 
+    // If no group_sn provided or it's a duplicate, generate a unique one
+    let finalGroupSn = group_sn;
+    if (!finalGroupSn) {
+      const timestamp = Date.now();
+      const random = Math.floor(Math.random() * 1000000);
+      finalGroupSn = `GRP-${timestamp}-${random}`;
+    }
+
+    // Ensure uniqueness by checking and incrementing if needed
+    let uniqueSn = finalGroupSn;
+    let counter = 1;
+    while (await this.findBySN(uniqueSn)) {
+      uniqueSn = `${finalGroupSn}-${counter}`;
+      counter++;
+    }
+
     const sql = `
       INSERT INTO groups (group_sn, group_name, group_location, group_website, group_linkedin, group_instagram, submitted_by, submitted_by_admin)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
     `;
 
-    const values = [group_sn, group_name, group_location, group_website, group_linkedin, group_instagram, submitted_by, submitted_by_admin];
+    const values = [uniqueSn, group_name, group_location, group_website, group_linkedin, group_instagram, submitted_by, submitted_by_admin];
     const result = await query(sql, values);
     return new Group(result.rows[0]);
   }

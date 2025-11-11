@@ -75,12 +75,18 @@ class GroupController {
       const offset = (page - 1) * limit;
       const groups = await Group.findAll(filters, searchSql, searchValues, limit, offset);
 
+      // For admin routes, return all groups. For regular user routes, filter to only approved and active groups
+      let filteredGroups = groups;
+      if (!req.admin) {
+        filteredGroups = groups.filter(group => group.status === 'approved' && group.is_active === true);
+      }
+
       res.json({
-        groups: groups.map(group => group.toJSON()),
+        groups: filteredGroups.map(group => group.toJSON()),
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
-          total: groups.length // This should be improved with a count query
+          total: filteredGroups.length // This should be improved with a count query
         }
       });
     } catch (error) {
