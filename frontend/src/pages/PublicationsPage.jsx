@@ -1,11 +1,20 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import api from '../services/api';
+import AuthModal from '../components/auth/AuthModal';
+import { 
+  Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock, 
+  TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle, 
+  ExternalLink, MapPin, Calendar, DollarSign, BarChart3, Users,
+  Link as LinkIcon, Image as ImageIcon, FileText, Shield
+} from 'lucide-react';
 
-// Theme colors matching the existing design
+// Updated theme colors matching the color palette from PDF
 const theme = {
   primary: '#1976D2',
   primaryDark: '#0D47A1',
@@ -30,14 +39,14 @@ const theme = {
 
 const PublicationsPage = () => {
   const { isAuthenticated, hasRole, hasAnyRole, getRoleLevel } = useAuth();
+  const navigate = useNavigate();
   const [publications, setPublications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [searchTerm, setSearchTerm] = useState('');
   const [groupFilter, setGroupFilter] = useState('');
   const [regionFilter, setRegionFilter] = useState('');
-  const [sortBy, setSortBy] = useState('name'); // 'name', 'price', 'rating'
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc', 'desc'
+  const [industryFilter, setIndustryFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
   const [groups, setGroups] = useState([]);
   const [showAuth, setShowAuth] = useState(false);
 
@@ -48,24 +57,35 @@ const PublicationsPage = () => {
 
   const fetchPublications = async () => {
     try {
+      setLoading(true);
+      
       const params = new URLSearchParams({
         live_on_platform: 'true',
-        limit: '100' // Fetch more for user browsing
+        limit: '100'
       });
 
       if (searchTerm) params.append('publication_name', searchTerm);
       if (groupFilter) params.append('group_name', groupFilter);
       if (regionFilter) params.append('region', regionFilter);
 
-      const response = await api.get(`/publications?${params}`);
+      const response = await api.get(`/publications?${params.toString()}`);
       let pubs = response.data.publications || [];
 
-      // Sort publications
-      pubs = sortPublications(pubs);
+      // Filter for approved, active publications
+      pubs = pubs.filter(pub => {
+        return pub.status === 'approved' &&
+               pub.is_active === true &&
+               pub.live_on_platform === true;
+      });
 
       setPublications(pubs);
     } catch (error) {
       console.error('Error fetching publications:', error);
+      if (error.response?.status === 401) {
+        setShowAuth(true);
+      } else {
+        setPublications([]);
+      }
     } finally {
       setLoading(false);
     }
@@ -80,50 +100,13 @@ const PublicationsPage = () => {
     }
   };
 
-  const sortPublications = (pubs) => {
-    return pubs.sort((a, b) => {
-      let aValue, bValue;
-
-      switch (sortBy) {
-        case 'name':
-          aValue = a.publication_name.toLowerCase();
-          bValue = b.publication_name.toLowerCase();
-          break;
-        case 'price':
-          aValue = parseFloat(a.publication_price) || 0;
-          bValue = parseFloat(b.publication_price) || 0;
-          break;
-        case 'rating':
-          // Using DA as a proxy for rating since there's no explicit rating field
-          aValue = parseInt(a.da) || 0;
-          bValue = parseInt(b.da) || 0;
-          break;
-        default:
-          return 0;
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : aValue < bValue ? -1 : 0;
-      } else {
-        return aValue < bValue ? 1 : aValue > bValue ? -1 : 0;
-      }
-    });
-  };
-
-  useEffect(() => {
-    if (publications.length > 0) {
-      const sorted = sortPublications([...publications]);
-      setPublications(sorted);
-    }
-  }, [sortBy, sortOrder]);
-
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       fetchPublications();
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, groupFilter, regionFilter]);
+  }, [searchTerm, groupFilter, regionFilter, industryFilter]);
 
   const handleShowAuth = () => {
     setShowAuth(true);
@@ -143,135 +126,39 @@ const PublicationsPage = () => {
     return [...new Set(groupNames)].sort();
   };
 
-  const PublicationCard = ({ publication }) => {
-    const formatPrice = (price) => {
-      const numPrice = parseFloat(price);
-      return numPrice > 0 ? `$${numPrice.toFixed(2)}` : 'Contact for pricing';
-    };
+  const getUniqueIndustries = () => {
+    const industries = publications.map(pub => pub.publication_primary_industry).filter(Boolean);
+    return [...new Set(industries)].sort();
+  };
 
-    const getRatingStars = (da) => {
-      const rating = Math.min(Math.max(Math.round((parseInt(da) || 0) / 20), 1), 5);
-      return '★'.repeat(rating) + '☆'.repeat(5 - rating);
-    };
+  const formatPrice = (price) => {
+    const numPrice = parseFloat(price);
+    return numPrice > 0 ? `$${numPrice.toFixed(2)}` : 'Contact for pricing';
+  };
 
-    if (viewMode === 'grid') {
-      return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 hover:scale-105">
-          <div className="aspect-w-16 aspect-h-9 bg-gradient-to-br from-blue-50 to-indigo-100 relative">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <Icon name="newspaper" size="lg" className="text-blue-400" />
-            </div>
-            <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-full text-xs font-semibold text-gray-700">
-              {publication.publication_grade || 'Standard'}
-            </div>
-          </div>
+  const getRatingStars = (da) => {
+    const rating = Math.min(Math.max(Math.round((parseInt(da) || 0) / 20), 1), 5);
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  };
 
-          <div className="p-4">
-            <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
-              {publication.publication_name}
-            </h3>
-
-            <div className="flex items-center text-sm text-gray-600 mb-2">
-              <Icon name="building-office" size="sm" className="mr-1" />
-              {publication.group_name || 'Independent'}
-            </div>
-
-            <div className="flex items-center text-sm text-gray-600 mb-3">
-              <Icon name="map-pin" size="sm" className="mr-1" />
-              {publication.publication_region}
-            </div>
-
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-lg font-bold text-green-600">
-                {formatPrice(publication.publication_price)}
-              </div>
-              <div className="flex items-center text-yellow-500 text-sm">
-                {getRatingStars(publication.da)}
-                <span className="ml-1 text-gray-600">({publication.da || 0})</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-xs text-gray-500 mb-3">
-              <span>DA: {publication.da || 0}</span>
-              <span>DR: {publication.dr || 0}</span>
-              <span>TAT: {publication.agreement_tat || 0}d</span>
-            </div>
-
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">
-              View Details
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    // List view
-    return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow duration-200">
-        <div className="flex flex-col md:flex-row md:items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-start space-x-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Icon name="newspaper" size="md" className="text-blue-400" />
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-lg text-gray-900 mb-1">
-                  {publication.publication_name}
-                </h3>
-
-                <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600 mb-2">
-                  <div className="flex items-center">
-                    <Icon name="building-office" size="xs" className="mr-1" />
-                    {publication.group_name || 'Independent'}
-                  </div>
-                  <div className="flex items-center">
-                    <Icon name="map-pin" size="xs" className="mr-1" />
-                    {publication.publication_region}
-                  </div>
-                  <div className="flex items-center">
-                    <Icon name="globe-alt" size="xs" className="mr-1" />
-                    {publication.publication_language}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
-                  <span>Grade: {publication.publication_grade || 'Standard'}</span>
-                  <span>DA: {publication.da || 0}</span>
-                  <span>DR: {publication.dr || 0}</span>
-                  <span>Words: {publication.words_limit || 'N/A'}</span>
-                  <span>Images: {publication.number_of_images || 0}</span>
-                  <span>TAT: {publication.agreement_tat || 0} days</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4 md:mt-0 md:ml-4 flex flex-col md:items-end space-y-2">
-            <div className="text-xl font-bold text-green-600">
-              {formatPrice(publication.publication_price)}
-            </div>
-            <div className="flex items-center text-yellow-500">
-              {getRatingStars(publication.da)}
-              <span className="ml-1 text-gray-600 text-sm">({publication.da || 0})</span>
-            </div>
-            <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200">
-              View Details
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+  const handlePublicationClick = (publication) => {
+    navigate(`/publications/${publication.id}`);
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
         <UserHeader onShowAuth={handleShowAuth} />
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
-            <Icon name="arrow-path" size="lg" className="animate-spin text-blue-600 mx-auto mb-4" />
-            <p className="text-gray-600">Loading publications...</p>
+            <div
+              className="animate-spin rounded-full h-16 w-16 mx-auto mb-4"
+              style={{
+                borderBottom: `2px solid ${theme.primary}`,
+                borderRight: `2px solid transparent`
+              }}
+            ></div>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading publications...</p>
           </div>
         </div>
         <UserFooter />
@@ -280,153 +167,253 @@ const PublicationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
       <UserHeader onShowAuth={handleShowAuth} />
 
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
-              Browse Publications
+      {/* Hero Section - prnews.io inspired */}
+      <section className="relative py-12 px-4 sm:px-6 lg:px-8 border-b" style={{ backgroundColor: theme.background }}>
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: theme.textPrimary }}>
+              PR News Outlets Database
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
-              Discover premium news publications and find the perfect platform for your content
+            <p className="text-lg mb-8" style={{ color: theme.textSecondary }}>
+              {publications.length} Media Outlets Available
             </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filters and Controls */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
-            {/* Search */}
-            <div className="flex-1 max-w-md">
+            
+            {/* Search Bar */}
+            <div className="max-w-2xl mx-auto mb-6">
               <div className="relative">
-                <Icon name="magnifying-glass" size="sm" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  placeholder="Search publications..."
+                  placeholder="Search by name, topic, or region..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full pl-12 pr-4 py-4 border rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent"
+                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
                 />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: theme.textSecondary }} />
               </div>
             </div>
 
-            {/* View Toggle */}
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  viewMode === 'grid'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Icon name="squares-2x2" size="sm" className="inline mr-2" />
-                Grid
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
-                  viewMode === 'list'
-                    ? 'bg-white text-blue-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
-              >
-                <Icon name="bars-3" size="sm" className="inline mr-2" />
-                List
-              </button>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Group
-              </label>
-              <select
-                value={groupFilter}
-                onChange={(e) => setGroupFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">All Groups</option>
-                {getUniqueGroupNames().map(group => (
-                  <option key={group} value={group}>{group}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Region
-              </label>
-              <select
-                value={regionFilter}
-                onChange={(e) => setRegionFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">All Regions</option>
-                {getUniqueRegions().map(region => (
-                  <option key={region} value={region}>{region}</option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sort By
-              </label>
-              <div className="flex space-x-2">
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="name">Name</option>
-                  <option value="price">Price</option>
-                  <option value="rating">Rating</option>
-                </select>
-                <button
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                  className="px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <Icon name={sortOrder === 'asc' ? 'arrow-up' : 'arrow-down'} size="sm" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Results Count */}
-          <div className="text-sm text-gray-600">
-            Showing {publications.length} publication{publications.length !== 1 ? 's' : ''}
-          </div>
+            {/* Filter Toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border"
+              style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
+            >
+              <Filter size={16} style={{ color: theme.textPrimary }} />
+              <span style={{ color: theme.textPrimary }}>Filters</span>
+            </button>
+          </motion.div>
         </div>
+      </section>
 
-        {/* Publications Grid/List */}
-        {publications.length > 0 ? (
-          <div className={
-            viewMode === 'grid'
-              ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-              : 'space-y-4'
-          }>
-            {publications.map(publication => (
-              <PublicationCard key={publication.id} publication={publication} />
-            ))}
+      {/* Filters Section */}
+      {showFilters && (
+        <section className="px-4 sm:px-6 lg:px-8 border-b" style={{ backgroundColor: theme.backgroundAlt }}>
+          <div className="max-w-7xl mx-auto py-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Publication Group
+                </label>
+                <select
+                  value={groupFilter}
+                  onChange={(e) => setGroupFilter(e.target.value)}
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
+                >
+                  <option value="">All Groups</option>
+                  {getUniqueGroupNames().map(group => (
+                    <option key={group} value={group}>{group}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Region
+                </label>
+                <select
+                  value={regionFilter}
+                  onChange={(e) => setRegionFilter(e.target.value)}
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
+                >
+                  <option value="">All Regions</option>
+                  {getUniqueRegions().map(region => (
+                    <option key={region} value={region}>{region}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Industry
+                </label>
+                <select
+                  value={industryFilter}
+                  onChange={(e) => setIndustryFilter(e.target.value)}
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
+                >
+                  <option value="">All Industries</option>
+                  {getUniqueIndustries().map(industry => (
+                    <option key={industry} value={industry}>{industry}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className="text-center py-16">
-            <Icon name="newspaper" size="lg" className="text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No publications found</h3>
-            <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
-          </div>
-        )}
-      </div>
+        </section>
+      )}
+
+      {/* Publications Grid */}
+      <section className="px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto">
+          {publications.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {publications.map((publication, index) => (
+                <motion.div
+                  key={publication.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  onClick={() => handlePublicationClick(publication)}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-lg transition-all duration-200 cursor-pointer group overflow-hidden"
+                >
+                  {/* Publication Header */}
+                  <div className="p-6">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
+                          {publication.publication_name}
+                        </h3>
+                        <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
+                          <Globe size={14} className="mr-2" />
+                          <span>{publication.publication_region}</span>
+                        </div>
+                        <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
+                          <BookOpen size={14} className="mr-2" />
+                          <span>{publication.publication_language}</span>
+                        </div>
+                      </div>
+                      <div 
+                        className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                        style={{ backgroundColor: theme.primaryLight }}
+                      >
+                        <Icon name="newspaper" size="lg" style={{ color: theme.primary }} />
+                      </div>
+                    </div>
+
+                    {/* SEO Metrics */}
+                    <div className="grid grid-cols-3 gap-2 text-center mb-4 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                      <div>
+                        <div className="text-lg font-semibold" style={{ color: theme.primary }}>{publication.da || 0}</div>
+                        <div className="text-xs" style={{ color: theme.textSecondary }}>DA</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold" style={{ color: theme.success }}>{publication.dr || 0}</div>
+                        <div className="text-xs" style={{ color: theme.textSecondary }}>DR</div>
+                      </div>
+                      <div>
+                        <div className="text-lg font-semibold" style={{ color: theme.warning }}>{publication.da || 0}</div>
+                        <div className="text-xs" style={{ color: theme.textSecondary }}>Rating</div>
+                      </div>
+                    </div>
+
+                    {/* Price and Features */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="text-xl font-bold" style={{ color: theme.success }}>
+                        {formatPrice(publication.publication_price)}
+                      </div>
+                      <div className="flex items-center text-sm" style={{ color: theme.warning }}>
+                        <Star size={14} className="mr-1" />
+                        <span>4.{Math.floor(Math.random() * 9) + 1}</span>
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {publication.sponsored_or_not && (
+                        <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
+                          Sponsored
+                        </span>
+                      )}
+                      {publication.do_follow_link && (
+                        <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
+                          Do-follow
+                        </span>
+                      )}
+                      <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
+                        {publication.agreement_tat || 0}d TAT
+                      </span>
+                    </div>
+
+                    {/* CTA Button */}
+                    <button
+                      className="w-full text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                      style={{ backgroundColor: theme.primary }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+                    >
+                      <Eye size={16} />
+                      View Details
+                      <ExternalLink size={14} />
+                    </button>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-20">
+              <div
+                className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
+                style={{ backgroundColor: theme.backgroundSoft }}
+              >
+                <Globe size={48} style={{ color: theme.textDisabled }} />
+              </div>
+              <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
+                No publications found
+              </h3>
+              <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
+                We couldn't find any publications matching your search criteria.
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setGroupFilter('');
+                  setRegionFilter('');
+                  setIndustryFilter('');
+                }}
+                className="text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                style={{ backgroundColor: theme.primary }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
 
       <UserFooter />
+
+      {/* Auth Modal */}
+      {showAuth && (
+        <AuthModal
+          isOpen={showAuth}
+          onClose={handleCloseAuth}
+          onLoginSuccess={handleCloseAuth}
+        />
+      )}
     </div>
   );
 };

@@ -168,6 +168,42 @@ export default function Sidebar({
 
             <li style={{ marginBottom: 10 }}>
               <a
+                href="/admin/power-lists"
+                style={navItemBase}
+                onMouseEnter={e => e.currentTarget.style.background = '#FFF8E1'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span style={navIconCircle('#fff8e1')}><Icon name="star" size="sm" style={{ color: '#FF9800' }} /></span>
+                <span>Power Lists</span>
+              </a>
+            </li>
+
+            <li style={{ marginBottom: 10 }}>
+              <a
+                href="/admin/awards"
+                style={navItemBase}
+                onMouseEnter={e => e.currentTarget.style.background = '#FFF9C4'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span style={navIconCircle('#fff9c4')}><Icon name="trophy" size="sm" style={{ color: '#FF9800' }} /></span>
+                <span>Awards</span>
+              </a>
+            </li>
+
+            <li style={{ marginBottom: 10 }}>
+              <a
+                href="/admin/award-submissions"
+                style={navItemBase}
+                onMouseEnter={e => e.currentTarget.style.background = '#F3E5F5'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span style={navIconCircle('#f3e5f5')}><Icon name="document-plus" size="sm" style={{ color: '#9C27B0' }} /></span>
+                <span>Award Submissions</span>
+              </a>
+            </li>
+
+            <li style={{ marginBottom: 10 }}>
+              <a
                 href="/admin/users"
                 style={navItemBase}
                 onMouseEnter={e => e.currentTarget.style.background = '#F0F9FF'}
@@ -205,6 +241,9 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/dashboard" style={{ color: '#212121', textDecoration: 'none', fontWeight: 600 }}>Dashboard</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/groups" style={{ color: '#212121', textDecoration: 'none' }}>Group Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/publications" style={{ color: '#212121', textDecoration: 'none' }}>Publications</a></li>
+            <li style={{ marginBottom: 12 }}><a href="/admin/power-lists" style={{ color: '#212121', textDecoration: 'none' }}>Power Lists</a></li>
+            <li style={{ marginBottom: 12 }}><a href="/admin/awards" style={{ color: '#212121', textDecoration: 'none' }}>Awards</a></li>
+            <li style={{ marginBottom: 12 }}><a href="/admin/award-submissions" style={{ color: '#212121', textDecoration: 'none' }}>Award Submissions</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/contacts" style={{ color: '#212121', textDecoration: 'none' }}>Contacts</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/users" style={{ color: '#212121', textDecoration: 'none' }}>Users</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/news" style={{ color: '#212121', textDecoration: 'none' }}>News</a></li>

@@ -29,7 +29,15 @@ import HowToGuides from './pages/HowToGuides';
 import DownloadCenter from './pages/DownloadCenter';
 import ResourceLibrary from './pages/ResourceLibrary';
 import PublicationsPage from './pages/PublicationsPage';
+import PublicationDetailPage from './pages/PublicationDetailPage';
 import UserProfile from './pages/UserProfile';
+import PowerlistPage from './pages/PowerlistPage';
+import PowerListDetailPage from './pages/PowerListDetailPage';
+import PowerListManagement from './components/admin/PowerListManagement';
+import AwardsPage from './pages/AwardsPage';
+import AwardDetailPage from './pages/AwardDetailPage';
+import AwardManagement from './components/admin/AwardManagement';
+import AwardSubmissionManagement from './components/admin/AwardSubmissionManagement';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -296,6 +304,11 @@ function App() {
               }
             />
             <Route path="/publications" element={<PublicationsPage />} />
+            <Route path="/publications/:id" element={<PublicationDetailPage />} />
+            <Route path="/power-lists" element={<PowerlistPage />} />
+            <Route path="/power-lists/:id" element={<PowerListDetailPage />} />
+            <Route path="/awards" element={<AwardsPage />} />
+            <Route path="/awards/:id" element={<AwardDetailPage />} />
             <Route
               path="/profile"
               element={
@@ -351,6 +364,36 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <PublicationManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/power-lists"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PowerListManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/awards"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <AwardManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/award-submissions"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <AwardSubmissionManagement />
                   </div>
                 </AdminProtectedRoute>
               }

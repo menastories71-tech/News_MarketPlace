@@ -618,25 +618,67 @@ const PublicationManagement = () => {
     setMessage({ type: 'success', text: 'Bulk edit completed successfully!' });
   };
 
-  const handleBulkDeleteConfirm = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${selectedPublications.length} publications?`)) return;
+  const handleBulkDeleteConfirm = async (retryCount = 0) => {
+    const maxRetries = 3;
+    const retryDelay = 2000; // 2 seconds
 
     try {
       setLoading(true);
-      await api.delete('/publications/bulk', { data: { ids: selectedPublications } });
-
-      fetchPublications();
+      
+      console.log(`Attempting to bulk delete ${selectedPublications.length} publications${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
+      
+      // Use admin bulk delete route
+      await api.delete('/publications/bulk', {
+        data: { ids: selectedPublications }
+      });
+      
       setSelectedPublications([]);
+      fetchPublications();
       setShowBulkDeleteModal(false);
-      setMessage({ type: 'success', text: `${selectedPublications.length} publications deleted successfully!` });
+      setMessage({ type: 'success', text: 'Publications deleted successfully!' });
     } catch (error) {
       console.error('Bulk delete error:', error);
-      setMessage({
-        type: 'error',
-        text: error.response?.data?.message || 'Bulk delete failed. Please try again.'
-      });
+      
+      // Check if it's a connection timeout error
+      const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
+                                  error.message?.includes('Connection terminated unexpectedly') ||
+                                  error.message?.includes('Connection timeout') ||
+                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+      
+      // Retry on connection timeout errors
+      if (isConnectionTimeout && retryCount < maxRetries) {
+        console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
+        setMessage({
+          type: 'warning',
+          text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
+        });
+        
+        // Wait before retrying
+        setTimeout(() => {
+          handleBulkDeleteConfirm(retryCount + 1);
+        }, retryDelay);
+        
+        return;
+      }
+      
+      // For all other errors or failed retries
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
+      
+      if (isConnectionTimeout && retryCount >= maxRetries) {
+        setMessage({
+          type: 'error',
+          text: 'Connection timeout. The database appears to be unavailable. Please try again later or contact support if the issue persists.'
+        });
+      } else {
+        setMessage({
+          type: 'error',
+          text: errorMessage || 'Error deleting publications. Please try again.'
+        });
+      }
     } finally {
-      setLoading(false);
+      if (retryCount === 0) {
+        setLoading(false);
+      }
     }
   };
 
@@ -1522,12 +1564,18 @@ const PublicationManagement = () => {
     }
   };
 
-  // Fix the delete function to use admin route
-  const handleDeletePublication = async (publicationId) => {
+  // Enhanced delete function with retry logic and better error handling
+  const handleDeletePublication = async (publicationId, retryCount = 0) => {
     if (!window.confirm('Are you sure you want to delete this publication?')) return;
+
+    const maxRetries = 3;
+    const retryDelay = 2000; // 2 seconds
 
     try {
       setLoading(true);
+      
+      console.log(`Attempting to delete publication ${publicationId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
+      
       // Use admin route instead of user route
       await api.delete(`/publications/admin/${publicationId}`);
 
@@ -1538,21 +1586,62 @@ const PublicationManagement = () => {
       setMessage({ type: 'success', text: 'Publication deleted successfully!' });
     } catch (error) {
       console.error('Error deleting publication:', error);
-      setMessage({
-        type: 'error',
-        text: error.response?.data?.message || 'Error deleting publication. Please try again.'
-      });
+      
+      // Check if it's a connection timeout error
+      const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
+                                  error.message?.includes('Connection terminated unexpectedly') ||
+                                  error.message?.includes('Connection timeout') ||
+                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+      
+      // Retry on connection timeout errors
+      if (isConnectionTimeout && retryCount < maxRetries) {
+        console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
+        setMessage({
+          type: 'warning',
+          text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
+        });
+        
+        // Wait before retrying
+        setTimeout(() => {
+          handleDeletePublication(publicationId, retryCount + 1);
+        }, retryDelay);
+        
+        return;
+      }
+      
+      // For all other errors or failed retries
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
+      
+      if (isConnectionTimeout && retryCount >= maxRetries) {
+        setMessage({
+          type: 'error',
+          text: 'Connection timeout. The database appears to be unavailable. Please try again later or contact support if the issue persists.'
+        });
+      } else {
+        setMessage({
+          type: 'error',
+          text: errorMessage || 'Error deleting publication. Please try again.'
+        });
+      }
     } finally {
-      setLoading(false);
+      if (retryCount === 0) {
+        setLoading(false);
+      }
     }
   };
 
-  // Hard delete publication (permanent delete)
-  const handleHardDeletePublication = async (publicationId) => {
+  // Enhanced hard delete function with retry logic and better error handling
+  const handleHardDeletePublication = async (publicationId, retryCount = 0) => {
     if (!window.confirm('Are you sure you want to PERMANENTLY DELETE this publication? This action cannot be undone!')) return;
+
+    const maxRetries = 3;
+    const retryDelay = 2000; // 2 seconds
 
     try {
       setLoading(true);
+      
+      console.log(`Attempting to hard delete publication ${publicationId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
+      
       // Use admin hard delete route
       await api.delete(`/publications/admin/${publicationId}/hard`);
 
@@ -1563,26 +1652,65 @@ const PublicationManagement = () => {
       setMessage({ type: 'success', text: 'Publication permanently deleted successfully!' });
     } catch (error) {
       console.error('Error hard deleting publication:', error);
-      setMessage({
-        type: 'error',
-        text: error.response?.data?.message || 'Error permanently deleting publication. Please try again.'
-      });
+      
+      // Check if it's a connection timeout error
+      const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
+                                  error.message?.includes('Connection terminated unexpectedly') ||
+                                  error.message?.includes('Connection timeout') ||
+                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+      
+      // Retry on connection timeout errors
+      if (isConnectionTimeout && retryCount < maxRetries) {
+        console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
+        setMessage({
+          type: 'warning',
+          text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
+        });
+        
+        // Wait before retrying
+        setTimeout(() => {
+          handleHardDeletePublication(publicationId, retryCount + 1);
+        }, retryDelay);
+        
+        return;
+      }
+      
+      // For all other errors or failed retries
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
+      
+      if (isConnectionTimeout && retryCount >= maxRetries) {
+        setMessage({
+          type: 'error',
+          text: 'Connection timeout. The database appears to be unavailable. Please try again later or contact support if the issue persists.'
+        });
+      } else {
+        setMessage({
+          type: 'error',
+          text: errorMessage || 'Error permanently deleting publication. Please try again.'
+        });
+      }
     } finally {
-      setLoading(false);
+      if (retryCount === 0) {
+        setLoading(false);
+      }
     }
   };
 
-  // Also fix bulk delete if you have it
-  const handleBulkDelete = async () => {
+  // Enhanced bulk delete function with retry logic and better error handling
+  const handleBulkDelete = async (retryCount = 0) => {
     if (selectedPublications.length === 0) return;
     
-    if (!window.confirm(`Are you sure you want to delete ${selectedPublications.length} publications?`)) return;
+    const maxRetries = 3;
+    const retryDelay = 2000; // 2 seconds
 
     try {
       setLoading(true);
+      
+      console.log(`Attempting to bulk delete ${selectedPublications.length} publications${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
+      
       // Use admin bulk delete route
-      await api.delete('/publications/bulk', { 
-        data: { ids: selectedPublications } 
+      await api.delete('/publications/bulk', {
+        data: { ids: selectedPublications }
       });
       
       setSelectedPublications([]);
@@ -1591,12 +1719,47 @@ const PublicationManagement = () => {
       setMessage({ type: 'success', text: 'Publications deleted successfully!' });
     } catch (error) {
       console.error('Error bulk deleting:', error);
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Error deleting publications. Please try again.' 
-      });
+      
+      // Check if it's a connection timeout error
+      const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
+                                  error.message?.includes('Connection terminated unexpectedly') ||
+                                  error.message?.includes('Connection timeout') ||
+                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+      
+      // Retry on connection timeout errors
+      if (isConnectionTimeout && retryCount < maxRetries) {
+        console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
+        setMessage({
+          type: 'warning',
+          text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
+        });
+        
+        // Wait before retrying
+        setTimeout(() => {
+          handleBulkDelete(retryCount + 1);
+        }, retryDelay);
+        
+        return;
+      }
+      
+      // For all other errors or failed retries
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
+      
+      if (isConnectionTimeout && retryCount >= maxRetries) {
+        setMessage({
+          type: 'error',
+          text: 'Connection timeout. The database appears to be unavailable. Please try again later or contact support if the issue persists.'
+        });
+      } else {
+        setMessage({
+          type: 'error',
+          text: errorMessage || 'Error deleting publications. Please try again.'
+        });
+      }
     } finally {
-      setLoading(false);
+      if (retryCount === 0) {
+        setLoading(false);
+      }
     }
   };
 
