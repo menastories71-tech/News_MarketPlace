@@ -4,38 +4,9 @@ const { body, validationResult } = require('express-validator');
 
 class PressPackController {
   // Validation rules
-  createValidation = [
-    body('distribution_package').trim().isLength({ min: 1 }).withMessage('Distribution package is required'),
-    body('region').trim().isLength({ min: 1 }).withMessage('Region is required'),
-    body('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
-    body('industry').trim().isLength({ min: 1 }).withMessage('Industry is required'),
-    body('indexed').isBoolean().withMessage('Indexed must be a boolean value'),
-    body('no_of_indexed_websites').isInt({ min: 0 }).withMessage('Number of indexed websites must be a non-negative integer'),
-    body('no_of_non_indexed_websites').isInt({ min: 0 }).withMessage('Number of non-indexed websites must be a non-negative integer'),
-    body('words_limit').isInt({ min: 0 }).withMessage('Words limit must be a non-negative integer'),
-    body('language').trim().isLength({ min: 1 }).withMessage('Language is required'),
-    body('news').optional().trim(),
-    body('disclaimer').optional().trim(),
-    body('image').optional().trim(),
-    body('link').optional().isURL().withMessage('Link must be a valid URL')
-  ];
+  createValidation = [];
 
-  updateValidation = [
-    body('distribution_package').optional({ checkFalsy: true }).trim().isLength({ min: 1 }).withMessage('Distribution package cannot be empty if provided'),
-    body('region').optional({ checkFalsy: true }).trim().isLength({ min: 1 }).withMessage('Region cannot be empty if provided'),
-    body('price').optional({ checkFalsy: true }).isFloat({ min: 0 }).withMessage('Price must be a positive number'),
-    body('industry').optional({ checkFalsy: true }).trim().isLength({ min: 1 }).withMessage('Industry cannot be empty if provided'),
-    body('indexed').optional().isBoolean().withMessage('Indexed must be a boolean value'),
-    body('no_of_indexed_websites').optional({ checkFalsy: true }).isInt({ min: 0 }).withMessage('Number of indexed websites must be a non-negative integer'),
-    body('no_of_non_indexed_websites').optional({ checkFalsy: true }).isInt({ min: 0 }).withMessage('Number of non-indexed websites must be a non-negative integer'),
-    body('words_limit').optional({ checkFalsy: true }).isInt({ min: 0 }).withMessage('Words limit must be a non-negative integer'),
-    body('language').optional({ checkFalsy: true }).trim().isLength({ min: 1 }).withMessage('Language cannot be empty if provided'),
-    body('news').optional(),
-    body('disclaimer').optional(),
-    body('image').optional(),
-    body('link').optional().isURL().withMessage('Link must be a valid URL'),
-    body('is_active').optional().isBoolean().withMessage('Is active must be a boolean value')
-  ];
+  updateValidation = [];
 
   // Get all press packs with filtering and pagination
   async getAll(req, res) {
@@ -130,6 +101,13 @@ class PressPackController {
       }
 
       const pressPackData = req.body;
+      let publicationIds = null;
+
+      // Extract publication_ids if provided (not a database column)
+      if (pressPackData.publication_ids) {
+        publicationIds = pressPackData.publication_ids;
+        delete pressPackData.publication_ids;
+      }
 
       // Convert numeric fields
       const numericFields = ['price', 'no_of_indexed_websites', 'no_of_non_indexed_websites', 'words_limit'];
@@ -146,6 +124,22 @@ class PressPackController {
       }
 
       const pressPack = await PressPack.create(pressPackData);
+
+      // Handle publication associations if provided
+      if (publicationIds !== null) {
+        try {
+          // Convert publicationIds to array if it's not already
+          const ids = Array.isArray(publicationIds) ? publicationIds.map(id => parseInt(id)) : [];
+
+          // Add publications
+          for (const pubId of ids) {
+            await pressPack.addPublication(pubId);
+          }
+        } catch (associationError) {
+          console.error('Error creating publication associations:', associationError);
+          // Don't fail the entire creation if association creation fails
+        }
+      }
       res.status(201).json({
         message: 'Press pack created successfully',
         pressPack: pressPack.toJSON()
@@ -175,6 +169,7 @@ class PressPackController {
       }
 
       const updateData = {};
+      let publicationIds = null;
 
       // Process each field from req.body
       Object.keys(req.body).forEach(field => {
@@ -182,6 +177,12 @@ class PressPackController {
 
         // Skip empty strings for optional fields
         if (value === '') {
+          return;
+        }
+
+        // Handle publication_ids separately (not a database column)
+        if (field === 'publication_ids') {
+          publicationIds = value;
           return;
         }
 
@@ -202,6 +203,33 @@ class PressPackController {
       });
 
       const updatedPressPack = await pressPack.update(updateData);
+
+      // Handle publication associations if provided
+      if (publicationIds !== null) {
+        try {
+          // Get current publications
+          const currentPublications = await pressPack.getPublications();
+          const currentIds = currentPublications.map(pub => pub.id);
+
+          // Convert publicationIds to array if it's not already
+          const newIds = Array.isArray(publicationIds) ? publicationIds.map(id => parseInt(id)) : [];
+
+          // Remove publications that are no longer associated
+          const toRemove = currentIds.filter(id => !newIds.includes(id));
+          for (const pubId of toRemove) {
+            await pressPack.removePublication(pubId);
+          }
+
+          // Add new publications
+          const toAdd = newIds.filter(id => !currentIds.includes(id));
+          for (const pubId of toAdd) {
+            await pressPack.addPublication(pubId);
+          }
+        } catch (associationError) {
+          console.error('Error updating publication associations:', associationError);
+          // Don't fail the entire update if association update fails
+        }
+      }
       res.json({
         message: 'Press pack updated successfully',
         pressPack: updatedPressPack.toJSON()
@@ -245,6 +273,13 @@ class PressPackController {
       for (let i = 0; i < pressPacks.length; i++) {
         try {
           const pressPackData = pressPacks[i];
+          let publicationIds = null;
+
+          // Extract publication_ids if provided (not a database column)
+          if (pressPackData.publication_ids) {
+            publicationIds = pressPackData.publication_ids;
+            delete pressPackData.publication_ids;
+          }
 
           // Convert numeric fields
           const numericFields = ['price', 'no_of_indexed_websites', 'no_of_non_indexed_websites', 'words_limit'];
@@ -261,6 +296,23 @@ class PressPackController {
           }
 
           const pressPack = await PressPack.create(pressPackData);
+
+          // Handle publication associations if provided
+          if (publicationIds !== null) {
+            try {
+              // Convert publicationIds to array if it's not already
+              const ids = Array.isArray(publicationIds) ? publicationIds.map(id => parseInt(id)) : [];
+
+              // Add publications
+              for (const pubId of ids) {
+                await pressPack.addPublication(pubId);
+              }
+            } catch (associationError) {
+              console.error('Error creating publication associations in bulk create:', associationError);
+              // Don't fail the entire creation if association creation fails
+            }
+          }
+
           createdPressPacks.push(pressPack.toJSON());
         } catch (error) {
           errors.push({ index: i, error: error.message });
@@ -302,11 +354,19 @@ class PressPackController {
 
           // Process update data, filtering out empty strings
           const updateData = {};
+          let publicationIds = null;
+
           Object.keys(rawUpdateData).forEach(field => {
             const value = rawUpdateData[field];
 
             // Skip empty strings for optional fields
             if (value === '') {
+              return;
+            }
+
+            // Handle publication_ids separately (not a database column)
+            if (field === 'publication_ids') {
+              publicationIds = value;
               return;
             }
 
@@ -327,6 +387,33 @@ class PressPackController {
           });
 
           const updatedPressPack = await pressPack.update(updateData);
+
+          // Handle publication associations if provided
+          if (publicationIds !== null) {
+            try {
+              // Get current publications
+              const currentPublications = await updatedPressPack.getPublications();
+              const currentIds = currentPublications.map(pub => pub.id);
+
+              // Convert publicationIds to array if it's not already
+              const newIds = Array.isArray(publicationIds) ? publicationIds.map(id => parseInt(id)) : [];
+
+              // Remove publications that are no longer associated
+              const toRemove = currentIds.filter(id => !newIds.includes(id));
+              for (const pubId of toRemove) {
+                await updatedPressPack.removePublication(pubId);
+              }
+
+              // Add new publications
+              const toAdd = newIds.filter(id => !currentIds.includes(id));
+              for (const pubId of toAdd) {
+                await updatedPressPack.addPublication(pubId);
+              }
+            } catch (associationError) {
+              console.error('Error updating publication associations in bulk update:', associationError);
+              // Don't fail the entire update if association update fails
+            }
+          }
           updatedPressPacks.push(updatedPressPack.toJSON());
         } catch (error) {
           errors.push({ index: i, error: error.message });

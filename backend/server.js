@@ -23,6 +23,12 @@ const themeRoutes = require('./src/routes/themes');
 const websitesRoutes = require('./src/routes/websites');
 const pressPackRoutes = require('./src/routes/pressPacks');
 const agenciesRoutes = require('./src/routes/agencies');
+const reportersRoutes = require('./src/routes/reporters');
+const podcastersRoutes = require('./src/routes/podcasters');
+const eventEnquiriesRoutes = require('./src/routes/eventEnquiries');
+const affiliateEnquiriesRoutes = require('./src/routes/affiliateEnquiries');
+const careersRoutes = require('./src/routes/careers');
+const blogsRoutes = require('./src/routes/blogs');
 // const userRoutes = require('./src/routes/users');
 // const articleRoutes = require('./src/routes/articles');
 // const paymentRoutes = require('./src/routes/payments');
@@ -97,6 +103,9 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
 
+// Static file serving for uploads
+app.use('/api/uploads', express.static('uploads'));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/auth', adminAuthLimiter, adminAuthRoutes);
@@ -113,6 +122,12 @@ app.use('/api/themes', themeRoutes);
 app.use('/api/websites', websitesRoutes);
 app.use('/api/press-packs', pressPackRoutes);
 app.use('/api/agencies', agenciesRoutes);
+app.use('/api/reporters', reportersRoutes);
+app.use('/api/podcasters', podcastersRoutes);
+app.use('/api/event-enquiries', eventEnquiriesRoutes);
+app.use('/api/affiliate-enquiries', affiliateEnquiriesRoutes);
+app.use('/api/careers', careersRoutes);
+app.use('/api/blogs', blogsRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/articles', articleRoutes);
 // app.use('/api/payments', paymentRoutes);
@@ -130,6 +145,8 @@ app.get('/', (req, res) => {
       groups: '/api/groups',
       publications: '/api/publications',
       notifications: '/api/notifications',
+      reporters: '/api/reporters',
+      blogs: '/api/blogs',
       users: '/api/users',
       articles: '/api/articles',
       payments: '/api/payments',
@@ -139,6 +156,7 @@ app.get('/', (req, res) => {
       paparazzi: '/api/paparazzi',
       themes: '/api/themes',
       pressPacks: '/api/press-packs',
+      affiliateEnquiries: '/api/affiliate-enquiries',
       admin: '/api/admin',
       uploads: '/api/uploads'
     }

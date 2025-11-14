@@ -106,6 +106,13 @@ export const adminAPI = {
   // Get all users
   getUsers: () => api.get('/admin/auth/users'),
 
+  // Blog management
+  getBlogs: (params) => api.get('/blogs', { params }),
+  getBlog: (id) => api.get(`/blogs/${id}`),
+  createBlog: (data) => api.post('/blogs', data),
+  updateBlog: (id, data) => api.put(`/blogs/${id}`, data),
+  deleteBlog: (id) => api.delete(`/blogs/${id}`),
+
   // Other admin functions can be added here
 };
 

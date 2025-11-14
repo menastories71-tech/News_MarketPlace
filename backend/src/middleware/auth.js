@@ -201,6 +201,33 @@ const requireOwnership = (resourceType) => {
           resourceOwnerId = theme.submitted_by;
           break;
 
+        case 'reporter':
+          const Reporter = require('../models/Reporter');
+          const reporter = await Reporter.findById(resourceId);
+          if (!reporter) {
+            return res.status(404).json({ error: 'Reporter not found' });
+          }
+          resourceOwnerId = reporter.submitted_by;
+          break;
+
+        case 'career':
+          const Career = require('../models/Career');
+          const career = await Career.findById(resourceId);
+          if (!career) {
+            return res.status(404).json({ error: 'Career not found' });
+          }
+          resourceOwnerId = career.submitted_by;
+          break;
+
+        case 'podcaster':
+          const Podcaster = require('../models/Podcaster');
+          const podcaster = await Podcaster.findById(resourceId);
+          if (!podcaster) {
+            return res.status(404).json({ error: 'Podcaster not found' });
+          }
+          resourceOwnerId = podcaster.submitted_by;
+          break;
+
         case 'user':
           resourceOwnerId = resourceId;
           break;
@@ -242,8 +269,14 @@ const requireAdminPermission = (permission) => {
     const permissionLevels = {
       'manage_publications': 1,
       'manage_themes': 1,
+      'manage_reporters': 1,
+      'manage_careers': 1,
+      'manage_podcasters': 1,
       'approve_publications': 2,
       'approve_themes': 2,
+      'approve_reporters': 2,
+      'approve_careers': 2,
+      'approve_podcasters': 2,
       'manage_users': 3,
       'manage_admins': 4,
       'system_admin': 5

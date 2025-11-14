@@ -25,6 +25,8 @@ import Home from './pages/Home';
 import ServicesOverview from './pages/ServicesOverview';
 import HowItWorks from './pages/HowItWorks';
 import VideoTutorials from './pages/VideoTutorials';
+import PodcastersList from './pages/PodcastersList';
+import PodcasterDetail from './pages/PodcasterDetail';
 import HowToGuides from './pages/HowToGuides';
 import DownloadCenter from './pages/DownloadCenter';
 import ResourceLibrary from './pages/ResourceLibrary';
@@ -37,6 +39,10 @@ import PaparazziDetailPage from './pages/PaparazziDetailPage';
 import PaparazziSubmissionPage from './pages/PaparazziSubmissionPage';
 import UserProfile from './pages/UserProfile';
 import AgencyRegistrationPage from './pages/AgencyRegistrationPage';
+import ReporterRegistrationPage from './pages/ReporterRegistrationPage';
+import ReporterManagement from './components/admin/ReporterManagement';
+import EventEnquiriesView from './components/admin/EventEnquiriesView';
+import AffiliateEnquiriesView from './components/admin/AffiliateEnquiriesView';
 import PowerlistPage from './pages/PowerlistPage';
 import PowerListDetailPage from './pages/PowerListDetailPage';
 import PowerListManagement from './components/admin/PowerListManagement';
@@ -54,8 +60,18 @@ import RadioManagement from './components/admin/RadioManagement';
 import ThemeManagement from './components/admin/ThemeManagement';
 import PressPackManagement from './components/admin/PressPackManagement';
 import PaparazziManagement from './components/admin/PaparazziManagement';
+import PodcasterManagementView from './components/admin/PodcasterManagementView';
 import AgencyManagement from './components/admin/AgencyManagement';
 import WebsiteManagement from './components/admin/WebsiteManagement';
+import ReporterSubmissionsDashboard from './components/user/ReporterSubmissionsDashboard';
+import EventEnquiryPage from './pages/EventEnquiryPage';
+import AffiliateEnquiryPage from './pages/AffiliateEnquiryPage';
+import CareersPage from './pages/CareersPage';
+import CareerDetailPage from './pages/CareerDetailPage';
+import CareerManagement from './components/admin/CareerManagement';
+import BlogManagement from './components/admin/BlogManagement';
+import BlogListingPage from './pages/BlogListingPage';
+import BlogDetailPage from './pages/BlogDetailPage';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -287,6 +303,8 @@ function App() {
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
             <Route path="/services-overview" element={<ServicesOverview />} />
+            <Route path="/podcasters" element={<PodcastersList />} />
+            <Route path="/podcasters/:id" element={<PodcasterDetail />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route
               path="/dashboard"
@@ -328,8 +346,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/careers/:id" element={<CareerDetailPage />} />
+            <Route path="/blogs" element={<BlogListingPage />} />
+            <Route path="/blog/:id" element={<BlogDetailPage />} />
+            <Route path="/radio" element={<Radio />} />
             <Route path="/publications" element={<PublicationsPage />} />
             <Route path="/publications/:id" element={<PublicationDetailPage />} />
+            <Route path="/careers" element={<CareersPage />} />
+            <Route path="/careers/:id" element={<CareerDetailPage />} />
             <Route path="/radio" element={<Radio />} />
             <Route path="/radio/:id" element={<RadioDetails />} />
             <Route path="/paparazzi" element={<Paparazzi />} />
@@ -358,6 +382,15 @@ function App() {
             />
             <Route path="/press-packs" element={<PressPacksPage />} />
             <Route path="/press-packs/:id" element={<PressPackDetailPage />} />
+            <Route path="/event-enquiry" element={<EventEnquiryPage />} />
+            <Route
+              path="/affiliate-program"
+              element={
+                <ProtectedRoute>
+                  <AffiliateEnquiryPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/profile"
               element={
@@ -374,12 +407,28 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/reporter-registration"
+              element={
+                <ProtectedRoute>
+                  <ReporterRegistrationPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/website-submission"
               element={
                 <ProtectedRoute>
                   <WebsiteSubmissionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/reporter-submissions"
+              element={
+                <ProtectedRoute>
+                  <ReporterSubmissionsDashboard />
                 </ProtectedRoute>
               }
             />
@@ -520,6 +569,66 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <WebsiteManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/reporters"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <ReporterManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/podcasters"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PodcasterManagementView />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/event-enquiries"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <EventEnquiriesView />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/affiliate-enquiries"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <AffiliateEnquiriesView />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/careers"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <CareerManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/blogs"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <BlogManagement />
                   </div>
                 </AdminProtectedRoute>
               }

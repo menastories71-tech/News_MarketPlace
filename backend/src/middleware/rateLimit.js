@@ -7,6 +7,21 @@ class RateLimiter {
         windowMs: 60 * 1000, // 1 minute
         maxRequests: 1,
         message: 'You can only submit one publication per minute. Please try again later.'
+      },
+      reporter_submit: {
+        windowMs: 60 * 1000, // 1 minute
+        maxRequests: 1,
+        message: 'You can only submit one reporter profile per minute. Please try again later.'
+      },
+      career_submit: {
+        windowMs: 60 * 1000, // 1 minute
+        maxRequests: 1,
+        message: 'You can only submit one career posting per minute. Please try again later.'
+      },
+      podcaster_submit: {
+        windowMs: 60 * 1000, // 1 minute
+        maxRequests: 1,
+        message: 'You can only submit one podcaster profile per minute. Please try again later.'
       }
     };
   }
@@ -112,7 +127,70 @@ const publicationSubmitLimit = async (req, res, next) => {
   next();
 };
 
+// Middleware function for reporter submission rate limiting
+const reporterSubmitLimit = async (req, res, next) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  const result = await rateLimiter.checkLimit(userId, 'reporter_submit');
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: result.message,
+      remainingMinutes: result.remainingTime
+    });
+  }
+
+  next();
+};
+
+// Middleware function for career submission rate limiting
+const careerSubmitLimit = async (req, res, next) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  const result = await rateLimiter.checkLimit(userId, 'career_submit');
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: result.message,
+      remainingMinutes: result.remainingTime
+    });
+  }
+
+  next();
+};
+
+// Middleware function for podcaster submission rate limiting
+const podcasterSubmitLimit = async (req, res, next) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  const result = await rateLimiter.checkLimit(userId, 'podcaster_submit');
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: result.message,
+      remainingMinutes: result.remainingTime
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   publicationSubmitLimit,
+  reporterSubmitLimit,
+  careerSubmitLimit,
+  podcasterSubmitLimit,
   rateLimiter
 };

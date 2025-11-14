@@ -120,6 +120,10 @@ const UserHeader = ({ onShowAuth }) => {
               Awards
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
+            <a href="/careers" className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
+              Careers
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
+            </a>
           </nav>
 
           {/* Right: Action Buttons */}
@@ -132,6 +136,9 @@ const UserHeader = ({ onShowAuth }) => {
                 <button className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Editor Registration
                 </button>
+                <Link to="/reporter-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                  Reporter Registration
+                </Link>
                 <button
                   onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : onShowAuth}
                   disabled={isAdminAuthenticated}
@@ -158,6 +165,9 @@ const UserHeader = ({ onShowAuth }) => {
                 </a>
                 <Link to="/agency-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Agency Registration
+                </Link>
+                <Link to="/reporter-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                  Reporter Registration
                 </Link>
                 {!isAdminAuthenticated && (
                   <Link to="/website-submission" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
@@ -207,6 +217,10 @@ const UserHeader = ({ onShowAuth }) => {
                   <Icon name="trophy" size="xs" />
                   <span>Awards</span>
                 </a>
+                <a href="/careers" className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
+                  <Icon name="briefcase" size="xs" />
+                  <span>Careers</span>
+                </a>
               </div>
               
               {/* Action Buttons */}
@@ -219,6 +233,9 @@ const UserHeader = ({ onShowAuth }) => {
                     <button className="w-full bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Editor Registration
                     </button>
+                    <Link to="/reporter-registration" className="w-full bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
+                      Reporter Registration
+                    </Link>
                     <button
                       onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : onShowAuth}
                       disabled={isAdminAuthenticated}
@@ -245,6 +262,9 @@ const UserHeader = ({ onShowAuth }) => {
                     </a>
                     <Link to="/agency-registration" className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
                       Agency Registration
+                    </Link>
+                    <Link to="/reporter-registration" className="w-full bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
+                      Reporter Registration
                     </Link>
                     {!isAdminAuthenticated && (
                       <Link to="/website-submission" className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
