@@ -1,5 +1,6 @@
 const { query } = require('../config/database');
 const bcrypt = require('bcryptjs');
+const Role = require('./Role');
 
 class Admin {
   constructor(data) {
@@ -8,7 +9,9 @@ class Admin {
     this.password_hash = data.password_hash;
     this.first_name = data.first_name;
     this.last_name = data.last_name;
-    this.role = data.role || 'other';
+    this.role = data.role || data.old_role || 'other'; // backward compatibility
+    this.old_role = data.old_role; // keep for migration
+    this.role_id = data.role_id;
     this.is_active = data.is_active || true;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
@@ -112,6 +115,43 @@ class Admin {
       'other': 0
     };
     return roleLevels[this.role] || 0;
+  }
+
+  // Get associated Role model (for new RBAC system)
+  async getRole() {
+    if (this.role_id) {
+      return await Role.findByPk(this.role_id, { include: ['permissions'] });
+    }
+    return null;
+  }
+
+  // Check if admin has specific permission (new RBAC system)
+  async hasPermission(permissionName) {
+    const role = await this.getRole();
+    if (role) {
+      return await role.hasPermission(permissionName);
+    }
+    // Fallback to old role-based logic
+    return this.hasRole(this.role);
+  }
+
+  // Check if admin has permission by resource and action
+  async hasPermissionByResourceAction(resource, action) {
+    const role = await this.getRole();
+    if (role) {
+      return await role.hasPermissionByResourceAction(resource, action);
+    }
+    // Fallback to old role-based logic (simplified)
+    return this.getRoleLevel() >= 3; // editor and above
+  }
+
+  // Get all permissions for this admin
+  async getPermissions() {
+    const role = await this.getRole();
+    if (role) {
+      return await role.getPermissions();
+    }
+    return [];
   }
 }
 

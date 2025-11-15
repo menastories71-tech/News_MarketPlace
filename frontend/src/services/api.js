@@ -106,6 +106,25 @@ export const adminAPI = {
   // Get all users
   getUsers: () => api.get('/admin/auth/users'),
 
+  // Roles and Permissions management
+  getRoles: (params) => api.get('/admin/role-permissions/roles', { params }),
+  getRole: (id) => api.get(`/admin/role-permissions/roles/${id}`),
+  createRole: (data) => api.post('/admin/role-permissions/roles', data),
+  updateRole: (id, data) => api.put(`/admin/role-permissions/roles/${id}`, data),
+  deleteRole: (id) => api.delete(`/admin/role-permissions/roles/${id}`),
+  getRolePermissions: (id) => api.get(`/admin/role-permissions/roles/${id}/permissions`),
+  setRolePermissions: (id, data) => api.put(`/admin/role-permissions/roles/${id}/permissions`, data),
+  assignPermissionToRole: (roleId, permissionId) => api.post(`/admin/role-permissions/roles/${roleId}/permissions/${permissionId}`),
+  removePermissionFromRole: (roleId, permissionId) => api.delete(`/admin/role-permissions/roles/${roleId}/permissions/${permissionId}`),
+
+  getPermissions: (params) => api.get('/admin/role-permissions/permissions', { params }),
+  getPermission: (id) => api.get(`/admin/role-permissions/permissions/${id}`),
+  createPermission: (data) => api.post('/admin/role-permissions/permissions', data),
+  updatePermission: (id, data) => api.put(`/admin/role-permissions/permissions/${id}`, data),
+  deletePermission: (id) => api.delete(`/admin/role-permissions/permissions/${id}`),
+
+  getResources: () => api.get('/admin/role-permissions/resources'),
+
   // Blog management
   getBlogs: (params) => api.get('/blogs', { params }),
   getBlog: (id) => api.get(`/blogs/${id}`),

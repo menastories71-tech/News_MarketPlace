@@ -80,6 +80,8 @@ class PodcasterController {
     body('tiktok').optional().isURL().withMessage('Valid TikTok URL is required'),
     body('cta').optional().trim(),
     body('contact_us_to_be_on_podcast').optional().trim(),
+    body('gender').optional().isIn(['male', 'female', 'other']).withMessage('Gender must be one of: male, female, other'),
+    body('nationality').optional().trim().isLength({ min: 1 }).withMessage('Nationality is required'),
     body('recaptchaToken').isLength({ min: 1 }).withMessage('reCAPTCHA token is required')
   ];
 
@@ -105,6 +107,8 @@ class PodcasterController {
     body('tiktok').optional().isURL().withMessage('Valid TikTok URL is required'),
     body('cta').optional().trim(),
     body('contact_us_to_be_on_podcast').optional().trim(),
+    body('gender').optional().isIn(['male', 'female', 'other']).withMessage('Gender must be one of: male, female, other'),
+    body('nationality').optional().trim().isLength({ min: 1 }).withMessage('Nationality is required'),
     body('status').optional().isIn(['pending', 'approved', 'rejected']).withMessage('Invalid status')
   ];
 
@@ -129,6 +133,8 @@ class PodcasterController {
     body('tiktok').optional().isURL().withMessage('Valid TikTok URL is required'),
     body('cta').optional().trim(),
     body('contact_us_to_be_on_podcast').optional().trim(),
+    body('gender').optional().isIn(['male', 'female', 'other']).withMessage('Gender must be one of: male, female, other'),
+    body('nationality').optional().trim().isLength({ min: 1 }).withMessage('Nationality is required'),
     body('status').optional().isIn(['pending', 'approved', 'rejected']).withMessage('Invalid status')
   ];
 

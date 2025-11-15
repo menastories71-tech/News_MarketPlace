@@ -27,17 +27,17 @@ const theme = {
   borderDark: '#757575'      // Border Dark
 };
 
-const PodcasterManagementView = () => {
+const RealEstateManagementView = () => {
   const { admin, logout, hasRole, hasAnyRole, getRoleLevel } = useAdminAuth();
 
-  // Check if user has permission to view podcaster submissions
+  // Check if user has permission to view real estate submissions
   if (!hasAnyRole(['super_admin', 'content_manager'])) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: theme.backgroundSoft }}>
         <div style={{ textAlign: 'center' }}>
           <Icon name="shield-exclamation" size="lg" style={{ color: theme.danger, marginBottom: '16px' }} />
           <h2 style={{ color: theme.textPrimary, marginBottom: '8px' }}>Access Denied</h2>
-          <p style={{ color: theme.textSecondary }}>You don't have permission to view podcaster submissions.</p>
+          <p style={{ color: theme.textSecondary }}>You don't have permission to view real estate submissions.</p>
           <p style={{ color: theme.textSecondary, fontSize: '14px', marginTop: '8px' }}>
             Required roles: Super Admin or Content Manager
           </p>
@@ -46,7 +46,7 @@ const PodcasterManagementView = () => {
     );
   }
 
-  const [podcasters, setPodcasters] = useState([]);
+  const [realEstates, setRealEstates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -59,11 +59,12 @@ const PodcasterManagementView = () => {
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [selectedPodcaster, setSelectedPodcaster] = useState(null);
-  const [selectedPodcasters, setSelectedPodcasters] = useState([]);
+  const [selectedRealEstate, setSelectedRealEstate] = useState(null);
+  const [selectedRealEstates, setSelectedRealEstates] = useState([]);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editingPodcaster, setEditingPodcaster] = useState(null);
+  const [editingRealEstate, setEditingRealEstate] = useState(null);
+
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -108,7 +109,10 @@ const PodcasterManagementView = () => {
   const btnPrimary = {
     backgroundColor: theme.primary,
     color: '#fff',
-    padding: '0.625rem 1rem',
+    paddingTop: '0.625rem',
+    paddingBottom: '0.625rem',
+    paddingLeft: '1rem',
+    paddingRight: '1rem',
     borderRadius: '0.5rem',
     fontWeight: 600,
     display: 'inline-flex',
@@ -137,24 +141,24 @@ const PodcasterManagementView = () => {
   }, [sidebarOpen, isMobile]);
 
   useEffect(() => {
-    fetchPodcasters();
+    fetchRealEstates();
   }, []);
 
-  const fetchPodcasters = async () => {
+  const fetchRealEstates = async () => {
     try {
       const params = new URLSearchParams({
         page: currentPage,
         limit: pageSize,
-        ...(debouncedSearchTerm && { podcast_name: debouncedSearchTerm }),
+        ...(debouncedSearchTerm && { title: debouncedSearchTerm }),
         ...(statusFilter && { status: statusFilter }),
         ...(dateFromFilter && { date_from: dateFromFilter }),
         ...(dateToFilter && { date_to: dateToFilter })
       });
 
-      const response = await api.get(`/podcasters/admin?${params}`);
-      setPodcasters(response.data.podcasters || []);
+      const response = await api.get(`/real-estates/admin?${params}`);
+      setRealEstates(response.data.realEstates || []);
     } catch (error) {
-      console.error('Error fetching podcasters:', error.response?.data || error.message || error);
+      console.error('Error fetching real estates:', error.response?.data || error.message || error);
       if (error.response?.status === 401) {
         // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
@@ -164,48 +168,48 @@ const PodcasterManagementView = () => {
       if (error.response?.status === 500) {
         alert('Server error. Please try again later.');
       } else {
-        alert('Failed to load podcasters. Please check your connection and try again.');
+        alert('Failed to load real estates. Please check your connection and try again.');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  // Filtered podcasters based on search and filters
-  const filteredPodcasters = useMemo(() => {
-    let filtered = podcasters;
+  // Filtered real estates based on search and filters
+  const filteredRealEstates = useMemo(() => {
+    let filtered = realEstates;
 
     if (debouncedSearchTerm) {
-      filtered = filtered.filter(podcaster =>
-        podcaster.podcast_name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (podcaster.podcast_host && podcaster.podcast_host.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
-        (podcaster.podcast_focus_industry && podcaster.podcast_focus_industry.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
+      filtered = filtered.filter(realEstate =>
+        realEstate.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        (realEstate.location && realEstate.location.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
+        (realEstate.property_type && realEstate.property_type.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
       );
     }
 
     if (statusFilter) {
-      filtered = filtered.filter(podcaster => podcaster.status === statusFilter);
+      filtered = filtered.filter(realEstate => realEstate.status === statusFilter);
     }
 
     if (dateFromFilter) {
-      filtered = filtered.filter(podcaster => new Date(podcaster.created_at) >= new Date(dateFromFilter));
+      filtered = filtered.filter(realEstate => new Date(realEstate.created_at) >= new Date(dateFromFilter));
     }
 
     if (dateToFilter) {
-      filtered = filtered.filter(podcaster => new Date(podcaster.created_at) <= new Date(dateToFilter));
+      filtered = filtered.filter(realEstate => new Date(realEstate.created_at) <= new Date(dateToFilter));
     }
 
     return filtered;
-  }, [podcasters, debouncedSearchTerm, statusFilter, dateFromFilter, dateToFilter]);
+  }, [realEstates, debouncedSearchTerm, statusFilter, dateFromFilter, dateToFilter]);
 
-  // Update filtered podcasters when filters change
+  // Update filtered real estates when filters change
   useEffect(() => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [debouncedSearchTerm, statusFilter, dateFromFilter, dateToFilter]);
 
   // Sorting logic
-  const sortedPodcasters = useMemo(() => {
-    return [...filteredPodcasters].sort((a, b) => {
+  const sortedRealEstates = useMemo(() => {
+    return [...filteredRealEstates].sort((a, b) => {
       let aValue = a[sortField];
       let bValue = b[sortField];
 
@@ -223,15 +227,15 @@ const PodcasterManagementView = () => {
         return aValue < bValue ? 1 : -1;
       }
     });
-  }, [filteredPodcasters, sortField, sortDirection]);
+  }, [filteredRealEstates, sortField, sortDirection]);
 
   // Pagination logic
-  const paginatedPodcasters = useMemo(() => {
+  const paginatedRealEstates = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
-    return sortedPodcasters.slice(startIndex, startIndex + pageSize);
-  }, [sortedPodcasters, currentPage, pageSize]);
+    return sortedRealEstates.slice(startIndex, startIndex + pageSize);
+  }, [sortedRealEstates, currentPage, pageSize]);
 
-  const totalPages = Math.ceil(sortedPodcasters.length / pageSize);
+  const totalPages = Math.ceil(sortedRealEstates.length / pageSize);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
@@ -251,123 +255,130 @@ const PodcasterManagementView = () => {
     return sortDirection === 'asc' ? '↑' : '↓';
   };
 
-  const handleViewPodcaster = (podcaster) => {
-    setSelectedPodcaster(podcaster);
+  const handleViewRealEstate = (realEstate) => {
+    setSelectedRealEstate(realEstate);
   };
 
-  const handleApprovePodcaster = async (podcaster) => {
-    if (!confirm(`Are you sure you want to approve "${podcaster.podcast_name}"?`)) return;
+  const handleApproveRealEstate = async (realEstate) => {
+    if (!confirm(`Are you sure you want to approve "${realEstate.title}"?`)) return;
 
     try {
-      await api.put(`/podcasters/admin/${podcaster.id}/approve`);
+      await api.put(`/real-estates/admin/${realEstate.id}/approve`);
       // Update local state
-      setPodcasters(prev => prev.map(p => p.id === podcaster.id ? { ...p, status: 'approved', approved_at: new Date(), approved_by: admin?.adminId } : p));
-      alert('Podcaster approved successfully!');
+      setRealEstates(prev => prev.map(r => r.id === realEstate.id ? { ...r, status: 'approved', approved_at: new Date(), approved_by: admin?.adminId } : r));
+      alert('Real estate approved successfully!');
     } catch (error) {
-      console.error('Error approving podcaster:', error);
-      alert('Failed to approve podcaster. Please try again.');
+      console.error('Error approving real estate:', error);
+      alert('Failed to approve real estate. Please try again.');
     }
   };
 
-  const handleRejectPodcaster = async (podcaster) => {
+  const handleRejectRealEstate = async (realEstate) => {
     const reason = prompt('Please provide a rejection reason:');
     if (!reason || reason.trim().length === 0) return;
 
     try {
-      await api.put(`/podcasters/admin/${podcaster.id}/reject`, { rejection_reason: reason.trim() });
+      await api.put(`/real-estates/admin/${realEstate.id}/reject`, { rejection_reason: reason.trim() });
       // Update local state
-      setPodcasters(prev => prev.map(p => p.id === podcaster.id ? { ...p, status: 'rejected', rejected_at: new Date(), rejected_by: admin?.adminId, rejection_reason: reason.trim() } : p));
-      alert('Podcaster rejected successfully!');
+      setRealEstates(prev => prev.map(r => r.id === realEstate.id ? { ...r, status: 'rejected', rejected_at: new Date(), rejected_by: admin?.adminId, rejection_reason: reason.trim() } : r));
+      alert('Real estate rejected successfully!');
     } catch (error) {
-      console.error('Error rejecting podcaster:', error);
-      alert('Failed to reject podcaster. Please try again.');
+      console.error('Error rejecting real estate:', error);
+      alert('Failed to reject real estate. Please try again.');
     }
   };
 
   const handleBulkApprove = async () => {
-    if (selectedPodcasters.length === 0) {
-      alert('Please select podcasters to approve.');
+    if (selectedRealEstates.length === 0) {
+      alert('Please select real estates to approve.');
       return;
     }
 
-    if (!confirm(`Are you sure you want to approve ${selectedPodcasters.length} podcaster(s)?`)) return;
+    if (!confirm(`Are you sure you want to approve ${selectedRealEstates.length} real estate(s)?`)) return;
 
     setBulkActionLoading(true);
     try {
-      await api.put('/podcasters/bulk-approve', { ids: selectedPodcasters });
+      await api.put('/real-estates/bulk-approve', { ids: selectedRealEstates });
       // Update local state
-      setPodcasters(prev => prev.map(p =>
-        selectedPodcasters.includes(p.id) ? { ...p, status: 'approved', approved_at: new Date(), approved_by: admin?.adminId } : p
+      setRealEstates(prev => prev.map(r =>
+        selectedRealEstates.includes(r.id) ? { ...r, status: 'approved', approved_at: new Date(), approved_by: admin?.adminId } : r
       ));
-      setSelectedPodcasters([]);
-      alert(`${selectedPodcasters.length} podcaster(s) approved successfully!`);
+      setSelectedRealEstates([]);
+      alert(`${selectedRealEstates.length} real estate(s) approved successfully!`);
     } catch (error) {
-      console.error('Error bulk approving podcasters:', error);
-      alert('Failed to approve selected podcasters. Please try again.');
+      console.error('Error bulk approving real estates:', error);
+      alert('Failed to approve selected real estates. Please try again.');
     } finally {
       setBulkActionLoading(false);
     }
   };
 
   const handleBulkReject = async () => {
-    if (selectedPodcasters.length === 0) {
-      alert('Please select podcasters to reject.');
+    if (selectedRealEstates.length === 0) {
+      alert('Please select real estates to reject.');
       return;
     }
 
-    const reason = prompt('Please provide a rejection reason for all selected podcasters:');
+    const reason = prompt('Please provide a rejection reason for all selected real estates:');
     if (!reason || reason.trim().length === 0) return;
 
-    if (!confirm(`Are you sure you want to reject ${selectedPodcasters.length} podcaster(s)?`)) return;
+    if (!confirm(`Are you sure you want to reject ${selectedRealEstates.length} real estate(s)?`)) return;
 
     setBulkActionLoading(true);
     try {
-      await api.put('/podcasters/bulk-reject', { ids: selectedPodcasters, rejection_reason: reason.trim() });
+      await api.put('/real-estates/bulk-reject', { ids: selectedRealEstates, rejection_reason: reason.trim() });
       // Update local state
-      setPodcasters(prev => prev.map(p =>
-        selectedPodcasters.includes(p.id) ? { ...p, status: 'rejected', rejected_at: new Date(), rejected_by: admin?.adminId, rejection_reason: reason.trim() } : p
+      setRealEstates(prev => prev.map(r =>
+        selectedRealEstates.includes(r.id) ? { ...r, status: 'rejected', rejected_at: new Date(), rejected_by: admin?.adminId, rejection_reason: reason.trim() } : r
       ));
-      setSelectedPodcasters([]);
-      alert(`${selectedPodcasters.length} podcaster(s) rejected successfully!`);
+      setSelectedRealEstates([]);
+      alert(`${selectedRealEstates.length} real estate(s) rejected successfully!`);
     } catch (error) {
-      console.error('Error bulk rejecting podcasters:', error);
-      alert('Failed to reject selected podcasters. Please try again.');
+      console.error('Error bulk rejecting real estates:', error);
+      alert('Failed to reject selected real estates. Please try again.');
     } finally {
       setBulkActionLoading(false);
     }
   };
 
-  const handleSelectPodcaster = (podcasterId) => {
-    setSelectedPodcasters(prev =>
-      prev.includes(podcasterId)
-        ? prev.filter(id => id !== podcasterId)
-        : [...prev, podcasterId]
+  const handleSelectRealEstate = (realEstateId) => {
+    setSelectedRealEstates(prev =>
+      prev.includes(realEstateId)
+        ? prev.filter(id => id !== realEstateId)
+        : [...prev, realEstateId]
     );
   };
 
   const handleSelectAll = () => {
-    if (selectedPodcasters.length === paginatedPodcasters.length) {
-      setSelectedPodcasters([]);
+    if (selectedRealEstates.length === paginatedRealEstates.length) {
+      setSelectedRealEstates([]);
     } else {
-      setSelectedPodcasters(paginatedPodcasters.map(p => p.id));
+      setSelectedRealEstates(paginatedRealEstates.map(r => r.id));
     }
   };
 
-  const handleEditPodcaster = (podcaster) => {
-    setEditingPodcaster(podcaster);
-    setShowCreateModal(true);
+  const handleEditRealEstate = async (realEstate) => {
+    try {
+      // Fetch the full real estate details including images
+      const response = await api.get(`/real-estates/admin/${realEstate.id}`);
+      setEditingRealEstate(response.data.realEstate);
+      setShowCreateModal(true);
+    } catch (error) {
+      console.error('Error fetching real estate for edit:', error);
+      alert('Failed to load real estate details for editing.');
+    }
   };
 
-  const handleDeletePodcaster = async (podcaster) => {
-    if (!confirm(`Are you sure you want to permanently delete "${podcaster.podcast_name}"? This action cannot be undone.`)) return;
+  const handleDeleteRealEstate = async (realEstate) => {
+    if (!confirm(`Are you sure you want to permanently delete "${realEstate.title}"? This action cannot be undone.`)) return;
 
     try {
-      await api.delete(`/podcasters/admin/${podcaster.id}`);
-      setPodcasters(prev => prev.filter(p => p.id !== podcaster.id));
-      alert('Podcaster deleted successfully!');
+      await api.delete(`/real-estates/admin/${realEstate.id}`);
+      setRealEstates(prev => prev.filter(r => r.id !== realEstate.id));
+      alert('Real estate deleted successfully!');
     } catch (error) {
-      console.error('Error deleting podcaster:', error);
-      alert('Failed to delete podcaster. Please try again.');
+      console.error('Error deleting real estate:', error);
+      alert('Failed to delete real estate. Please try again.');
     }
   };
 
@@ -386,16 +397,16 @@ const PodcasterManagementView = () => {
     setDateToFilter('');
   };
 
-  const getPodcasterStats = () => {
-    const total = podcasters.length;
-    const pending = podcasters.filter(p => p.status === 'pending').length;
-    const approved = podcasters.filter(p => p.status === 'approved').length;
-    const rejected = podcasters.filter(p => p.status === 'rejected').length;
+  const getRealEstateStats = () => {
+    const total = realEstates.length;
+    const pending = realEstates.filter(r => r.status === 'pending').length;
+    const approved = realEstates.filter(r => r.status === 'approved').length;
+    const rejected = realEstates.filter(r => r.status === 'rejected').length;
 
     return { total, pending, approved, rejected };
   };
 
-  const stats = getPodcasterStats();
+  const stats = getRealEstateStats();
 
   if (loading) {
     return (
@@ -435,7 +446,10 @@ const PodcasterManagementView = () => {
               width: '280px',
               backgroundColor: '#fff',
               borderRadius: '12px',
-              padding: '20px',
+              paddingTop: '20px',
+              paddingBottom: '20px',
+              paddingLeft: '20px',
+              paddingRight: '20px',
               boxShadow: '0 8px 20px rgba(2,6,23,0.06)',
               height: 'fit-content'
             }}>
@@ -462,7 +476,7 @@ const PodcasterManagementView = () => {
 
             <main style={{ flex: 1, minWidth: 0 }}>
               {/* Page Header Skeleton */}
-              <div style={{ background: '#fff', borderRadius: 12, padding: 28, marginBottom: 24, border: `4px solid #000` }}>
+              <div style={{ background: '#fff', borderRadius: 12, paddingTop: '28px', paddingBottom: '28px', paddingLeft: '28px', paddingRight: '28px', marginBottom: 24, border: `4px solid #000` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: '#f3f4f6' }}></div>
                   <div style={{ height: 34, background: '#f3f4f6', borderRadius: 4, width: '300px' }}></div>
@@ -600,11 +614,11 @@ const PodcasterManagementView = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e6f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name="microphone" size="sm" style={{ color: '#1976D2' }} />
+                    <Icon name="home" size="sm" style={{ color: '#1976D2' }} />
                   </div>
-                  <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>Podcaster Management</h1>
+                  <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>Real Estate Management</h1>
                 </div>
-                <p style={{ marginTop: 8, color: '#757575' }}>View and manage podcaster profile submissions</p>
+                <p style={{ marginTop: 8, color: '#757575' }}>View and manage real estate listings</p>
               </div>
               <button
                 onClick={() => setShowCreateModal(true)}
@@ -618,14 +632,14 @@ const PodcasterManagementView = () => {
                 }}
               >
                 <Icon name="plus" size="sm" style={{ color: '#fff' }} />
-                Create Podcaster
+                Create Listing
               </button>
             </div>
 
             {/* Stats Cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
               {[
-                { label: 'Total Submissions', value: stats.total, icon: 'microphone', bg: '#e6f0ff' },
+                { label: 'Total Listings', value: stats.total, icon: 'home', bg: '#e6f0ff' },
                 { label: 'Pending Review', value: stats.pending, icon: 'clock', bg: '#fef3c7' },
                 { label: 'Approved', value: stats.approved, icon: 'check-circle', bg: '#dcfce7' },
                 { label: 'Rejected', value: stats.rejected, icon: 'x-circle', bg: '#fee2e2' }
@@ -643,11 +657,11 @@ const PodcasterManagementView = () => {
             </div>
 
             {/* Bulk Actions */}
-            {selectedPodcasters.length > 0 && (
+            {selectedRealEstates.length > 0 && (
               <div style={{ backgroundColor: '#fff', padding: '16px', borderRadius: '12px', marginBottom: '16px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
-                    {selectedPodcasters.length} podcaster(s) selected
+                    {selectedRealEstates.length} real estate(s) selected
                   </span>
                   <button
                     onClick={handleBulkApprove}
@@ -684,7 +698,7 @@ const PodcasterManagementView = () => {
                     {bulkActionLoading ? 'Processing...' : 'Bulk Reject'}
                   </button>
                   <button
-                    onClick={() => setSelectedPodcasters([])}
+                    onClick={() => setSelectedRealEstates([])}
                     style={{
                       padding: '8px 16px',
                       backgroundColor: '#f3f4f6',
@@ -712,7 +726,7 @@ const PodcasterManagementView = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search podcasters by name, host, industry..."
+                    placeholder="Search real estates by title, location, type..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     style={{
@@ -829,22 +843,22 @@ const PodcasterManagementView = () => {
               {/* Search Results Summary */}
               <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                  Showing <strong>{paginatedPodcasters.length}</strong> of <strong>{sortedPodcasters.length}</strong> podcasters
-                  {sortedPodcasters.length !== podcasters.length && (
-                    <span> (filtered from {podcasters.length} total)</span>
+                  Showing <strong>{paginatedRealEstates.length}</strong> of <strong>{sortedRealEstates.length}</strong> real estates
+                  {sortedRealEstates.length !== realEstates.length && (
+                    <span> (filtered from {realEstates.length} total)</span>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Podcasters Table */}
+            {/* Real Estates Table */}
             <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', overflow: 'hidden' }}>
               {/* Table Controls */}
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
-                      Podcaster Submissions
+                      Real Estate Listings
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -871,24 +885,24 @@ const PodcasterManagementView = () => {
                 </div>
               </div>
 
-              <div style={{ overflowX: 'auto', maxHeight: paginatedPodcasters.length > 50 ? '600px' : 'auto', overflowY: paginatedPodcasters.length > 50 ? 'auto' : 'visible' }}>
+              <div style={{ overflowX: 'auto', maxHeight: paginatedRealEstates.length > 50 ? '600px' : 'auto', overflowY: paginatedRealEstates.length > 50 ? 'auto' : 'visible' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         <input
                           type="checkbox"
-                          checked={selectedPodcasters.length === paginatedPodcasters.length && paginatedPodcasters.length > 0}
+                          checked={selectedRealEstates.length === paginatedRealEstates.length && paginatedRealEstates.length > 0}
                           onChange={handleSelectAll}
                           style={{ marginRight: '8px' }}
                         />
-                        Podcast
+                        Property
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Host
+                        Location
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Industry
+                        Price
                       </th>
                       <th
                         style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
@@ -905,66 +919,66 @@ const PodcasterManagementView = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedPodcasters.length === 0 ? (
+                    {paginatedRealEstates.length === 0 ? (
                       <tr>
                         <td colSpan="6" style={{ padding: '40px', textAlign: 'center', color: theme.textSecondary }}>
                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                            <Icon name="microphone" size="lg" style={{ color: theme.textDisabled }} />
-                            <div>No podcasters found matching your criteria.</div>
+                            <Icon name="home" size="lg" style={{ color: theme.textDisabled }} />
+                            <div>No real estates found matching your criteria.</div>
                           </div>
                         </td>
                       </tr>
                     ) : (
-                      paginatedPodcasters.map((podcaster, index) => (
-                        <tr key={podcaster.id} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc', borderBottom: '1px solid #f1f5f9' }}>
+                      paginatedRealEstates.map((realEstate, index) => (
+                        <tr key={realEstate.id} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc', borderBottom: '1px solid #f1f5f9' }}>
                           <td style={{ padding: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                               <input
                                 type="checkbox"
-                                checked={selectedPodcasters.includes(podcaster.id)}
-                                onChange={() => handleSelectPodcaster(podcaster.id)}
+                                checked={selectedRealEstates.includes(realEstate.id)}
+                                onChange={() => handleSelectRealEstate(realEstate.id)}
                               />
                               <div>
                                 <div style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '4px' }}>
-                                  {podcaster.podcast_name}
+                                  {realEstate.title}
                                 </div>
                                 <div style={{ fontSize: '12px', color: theme.textSecondary }}>
-                                  {podcaster.podcast_region || 'Region not specified'}
+                                  {realEstate.property_type || 'Type not specified'}
                                 </div>
                               </div>
                             </div>
                           </td>
                           <td style={{ padding: '16px' }}>
                             <div style={{ fontSize: '14px', fontWeight: '500', color: theme.textPrimary }}>
-                              {podcaster.podcast_host || 'Not specified'}
+                              {realEstate.location || 'Not specified'}
                             </div>
                           </td>
                           <td style={{ padding: '16px' }}>
                             <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500' }}>
-                              {podcaster.podcast_focus_industry || 'Not specified'}
+                              {realEstate.price ? `$${realEstate.price.toLocaleString()}` : 'Not specified'}
                             </div>
                           </td>
                           <td style={{ padding: '16px' }}>
                             <div style={{ fontSize: '13px', color: theme.textPrimary }}>
-                              {formatDate(podcaster.created_at)}
+                              {formatDate(realEstate.created_at)}
                             </div>
                           </td>
                           <td style={{ padding: '16px', fontSize: '14px', color: theme.textPrimary }}>
                             <span style={{
                               padding: '4px 8px',
-                              backgroundColor: podcaster.status === 'approved' ? theme.success + '20' : podcaster.status === 'rejected' ? theme.danger + '20' : theme.warning + '20',
-                              color: podcaster.status === 'approved' ? theme.success : podcaster.status === 'rejected' ? theme.danger : theme.warning,
+                              backgroundColor: realEstate.status === 'approved' ? theme.success + '20' : realEstate.status === 'rejected' ? theme.danger + '20' : theme.warning + '20',
+                              color: realEstate.status === 'approved' ? theme.success : realEstate.status === 'rejected' ? theme.danger : theme.warning,
                               borderRadius: '12px',
                               fontSize: '11px',
                               fontWeight: '600'
                             }}>
-                              {podcaster.status.charAt(0).toUpperCase() + podcaster.status.slice(1)}
+                              {realEstate.status.charAt(0).toUpperCase() + realEstate.status.slice(1)}
                             </span>
                           </td>
                           <td style={{ padding: '16px' }}>
                             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                               <button
-                                onClick={() => handleViewPodcaster(podcaster)}
+                                onClick={() => handleViewRealEstate(realEstate)}
                                 style={{
                                   padding: '6px 12px',
                                   backgroundColor: theme.primary,
@@ -977,13 +991,13 @@ const PodcasterManagementView = () => {
                                   alignItems: 'center',
                                   gap: '4px'
                                 }}
-                                title="View Podcaster Details"
+                                title="View Real Estate Details"
                               >
                                 <Icon name="eye" size="xs" style={{ color: '#fff' }} />
                                 View
                               </button>
                               <button
-                                onClick={() => handleEditPodcaster(podcaster)}
+                                onClick={() => handleEditRealEstate(realEstate)}
                                 style={{
                                   padding: '6px 12px',
                                   backgroundColor: theme.warning,
@@ -996,13 +1010,13 @@ const PodcasterManagementView = () => {
                                   alignItems: 'center',
                                   gap: '4px'
                                 }}
-                                title="Edit Podcaster"
+                                title="Edit Real Estate"
                               >
                                 <Icon name="pencil" size="xs" style={{ color: '#fff' }} />
                                 Edit
                               </button>
                               <button
-                                onClick={() => handleDeletePodcaster(podcaster)}
+                                onClick={() => handleDeleteRealEstate(realEstate)}
                                 style={{
                                   padding: '6px 12px',
                                   backgroundColor: theme.danger,
@@ -1015,15 +1029,15 @@ const PodcasterManagementView = () => {
                                   alignItems: 'center',
                                   gap: '4px'
                                 }}
-                                title="Delete Podcaster"
+                                title="Delete Real Estate"
                               >
                                 <Icon name="trash" size="xs" style={{ color: '#fff' }} />
                                 Delete
                               </button>
-                              {podcaster.status === 'pending' && (
+                              {realEstate.status === 'pending' && (
                                 <>
                                   <button
-                                    onClick={() => handleApprovePodcaster(podcaster)}
+                                    onClick={() => handleApproveRealEstate(realEstate)}
                                     style={{
                                       padding: '6px 12px',
                                       backgroundColor: theme.success,
@@ -1036,13 +1050,13 @@ const PodcasterManagementView = () => {
                                       alignItems: 'center',
                                       gap: '4px'
                                     }}
-                                    title="Approve Podcaster"
+                                    title="Approve Real Estate"
                                   >
                                     <Icon name="check" size="xs" style={{ color: '#fff' }} />
                                     Approve
                                   </button>
                                   <button
-                                    onClick={() => handleRejectPodcaster(podcaster)}
+                                    onClick={() => handleRejectRealEstate(realEstate)}
                                     style={{
                                       padding: '6px 12px',
                                       backgroundColor: '#f44336',
@@ -1055,7 +1069,7 @@ const PodcasterManagementView = () => {
                                       alignItems: 'center',
                                       gap: '4px'
                                     }}
-                                    title="Reject Podcaster"
+                                    title="Reject Real Estate"
                                   >
                                     <Icon name="x" size="xs" style={{ color: '#fff' }} />
                                     Reject
@@ -1118,8 +1132,8 @@ const PodcasterManagementView = () => {
         </div>
       </div>
 
-      {/* Podcaster Detail Modal */}
-      {selectedPodcaster && (
+      {/* Real Estate Detail Modal */}
+      {selectedRealEstate && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -1132,7 +1146,7 @@ const PodcasterManagementView = () => {
           justifyContent: 'center',
           zIndex: 10000,
           padding: '20px'
-        }} onClick={() => setSelectedPodcaster(null)}>
+        }} onClick={() => setSelectedRealEstate(null)}>
           <div style={{
             background: '#fff',
             borderRadius: '12px',
@@ -1146,9 +1160,9 @@ const PodcasterManagementView = () => {
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
-                Podcaster Profile Details
+                Real Estate Details
               </h2>
-              <button onClick={() => setSelectedPodcaster(null)} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
+              <button onClick={() => setSelectedRealEstate(null)} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
                 ×
               </button>
             </div>
@@ -1158,50 +1172,20 @@ const PodcasterManagementView = () => {
               <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
                 <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700', color: theme.textPrimary }}>Basic Information</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                  <div><strong>Podcast Name:</strong> {selectedPodcaster.podcast_name}</div>
-                  <div><strong>Podcast Host:</strong> {selectedPodcaster.podcast_host || 'Not specified'}</div>
-                  <div><strong>Focus Industry:</strong> {selectedPodcaster.podcast_focus_industry || 'Not specified'}</div>
-                  <div><strong>Target Audience:</strong> {selectedPodcaster.podcast_target_audience || 'Not specified'}</div>
-                  <div><strong>Region:</strong> {selectedPodcaster.podcast_region || 'Not specified'}</div>
-                  <div><strong>Gender:</strong> {selectedPodcaster.gender ? selectedPodcaster.gender.charAt(0).toUpperCase() + selectedPodcaster.gender.slice(1) : 'Not specified'}</div>
-                  <div><strong>Nationality:</strong> {selectedPodcaster.nationality || 'Not specified'}</div>
-                  <div><strong>Website:</strong> {selectedPodcaster.podcast_website ? <a href={selectedPodcaster.podcast_website} target="_blank" rel="noopener noreferrer">{selectedPodcaster.podcast_website}</a> : 'Not provided'}</div>
+                  <div><strong>Title:</strong> {selectedRealEstate.title}</div>
+                  <div><strong>Location:</strong> {selectedRealEstate.location || 'Not specified'}</div>
+                  <div><strong>Property Type:</strong> {selectedRealEstate.property_type || 'Not specified'}</div>
+                  <div><strong>Price:</strong> {selectedRealEstate.price ? `$${selectedRealEstate.price.toLocaleString()}` : 'Not specified'}</div>
+                  <div><strong>Bedrooms:</strong> {selectedRealEstate.bedrooms || 'Not specified'}</div>
+                  <div><strong>Bathrooms:</strong> {selectedRealEstate.bathrooms || 'Not specified'}</div>
+                  <div><strong>Area:</strong> {selectedRealEstate.area_sqft ? `${selectedRealEstate.area_sqft} sq ft` : 'Not specified'}</div>
                 </div>
               </div>
 
-              {/* Social Media */}
+              {/* Description */}
               <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700', color: theme.textPrimary }}>Social Media & Platforms</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                  <div><strong>Instagram:</strong> {selectedPodcaster.podcast_ig ? <a href={selectedPodcaster.podcast_ig} target="_blank" rel="noopener noreferrer">{selectedPodcaster.podcast_ig}</a> : 'Not provided'}</div>
-                  <div><strong>Instagram Username:</strong> {selectedPodcaster.podcast_ig_username || 'Not provided'}</div>
-                  <div><strong>Instagram Followers:</strong> {selectedPodcaster.podcast_ig_followers ? selectedPodcaster.podcast_ig_followers.toLocaleString() : 'Not provided'}</div>
-                  <div><strong>Instagram Engagement Rate:</strong> {selectedPodcaster.podcast_ig_engagement_rate ? `${selectedPodcaster.podcast_ig_engagement_rate}%` : 'Not provided'}</div>
-                  <div><strong>LinkedIn:</strong> {selectedPodcaster.podcast_linkedin ? <a href={selectedPodcaster.podcast_linkedin} target="_blank" rel="noopener noreferrer">{selectedPodcaster.podcast_linkedin}</a> : 'Not provided'}</div>
-                  <div><strong>Facebook:</strong> {selectedPodcaster.podcast_facebook ? <a href={selectedPodcaster.podcast_facebook} target="_blank" rel="noopener noreferrer">{selectedPodcaster.podcast_facebook}</a> : 'Not provided'}</div>
-                  <div><strong>TikTok:</strong> {selectedPodcaster.tiktok ? <a href={selectedPodcaster.tiktok} target="_blank" rel="noopener noreferrer">{selectedPodcaster.tiktok}</a> : 'Not provided'}</div>
-                </div>
-              </div>
-
-              {/* Streaming Platforms */}
-              <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700', color: theme.textPrimary }}>Streaming Platforms</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                  <div><strong>Spotify Channel Name:</strong> {selectedPodcaster.spotify_channel_name || 'Not provided'}</div>
-                  <div><strong>Spotify URL:</strong> {selectedPodcaster.spotify_channel_url ? <a href={selectedPodcaster.spotify_channel_url} target="_blank" rel="noopener noreferrer">{selectedPodcaster.spotify_channel_url}</a> : 'Not provided'}</div>
-                  <div><strong>YouTube Channel Name:</strong> {selectedPodcaster.youtube_channel_name || 'Not provided'}</div>
-                  <div><strong>YouTube URL:</strong> {selectedPodcaster.youtube_channel_url ? <a href={selectedPodcaster.youtube_channel_url} target="_blank" rel="noopener noreferrer">{selectedPodcaster.youtube_channel_url}</a> : 'Not provided'}</div>
-                </div>
-              </div>
-
-              {/* Additional Information */}
-              <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
-                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700', color: theme.textPrimary }}>Additional Information</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                  <div><strong>Call to Action:</strong> {selectedPodcaster.cta || 'Not provided'}</div>
-                  <div><strong>Contact for Podcast:</strong> {selectedPodcaster.contact_us_to_be_on_podcast || 'Not provided'}</div>
-                  <div style={{ gridColumn: '1 / -1' }}><strong>Prominent Guests:</strong> {selectedPodcaster.podcast_ig_prominent_guests || 'Not provided'}</div>
-                </div>
+                <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700', color: theme.textPrimary }}>Description</h3>
+                <div>{selectedRealEstate.description || 'No description provided'}</div>
               </div>
 
               {/* Status Information */}
@@ -1210,29 +1194,29 @@ const PodcasterManagementView = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
                   <div><strong>Status:</strong> <span style={{
                     padding: '4px 8px',
-                    backgroundColor: selectedPodcaster.status === 'approved' ? theme.success + '20' : selectedPodcaster.status === 'rejected' ? theme.danger + '20' : theme.warning + '20',
-                    color: selectedPodcaster.status === 'approved' ? theme.success : selectedPodcaster.status === 'rejected' ? theme.danger : theme.warning,
+                    backgroundColor: selectedRealEstate.status === 'approved' ? theme.success + '20' : selectedRealEstate.status === 'rejected' ? theme.danger + '20' : theme.warning + '20',
+                    color: selectedRealEstate.status === 'approved' ? theme.success : selectedRealEstate.status === 'rejected' ? theme.danger : theme.warning,
                     borderRadius: '12px',
                     fontSize: '11px',
                     fontWeight: '600'
-                  }}>{selectedPodcaster.status.charAt(0).toUpperCase() + selectedPodcaster.status.slice(1)}</span></div>
-                  <div><strong>Submitted:</strong> {formatDate(selectedPodcaster.created_at)}</div>
-                  <div><strong>Last Updated:</strong> {formatDate(selectedPodcaster.updated_at)}</div>
-                  {selectedPodcaster.approved_at && <div><strong>Approved:</strong> {formatDate(selectedPodcaster.approved_at)}</div>}
-                  {selectedPodcaster.rejected_at && <div><strong>Rejected:</strong> {formatDate(selectedPodcaster.rejected_at)}</div>}
-                  {selectedPodcaster.rejection_reason && (
+                  }}>{selectedRealEstate.status.charAt(0).toUpperCase() + selectedRealEstate.status.slice(1)}</span></div>
+                  <div><strong>Submitted:</strong> {formatDate(selectedRealEstate.created_at)}</div>
+                  <div><strong>Last Updated:</strong> {formatDate(selectedRealEstate.updated_at)}</div>
+                  {selectedRealEstate.approved_at && <div><strong>Approved:</strong> {formatDate(selectedRealEstate.approved_at)}</div>}
+                  {selectedRealEstate.rejected_at && <div><strong>Rejected:</strong> {formatDate(selectedRealEstate.rejected_at)}</div>}
+                  {selectedRealEstate.rejection_reason && (
                     <div style={{ gridColumn: '1 / -1' }}>
                       <strong>Rejection Reason:</strong>
                       <div style={{ backgroundColor: '#fee2e2', padding: '8px', borderRadius: '4px', marginTop: '4px', color: theme.danger }}>
-                        {selectedPodcaster.rejection_reason}
+                        {selectedRealEstate.rejection_reason}
                       </div>
                     </div>
                   )}
-                  {selectedPodcaster.admin_comments && (
+                  {selectedRealEstate.admin_comments && (
                     <div style={{ gridColumn: '1 / -1' }}>
                       <strong>Admin Comments:</strong>
                       <div style={{ backgroundColor: '#e0f2fe', padding: '8px', borderRadius: '4px', marginTop: '4px', color: theme.info }}>
-                        {selectedPodcaster.admin_comments}
+                        {selectedRealEstate.admin_comments}
                       </div>
                     </div>
                   )}
@@ -1243,12 +1227,12 @@ const PodcasterManagementView = () => {
             {/* Action Buttons */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '24px' }}>
               <div style={{ display: 'flex', gap: '12px' }}>
-                {selectedPodcaster.status === 'pending' && (
+                {selectedRealEstate.status === 'pending' && (
                   <>
                     <button
                       onClick={() => {
-                        setSelectedPodcaster(null);
-                        handleApprovePodcaster(selectedPodcaster);
+                        setSelectedRealEstate(null);
+                        handleApproveRealEstate(selectedRealEstate);
                       }}
                       style={{
                         padding: '10px 20px',
@@ -1261,12 +1245,12 @@ const PodcasterManagementView = () => {
                         fontWeight: '600'
                       }}
                     >
-                      Approve Podcaster
+                      Approve Listing
                     </button>
                     <button
                       onClick={() => {
-                        setSelectedPodcaster(null);
-                        handleRejectPodcaster(selectedPodcaster);
+                        setSelectedRealEstate(null);
+                        handleRejectRealEstate(selectedRealEstate);
                       }}
                       style={{
                         padding: '10px 20px',
@@ -1279,13 +1263,13 @@ const PodcasterManagementView = () => {
                         fontWeight: '600'
                       }}
                     >
-                      Reject Podcaster
+                      Reject Listing
                     </button>
                   </>
                 )}
               </div>
               <button
-                onClick={() => setSelectedPodcaster(null)}
+                onClick={() => setSelectedRealEstate(null)}
                 style={{
                   padding: '10px 20px',
                   backgroundColor: '#f3f4f6',
@@ -1304,24 +1288,24 @@ const PodcasterManagementView = () => {
         </div>
       )}
 
-      {/* Create/Edit Podcaster Modal */}
+      {/* Create/Edit Real Estate Modal */}
       {showCreateModal && (
-        <PodcasterFormModal
-          podcaster={editingPodcaster}
+        <RealEstateFormModal
+          realEstate={editingRealEstate}
           onClose={() => {
             setShowCreateModal(false);
-            setEditingPodcaster(null);
+            setEditingRealEstate(null);
           }}
-          onSuccess={(newPodcaster) => {
-            if (editingPodcaster) {
-              // Update existing podcaster
-              setPodcasters(prev => prev.map(p => p.id === newPodcaster.id ? newPodcaster : p));
+          onSuccess={(newRealEstate) => {
+            if (editingRealEstate) {
+              // Update existing real estate
+              setRealEstates(prev => prev.map(r => r.id === newRealEstate.id ? newRealEstate : r));
             } else {
-              // Add new podcaster
-              setPodcasters(prev => [newPodcaster, ...prev]);
+              // Add new real estate
+              setRealEstates(prev => [newRealEstate, ...prev]);
             }
             setShowCreateModal(false);
-            setEditingPodcaster(null);
+            setEditingRealEstate(null);
           }}
         />
       )}
@@ -1329,37 +1313,26 @@ const PodcasterManagementView = () => {
   );
 };
 
-// Podcaster Form Modal Component
-const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
+// Real Estate Form Modal Component
+const RealEstateFormModal = ({ realEstate, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
-    podcast_name: podcaster?.podcast_name || '',
-    podcast_host: podcaster?.podcast_host || '',
-    podcast_focus_industry: podcaster?.podcast_focus_industry || '',
-    podcast_target_audience: podcaster?.podcast_target_audience || '',
-    podcast_region: podcaster?.podcast_region || '',
-    podcast_website: podcaster?.podcast_website || '',
-    podcast_ig: podcaster?.podcast_ig || '',
-    podcast_linkedin: podcaster?.podcast_linkedin || '',
-    podcast_facebook: podcaster?.podcast_facebook || '',
-    podcast_ig_username: podcaster?.podcast_ig_username || '',
-    podcast_ig_followers: podcaster?.podcast_ig_followers || '',
-    podcast_ig_engagement_rate: podcaster?.podcast_ig_engagement_rate || '',
-    podcast_ig_prominent_guests: podcaster?.podcast_ig_prominent_guests || '',
-    spotify_channel_name: podcaster?.spotify_channel_name || '',
-    spotify_channel_url: podcaster?.spotify_channel_url || '',
-    youtube_channel_name: podcaster?.youtube_channel_name || '',
-    youtube_channel_url: podcaster?.youtube_channel_url || '',
-    tiktok: podcaster?.tiktok || '',
-    cta: podcaster?.cta || '',
-    contact_us_to_be_on_podcast: podcaster?.contact_us_to_be_on_podcast || '',
-    gender: podcaster?.gender || '',
-    nationality: podcaster?.nationality || '',
-    status: podcaster?.status || 'approved' // Default to approved for admin-created podcasters
+    title: realEstate?.title || '',
+    description: realEstate?.description || '',
+    price: realEstate?.price || '',
+    location: realEstate?.location || '',
+    property_type: realEstate?.property_type || '',
+    bedrooms: realEstate?.bedrooms || '',
+    bathrooms: realEstate?.bathrooms || '',
+    area_sqft: realEstate?.area_sqft || '',
+    status: realEstate?.status || 'approved' // Default to approved for admin-created listings
   });
 
-  const [image, setImage] = useState(null);
+  const [images, setImages] = useState([]);
+  const [existingImages, setExistingImages] = useState(realEstate?.images || []);
+  const [imagesToDelete, setImagesToDelete] = useState([]);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -1370,13 +1343,25 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
   };
 
   const handleImageChange = (e) => {
-    setImage(e.target.files[0]);
+    setImages(Array.from(e.target.files));
+  };
+
+  const handleRemoveExistingImage = (imageName) => {
+    setExistingImages(prev => prev.filter(img => img !== imageName));
+    setImagesToDelete(prev => [...prev, imageName]);
+  };
+
+  const handleRemoveNewImage = (index) => {
+    setImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.podcast_name.trim()) {
-      newErrors.podcast_name = 'Podcast name is required';
+    if (!formData.title.trim()) {
+      newErrors.title = 'Title is required';
+    }
+    if (!formData.description.trim()) {
+      newErrors.description = 'Description is required';
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -1392,27 +1377,32 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
       Object.keys(formData).forEach(key => {
         submitData.append(key, formData[key]);
       });
-      if (image) {
-        submitData.append('image', image);
-      }
+      images.forEach(image => {
+        submitData.append('images', image);
+      });
+
+      // Add images to delete
+      imagesToDelete.forEach(imageName => {
+        submitData.append('imagesToDelete', imageName);
+      });
 
       let response;
-      if (podcaster) {
+      if (realEstate) {
         // Update existing
-        response = await api.put(`/podcasters/admin/${podcaster.id}`, submitData, {
+        response = await api.put(`/real-estates/admin/${realEstate.id}`, submitData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
         // Create new
-        response = await api.post('/podcasters/admin', submitData, {
+        response = await api.post('/real-estates/admin', submitData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
 
-      onSuccess(response.data.podcaster || response.data);
+      onSuccess(response.data.realEstate || response.data);
     } catch (error) {
-      console.error('Error saving podcaster:', error);
-      alert('Failed to save podcaster. Please try again.');
+      console.error('Error saving real estate:', error);
+      alert('Failed to save real estate. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -1438,12 +1428,18 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
       alignItems: 'center',
       justifyContent: 'center',
       zIndex: 10000,
-      padding: '20px'
+      paddingTop: '20px',
+      paddingBottom: '20px',
+      paddingLeft: '20px',
+      paddingRight: '20px'
     }} onClick={onClose}>
       <div style={{
         background: '#fff',
         borderRadius: '12px',
-        padding: '24px',
+        paddingTop: '24px',
+        paddingBottom: '24px',
+        paddingLeft: '24px',
+        paddingRight: '24px',
         maxWidth: '800px',
         width: '100%',
         maxHeight: '90vh',
@@ -1453,7 +1449,7 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
       }} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
-            {podcaster ? 'Edit Podcaster' : 'Create New Podcaster'}
+            {realEstate ? 'Edit Real Estate' : 'Create New Real Estate Listing'}
           </h2>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
             ×
@@ -1464,33 +1460,33 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginBottom: '24px' }}>
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Podcast Name *
+                Title *
               </label>
               <input
                 type="text"
-                name="podcast_name"
-                value={formData.podcast_name}
+                name="title"
+                value={formData.title}
                 onChange={handleInputChange}
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: `1px solid ${errors.podcast_name ? '#f44336' : theme.borderLight}`,
+                  border: `1px solid ${errors.title ? '#f44336' : theme.borderLight}`,
                   borderRadius: '8px',
                   fontSize: '14px'
                 }}
                 required
               />
-              {errors.podcast_name && <div style={{ color: '#f44336', fontSize: '12px', marginTop: '4px' }}>{errors.podcast_name}</div>}
+              {errors.title && <div style={{ color: '#f44336', fontSize: '12px', marginTop: '4px' }}>{errors.title}</div>}
             </div>
 
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Podcast Host
+                Location
               </label>
               <input
                 type="text"
-                name="podcast_host"
-                value={formData.podcast_host}
+                name="location"
+                value={formData.location}
                 onChange={handleInputChange}
                 style={{
                   width: '100%',
@@ -1504,12 +1500,12 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
 
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Focus Industry
+                Property Type
               </label>
               <input
                 type="text"
-                name="podcast_focus_industry"
-                value={formData.podcast_focus_industry}
+                name="property_type"
+                value={formData.property_type}
                 onChange={handleInputChange}
                 style={{
                   width: '100%',
@@ -1523,145 +1519,12 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
 
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Target Audience
-              </label>
-              <input
-                type="text"
-                name="podcast_target_audience"
-                value={formData.podcast_target_audience}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Region
-              </label>
-              <input
-                type="text"
-                name="podcast_region"
-                value={formData.podcast_region}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Website
-              </label>
-              <input
-                type="url"
-                name="podcast_website"
-                value={formData.podcast_website}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Instagram
-              </label>
-              <input
-                type="url"
-                name="podcast_ig"
-                value={formData.podcast_ig}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                LinkedIn
-              </label>
-              <input
-                type="url"
-                name="podcast_linkedin"
-                value={formData.podcast_linkedin}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Facebook
-              </label>
-              <input
-                type="url"
-                name="podcast_facebook"
-                value={formData.podcast_facebook}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Instagram Username
-              </label>
-              <input
-                type="text"
-                name="podcast_ig_username"
-                value={formData.podcast_ig_username}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Instagram Followers
+                Price
               </label>
               <input
                 type="number"
-                name="podcast_ig_followers"
-                value={formData.podcast_ig_followers}
+                name="price"
+                value={formData.price}
                 onChange={handleInputChange}
                 style={{
                   width: '100%',
@@ -1675,34 +1538,12 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
 
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Engagement Rate (%)
+                Bedrooms
               </label>
               <input
                 type="number"
-                name="podcast_ig_engagement_rate"
-                value={formData.podcast_ig_engagement_rate}
-                onChange={handleInputChange}
-                min="0"
-                max="100"
-                step="0.1"
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Spotify Channel Name
-              </label>
-              <input
-                type="text"
-                name="spotify_channel_name"
-                value={formData.spotify_channel_name}
+                name="bedrooms"
+                value={formData.bedrooms}
                 onChange={handleInputChange}
                 style={{
                   width: '100%',
@@ -1716,12 +1557,12 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
 
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Spotify URL
+                Bathrooms
               </label>
               <input
-                type="url"
-                name="spotify_channel_url"
-                value={formData.spotify_channel_url}
+                type="number"
+                name="bathrooms"
+                value={formData.bathrooms}
                 onChange={handleInputChange}
                 style={{
                   width: '100%',
@@ -1735,111 +1576,12 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
 
             <div>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                YouTube Channel Name
+                Area (sq ft)
               </label>
               <input
-                type="text"
-                name="youtube_channel_name"
-                value={formData.youtube_channel_name}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                YouTube URL
-              </label>
-              <input
-                type="url"
-                name="youtube_channel_url"
-                value={formData.youtube_channel_url}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                TikTok
-              </label>
-              <input
-                type="text"
-                name="tiktok"
-                value={formData.tiktok}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Call to Action
-              </label>
-              <input
-                type="text"
-                name="cta"
-                value={formData.cta}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Gender
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-
-            <div>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Nationality
-              </label>
-              <input
-                type="text"
-                name="nationality"
-                value={formData.nationality}
+                type="number"
+                name="area_sqft"
+                value={formData.area_sqft}
                 onChange={handleInputChange}
                 style={{
                   width: '100%',
@@ -1853,41 +1595,24 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
 
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Contact for Podcast
-              </label>
-              <input
-                type="text"
-                name="contact_us_to_be_on_podcast"
-                value={formData.contact_us_to_be_on_podcast}
-                onChange={handleInputChange}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
-                  borderRadius: '8px',
-                  fontSize: '14px'
-                }}
-              />
-            </div>
-
-            <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Prominent Guests
+                Description *
               </label>
               <textarea
-                name="podcast_ig_prominent_guests"
-                value={formData.podcast_ig_prominent_guests}
+                name="description"
+                value={formData.description}
                 onChange={handleInputChange}
-                rows="3"
+                rows="4"
                 style={{
                   width: '100%',
                   padding: '10px 12px',
-                  border: `1px solid ${theme.borderLight}`,
+                  border: `1px solid ${errors.description ? '#f44336' : theme.borderLight}`,
                   borderRadius: '8px',
                   fontSize: '14px',
                   resize: 'vertical'
                 }}
+                required
               />
+              {errors.description && <div style={{ color: '#f44336', fontSize: '12px', marginTop: '4px' }}>{errors.description}</div>}
             </div>
 
             <div>
@@ -1912,30 +1637,143 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
               </select>
             </div>
 
-            <div>
+            <div style={{ gridColumn: '1 / -1' }}>
               <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '6px' }}>
-                Podcast Image
+                Images
               </label>
-              {podcaster?.image && (
-                <div style={{ marginBottom: '12px' }}>
-                  <img
-                    src={`/api/uploads/podcasters/${podcaster.image}`}
-                    alt="Current podcast image"
-                    style={{
-                      width: '100px',
-                      height: '100px',
-                      objectFit: 'cover',
-                      borderRadius: '8px',
-                      border: `1px solid ${theme.borderLight}`
-                    }}
-                  />
-                  <p style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
-                    Current image - upload a new one to replace
-                  </p>
+
+              {/* Existing Images */}
+              {existingImages.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '8px' }}>
+                    Current Images ({existingImages.length})
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
+                    {existingImages.map((imageName, index) => (
+                      <div key={index} style={{ position: 'relative' }}>
+                        <img
+                          src={`/api/uploads/real-estates/${imageName}`}
+                          alt={`Existing ${index + 1}`}
+                          style={{
+                            width: '100%',
+                            height: '100px',
+                            objectFit: 'cover',
+                            borderRadius: '8px',
+                            border: `1px solid ${theme.borderLight}`
+                          }}
+                          onError={(e) => {
+                            console.error('Image failed to load:', `/api/uploads/real-estates/${imageName}`);
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                          onLoad={() => {
+                            console.log('Image loaded successfully:', `/api/uploads/real-estates/${imageName}`);
+                          }}
+                        />
+                        <div
+                          style={{
+                            display: 'none',
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            backgroundColor: '#f5f5f5',
+                            borderRadius: '8px',
+                            border: `1px solid ${theme.borderLight}`,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#666',
+                            fontSize: '12px',
+                            textAlign: 'center',
+                            padding: '8px'
+                          }}
+                        >
+                          Image not found<br/>
+                          <small>{imageName}</small>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveExistingImage(imageName)}
+                          style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            backgroundColor: '#f44336',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '24px',
+                            height: '24px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px'
+                          }}
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
+
+              {/* New Images Preview */}
+              {images.length > 0 && (
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '8px' }}>
+                    New Images ({images.length})
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px' }}>
+                    {images.map((image, index) => (
+                      <div key={index} style={{ position: 'relative' }}>
+                        <img
+                          src={URL.createObjectURL(image)}
+                          alt={`New ${index + 1}`}
+                          style={{
+                            width: '100%',
+                            height: '100px',
+                            objectFit: 'cover',
+                            borderRadius: '8px',
+                            border: `1px solid ${theme.borderLight}`
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveNewImage(index)}
+                          style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            backgroundColor: '#f44336',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '24px',
+                            height: '24px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px'
+                          }}
+                          title="Remove image"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* File Input */}
               <input
                 type="file"
+                multiple
                 onChange={handleImageChange}
                 accept="image/*"
                 style={{
@@ -1946,6 +1784,9 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
                   fontSize: '14px'
                 }}
               />
+              <small style={{ color: theme.textSecondary, fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                You can upload multiple images. Supported formats: JPG, PNG, GIF
+              </small>
             </div>
           </div>
 
@@ -1980,7 +1821,7 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
               }}
               disabled={loading}
             >
-              {loading ? 'Saving...' : (podcaster ? 'Update Podcaster' : 'Create Podcaster')}
+              {loading ? 'Saving...' : (realEstate ? 'Update Listing' : 'Create Listing')}
             </button>
           </div>
         </form>
@@ -1989,4 +1830,4 @@ const PodcasterFormModal = ({ podcaster, onClose, onSuccess }) => {
   );
 };
 
-export default PodcasterManagementView;
+export default RealEstateManagementView;

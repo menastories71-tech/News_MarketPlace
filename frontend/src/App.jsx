@@ -27,6 +27,8 @@ import HowItWorks from './pages/HowItWorks';
 import VideoTutorials from './pages/VideoTutorials';
 import PodcastersList from './pages/PodcastersList';
 import PodcasterDetail from './pages/PodcasterDetail';
+import RealEstateList from './pages/RealEstateList';
+import RealEstateDetail from './pages/RealEstateDetail';
 import HowToGuides from './pages/HowToGuides';
 import DownloadCenter from './pages/DownloadCenter';
 import ResourceLibrary from './pages/ResourceLibrary';
@@ -61,6 +63,7 @@ import ThemeManagement from './components/admin/ThemeManagement';
 import PressPackManagement from './components/admin/PressPackManagement';
 import PaparazziManagement from './components/admin/PaparazziManagement';
 import PodcasterManagementView from './components/admin/PodcasterManagementView';
+import RealEstateManagementView from './components/admin/RealEstateManagementView';
 import AgencyManagement from './components/admin/AgencyManagement';
 import WebsiteManagement from './components/admin/WebsiteManagement';
 import ReporterSubmissionsDashboard from './components/user/ReporterSubmissionsDashboard';
@@ -72,6 +75,7 @@ import CareerManagement from './components/admin/CareerManagement';
 import BlogManagement from './components/admin/BlogManagement';
 import BlogListingPage from './pages/BlogListingPage';
 import BlogDetailPage from './pages/BlogDetailPage';
+import RolePermissionManagement from './components/admin/RolePermissionManagement';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -305,6 +309,8 @@ function App() {
             <Route path="/services-overview" element={<ServicesOverview />} />
             <Route path="/podcasters" element={<PodcastersList />} />
             <Route path="/podcasters/:id" element={<PodcasterDetail />} />
+            <Route path="/real-estates" element={<RealEstateList />} />
+            <Route path="/real-estates/:id" element={<RealEstateDetail />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
             <Route
               path="/dashboard"
@@ -594,6 +600,16 @@ function App() {
               }
             />
             <Route
+              path="/admin/real-estates"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <RealEstateManagementView />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/event-enquiries"
               element={
                 <AdminProtectedRoute>
@@ -629,6 +645,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <BlogManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/roles-permissions"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <RolePermissionManagement />
                   </div>
                 </AdminProtectedRoute>
               }

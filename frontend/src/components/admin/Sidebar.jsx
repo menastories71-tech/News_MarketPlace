@@ -3,7 +3,7 @@ import Icon from '../common/Icon';
 
 export default function Sidebar({
   admin,
-  roleDisplayNames,
+  roleDisplayNames = {},
   theme,
   sidebarOpen,
   setSidebarOpen,
@@ -106,17 +106,6 @@ export default function Sidebar({
               </a>
             </li>
 
-            <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/news"
-                style={navItemBase}
-                onMouseEnter={e => e.currentTarget.style.background = '#FAFAFA'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <span style={navIconCircle('#e6f0ff')}><Icon name="document-text" size="sm" style={{ color: theme.primary }} /></span>
-                <span>News Management</span>
-              </a>
-            </li>
 
             <li style={{ marginBottom: 10 }}>
               <a
@@ -300,6 +289,18 @@ export default function Sidebar({
 
             <li style={{ marginBottom: 10 }}>
               <a
+                href="/admin/real-estates"
+                style={navItemBase}
+                onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span style={navIconCircle('#fff3e0')}><Icon name="home" size="sm" style={{ color: '#FF9800' }} /></span>
+                <span>Real Estate Management</span>
+              </a>
+            </li>
+
+            <li style={{ marginBottom: 10 }}>
+              <a
                 href="/admin/event-enquiries"
                 style={navItemBase}
                 onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
@@ -359,27 +360,16 @@ export default function Sidebar({
 
             <li style={{ marginBottom: 10 }}>
               <a
-                href="/admin/backups"
+                href="/admin/roles-permissions"
                 style={navItemBase}
-                onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
+                onMouseEnter={e => e.currentTarget.style.background = '#E8F5E8'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#fff3e0')}><Icon name="cloud-arrow-down" size="sm" style={{ color: '#FF9800' }} /></span>
-                <span>Database Backup</span>
+                <span style={navIconCircle('#e8f5e8')}><Icon name="shield-check" size="sm" style={{ color: '#4CAF50' }} /></span>
+                <span>Roles & Permissions</span>
               </a>
             </li>
 
-            <li>
-              <a
-                href="/admin/settings"
-                style={navItemBase}
-                onMouseEnter={e => e.currentTarget.style.background = '#FFF1F0'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <span style={navIconCircle('#E0F2F1')}><Icon name="cog-6-tooth" size="sm" style={{ color: '#00796B' }} /></span>
-                <span>Settings</span>
-              </a>
-            </li>
           </ul>
         </nav>
       </aside>
@@ -397,6 +387,7 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/groups" style={{ color: '#212121', textDecoration: 'none' }}>Group Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/reporters" style={{ color: '#212121', textDecoration: 'none' }}>Reporter Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/podcasters" style={{ color: '#212121', textDecoration: 'none' }}>Podcaster Management</a></li>
+            <li style={{ marginBottom: 12 }}><a href="/admin/real-estates" style={{ color: '#212121', textDecoration: 'none' }}>Real Estate Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/event-enquiries" style={{ color: '#212121', textDecoration: 'none' }}>Event Enquiries</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/affiliate-enquiries" style={{ color: '#212121', textDecoration: 'none' }}>Affiliate Enquiries</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/careers" style={{ color: '#212121', textDecoration: 'none' }}>Career Management</a></li>
@@ -413,10 +404,8 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/paparazzi" style={{ color: '#212121', textDecoration: 'none' }}>Paparazzi Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/contacts" style={{ color: '#212121', textDecoration: 'none' }}>Contacts</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/users" style={{ color: '#212121', textDecoration: 'none' }}>Users</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/news" style={{ color: '#212121', textDecoration: 'none' }}>News</a></li>
+            <li style={{ marginBottom: 12 }}><a href="/admin/roles-permissions" style={{ color: '#212121', textDecoration: 'none' }}>Roles & Permissions</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/media" style={{ color: '#212121', textDecoration: 'none' }}>Media</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/backups" style={{ color: '#212121', textDecoration: 'none' }}>Database Backup</a></li>
-            <li><a href="/admin/settings" style={{ color: '#212121', textDecoration: 'none' }}>Settings</a></li>
           </ul>
         </nav>
       </div>

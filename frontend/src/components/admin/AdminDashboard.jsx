@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
+import api from '../../services/api';
 
 // ----------------- CHANGES START -----------------
 // Brand colors from Color palette .pdf - using only defined colors
@@ -39,6 +40,17 @@ const AdminDashboard = () => {
   const { admin, logout, hasRole, hasAnyRole, getRoleLevel } = useAdminAuth();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < 768 : false);
+  const [stats, setStats] = useState({
+    totalBlogs: 0,
+    totalPublications: 0,
+    totalWebsites: 0,
+    totalPodcasters: 0,
+    totalReporters: 0,
+    totalRealEstates: 0,
+    totalUsers: 0,
+    totalAdmins: 0
+  });
+  const [loading, setLoading] = useState(true);
 
   // z-index layering constants (header must be topmost)
   const headerZ = 1000;
@@ -132,6 +144,50 @@ const AdminDashboard = () => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+      const [
+        blogsRes,
+        publicationsRes,
+        websitesRes,
+        podcastersRes,
+        reportersRes,
+        realEstatesRes,
+        usersRes,
+        rolesRes
+      ] = await Promise.allSettled([
+        api.get('/blogs/admin?page=1&limit=1'),
+        api.get('/publications/admin?page=1&limit=1'),
+        api.get('/websites/admin?page=1&limit=1'),
+        api.get('/podcasters/admin?page=1&limit=1'),
+        api.get('/reporters/admin?page=1&limit=1'),
+        api.get('/real-estates/admin?page=1&limit=1'),
+        api.get('/admin/auth/users'),
+        api.get('/admin/role-permissions/roles?page=1&limit=1')
+      ]);
+
+      setStats({
+        totalBlogs: blogsRes.status === 'fulfilled' ? blogsRes.value.data.pagination?.total || 0 : 0,
+        totalPublications: publicationsRes.status === 'fulfilled' ? publicationsRes.value.data.pagination?.total || 0 : 0,
+        totalWebsites: websitesRes.status === 'fulfilled' ? websitesRes.value.data.pagination?.total || 0 : 0,
+        totalPodcasters: podcastersRes.status === 'fulfilled' ? podcastersRes.value.data.pagination?.total || 0 : 0,
+        totalReporters: reportersRes.status === 'fulfilled' ? reportersRes.value.data.pagination?.total || 0 : 0,
+        totalRealEstates: realEstatesRes.status === 'fulfilled' ? realEstatesRes.value.data.pagination?.total || 0 : 0,
+        totalUsers: usersRes.status === 'fulfilled' ? Array.isArray(usersRes.value.data.users) ? usersRes.value.data.users.length : 0 : 0,
+        totalAdmins: rolesRes.status === 'fulfilled' ? rolesRes.value.data.pagination?.total || 0 : 0
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
   }, []);
 
   // lock body scroll when sidebar is open on mobile
@@ -246,7 +302,7 @@ const AdminDashboard = () => {
                   </div>
                   <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>News Marketplace Dashboard</h1>
                 </div>
-                <p style={{ marginTop: 8, color: '#757575' }}>Manage news content, sources, and reports.</p>
+                <p style={{ marginTop: 8, color: '#757575' }}>Manage content, users, and system administration.</p>
               </div>
 
               <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
@@ -257,21 +313,41 @@ const AdminDashboard = () => {
             </div>
 
             {/* Stats grid */}
-            {/* small helper data + render */}
-            {/* ...existing code... but replace with mapping below */}
-            {/* stats array & rendering */}
             {(() => {
-              const stats = [
-                { id: 1, label: 'Total News', value: 1094, bg: '#e6f0ff', icon: 'document-text' },
-                { id: 2, label: 'Sections', value: 8, bg: '#dcfce7', icon: 'list-bullet' },
-                { id: 3, label: 'Sources', value: 165, bg: '#efe9ff', icon: 'boxes' },
-                { id: 4, label: 'Topics', value: 89, bg: '#fee2e2', icon: 'tag' },
-                { id: 5, label: 'Video Reports', value: 12, bg: '#e0f2fe', icon: 'video' },
-                { id: 6, label: 'Registered Users', value: 1, bg: '#fff7ed', icon: 'users' }
+              const statsData = [
+                { id: 1, label: 'Total Blogs', value: stats.totalBlogs, bg: '#e6f0ff', icon: 'document-text' },
+                { id: 2, label: 'Publications', value: stats.totalPublications, bg: '#dcfce7', icon: 'newspaper' },
+                { id: 3, label: 'Websites', value: stats.totalWebsites, bg: '#efe9ff', icon: 'globe' },
+                { id: 4, label: 'Podcasters', value: stats.totalPodcasters, bg: '#fee2e2', icon: 'microphone' },
+                { id: 5, label: 'Reporters', value: stats.totalReporters, bg: '#e0f2fe', icon: 'user-group' },
+                { id: 6, label: 'Real Estates', value: stats.totalRealEstates, bg: '#fff7ed', icon: 'home' },
+                { id: 7, label: 'Users', value: stats.totalUsers, bg: '#f0f9ff', icon: 'users' },
+                { id: 8, label: 'Admin Roles', value: stats.totalAdmins, bg: '#e0f2f1', icon: 'shield-check' }
               ];
+
+              if (loading) {
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 18, marginTop: 20 }}>
+                    {Array.from({ length: 8 }).map((_, index) => (
+                      <div key={index} style={{ background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 8px 20px rgba(2,6,23,0.06)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                          <div style={{ width: 52, height: 52, borderRadius: 12, background: '#f5f5f5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ width: 24, height: 24, background: '#e0e0e0', borderRadius: 4 }}></div>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 12, color: '#e0e0e0', height: 12, background: '#f5f5f5', borderRadius: 4, marginBottom: 8 }}></div>
+                            <div style={{ fontSize: 22, fontWeight: 800, height: 28, background: '#f5f5f5', borderRadius: 4 }}></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              }
+
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))', gap: 18, marginTop: 20 }}>
-                  {stats.map(s => (
+                  {statsData.map(s => (
                     <div key={s.id} style={{ background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 8px 20px rgba(2,6,23,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
                         <div style={{ width: 52, height: 52, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
