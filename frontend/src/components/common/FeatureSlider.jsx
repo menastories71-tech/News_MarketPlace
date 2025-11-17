@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Icon from './Icon';
+import CosmicButton from './CosmicButton';
 
 const FeatureSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -124,9 +125,9 @@ const FeatureSlider = () => {
                         </p>
 
                         <div className="space-y-4">
-                          <button className="w-full sm:w-auto px-6 md:px-8 py-3 md:py-4 bg-white/90 backdrop-blur-sm text-[#212121] hover:bg-white hover:text-[#212121] font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 text-base md:text-lg">
-                            Learn More
-                          </button>
+                           <CosmicButton variant="small" textColor="#ffffff">
+                             Learn More
+                           </CosmicButton>
 
                           {/* Feature Highlights */}
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4 text-sm md:text-base text-white/90 mt-6">

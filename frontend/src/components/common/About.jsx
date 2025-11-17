@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from './Icon';
+import CosmicButton from './CosmicButton';
 
 const About = () => {
   const stats = [
@@ -105,12 +106,12 @@ const About = () => {
                 To democratize publishing by providing creators with the tools, platform, and audience they need to share their stories with the world. We believe in transparent, fair, and accessible media for everyone.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button className="bg-[#1976D2] text-[#FFFFFF] font-semibold py-4 px-8 rounded-lg hover:bg-[#0D47A1] transition-all duration-300 shadow-md hover:shadow-lg">
+                <CosmicButton variant="small" textColor="#000000">
                   Learn More About Us
-                </button>
-                <button className="border-2 border-[#1976D2] text-[#1976D2] font-semibold py-4 px-8 rounded-lg hover:bg-[#1976D2] hover:text-[#FFFFFF] transition-all duration-300">
+                </CosmicButton>
+                <CosmicButton variant="small" textColor="#000000">
                   Join Our Community
-                </button>
+                </CosmicButton>
               </div>
             </div>
             <div className="text-center">

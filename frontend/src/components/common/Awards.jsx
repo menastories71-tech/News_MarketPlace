@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from './Icon';
+import CosmicButton from './CosmicButton';
 
 const Awards = () => {
   const awards = [
@@ -123,9 +124,9 @@ const Awards = () => {
                     <Icon name="badge-check" size="sm" className="text-[#4CAF50]" />
                     <span className="text-[#4CAF50] font-medium text-sm">Verified Award</span>
                   </div>
-                  <button className="bg-[#1976D2] text-[#FFFFFF] font-semibold py-2 px-4 rounded-lg hover:bg-[#0D47A1] transition-all duration-300 text-sm shadow-md hover:shadow-lg">
+                  <CosmicButton variant="small" textColor="#000000">
                     Learn More
-                  </button>
+                  </CosmicButton>
                 </div>
               </div>
             </div>

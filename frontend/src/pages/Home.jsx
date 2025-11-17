@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import TopHeader from '../components/common/TopHeader';
 import UserHeader from '../components/common/UserHeader';
@@ -10,13 +10,39 @@ import Awards from '../components/common/Awards';
 import FAQ from './FAQ';
 import UserFooter from '../components/common/UserFooter';
 import AuthModal from '../components/auth/AuthModal';
+import Loader from '../components/common/Loader';
 
 const Home = () => {
   const [showAuth, setShowAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [transitioning, setTransitioning] = useState(false);
+  const [hasTransitioned, setHasTransitioned] = useState(false);
   const { scrollYProgress } = useScroll();
 
   // Set the entire page background to primary light color
   const backgroundColor = '#E3F2FD';
+
+  useEffect(() => {
+    if (loading) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    const timer = setTimeout(() => {
+      setTransitioning(true);
+      setHasTransitioned(true);
+      setTimeout(() => {
+        setLoading(false);
+        setTransitioning(false);
+      }, 1000); // Transition duration
+    }, 3000); // Show loader for 3 seconds
+
+    return () => {
+      clearTimeout(timer);
+      document.body.style.overflow = 'auto'; // cleanup
+    };
+  }, [loading]);
 
   const handleShowAuth = () => {
     setShowAuth(true);
@@ -27,40 +53,44 @@ const Home = () => {
   };
 
   return (
-    <motion.div
-      className="min-h-screen"
-      style={{ backgroundColor }}
-    >
-      {/* Top Header */}
+    <div className="min-h-screen" style={{ backgroundColor, overflow: loading ? 'hidden' : 'auto' }}>
+      {loading && !transitioning && <Loader />}
+      <motion.div
+        initial={{ x: '-100%' }}
+        animate={{ x: hasTransitioned ? 0 : '-100%' }}
+        transition={{ duration: 1, ease: 'easeInOut' }}
+      >
+        {/* Top Header */}
 
-      {/* Main Header */}
-      <UserHeader onShowAuth={handleShowAuth} />
-      <TopHeader />
+        {/* Main Header */}
+        <UserHeader onShowAuth={handleShowAuth} />
+        <TopHeader />
 
-      {/* Feature Slider */}
-      <FeatureSlider />
+        {/* Feature Slider */}
+        <FeatureSlider />
 
-      {/* Articles Section */}
-      <Articles />
+        {/* Articles Section */}
+        <Articles />
 
-      {/* About Section */}
-      <About />
+        {/* About Section */}
+        <About />
 
-      {/* Power List Section */}
-      <PowerList />
+        {/* Power List Section */}
+        <PowerList />
 
-      {/* Awards Section */}
-      <Awards />
+        {/* Awards Section */}
+        <Awards />
 
-      {/* FAQ Section */}
-      <FAQ />
+        {/* FAQ Section */}
+        <FAQ />
 
-      {/* Footer */}
-      <UserFooter />
+        {/* Footer */}
+        <UserFooter />
 
-      {/* Auth Modal */}
-      <AuthModal isOpen={showAuth} onClose={handleCloseAuth} />
-    </motion.div>
+        {/* Auth Modal */}
+        <AuthModal isOpen={showAuth} onClose={handleCloseAuth} />
+      </motion.div>
+    </div>
   );
 };
 

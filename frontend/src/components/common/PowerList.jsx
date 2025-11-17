@@ -1,5 +1,6 @@
 import React from 'react';
 import Icon from './Icon';
+import CosmicButton from './CosmicButton';
 
 const PowerList = () => {
   const powerListItems = [
@@ -133,9 +134,9 @@ const PowerList = () => {
                     <span className="text-[#4CAF50] font-semibold">{item.growth}</span>
                     <span className="text-[#757575] text-sm">growth</span>
                   </div>
-                  <button className="bg-[#1976D2] text-[#FFFFFF] font-semibold py-2 px-4 rounded-lg hover:bg-[#0D47A1] transition-all duration-300 text-sm shadow-md hover:shadow-lg">
+                  <CosmicButton variant="small" textColor="#000000">
                     View Profile
-                  </button>
+                  </CosmicButton>
                 </div>
               </div>
             </div>
@@ -188,13 +189,13 @@ const PowerList = () => {
               <div className="bg-[#E3F2FD] rounded-xl p-6">
                 <h3 className="text-xl font-bold text-[#212121] mb-4">Apply Now</h3>
                 <p className="text-[#757575] mb-6">Submit your application for consideration</p>
-                <div className="space-y-3">
-                  <button className="w-full bg-[#1976D2] text-[#FFFFFF] font-semibold py-3 px-6 rounded-lg hover:bg-[#0D47A1] transition-all duration-300 shadow-md hover:shadow-lg">
+                <div className="flex flex-col gap-3">
+                  <CosmicButton variant="small" textColor="#000000">
                     Apply for Power List
-                  </button>
-                  <button className="w-full bg-[#FFFFFF] border-2 border-[#1976D2] text-[#1976D2] font-semibold py-3 px-6 rounded-lg hover:bg-[#1976D2] hover:text-[#FFFFFF] transition-all duration-300">
+                  </CosmicButton>
+                  <CosmicButton variant="small" textColor="#000000">
                     Nominate Someone
-                  </button>
+                  </CosmicButton>
                 </div>
               </div>
             </div>
