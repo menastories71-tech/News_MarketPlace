@@ -53,6 +53,7 @@ import AwardDetailPage from './pages/AwardDetailPage';
 import AwardManagement from './components/admin/AwardManagement';
 import AwardSubmissionManagement from './components/admin/AwardSubmissionManagement';
 import ArticleSubmissionsManagement from './components/admin/ArticleSubmissionsManagement';
+import AiArticlesManagement from './components/admin/AiArticlesManagement';
 import ThemesPage from './pages/ThemesPage';
 import ThemeDetailPage from './pages/ThemeDetailPage';
 import ThemeSubmissionPage from './pages/ThemeSubmissionPage';
@@ -82,6 +83,8 @@ import PublishedWorkManagement from './components/admin/PublishedWorkManagement'
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import ArticleSubmissionPage from './pages/ArticleSubmissionPage';
+import AiArticleQuestionnairePage from './pages/AiArticleQuestionnairePage';
+import AiArticleGenerationPage from './pages/AiArticleGenerationPage';
 import RolePermissionManagement from './components/admin/RolePermissionManagement';
 import Icon from './components/common/Icon';
 
@@ -450,6 +453,22 @@ function App() {
               }
             />
             <Route
+              path="/ai-article-questionnaire"
+              element={
+                <ProtectedRoute>
+                  <AiArticleQuestionnairePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/ai-article-generation/:id"
+              element={
+                <ProtectedRoute>
+                  <AiArticleGenerationPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/reporter-submissions"
               element={
                 <ProtectedRoute>
@@ -544,6 +563,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <ArticleSubmissionsManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/ai-articles"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <AiArticlesManagement />
                   </div>
                 </AdminProtectedRoute>
               }

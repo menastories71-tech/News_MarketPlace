@@ -436,6 +436,96 @@ class ArticleSubmissionController {
     }
   }
 
+  // Get all user's articles (manual submissions + AI articles)
+  async getMyAllArticles(req, res) {
+    try {
+      const userId = req.user.userId;
+      const { page = 1, limit = 12 } = req.query;
+
+      const offset = (page - 1) * parseInt(limit);
+      const limitInt = parseInt(limit);
+
+      // Get user's manual submissions
+      const manualSql = `
+        SELECT asub.*, p.publication_name, 'manual' as article_type
+        FROM article_submissions asub
+        LEFT JOIN publications p ON asub.publication_id = p.id
+        WHERE asub.user_id = $1
+        ORDER BY asub.created_at DESC
+        LIMIT $2 OFFSET $3
+      `;
+      const manualValues = [userId, limitInt, offset];
+      const manualResult = await query(manualSql, manualValues);
+
+      // Get user's AI articles
+      const aiSql = `
+        SELECT aga.*, p.publication_name, 'ai' as article_type
+        FROM ai_generated_articles aga
+        LEFT JOIN publications p ON aga.publication_id = p.id
+        WHERE aga.user_id = $1
+        ORDER BY aga.created_at DESC
+        LIMIT $2 OFFSET $3
+      `;
+      const aiValues = [userId, limitInt, offset];
+      const aiResult = await query(aiSql, aiValues);
+
+      // Combine and sort by created_at
+      const allArticles = [...manualResult.rows, ...aiResult.rows]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, limitInt);
+
+      // Get total counts
+      const manualCountSql = "SELECT COUNT(*) FROM article_submissions WHERE user_id = $1";
+      const aiCountSql = "SELECT COUNT(*) FROM ai_generated_articles WHERE user_id = $1";
+      const [manualCountResult, aiCountResult] = await Promise.all([
+        query(manualCountSql, [userId]),
+        query(aiCountSql, [userId])
+      ]);
+      const totalCount = parseInt(manualCountResult.rows[0].count) + parseInt(aiCountResult.rows[0].count);
+      const totalPages = Math.ceil(totalCount / limitInt);
+
+      // Format articles
+      const formattedArticles = allArticles.map(row => {
+        const isManual = row.article_type === 'manual';
+        const article = isManual ? new ArticleSubmission(row) : { ...row };
+
+        // Build publication object
+        let publication = null;
+        if (row.publication_name) {
+          publication = { publication_name: row.publication_name };
+        }
+
+        if (isManual) {
+          const json = article.toJSON();
+          return {
+            ...json,
+            publication,
+            article_type: 'manual'
+          };
+        } else {
+          return {
+            ...row,
+            publication,
+            article_type: 'ai'
+          };
+        }
+      });
+
+      res.json({
+        articles: formattedArticles,
+        pagination: {
+          page: parseInt(page),
+          limit: limitInt,
+          total: totalCount,
+          totalPages
+        }
+      });
+    } catch (error) {
+      console.error('Get my all articles error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get my submissions (user only)
   async getMySubmissions(req, res) {
     try {
@@ -460,6 +550,96 @@ class ArticleSubmissionController {
       });
     } catch (error) {
       console.error('Get my submissions error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Get all approved articles (both manual and AI-generated)
+  async getAllApprovedArticles(req, res) {
+    try {
+      const { page = 1, limit = 12 } = req.query;
+      const offset = (page - 1) * parseInt(limit);
+      const limitInt = parseInt(limit);
+
+      // Get manual approved articles
+      const manualSql = `
+        SELECT asub.*, p.publication_name, 'manual' as article_type
+        FROM article_submissions asub
+        LEFT JOIN publications p ON asub.publication_id = p.id
+        WHERE asub.status = 'approved'
+        ORDER BY asub.created_at DESC
+        LIMIT $1 OFFSET $2
+      `;
+      const manualValues = [limitInt, offset];
+      const manualResult = await query(manualSql, manualValues);
+
+      // Get AI approved articles
+      const aiSql = `
+        SELECT aga.*, p.publication_name, 'ai' as article_type
+        FROM ai_generated_articles aga
+        LEFT JOIN publications p ON aga.publication_id = p.id
+        WHERE aga.status = 'approved'
+        ORDER BY aga.created_at DESC
+        LIMIT $1 OFFSET $2
+      `;
+      const aiValues = [limitInt, offset];
+      const aiResult = await query(aiSql, aiValues);
+
+      // Combine and sort by created_at
+      const allArticles = [...manualResult.rows, ...aiResult.rows]
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+        .slice(0, limitInt);
+
+      // Get total counts
+      const manualCountSql = "SELECT COUNT(*) FROM article_submissions WHERE status = 'approved'";
+      const aiCountSql = "SELECT COUNT(*) FROM ai_generated_articles WHERE status = 'approved'";
+      const [manualCountResult, aiCountResult] = await Promise.all([
+        query(manualCountSql),
+        query(aiCountSql)
+      ]);
+      const totalCount = parseInt(manualCountResult.rows[0].count) + parseInt(aiCountResult.rows[0].count);
+      const totalPages = Math.ceil(totalCount / limitInt);
+
+      // Format articles
+      const formattedArticles = allArticles.map(row => {
+        const isManual = row.article_type === 'manual';
+        const article = isManual ? new ArticleSubmission(row) : { ...row };
+
+        // Build publication object
+        let publication = null;
+        if (row.publication_name) {
+          publication = { publication_name: row.publication_name };
+        }
+
+        // For manual articles, add slug
+        if (isManual) {
+          const json = article.toJSON();
+          return {
+            ...json,
+            publication,
+            article_type: 'manual'
+          };
+        } else {
+          // For AI articles
+          return {
+            ...row,
+            publication,
+            article_type: 'ai'
+          };
+        }
+      });
+
+      res.json({
+        articles: formattedArticles,
+        pagination: {
+          page: parseInt(page),
+          limit: limitInt,
+          total: totalCount,
+          totalPages
+        }
+      });
+    } catch (error) {
+      console.error('Get all approved articles error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -548,6 +728,65 @@ class ArticleSubmissionController {
       });
     } catch (error) {
       console.error('Get approved article by slug error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Get approved AI article by ID (public)
+  async getApprovedAiArticleById(req, res) {
+    try {
+      const { id } = req.params;
+      console.log('Fetching AI article with ID:', id);
+
+      // Get AI article with user and publication data
+      const sql = `
+        SELECT aga.*, u.first_name, u.last_name, u.email, p.publication_name
+        FROM ai_generated_articles aga
+        LEFT JOIN users u ON aga.user_id = u.id
+        LEFT JOIN publications p ON aga.publication_id = p.id
+        WHERE aga.id = $1 AND aga.status = 'approved'
+      `;
+
+      const result = await query(sql, [parseInt(id)]);
+      console.log('Query result rows:', result.rows.length);
+
+      if (result.rows.length === 0) {
+        console.log('No approved AI article found with ID:', id);
+        return res.status(404).json({ error: 'Approved AI article not found' });
+      }
+
+      const row = result.rows[0];
+      console.log('Found AI article:', row.id, row.name, row.status);
+
+      // Build user object
+      let user = null;
+      if (row.first_name || row.last_name || row.email) {
+        user = {
+          first_name: row.first_name,
+          last_name: row.last_name,
+          email: row.email
+        };
+      }
+
+      // Build publication object
+      let publication = null;
+      if (row.publication_name) {
+        publication = { publication_name: row.publication_name };
+      }
+
+      // Remove the joined fields from the main object
+      const { first_name, last_name, email, publication_name, ...articleData } = row;
+
+      res.json({
+        article: {
+          ...articleData,
+          user,
+          publication,
+          article_type: 'ai'
+        }
+      });
+    } catch (error) {
+      console.error('Get approved AI article by ID error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

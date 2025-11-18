@@ -6,7 +6,7 @@ import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
 import {
   ArrowLeft, Calendar, User, Newspaper, Globe, Instagram, Facebook,
-  Share2, Bookmark, Eye, Clock, Heart
+  Share2, Bookmark, Eye, Clock, Heart, FileText
 } from 'lucide-react';
 
 const ArticleDetailPage = () => {
@@ -25,7 +25,19 @@ const ArticleDetailPage = () => {
   const fetchArticle = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/article-submissions/approved-articles/${slug}`);
+
+      // Check if this is an AI article (slug contains 'ai-' prefix) or manual article
+      let endpoint;
+      if (slug && slug.startsWith('ai-')) {
+        // AI article - extract ID from slug (format: ai-{id})
+        const aiId = slug.replace('ai-', '');
+        endpoint = `/article-submissions/approved-ai-articles/${aiId}`;
+      } else {
+        // Manual article
+        endpoint = `/article-submissions/approved-articles/${slug}`;
+      }
+
+      const response = await api.get(endpoint);
       setArticle(response.data.article);
       // Simulate view count increment
       setViewCount(response.data.article?.view_count || Math.floor(Math.random() * 1000) + 100);
@@ -69,6 +81,113 @@ const ArticleDetailPage = () => {
       navigator.clipboard.writeText(window.location.href);
       alert('Link copied to clipboard!');
     }
+  };
+
+  // Format AI article content if not already formatted
+  const formatArticleContent = (content) => {
+    if (!content) return '';
+
+    // If content already contains HTML tags, return as is
+    if (content.includes('<h1') || content.includes('<h2') || content.includes('<p>') || content.includes('<ul>')) {
+      return content;
+    }
+
+    // Process markdown content
+    const lines = content.split('\n');
+    let formattedContent = '';
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].trim();
+
+      // Skip empty lines at the beginning
+      if (line === '' && formattedContent === '') continue;
+
+      // Handle main title (# Title)
+      if (line.startsWith('# ') && !line.includes('##')) {
+        const title = line.substring(2);
+        formattedContent += `<h1 style="font-size: 2.5rem; font-weight: 800; color: #212121; margin: 2rem 0 1.5rem 0; line-height: 1.2;">${title}</h1>`;
+        continue;
+      }
+
+      // Handle section headers (## Header)
+      if (line.startsWith('## ')) {
+        // Close any open paragraph
+        if (formattedContent.endsWith('</p>')) {
+          formattedContent = formattedContent.slice(0, -4);
+        } else if (formattedContent && !formattedContent.endsWith('>')) {
+          formattedContent += '</p>';
+        }
+
+        const header = line.substring(3);
+        formattedContent += `<h2 style="font-size: 1.8rem; font-weight: 700; color: #212121; margin: 3rem 0 1.5rem 0; padding-bottom: 0.5rem; border-bottom: 3px solid #1976D2;">${header}</h2>`;
+        continue;
+      }
+
+      // Handle bullet points (- item) or lines that look like list items
+      if (line.startsWith('- ')) {
+        if (!inList) {
+          formattedContent += '<ul style="margin: 1.5rem 0; padding-left: 2rem; list-style-type: disc; color: #000;">';
+          inList = true;
+        }
+        const item = line.substring(2);
+        formattedContent += `<li style="font-size: 1.1rem; line-height: 1.8; color: #212121; margin-bottom: 0.5rem; display: list-item;">${item}</li>`;
+        continue;
+      }
+
+      // Handle lines that look like list items (after a header that suggests a list)
+      if (!line.startsWith('#') && !line.startsWith('*') && line.trim() &&
+          (formattedContent.includes('Key Achievements') ||
+           formattedContent.includes('Achievements') ||
+           formattedContent.includes('Highlights')) &&
+          !inList && line.length > 2 && line.length < 150 &&
+          !line.includes('This comprehensive') &&
+          !line.includes('This journey') &&
+          !line.includes('These forward-looking') &&
+          !line.includes('Through this detailed exploration')) {
+
+        // Start a list if we haven't already
+        if (!inList) {
+          formattedContent += '<ul style="margin: 1.5rem 0; padding-left: 2rem; list-style-type: disc; color: #000;">';
+          inList = true;
+        }
+        formattedContent += `<li style="font-size: 1.1rem; line-height: 1.8; color: #212121; margin-bottom: 0.5rem; display: list-item;">${line}</li>`;
+        continue;
+      }
+
+      // Handle end of list
+      if (inList && (line === '' || (!line.startsWith('- ') && !line.match(/^[A-Z]/)))) {
+        formattedContent += '</ul>';
+        inList = false;
+      }
+
+      // Handle regular paragraphs
+      if (line && !line.startsWith('#') && !line.startsWith('- ') && !line.startsWith('*')) {
+        if (!formattedContent.includes('<p>') || formattedContent.endsWith('</p>') || formattedContent.endsWith('</h2>') || formattedContent.endsWith('</ul>')) {
+          formattedContent += `<p style="font-size: 1.1rem; line-height: 1.8; color: #212121; margin-bottom: 1.5rem;">${line}`;
+        } else {
+          formattedContent += ` ${line}`;
+        }
+      }
+
+      // Handle attribution line
+      if (line.startsWith('*') && line.includes('generated using AI')) {
+        if (formattedContent.endsWith('</p>')) {
+          formattedContent = formattedContent.slice(0, -4);
+        }
+        formattedContent += `<div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #E0E0E0; font-size: 0.9rem; color: #757575; font-style: italic;">${line.substring(1)}</div>`;
+      }
+    }
+
+    // Close any open tags
+    if (inList) {
+      formattedContent += '</ul>';
+    }
+    if (formattedContent && !formattedContent.endsWith('</p>') && !formattedContent.endsWith('</div>')) {
+      formattedContent += '</p>';
+    }
+
+    return formattedContent;
   };
 
   // Theme colors from color palette
@@ -154,6 +273,39 @@ const ArticleDetailPage = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background }}>
+      {/* SEO Meta Tags for AI Articles */}
+      {article.article_type === 'ai' && (
+        <>
+          <title>{article.name || 'AI Generated Article'} | News MarketPlace</title>
+          <meta name="description" content={article.background ? article.background.substring(0, 160) : 'AI generated article on News MarketPlace'} />
+          {article.seo_keywords && <meta name="keywords" content={article.seo_keywords} />}
+          {article.person_name && <meta name="author" content={article.person_name} />}
+          {article.geo_location && <meta name="geo.region" content={article.geo_location} />}
+          {article.company_name && <meta property="article:publisher" content={article.company_name} />}
+          <meta property="og:title" content={article.name || 'AI Generated Article'} />
+          <meta property="og:description" content={article.background ? article.background.substring(0, 160) : 'AI generated article'} />
+          <meta property="og:type" content="article" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={article.name || 'AI Generated Article'} />
+          <meta name="twitter:description" content={article.background ? article.background.substring(0, 160) : 'AI generated article'} />
+        </>
+      )}
+
+      {/* SEO Meta Tags for Manual Articles */}
+      {article.article_type !== 'ai' && (
+        <>
+          <title>{article.title} | News MarketPlace</title>
+          <meta name="description" content={article.sub_title || article.article_text?.substring(0, 160) || 'Article on News MarketPlace'} />
+          {article.by_line && <meta name="author" content={article.by_line} />}
+          <meta property="og:title" content={article.title} />
+          <meta property="og:description" content={article.sub_title || article.article_text?.substring(0, 160) || 'Article'} />
+          <meta property="og:type" content="article" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={article.title} />
+          <meta name="twitter:description" content={article.sub_title || article.article_text?.substring(0, 160) || 'Article'} />
+        </>
+      )}
+
       <UserHeader />
 
       {/* Navigation Bar */}
@@ -220,10 +372,10 @@ const ArticleDetailPage = () => {
               marginBottom: '16px',
               lineHeight: '1.2'
             }}>
-              {article.title}
+              {article.article_type === 'ai' ? (article.name || 'AI Generated Article') : article.title}
             </h1>
 
-            {article.sub_title && (
+            {article.article_type !== 'ai' && article.sub_title && (
               <p style={{
                 fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                 color: theme.textSecondary,
@@ -233,6 +385,30 @@ const ArticleDetailPage = () => {
               }}>
                 {article.sub_title}
               </p>
+            )}
+
+            {/* SEO Keywords for AI articles */}
+            {article.article_type === 'ai' && article.seo_keywords && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+                gap: '8px',
+                marginBottom: '16px'
+              }}>
+                {article.seo_keywords.split(',').map((keyword, index) => (
+                  <span key={`${keyword.trim()}-${index}`} style={{
+                    padding: '4px 12px',
+                    backgroundColor: theme.primaryLight,
+                    color: theme.primary,
+                    borderRadius: '20px',
+                    fontSize: '0.9rem',
+                    fontWeight: '500'
+                  }}>
+                    {keyword.trim()}
+                  </span>
+                ))}
+              </div>
             )}
 
             {/* Action Buttons */}
@@ -360,7 +536,7 @@ const ArticleDetailPage = () => {
                   borderRadius: '12px'
                 }}
               >
-                {article.by_line && (
+                {article.article_type !== 'ai' && article.by_line && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{
                       width: '40px',
@@ -379,6 +555,30 @@ const ArticleDetailPage = () => {
                       </p>
                       <p style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, margin: 0 }}>
                         {article.by_line}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {article.article_type === 'ai' && article.user && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: '#E3F2FD',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <User size={20} style={{ color: theme.primary }} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '12px', color: theme.textSecondary, margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Generated by
+                      </p>
+                      <p style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, margin: 0 }}>
+                        {article.user.first_name} {article.user.last_name}
                       </p>
                     </div>
                   </div>
@@ -406,7 +606,31 @@ const ArticleDetailPage = () => {
                   </div>
                 </div>
 
-                {article.tentative_publish_date && (
+                {article.article_type === 'ai' && article.story_type && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: '#F3E5F5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <FileText size={20} style={{ color: '#9C27B0' }} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '12px', color: theme.textSecondary, margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Story Type
+                      </p>
+                      <p style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, margin: 0, textTransform: 'capitalize' }}>
+                        {article.story_type}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {article.article_type !== 'ai' && article.tentative_publish_date && (
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <div style={{
                       width: '40px',
@@ -429,6 +653,30 @@ const ArticleDetailPage = () => {
                     </div>
                   </div>
                 )}
+
+                {article.article_type === 'ai' && article.created_at && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '50%',
+                      backgroundColor: '#FFF3E0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Calendar size={20} style={{ color: theme.warning }} />
+                    </div>
+                    <div>
+                      <p style={{ fontSize: '12px', color: theme.textSecondary, margin: '0 0 4px 0', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Generated
+                      </p>
+                      <p style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, margin: 0 }}>
+                        {formatDate(article.created_at)}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </motion.div>
 
               {/* Article Text */}
@@ -438,15 +686,27 @@ const ArticleDetailPage = () => {
                 transition={{ delay: 0.5, duration: 0.6 }}
                 style={{ marginBottom: '32px' }}
               >
-                <div style={{
-                  fontSize: '18px',
-                  lineHeight: '1.8',
-                  color: theme.textPrimary,
-                  whiteSpace: 'pre-wrap',
-                  fontWeight: '400'
-                }}>
-                  {article.article_text}
-                </div>
+                {article.article_type === 'ai' ? (
+                   <div
+                     style={{
+                       fontSize: '18px',
+                       lineHeight: '1.8',
+                       color: theme.textPrimary,
+                       fontWeight: '400'
+                     }}
+                     dangerouslySetInnerHTML={{ __html: formatArticleContent(article.generated_content) }}
+                   />
+                 ) : (
+                  <div style={{
+                    fontSize: '18px',
+                    lineHeight: '1.8',
+                    color: theme.textPrimary,
+                    whiteSpace: 'pre-wrap',
+                    fontWeight: '400'
+                  }}>
+                    {article.article_text}
+                  </div>
+                )}
               </motion.div>
 
               {/* Secondary Image */}

@@ -57,6 +57,17 @@ router.get('/my',
   articleSubmissionController.getMySubmissions
 );
 
+// Get all user's articles (manual + AI)
+router.get('/my-all-articles',
+  verifyToken,
+  articleSubmissionController.getMyAllArticles
+);
+
+// Public route for all approved articles (manual + AI)
+router.get('/all-approved-articles',
+  articleSubmissionController.getAllApprovedArticles
+);
+
 // Public route for approved articles
 router.get('/approved-articles',
   articleSubmissionController.getApprovedArticles
@@ -65,6 +76,11 @@ router.get('/approved-articles',
 // Public route for approved article by slug
 router.get('/approved-articles/:slug',
   articleSubmissionController.getApprovedArticleById
+);
+
+// Public route for approved AI article by ID
+router.get('/approved-ai-articles/:id',
+  articleSubmissionController.getApprovedAiArticleById
 );
 
 module.exports = router;

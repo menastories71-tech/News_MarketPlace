@@ -1,6 +1,7 @@
-import React, { useRef, useState, useCallback, memo } from 'react';
+import React, { useRef, useState, useCallback, memo, useEffect } from 'react';
 import Icon from './Icon';
 import CosmicButton from './CosmicButton';
+import api from '../../services/api';
 
 // --- Replace ImageWithFallback with a memoized, polished implementation ---
 const ImageWithFallback = memo(function ImageWithFallback({ src, alt, className }) {
@@ -90,6 +91,165 @@ function useTilt(active = true) {
   }, [active]);
   return ref;
 }
+
+/* AI Article Card Component */
+const AiArticleCard = memo(function AiArticleCard({ article, featured = false }) {
+  const tiltRef = useTilt(true);
+  const [bookmarked, setBookmarked] = useState(false);
+
+  const onToggleBookmark = useCallback((e) => {
+    e.stopPropagation();
+    e.preventDefault && e.preventDefault();
+    setBookmarked((s) => !s);
+  }, []);
+
+  // Format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Get status color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'approved': return 'bg-green-500';
+      case 'pending': return 'bg-yellow-500';
+      case 'draft': return 'bg-gray-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  // Extract title from generated content or use default
+  const getTitle = () => {
+    if (article.generated_content) {
+      // Try to extract first line as title
+      const lines = article.generated_content.split('\n').filter(line => line.trim());
+      return lines[0] || `AI ${article.story_type} Article`;
+    }
+    return `AI ${article.story_type} Article`;
+  };
+
+  // Extract excerpt
+  const getExcerpt = () => {
+    if (article.generated_content) {
+      const lines = article.generated_content.split('\n').filter(line => line.trim());
+      return lines.slice(1, 3).join(' ').substring(0, 150) + '...';
+    }
+    return 'AI-generated content pending...';
+  };
+
+  return (
+    <article
+      ref={tiltRef}
+      className={`group relative rounded-3xl transform transition-all duration-500 ${featured ? 'sm:col-span-2 lg:col-span-2' : ''}`}
+      style={{ perspective: 1000 }}
+      role="article"
+    >
+      {/* Status badge */}
+      <div className="absolute top-4 left-4 z-30">
+        <span className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${getStatusColor(article.status)}`}>
+          {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
+        </span>
+      </div>
+
+      {/* subtle halo behind card */}
+      <div className="absolute inset-0 -z-10 rounded-3xl blur-2xl opacity-30 bg-gradient-to-br from-[#E3F2FD] via-[#B3E5FC] to-transparent transform group-hover:scale-105 transition-transform" />
+
+      {/* glass card */}
+      <div className={`relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-md border border-white/20 shadow-2xl ${featured ? 'lg:flex' : ''}`}>
+        {/* Image area - AI themed */}
+        <div className={`${featured ? 'lg:w-1/2' : ''} relative ${featured ? 'h-64' : 'h-44'}`}>
+          <div className="absolute inset-0 -skew-x-6 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" aria-hidden />
+          <ImageWithFallback
+            src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=800&fit=crop&crop=center" // AI/robotics themed image
+            alt="AI Generated Article"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+
+          {/* meta mini bar bottom-left */}
+          <div className="absolute left-4 bottom-4 z-20 flex items-center gap-3 bg-white/80 rounded-full px-3 py-1 shadow">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1976D2] to-[#0D47A1] text-white flex items-center justify-center text-xs font-semibold">
+              AI
+            </div>
+            <div className="text-xs">
+              <div className="font-medium text-slate-800 leading-none">AI Generated</div>
+              <div className="text-slate-500 leading-none">{formatDate(article.created_at)}</div>
+            </div>
+          </div>
+
+          {/* vertical actions top-right */}
+          <div className="absolute top-4 right-4 z-30 flex flex-col items-end gap-2">
+            <button
+              aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'}
+              aria-pressed={bookmarked}
+              onClick={onToggleBookmark}
+              className="p-2 bg-white/95 rounded-full shadow hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A9D4FF]"
+            >
+              <Icon name={bookmarked ? 'bookmark' : 'bookmark-outline'} size="sm" className="text-[#1976D2]" />
+            </button>
+            <button
+              aria-label="Share article"
+              className="p-2 bg-white/95 rounded-full shadow hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A9D4FF]"
+            >
+              <Icon name="share" size="sm" className="text-[#1976D2]" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content area */}
+        <div className={`p-6 ${featured ? 'lg:w-1/2 lg:px-10 lg:py-8' : ''}`}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex-1">
+              <h3 className={`mb-3 ${featured ? 'text-2xl' : 'text-lg'} font-extrabold leading-tight`}>
+                <span className="bg-gradient-to-r from-[#4FC3F7] via-[#1976D2] to-[#0D47A1] bg-clip-text text-transparent">
+                  {getTitle()}
+                </span>
+              </h3>
+
+              <p className="text-sm text-slate-600 mb-4 line-clamp-3">
+                {getExcerpt()}
+              </p>
+
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1976D2] to-[#0D47A1] text-white flex items-center justify-center font-semibold shadow">
+                  AI
+                </div>
+                <div className="text-xs">
+                  <div className="font-medium text-slate-800">{article.publication?.publication_name || 'Unknown Publication'}</div>
+                  <div className="text-slate-500">{article.story_type}</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end gap-3">
+              <a
+                href="#"
+                aria-label={`Read article: ${getTitle()}`}
+                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-semibold shadow-lg transform transition-transform hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A9D4FF]"
+              >
+                Read
+                <Icon name="arrow-right" size="sm" />
+              </a>
+
+              {featured && (
+                <div className="mt-2 text-xs text-slate-500">
+                  <span className="inline-block px-3 py-1 bg-white/60 rounded-full">AI Generated</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* subtle underline animation */}
+          <div className="mt-4 h-0.5 w-full bg-gradient-to-r from-transparent via-[#1976D2] to-transparent opacity-60 rounded-full animate-pulse" />
+        </div>
+      </div>
+    </article>
+  );
+});
 
 /* changed code: shorten card image heights (featured: h-64, normal: h-44) */
 const ArticleCard = memo(function ArticleCard({ article, featured = false }) {
@@ -208,6 +368,11 @@ const ArticleCard = memo(function ArticleCard({ article, featured = false }) {
 });
 
 const Articles = () => {
+  const [activeTab, setActiveTab] = useState('regular');
+  const [aiArticles, setAiArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const articles = [
     {
       id: 1,
@@ -251,6 +416,26 @@ const Articles = () => {
     }
   ];
 
+  useEffect(() => {
+    const fetchAiArticles = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await api.get('/ai-generated-articles/my');
+        setAiArticles(response.data.articles || []);
+      } catch (err) {
+        console.error('Error fetching AI articles:', err);
+        setError('Failed to load AI articles. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (activeTab === 'ai') {
+      fetchAiArticles();
+    }
+  }, [activeTab]);
+
   return (
     <section className="pt-24 pb-16 md:pt-16 relative overflow-hidden">
       {/* Layered Background */}
@@ -279,12 +464,74 @@ const Articles = () => {
           </p>
         </div>
 
-        {/* Articles Grid - first item featured */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
-          {articles.map((article, index) => (
-            <ArticleCard key={article.id} article={article} featured={index === 0} />
-          ))}
+        {/* Tab Navigation */}
+        <div className="flex justify-center mb-8 z-10 relative">
+          <div className="bg-white/80 backdrop-blur-sm rounded-full p-1 shadow-lg border border-white/20">
+            <button
+              onClick={() => setActiveTab('regular')}
+              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+                activeTab === 'regular'
+                  ? 'bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-800'
+              }`}
+            >
+              Regular Articles
+            </button>
+            <button
+              onClick={() => setActiveTab('ai')}
+              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+                activeTab === 'ai'
+                  ? 'bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white shadow-md'
+                  : 'text-slate-600 hover:text-slate-800'
+              }`}
+            >
+              My AI Articles
+            </button>
+          </div>
         </div>
+
+        {/* Articles Grid - first item featured */}
+        {activeTab === 'regular' ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
+            {articles.map((article, index) => (
+              <ArticleCard key={article.id} article={article} featured={index === 0} />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
+            {loading ? (
+              // Loading skeleton
+              Array.from({ length: 4 }).map((_, index) => (
+                <div key={index} className="rounded-3xl bg-white/60 backdrop-blur-md border border-white/20 shadow-2xl animate-pulse">
+                  <div className={`${index === 0 ? 'h-64' : 'h-44'} bg-gradient-to-br from-[#E3F2FD] to-[#B3E5FC]`} />
+                  <div className="p-6">
+                    <div className="h-4 bg-slate-200 rounded mb-3" />
+                    <div className="h-3 bg-slate-200 rounded mb-2" />
+                    <div className="h-3 bg-slate-200 rounded w-3/4" />
+                  </div>
+                </div>
+              ))
+            ) : error ? (
+              <div className="col-span-full text-center py-12">
+                <div className="text-red-500 mb-4">
+                  <Icon name="alert-circle" size="lg" />
+                </div>
+                <p className="text-slate-600">{error}</p>
+              </div>
+            ) : aiArticles.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <div className="text-slate-400 mb-4">
+                  <Icon name="document-outline" size="lg" />
+                </div>
+                <p className="text-slate-600">No AI articles found. Create your first AI article to get started!</p>
+              </div>
+            ) : (
+              aiArticles.map((article, index) => (
+                <AiArticleCard key={article.id} article={article} featured={index === 0} />
+              ))
+            )}
+          </div>
+        )}
 
         {/* View All */}
         <div className="text-center mt-10">

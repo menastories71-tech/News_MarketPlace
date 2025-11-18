@@ -20,10 +20,11 @@ const ArticlesPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalArticles, setTotalArticles] = useState(0);
+  const [activeTab, setActiveTab] = useState('all');
 
   useEffect(() => {
     fetchArticles();
-  }, [currentPage]);
+  }, [currentPage, isAuthenticated, activeTab]);
 
   const fetchArticles = async () => {
     try {
@@ -33,10 +34,19 @@ const ArticlesPage = () => {
         limit: 12
       });
 
-      const response = await api.get(`/article-submissions/approved-articles?${params.toString()}`);
+      let endpoint;
+      if (activeTab === 'my' && isAuthenticated) {
+        // Show user's own articles and AI articles
+        endpoint = `/article-submissions/my-all-articles?${params.toString()}`;
+      } else {
+        // Show all approved articles (manual + AI)
+        endpoint = `/article-submissions/all-approved-articles?${params.toString()}`;
+      }
+
+      const response = await api.get(endpoint);
       setArticles(response.data.articles || []);
-      setTotalPages(response.data.pagination.totalPages);
-      setTotalArticles(response.data.pagination.total);
+      setTotalPages(response.data.pagination?.totalPages || 1);
+      setTotalArticles(response.data.pagination?.total || 0);
     } catch (error) {
       console.error('Error fetching articles:', error);
       setArticles([]);
@@ -62,7 +72,11 @@ const ArticlesPage = () => {
   };
 
   const handleAISubmission = () => {
-    alert('Coming Soon');
+    if (isAuthenticated) {
+      navigate('/ai-article-questionnaire');
+    } else {
+      setShowAuth(true);
+    }
   };
 
   const formatDate = (dateString) => {
@@ -74,14 +88,55 @@ const ArticlesPage = () => {
     });
   };
 
+  // Clean markdown symbols from preview text
+  const cleanPreviewText = (text) => {
+    if (!text) return '';
+    return text
+      .replace(/^#+\s*/gm, '') // Remove # headers
+      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove **bold**
+      .replace(/\*(.*?)\*/g, '$1') // Remove *italic*
+      .replace(/^- /gm, '') // Remove - bullet points
+      .replace(/\n+/g, ' ') // Replace newlines with spaces
+      .trim();
+  };
+
   const filteredArticles = articles.filter(article => {
     if (!searchTerm) return true;
-    return [
-      article.title,
-      article.sub_title,
-      article.by_line,
-      article.publication?.publication_name
-    ].some(field => field && field.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    if (activeTab === 'my') {
+      // For user's articles (manual + AI articles)
+      if (article.article_type === 'ai') {
+        return [
+          article.story_type,
+          article.publication?.publication_name,
+          article.status
+        ].some(field => field && field.toLowerCase().includes(searchTerm.toLowerCase()));
+      } else {
+        return [
+          article.title,
+          article.sub_title,
+          article.by_line,
+          article.publication?.publication_name,
+          article.status
+        ].some(field => field && field.toLowerCase().includes(searchTerm.toLowerCase()));
+      }
+    } else {
+      // For all articles (mixed manual and AI)
+      if (article.article_type === 'ai') {
+        return [
+          article.story_type,
+          article.publication?.publication_name,
+          article.status
+        ].some(field => field && field.toLowerCase().includes(searchTerm.toLowerCase()));
+      } else {
+        return [
+          article.title,
+          article.sub_title,
+          article.by_line,
+          article.publication?.publication_name
+        ].some(field => field && field.toLowerCase().includes(searchTerm.toLowerCase()));
+      }
+    }
   });
 
   if (loading) {
@@ -113,10 +168,13 @@ const ArticlesPage = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Approved Articles
+              Articles
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              {totalArticles} Approved Articles Available
+              {activeTab === 'my'
+                ? `${totalArticles} Your Articles`
+                : `${totalArticles} Published Articles Available`
+              }
             </p>
 
             {/* Action Buttons */}
@@ -133,10 +191,48 @@ const ArticlesPage = () => {
                 className="px-6 py-3 bg-[#4CAF50] text-white rounded-lg font-medium hover:bg-[#388E3C] transition-colors flex items-center justify-center gap-2"
               >
                 <Newspaper size={18} />
-                AI Generated Article
+                Create AI Article
               </button>
             </div>
           </motion.div>
+        </div>
+      </section>
+
+      {/* Tabs */}
+      <section className="px-4 sm:px-6 lg:px-8 py-4 border-b border-[#E0E0E0]">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex space-x-8">
+            <button
+              onClick={() => {
+                setActiveTab('all');
+                setCurrentPage(1);
+                setSearchTerm('');
+              }}
+              className={`pb-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'all'
+                  ? 'border-[#1976D2] text-[#1976D2]'
+                  : 'border-transparent text-[#757575] hover:text-[#212121]'
+              }`}
+            >
+              All Articles
+            </button>
+            {isAuthenticated && (
+              <button
+                onClick={() => {
+                  setActiveTab('my');
+                  setCurrentPage(1);
+                  setSearchTerm('');
+                }}
+                className={`pb-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'my'
+                    ? 'border-[#1976D2] text-[#1976D2]'
+                    : 'border-transparent text-[#757575] hover:text-[#212121]'
+                }`}
+              >
+                My Articles
+              </button>
+            )}
+          </div>
         </div>
       </section>
 
@@ -146,7 +242,11 @@ const ArticlesPage = () => {
           <div className="flex flex-col md:flex-row gap-4 mb-4">
             <input
               type="text"
-              placeholder="Search by title, subtitle, author, or publication..."
+              placeholder={
+                activeTab === 'my'
+                  ? "Search by story type, publication, or status..."
+                  : "Search by title, subtitle, author, or publication..."
+              }
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1 px-4 py-2 border border-[#E0E0E0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2]"
@@ -169,58 +269,197 @@ const ArticlesPage = () => {
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                     className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] hover:shadow-md transition-shadow p-6"
                   >
-                    {/* Image */}
-                    {article.image1 && (
-                      <div className="mb-4">
-                        <img
-                          src={`/api/uploads/article-submissions/${article.image1}`}
-                          alt={article.title}
-                          className="w-full h-48 object-cover rounded-lg"
-                        />
-                      </div>
+                    {article.article_type === 'ai' || activeTab === 'my' ? (
+                      // AI Article Card - Enhanced Design
+                      <>
+
+                        {/* Article Type Badges */}
+                        <div className="mb-4 flex flex-wrap items-center justify-center gap-2">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#E3F2FD] text-[#1976D2] capitalize border border-[#1976D2]/20">
+                            {article.story_type}
+                          </span>
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-[#4CAF50] to-[#388E3C] text-white">
+                            ✨ AI Generated
+                          </span>
+                        </div>
+
+                        {/* Title for AI articles */}
+                        {article.name && (
+                          <h3 className="text-xl font-bold mb-3 text-[#212121] text-center line-clamp-2 leading-tight">
+                            {article.name}
+                          </h3>
+                        )}
+
+                        {/* Status (only show for user's articles) */}
+                        {activeTab === 'my' && (
+                          <div className="mb-4 flex justify-center">
+                            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                              article.status === 'approved' ? 'bg-green-100 text-green-800 border border-green-200' :
+                              article.status === 'pending' ? 'bg-yellow-100 text-yellow-800 border border-yellow-200' :
+                              article.status === 'rejected' ? 'bg-red-100 text-red-800 border border-red-200' :
+                              'bg-gray-100 text-gray-800 border border-gray-200'
+                            }`}>
+                              {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
+                            </span>
+                          </div>
+                        )}
+
+                        {/* Publication */}
+                        <div className="flex items-center justify-center text-sm mb-3 p-2 bg-[#F8F9FA] rounded-lg">
+                          <Newspaper size={16} className="mr-2 text-[#1976D2]" />
+                          <span className="font-medium text-[#757575]">Publication: </span>
+                          <span className="text-[#212121] ml-1 font-semibold">{article.publication?.publication_name || 'Not Assigned'}</span>
+                        </div>
+
+                        {/* Date */}
+                        <div className="flex items-center justify-center text-sm mb-4 p-2 bg-[#F8F9FA] rounded-lg">
+                          <Calendar size={16} className="mr-2 text-[#1976D2]" />
+                          <span className="font-medium text-[#757575]">Created: </span>
+                          <span className="text-[#212121] ml-1 font-semibold">{formatDate(article.created_at)}</span>
+                        </div>
+
+                        {/* Generated Content Preview - Enhanced */}
+                        {article.generated_content && (
+                          <div className="mb-6 p-4 bg-gradient-to-br from-[#F8F9FA] to-[#E3F2FD] rounded-lg border border-[#E0E0E0]">
+                            <div className="flex items-center mb-2">
+                              <FileText size={14} className="mr-2 text-[#1976D2]" />
+                              <span className="text-xs font-medium text-[#757575] uppercase tracking-wide">Article Preview</span>
+                            </div>
+                            <p className="text-sm text-[#424242] leading-relaxed line-clamp-4">
+                              {cleanPreviewText(article.generated_content.substring(0, 200))}...
+                            </p>
+                          </div>
+                        )}
+
+                        {/* SEO Keywords Preview */}
+                        {article.seo_keywords && (
+                          <div className="mb-4">
+                            <div className="flex flex-wrap gap-1 justify-center">
+                              {article.seo_keywords.split(',').slice(0, 3).map((keyword, idx) => (
+                                <span key={idx} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#E8F5E8] text-[#2E7D32] border border-[#2E7D32]/20">
+                                  {keyword.trim()}
+                                </span>
+                              ))}
+                              {article.seo_keywords.split(',').length > 3 && (
+                                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#F5F5F5] text-[#757575]">
+                                  +{article.seo_keywords.split(',').length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Action Button - Enhanced */}
+                        {activeTab === 'my' ? (
+                          <button
+                            onClick={() => navigate(`/ai-article-generation/${article.id}`)}
+                            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all text-sm bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white hover:from-[#0D47A1] hover:to-[#1976D2] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                          >
+                            <Eye size={16} />
+                            {article.generated_content ? 'Review Article' : 'Generate Article'}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => navigate(`/articles/ai-${article.id}`)}
+                            className="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg transition-all text-sm bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white hover:from-[#0D47A1] hover:to-[#1976D2] shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                          >
+                            <Eye size={16} />
+                            View Article
+                          </button>
+                        )}
+                      </>
+                    ) : (
+                      // Manual Article Card
+                      <>
+                        {/* Article Type Badge */}
+                        <div className="mb-3 flex items-center gap-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#F3E5F5] text-[#9C27B0]">
+                            Manual Article
+                          </span>
+                          {activeTab === 'my' && (
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                              article.status === 'approved' ? 'bg-green-100 text-green-800' :
+                              article.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              article.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Image */}
+                        {article.image1 && (
+                          <div className="mb-4">
+                            <img
+                              src={`/api/uploads/article-submissions/${article.image1}`}
+                              alt={article.title}
+                              className="w-full h-48 object-cover rounded-lg"
+                            />
+                          </div>
+                        )}
+
+                        {/* Title */}
+                        <h3 className="text-xl font-semibold mb-2 text-[#212121] line-clamp-2">
+                          {article.title}
+                        </h3>
+
+                        {/* Subtitle */}
+                        {article.sub_title && (
+                          <p className="text-sm text-[#757575] mb-3 line-clamp-2">
+                            {article.sub_title}
+                          </p>
+                        )}
+
+                        {/* Publication */}
+                        <div className="flex items-center text-sm mb-2">
+                          <Newspaper size={14} className="mr-2 text-[#1976D2]" />
+                          <span className="font-medium text-[#757575]">Publication: </span>
+                          <span className="text-[#212121] ml-1">{article.publication?.publication_name || 'Not Assigned'}</span>
+                        </div>
+
+                        {/* Author */}
+                        <div className="flex items-center text-sm mb-2">
+                          <User size={14} className="mr-2 text-[#1976D2]" />
+                          <span className="font-medium text-[#757575]">Author: </span>
+                          <span className="text-[#212121] ml-1">{article.by_line || 'Anonymous'}</span>
+                        </div>
+
+                        {/* Date */}
+                        <div className="flex items-center text-sm mb-4">
+                          <Calendar size={14} className="mr-2 text-[#1976D2]" />
+                          <span className="font-medium text-[#757575]">Date: </span>
+                          <span className="text-[#212121] ml-1">{formatDate(article.created_at)}</span>
+                        </div>
+
+                        {/* Action Button */}
+                        {activeTab === 'my' ? (
+                          <div className="text-center text-sm text-[#757575]">
+                            {article.status === 'approved' ? (
+                              <button
+                                onClick={() => navigate(`/articles/${article.slug}`)}
+                                className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors text-sm bg-[#1976D2] text-white hover:bg-[#0D47A1]"
+                              >
+                                <Eye size={14} />
+                                View Article
+                              </button>
+                            ) : (
+                              <span className="block py-3">
+                                {article.status === 'pending' ? 'Under Review' : 'Review Feedback'}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => navigate(`/articles/${article.slug}`)}
+                            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors text-sm bg-[#1976D2] text-white hover:bg-[#0D47A1]"
+                          >
+                            <Eye size={14} />
+                            View Article
+                          </button>
+                        )}
+                      </>
                     )}
-
-                    {/* Title */}
-                    <h3 className="text-xl font-semibold mb-2 text-[#212121] line-clamp-2">
-                      {article.title}
-                    </h3>
-
-                    {/* Subtitle */}
-                    {article.sub_title && (
-                      <p className="text-sm text-[#757575] mb-3 line-clamp-2">
-                        {article.sub_title}
-                      </p>
-                    )}
-
-                    {/* Publication */}
-                    <div className="flex items-center text-sm mb-2">
-                      <Newspaper size={14} className="mr-2 text-[#1976D2]" />
-                      <span className="font-medium text-[#757575]">Publication: </span>
-                      <span className="text-[#212121] ml-1">{article.publication?.publication_name || 'Not Assigned'}</span>
-                    </div>
-
-                    {/* Author */}
-                    <div className="flex items-center text-sm mb-2">
-                      <User size={14} className="mr-2 text-[#1976D2]" />
-                      <span className="font-medium text-[#757575]">Author: </span>
-                      <span className="text-[#212121] ml-1">{article.by_line || 'Anonymous'}</span>
-                    </div>
-
-                    {/* Date */}
-                    <div className="flex items-center text-sm mb-4">
-                      <Calendar size={14} className="mr-2 text-[#1976D2]" />
-                      <span className="font-medium text-[#757575]">Date: </span>
-                      <span className="text-[#212121] ml-1">{formatDate(article.created_at)}</span>
-                    </div>
-
-                    {/* View Button */}
-                    <button
-                      onClick={() => navigate(`/articles/${article.slug}`)}
-                      className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition-colors text-sm bg-[#1976D2] text-white hover:bg-[#0D47A1]"
-                    >
-                      <Eye size={14} />
-                      View Article
-                    </button>
                   </motion.div>
                 ))}
               </div>
