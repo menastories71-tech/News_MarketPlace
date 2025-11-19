@@ -2,7 +2,10 @@ const axios = require('axios');
 
 class AIService {
   constructor() {
-    this.apiKey = 'AIzaSyBXLWjARQ65j0autanrwAYMGm_pQvS1We0';
+    this.apiKey = process.env.GOOGLE_GEMINI_API_KEY;
+    if (!this.apiKey) {
+      throw new Error('GOOGLE_GEMINI_API_KEY environment variable is not set');
+    }
     this.baseUrl = 'https://generativelanguage.googleapis.com/v1beta';
   }
 

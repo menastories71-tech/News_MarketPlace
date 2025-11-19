@@ -44,12 +44,14 @@ import AgencyRegistrationPage from './pages/AgencyRegistrationPage';
 import ReporterRegistrationPage from './pages/ReporterRegistrationPage';
 import ReporterManagement from './components/admin/ReporterManagement';
 import EventEnquiriesView from './components/admin/EventEnquiriesView';
+import EventManagement from './components/admin/EventManagement';
 import AffiliateEnquiriesView from './components/admin/AffiliateEnquiriesView';
 import PowerlistPage from './pages/PowerlistPage';
 import PowerListDetailPage from './pages/PowerListDetailPage';
 import PowerListManagement from './components/admin/PowerListManagement';
 import AwardsPage from './pages/AwardsPage';
 import AwardDetailPage from './pages/AwardDetailPage';
+import EventsPage from './pages/EventsPage';
 import AwardManagement from './components/admin/AwardManagement';
 import AwardSubmissionManagement from './components/admin/AwardSubmissionManagement';
 import ArticleSubmissionsManagement from './components/admin/ArticleSubmissionsManagement';
@@ -390,6 +392,7 @@ function App() {
             <Route path="/power-lists/:id" element={<PowerListDetailPage />} />
             <Route path="/awards" element={<AwardsPage />} />
             <Route path="/awards/:id" element={<AwardDetailPage />} />
+            <Route path="/events" element={<EventsPage />} />
             <Route path="/themes" element={<ThemesPage />} />
             <Route path="/themes/:id" element={<ThemeDetailPage />} />
             <Route
@@ -673,6 +676,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <EventEnquiriesView />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/events"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <EventManagement />
                   </div>
                 </AdminProtectedRoute>
               }
