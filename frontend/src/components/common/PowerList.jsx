@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import CosmicButton from './CosmicButton';
 import api from '../../services/api';
 
 const PowerList = () => {
+  const navigate = useNavigate();
   const [powerListItems, setPowerListItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -32,9 +34,13 @@ const PowerList = () => {
       name: item.name,
       category: item.company_industry || 'General',
       description: item.position || 'Influential Professional',
-      followers: 'N/A',
-      growth: '+0%',
-      avatar: '/api/placeholder/60/60'
+      followers: item.linkedin_url ? 'LinkedIn' : 'N/A', // Placeholder for followers count
+      growth: '+0%', // Placeholder for growth
+      avatar: '/api/placeholder/60/60',
+      linkedin_url: item.linkedin_url,
+      instagram_url: item.instagram_url,
+      company_website: item.company_website,
+      current_company: item.current_company
     }));
   };
 
@@ -50,14 +56,14 @@ const PowerList = () => {
   const getRankIcon = (rank) => {
     switch (rank) {
       case 1: return "trophy";
-      case 2: return "medal";
-      case 3: return "award";
+      case 2: return "users";
+      case 3: return "user";
       default: return "star";
     }
   };
 
   return (
-    <section className=" bg-[#E3F2FD] relative overflow-hidden">
+    <section className="py-8 bg-[#E3F2FD] relative overflow-hidden">
       {/* Background Decorative Elements */}
       <div className="absolute top-20 left-10 w-40 h-40 bg-[#1976D2]/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-20 right-10 w-32 h-32 bg-[#FFFFFF]/20 rounded-full blur-2xl"></div>
@@ -112,16 +118,38 @@ const PowerList = () => {
 
               {/* Content */}
               <div className="p-8">
-                <h3 className="text-2xl font-bold text-[#212121] mb-4 group-hover:text-[#1976D2] transition-colors duration-300 leading-tight">
+                <h3 className="text-2xl font-bold text-[#212121] mb-2 group-hover:text-[#1976D2] transition-colors duration-300 leading-tight">
                   {item.name}
                 </h3>
-                <p className="text-[#757575] mb-6 leading-relaxed text-lg">{item.description}</p>
+                {item.current_company && (
+                  <p className="text-[#757575] mb-2 text-lg">{item.current_company}</p>
+                )}
+                <p className="text-[#757575] mb-6 leading-relaxed text-base">{item.description}</p>
 
                 {/* Category Badge */}
                 <div className="mb-6">
                   <span className="bg-[#1976D2]/10 text-[#1976D2] px-4 py-2 rounded-full text-sm font-semibold border border-[#1976D2]/20">
                     {item.category}
                   </span>
+                </div>
+
+                {/* Social Links */}
+                <div className="flex items-center space-x-3 mb-6">
+                  {item.linkedin_url && (
+                    <a href={item.linkedin_url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-[#0077B5]/10 rounded-lg flex items-center justify-center hover:bg-[#0077B5]/20 transition-colors">
+                      <Icon name="linkedin" size="sm" className="text-[#0077B5]" />
+                    </a>
+                  )}
+                  {item.instagram_url && (
+                    <a href={item.instagram_url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-[#E4405F]/10 rounded-lg flex items-center justify-center hover:bg-[#E4405F]/20 transition-colors">
+                      <Icon name="instagram" size="sm" className="text-[#E4405F]" />
+                    </a>
+                  )}
+                  {item.company_website && (
+                    <a href={item.company_website} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-[#1976D2]/10 rounded-lg flex items-center justify-center hover:bg-[#1976D2]/20 transition-colors">
+                      <Icon name="globe" size="sm" className="text-[#1976D2]" />
+                    </a>
+                  )}
                 </div>
 
                 {/* Growth Stats */}
@@ -135,7 +163,12 @@ const PowerList = () => {
                       <span className="text-[#757575] text-sm ml-1">growth</span>
                     </div>
                   </div>
-                  <CosmicButton variant="small" textColor="#000000" className="shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <CosmicButton
+                    variant="small"
+                    textColor="#000000"
+                    className="shadow-md hover:shadow-lg transition-shadow duration-300"
+                    onClick={() => navigate(`/power-lists/${item.id}`)}
+                  >
                     View Profile
                   </CosmicButton>
                 </div>

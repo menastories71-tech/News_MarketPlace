@@ -1,70 +1,68 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import CosmicButton from './CosmicButton';
+import api from '../../services/api';
 
 const Awards = () => {
-  const awards = [
-    {
-      id: 1,
-      title: "Excellence in Digital Publishing",
-      year: "2024",
-      category: "Innovation",
-      recipient: "News MarketPlace",
-      description: "Recognized for revolutionizing content distribution through innovative platform solutions.",
-      icon: "trophy",
-      color: "from-yellow-400 to-yellow-600"
-    },
-    {
-      id: 2,
-      title: "Best Media Partnership Platform",
-      year: "2024",
-      category: "Partnerships",
-      recipient: "News MarketPlace",
-      description: "Awarded for creating the most effective bridge between content creators and media outlets.",
-      icon: "handshake",
-      color: "from-blue-400 to-blue-600"
-    },
-    {
-      id: 3,
-      title: "Content Creator Empowerment Award",
-      year: "2023",
-      category: "Community",
-      recipient: "News MarketPlace Team",
-      description: "Honored for empowering thousands of content creators to reach global audiences.",
-      icon: "users",
-      color: "from-green-400 to-green-600"
-    },
-    {
-      id: 4,
-      title: "Innovation in Media Technology",
-      year: "2023",
-      category: "Technology",
-      recipient: "News MarketPlace",
-      description: "Pioneering advanced publishing tools that transformed the media landscape.",
-      icon: "lightning-bolt",
-      color: "from-purple-400 to-purple-600"
-    },
-    {
-      id: 5,
-      title: "Global Reach Achievement",
-      year: "2023",
-      category: "Expansion",
-      recipient: "News MarketPlace",
-      description: "Connecting content creators across continents with unprecedented reach and impact.",
-      icon: "globe-alt",
-      color: "from-indigo-400 to-indigo-600"
-    },
-    {
-      id: 6,
-      title: "Trust & Transparency Award",
-      year: "2022",
-      category: "Ethics",
-      recipient: "News MarketPlace",
-      description: "Exemplifying the highest standards of transparency and ethical publishing practices.",
-      icon: "shield-check",
-      color: "from-red-400 to-red-600"
+  const navigate = useNavigate();
+  const [awards, setAwards] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchAwards();
+  }, []);
+
+  const fetchAwards = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get('/awards');
+      const transformedAwards = transformAwardsData(response.data.awards || []);
+      setAwards(transformedAwards);
+    } catch (err) {
+      console.error('Error fetching awards:', err);
+      setError('Failed to load awards. Please try again later.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const transformAwardsData = (data) => {
+    const colors = [
+      "from-yellow-400 to-yellow-600",
+      "from-blue-400 to-blue-600",
+      "from-green-400 to-green-600",
+      "from-purple-400 to-purple-600",
+      "from-indigo-400 to-indigo-600",
+      "from-red-400 to-red-600"
+    ];
+
+    const getAwardIcon = (awardFocus) => {
+      const focus = awardFocus?.toLowerCase() || '';
+      if (focus.includes('innovation') || focus.includes('technology')) return 'lightning-bolt';
+      if (focus.includes('partnership') || focus.includes('collaboration')) return 'handshake';
+      if (focus.includes('community') || focus.includes('people')) return 'users';
+      if (focus.includes('expansion') || focus.includes('global') || focus.includes('reach')) return 'globe-alt';
+      if (focus.includes('ethics') || focus.includes('trust') || focus.includes('transparency')) return 'shield-check';
+      return 'trophy'; // default
+    };
+
+    return data.map((award, index) => ({
+      id: award.id,
+      title: award.award_name,
+      year: award.award_month || award.created_at?.split('-')[0] || "2024",
+      category: award.award_focus || "General",
+      recipient: award.organiser || "News MarketPlace",
+      description: award.description || "Award description not available.",
+      icon: getAwardIcon(award.award_focus),
+      color: colors[index % colors.length],
+      website: award.website,
+      linkedin: award.linkedin,
+      instagram: award.instagram
+    }));
+  };
 
   return (
     <section className="py-8 bg-[#E3F2FD] relative overflow-hidden">
@@ -91,58 +89,98 @@ const Awards = () => {
         </div>
 
         {/* Awards Showcase */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-24">
-          {awards.map((award) => (
-            <div
-              key={award.id}
-              className="bg-[#FFFFFF] rounded-3xl shadow-xl border border-[#E0E0E0] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 group relative"
-            >
-              {/* Award Visual Header */}
-              <div className="relative bg-gradient-to-r from-[#E3F2FD] to-[#BBDEFB] p-8 pb-6">
-                <div className="absolute top-0 right-0 w-20 h-20 bg-[#1976D2]/10 rounded-full -mr-10 -mt-10"></div>
-                <div className="flex items-center justify-between mb-6">
-                  
-                  <div className="text-right">
-                    <div className="text-3xl font-bold text-[#212121] group-hover:text-[#1976D2] transition-colors duration-300">{award.year}</div>
-                    <div className="text-sm text-[#757575] font-medium">Award Year</div>
-                  </div>
-                </div>
-                <span className="bg-[#1976D2]/10 text-[#1976D2] text-sm font-semibold px-4 py-2 rounded-full border border-[#1976D2]/20">
-                  {award.category}
-                </span>
-              </div>
-
-              {/* Award Content */}
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-[#212121] mb-4 group-hover:text-[#1976D2] transition-colors duration-300 leading-tight">
-                  {award.title}
-                </h3>
-                <p className="text-[#757575] mb-6 leading-relaxed text-lg">{award.description}</p>
-
-                {/* Recipient */}
-                <div className="flex items-center space-x-3 mb-6">
-                  <div className="w-8 h-8 bg-[#1976D2]/10 rounded-lg flex items-center justify-center">
-                    <Icon name="user" size="sm" className="text-[#1976D2]" />
-                  </div>
-                  <span className="text-[#1976D2] font-semibold text-lg">{award.recipient}</span>
-                </div>
-
-                {/* Verification Badge */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-[#4CAF50]/10 rounded-lg flex items-center justify-center">
-                      <Icon name="badge-check" size="sm" className="text-[#4CAF50]" />
-                    </div>
-                    <span className="text-[#4CAF50] font-medium text-sm">Verified Award</span>
-                  </div>
-                  <CosmicButton variant="small" textColor="#000000" className="shadow-md hover:shadow-lg transition-shadow duration-300">
-                    Learn More
-                  </CosmicButton>
-                </div>
-              </div>
+        {loading ? (
+          <div className="text-center py-20">
+            <div className="animate-spin rounded-full h-16 w-16 mx-auto mb-4 border-b-2 border-[#1976D2]"></div>
+            <p className="text-lg text-[#757575]">Loading awards...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <div className="text-red-500 mb-4">
+              <Icon name="alert-circle" size="lg" />
             </div>
-          ))}
-        </div>
+            <p className="text-[#757575]">{error}</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-24">
+            {awards.map((award) => (
+              <div
+                key={award.id}
+                className="bg-[#FFFFFF] rounded-3xl shadow-xl border border-[#E0E0E0] overflow-hidden hover:shadow-2xl transition-all duration-500 hover:-translate-y-4 group relative"
+              >
+                {/* Award Visual Header */}
+                <div className="relative bg-gradient-to-r from-[#E3F2FD] to-[#BBDEFB] p-8 pb-6">
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-[#1976D2]/10 rounded-full -mr-10 -mt-10"></div>
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${award.color} flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-transform duration-300`}>
+                      <Icon name={award.icon} size="lg" className="text-[#FFFFFF]" />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-3xl font-bold text-[#212121] group-hover:text-[#1976D2] transition-colors duration-300">{award.year}</div>
+                      <div className="text-sm text-[#757575] font-medium">Award Year</div>
+                    </div>
+                  </div>
+                  <span className="bg-[#1976D2]/10 text-[#1976D2] text-sm font-semibold px-4 py-2 rounded-full border border-[#1976D2]/20">
+                    {award.category}
+                  </span>
+                </div>
+
+                {/* Award Content */}
+                <div className="p-8">
+                  <h3 className="text-2xl font-bold text-[#212121] mb-4 group-hover:text-[#1976D2] transition-colors duration-300 leading-tight">
+                    {award.title}
+                  </h3>
+                  <p className="text-[#757575] mb-6 leading-relaxed text-lg">{award.description}</p>
+
+                  {/* Social Links */}
+                  <div className="flex items-center space-x-3 mb-6">
+                    {award.website && (
+                      <a href={award.website} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-[#1976D2]/10 rounded-lg flex items-center justify-center hover:bg-[#1976D2]/20 transition-colors">
+                        <Icon name="globe" size="sm" className="text-[#1976D2]" />
+                      </a>
+                    )}
+                    {award.linkedin && (
+                      <a href={award.linkedin} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-[#0077B5]/10 rounded-lg flex items-center justify-center hover:bg-[#0077B5]/20 transition-colors">
+                        <Icon name="linkedin" size="sm" className="text-[#0077B5]" />
+                      </a>
+                    )}
+                    {award.instagram && (
+                      <a href={award.instagram} target="_blank" rel="noopener noreferrer" className="w-8 h-8 bg-[#E4405F]/10 rounded-lg flex items-center justify-center hover:bg-[#E4405F]/20 transition-colors">
+                        <Icon name="instagram" size="sm" className="text-[#E4405F]" />
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Recipient */}
+                  <div className="flex items-center space-x-3 mb-6">
+                    <div className="w-8 h-8 bg-[#1976D2]/10 rounded-lg flex items-center justify-center">
+                      <Icon name="user" size="sm" className="text-[#1976D2]" />
+                    </div>
+                    <span className="text-[#1976D2] font-semibold text-lg">{award.recipient}</span>
+                  </div>
+
+                  {/* Verification Badge */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-[#4CAF50]/10 rounded-lg flex items-center justify-center">
+                        <Icon name="badge-check" size="sm" className="text-[#4CAF50]" />
+                      </div>
+                      <span className="text-[#4CAF50] font-medium text-sm">Verified Award</span>
+                    </div>
+                    <CosmicButton
+                      variant="small"
+                      textColor="#000000"
+                      className="shadow-md hover:shadow-lg transition-shadow duration-300"
+                      onClick={() => navigate(`/awards/${award.id}`)}
+                    >
+                      Learn More
+                    </CosmicButton>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Call to Action */}
         <div className="bg-[#FFFFFF] rounded-3xl p-12 md:p-16 shadow-2xl border border-[#E0E0E0] relative overflow-hidden">

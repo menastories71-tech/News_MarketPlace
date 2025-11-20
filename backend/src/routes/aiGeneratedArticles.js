@@ -60,6 +60,10 @@ router.post('/',
   aiGeneratedArticleController.createQuestionnaire
 );
 
+router.get('/approved',
+  aiGeneratedArticleController.getApprovedArticles
+);
+
 router.get('/my',
   verifyToken,
   aiGeneratedArticleController.getMyArticles

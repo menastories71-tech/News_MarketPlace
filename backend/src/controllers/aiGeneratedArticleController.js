@@ -550,6 +550,66 @@ class AiGeneratedArticleController {
   }
 
   /**
+   * Get approved AI articles (public)
+   */
+  async getApprovedArticles(req, res) {
+    try {
+      const {
+        page = 1,
+        limit = 12
+      } = req.query;
+
+      const offset = (page - 1) * limit;
+
+      // Get approved articles with publication data
+      const sql = `
+        SELECT aga.*, p.publication_name
+        FROM ai_generated_articles aga
+        LEFT JOIN publications p ON aga.publication_id = p.id
+        WHERE aga.status = 'approved'
+        ORDER BY aga.created_at DESC
+        LIMIT $1 OFFSET $2
+      `;
+
+      const values = [parseInt(limit), offset];
+      const result = await query(sql, values);
+
+      // Get total count
+      const countResult = await query("SELECT COUNT(*) FROM ai_generated_articles WHERE status = 'approved'");
+      const totalCount = parseInt(countResult.rows[0].count);
+      const totalPages = Math.ceil(totalCount / limit);
+
+      // Build articles with publication objects
+      const articlesWithPublications = result.rows.map(row => {
+        const article = new AiGeneratedArticle(row);
+
+        const json = article.toJSON();
+
+        // Build publication object
+        let publication = null;
+        if (row.publication_name) {
+          publication = { publication_name: row.publication_name };
+        }
+
+        return { ...json, publication };
+      });
+
+      res.json({
+        articles: articlesWithPublications,
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: totalCount,
+          totalPages
+        }
+      });
+    } catch (error) {
+      console.error('Get approved articles error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  /**
    * Get all articles (admin only)
    */
   async getAllArticles(req, res) {

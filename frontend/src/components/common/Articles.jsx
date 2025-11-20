@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback, memo, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import CosmicButton from './CosmicButton';
 import api from '../../services/api';
@@ -93,8 +94,8 @@ function useTilt(active = true) {
 }
 
 /* AI Article Card Component */
-const AiArticleCard = memo(function AiArticleCard({ article, featured = false }) {
-  const tiltRef = useTilt(true);
+const AiArticleCard = memo(function AiArticleCard({ article, featured = false, navigate }) {
+  const tiltRef = useTilt(false);
   const [bookmarked, setBookmarked] = useState(false);
 
   const onToggleBookmark = useCallback((e) => {
@@ -122,23 +123,56 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false })
     }
   };
 
+  // Helper function to strip HTML tags
+  const stripHtml = (html) => {
+    const tmp = document.createElement('DIV');
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || '';
+  };
+
   // Extract title from generated content or use default
   const getTitle = () => {
     if (article.generated_content) {
-      // Try to extract first line as title
-      const lines = article.generated_content.split('\n').filter(line => line.trim());
-      return lines[0] || `AI ${article.story_type} Article`;
+      // Strip HTML first
+      const cleanContent = stripHtml(article.generated_content);
+      // Look for title patterns or take first meaningful line
+      const lines = cleanContent.split('\n').filter(line => line.trim());
+
+      // Try to find a title (usually the first line that's not too long and not starting with common words)
+      let title = article.preferred_title || lines[0] || '';
+
+      // If title is too long (>80 chars), try to find a shorter title or use article name
+      if (title.length > 80) {
+        // Look for a line that looks like a title (ends with colon or is reasonably short)
+        const titleCandidates = lines.filter(line =>
+          line.length < 80 &&
+          (line.includes(':') || line.length < 50) &&
+          !line.toLowerCase().startsWith('in ') &&
+          !line.toLowerCase().startsWith('the ') &&
+          !line.toLowerCase().startsWith('this ')
+        );
+        title = titleCandidates[0] || article.preferred_title || article.name || 'Article';
+      }
+
+      // Clean title: remove # symbols and extra whitespace
+      const cleanTitle = title.replace(/^#+\s*/, '').replace(/^##+\s*/, '').trim();
+      return cleanTitle || `${article.name || 'Article'}`;
     }
-    return `AI ${article.story_type} Article`;
+    return article.preferred_title || `${article.name || 'Article'}`;
   };
 
   // Extract excerpt
   const getExcerpt = () => {
     if (article.generated_content) {
-      const lines = article.generated_content.split('\n').filter(line => line.trim());
-      return lines.slice(1, 3).join(' ').substring(0, 150) + '...';
+      // Strip HTML tags first
+      const cleanContent = stripHtml(article.generated_content);
+      // Find the first paragraph after the title/introduction
+      const paragraphs = cleanContent.split('\n').filter(line => line.trim() && !line.startsWith('#'));
+      // Get the first meaningful paragraph and limit to 100 characters
+      const firstParagraph = paragraphs.find(p => p.length > 20) || paragraphs[0] || '';
+      return firstParagraph.substring(0, 100).trim() + (firstParagraph.length > 100 ? '...' : '');
     }
-    return 'AI-generated content pending...';
+    return 'Content pending...';
   };
 
   return (
@@ -148,12 +182,6 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false })
       style={{ perspective: 1000 }}
       role="article"
     >
-      {/* Status badge */}
-      <div className="absolute top-4 left-4 z-30">
-        <span className={`px-3 py-1 rounded-full text-white text-xs font-semibold ${getStatusColor(article.status)}`}>
-          {article.status.charAt(0).toUpperCase() + article.status.slice(1)}
-        </span>
-      </div>
 
       {/* subtle halo behind card */}
       <div className="absolute inset-0 -z-10 rounded-3xl blur-2xl opacity-30 bg-gradient-to-br from-[#E3F2FD] via-[#B3E5FC] to-transparent transform group-hover:scale-105 transition-transform" />
@@ -173,10 +201,10 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false })
           {/* meta mini bar bottom-left */}
           <div className="absolute left-4 bottom-4 z-20 flex items-center gap-3 bg-white/80 rounded-full px-3 py-1 shadow">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1976D2] to-[#0D47A1] text-white flex items-center justify-center text-xs font-semibold">
-              AI
+              {article.name ? article.name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase() : 'AI'}
             </div>
             <div className="text-xs">
-              <div className="font-medium text-slate-800 leading-none">AI Generated</div>
+              <div className="font-medium text-slate-800 leading-none">{article.name || 'AI Author'}</div>
               <div className="text-slate-500 leading-none">{formatDate(article.created_at)}</div>
             </div>
           </div>
@@ -202,8 +230,8 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false })
 
         {/* Content area */}
         <div className={`p-6 ${featured ? 'lg:w-1/2 lg:px-10 lg:py-8' : ''}`}>
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
+          <div className="flex flex-col gap-4">
+            <div>
               <h3 className={`mb-3 ${featured ? 'text-2xl' : 'text-lg'} font-extrabold leading-tight`}>
                 <span className="bg-gradient-to-r from-[#4FC3F7] via-[#1976D2] to-[#0D47A1] bg-clip-text text-transparent">
                   {getTitle()}
@@ -214,30 +242,30 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false })
                 {getExcerpt()}
               </p>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1976D2] to-[#0D47A1] text-white flex items-center justify-center font-semibold shadow">
-                  AI
+                  {article.name ? article.name.split(' ').map(n => n[0]).slice(0,2).join('').toUpperCase() : 'AI'}
                 </div>
                 <div className="text-xs">
-                  <div className="font-medium text-slate-800">{article.publication?.publication_name || 'Unknown Publication'}</div>
-                  <div className="text-slate-500">{article.story_type}</div>
+                  <div className="font-medium text-slate-800">{article.name || 'AI Author'}</div>
+                  <div className="text-slate-500">{article.publication?.publication_name || 'AI Content'}</div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-3">
-              <a
-                href="#"
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => navigate(`/articles/${`ai-${article.id}`}`)}
                 aria-label={`Read article: ${getTitle()}`}
-                className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-semibold shadow-lg transform transition-transform hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A9D4FF]"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-semibold shadow-lg transform transition-transform hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A9D4FF] whitespace-nowrap w-full"
               >
-                Read
+                Read Article
                 <Icon name="arrow-right" size="sm" />
-              </a>
+              </button>
 
               {featured && (
-                <div className="mt-2 text-xs text-slate-500">
-                  <span className="inline-block px-3 py-1 bg-white/60 rounded-full">AI Generated</span>
+                <div className="text-center text-xs text-slate-500">
+                  <span className="inline-block px-3 py-1 bg-white/60 rounded-full">Featured</span>
                 </div>
               )}
             </div>
@@ -252,7 +280,7 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false })
 });
 
 /* changed code: shorten card image heights (featured: h-64, normal: h-44) */
-const ArticleCard = memo(function ArticleCard({ article, featured = false }) {
+const ArticleCard = memo(function ArticleCard({ article, featured = false, navigate }) {
   const tiltRef = useTilt(true);
   const [bookmarked, setBookmarked] = useState(false);
 
@@ -342,14 +370,14 @@ const ArticleCard = memo(function ArticleCard({ article, featured = false }) {
             </div>
 
             <div className="flex flex-col items-end gap-3">
-              <a
-                href="#"
+              <button
+                onClick={() => navigate(`/articles/${article.id}`)}
                 aria-label={`Read article: ${article.title}`}
                 className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-semibold shadow-lg transform transition-transform hover:-translate-y-1 focus:outline-none focus-visible:ring-4 focus-visible:ring-[#A9D4FF]"
               >
                 Read
                 <Icon name="arrow-right" size="sm" />
-              </a>
+              </button>
 
               {featured && (
                 <div className="mt-2 text-xs text-slate-500">
@@ -368,73 +396,54 @@ const ArticleCard = memo(function ArticleCard({ article, featured = false }) {
 });
 
 const Articles = () => {
-  const [activeTab, setActiveTab] = useState('regular');
-  const [aiArticles, setAiArticles] = useState([]);
+  const navigate = useNavigate();
+  const [regularArticles, setRegularArticles] = useState([]);
+  const [approvedAiArticles, setApprovedAiArticles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const articles = [
-    {
-      id: 1,
-      title: "The Future of Digital Publishing",
-      excerpt: "Explore how technology is transforming the way we create and distribute content in the digital age.",
-      author: "News MarketPlace Team",
-      date: "2024-11-08",
-      readTime: "5 min read",
-      category: "Technology",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop&crop=center"
-    },
-    {
-      id: 2,
-      title: "Building Successful Media Partnerships",
-      excerpt: "Learn the key strategies for creating mutually beneficial relationships with media outlets.",
-      author: "Sarah Johnson",
-      date: "2024-11-07",
-      readTime: "7 min read",
-      category: "Business",
-      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop&crop=center"
-    },
-    {
-      id: 3,
-      title: "Content Marketing Trends for 2025",
-      excerpt: "Stay ahead of the curve with the latest trends shaping content marketing strategies.",
-      author: "Mike Chen",
-      date: "2024-11-06",
-      readTime: "6 min read",
-      category: "Marketing",
-      image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&crop=center"
-    },
-    {
-      id: 4,
-      title: "Maximizing Your Content's Reach",
-      excerpt: "Practical tips for getting your articles in front of the right audience.",
-      author: "Emma Davis",
-      date: "2024-11-05",
-      readTime: "4 min read",
-      category: "Strategy",
-      image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&crop=center"
-    }
-  ];
-
   useEffect(() => {
-    const fetchAiArticles = async () => {
+    const fetchApprovedAiArticles = async () => {
+      try {
+        const response = await api.get('/ai-generated-articles/approved?limit=4');
+        setApprovedAiArticles(response.data.articles || []);
+      } catch (err) {
+        console.error('Error fetching approved AI articles:', err);
+        // Don't set error for AI articles, just log it
+      }
+    };
+
+    const fetchRegularArticles = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.get('/ai-generated-articles/my');
-        setAiArticles(response.data.articles || []);
+        const response = await api.get('/published-works?limit=4');
+        const transformedArticles = transformPublishedWorks(response.data.publishedWorks || []);
+        setRegularArticles(transformedArticles);
       } catch (err) {
-        console.error('Error fetching AI articles:', err);
-        setError('Failed to load AI articles. Please try again later.');
+        console.error('Error fetching regular articles:', err);
+        setError('Failed to load articles. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    if (activeTab === 'ai') {
-      fetchAiArticles();
-    }
-  }, [activeTab]);
+    fetchRegularArticles();
+    fetchApprovedAiArticles();
+  }, []);
+
+  const transformPublishedWorks = (works) => {
+    return works.map((work, index) => ({
+      id: work.id,
+      title: work.person_name ? `${work.person_name} - ${work.company_name}` : work.company_name,
+      excerpt: work.description || 'No description available.',
+      author: work.person_name || 'Unknown Author',
+      date: work.article_date || work.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+      readTime: "5 min read", // Default read time
+      category: work.industry || 'General',
+      image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&crop=center" // Default image
+    }));
+  };
 
   return (
     <section className="pt-24 pb-16 md:pt-16 relative overflow-hidden">
@@ -464,40 +473,19 @@ const Articles = () => {
           </p>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex justify-center mb-8 z-10 relative">
-          <div className="bg-white/80 backdrop-blur-sm rounded-full p-1 shadow-lg border border-white/20">
-            <button
-              onClick={() => setActiveTab('regular')}
-              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                activeTab === 'regular'
-                  ? 'bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white shadow-md'
-                  : 'text-slate-600 hover:text-slate-800'
-              }`}
-            >
-              Regular Articles
-            </button>
-            <button
-              onClick={() => setActiveTab('ai')}
-              className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-                activeTab === 'ai'
-                  ? 'bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white shadow-md'
-                  : 'text-slate-600 hover:text-slate-800'
-              }`}
-            >
-              My AI Articles
-            </button>
+        {/* Regular Articles Section */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">
+              <span className="bg-gradient-to-r from-[#4FC3F7] via-[#1976D2] to-[#0D47A1] bg-clip-text text-transparent">
+                Regular Articles
+              </span>
+            </h3>
+            <p className="text-slate-600 max-w-2xl mx-auto">
+              Curated articles from our publication network
+            </p>
           </div>
-        </div>
 
-        {/* Articles Grid - first item featured */}
-        {activeTab === 'regular' ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
-            {articles.map((article, index) => (
-              <ArticleCard key={article.id} article={article} featured={index === 0} />
-            ))}
-          </div>
-        ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
             {loading ? (
               // Loading skeleton
@@ -518,18 +506,40 @@ const Articles = () => {
                 </div>
                 <p className="text-slate-600">{error}</p>
               </div>
-            ) : aiArticles.length === 0 ? (
+            ) : regularArticles.length === 0 ? (
               <div className="col-span-full text-center py-12">
                 <div className="text-slate-400 mb-4">
                   <Icon name="document-outline" size="lg" />
                 </div>
-                <p className="text-slate-600">No AI articles found. Create your first AI article to get started!</p>
+                <p className="text-slate-600">No articles found.</p>
               </div>
             ) : (
-              aiArticles.map((article, index) => (
-                <AiArticleCard key={article.id} article={article} featured={index === 0} />
+              regularArticles.map((article, index) => (
+                <ArticleCard key={article.id} article={article} featured={index === 0} navigate={navigate} />
               ))
             )}
+          </div>
+        </div>
+
+        {/* AI Articles Section */}
+        {approvedAiArticles.length > 0 && (
+          <div className="mb-16">
+            <div className="text-center mb-8">
+              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">
+                <span className="bg-gradient-to-r from-[#4FC3F7] via-[#1976D2] to-[#0D47A1] bg-clip-text text-transparent">
+                  Featured Articles
+                </span>
+              </h3>
+              <p className="text-slate-600 max-w-2xl mx-auto">
+                Handpicked stories and insights from our community
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
+              {approvedAiArticles.map((article, index) => (
+                <AiArticleCard key={article.id} article={article} featured={index === 0} navigate={navigate} />
+              ))}
+            </div>
           </div>
         )}
 
