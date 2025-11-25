@@ -87,6 +87,12 @@ import ArticleDetailPage from './pages/ArticleDetailPage';
 import ArticleSubmissionPage from './pages/ArticleSubmissionPage';
 import AiArticleQuestionnairePage from './pages/AiArticleQuestionnairePage';
 import AiArticleGenerationPage from './pages/AiArticleGenerationPage';
+import CSR from './pages/CSR';
+import TrademarkPolicy from './pages/TrademarkPolicy';
+import DataProtection from './pages/DataProtection';
+import ResellingAgreement from './pages/ResellingAgreement';
+import PressGuidelines from './pages/PressGuidelines';
+import BrandsPeople from './pages/BrandsPeople';
 import RolePermissionManagement from './components/admin/RolePermissionManagement';
 import Icon from './components/common/Icon';
 
@@ -318,6 +324,12 @@ function App() {
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/cookie-policy" element={<CookiePolicy />} />
             <Route path="/refund-policy" element={<RefundPolicy />} />
+            <Route path="/csr" element={<CSR />} />
+            <Route path="/trademark-policy" element={<TrademarkPolicy />} />
+            <Route path="/data-protection" element={<DataProtection />} />
+            <Route path="/reselling-agreement" element={<ResellingAgreement />} />
+            <Route path="/press-guidelines" element={<PressGuidelines />} />
+            <Route path="/brands-people" element={<BrandsPeople />} />
             <Route path="/services-overview" element={<ServicesOverview />} />
             <Route path="/podcasters" element={<PodcastersList />} />
             <Route path="/podcasters/:id" element={<PodcasterDetail />} />

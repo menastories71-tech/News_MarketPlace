@@ -50,9 +50,9 @@ export default function UserFooter() {
               <li><Link to="/cookie-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Cookie Policy</Link></li>
               <li><Link to="/refund-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Refund Policy</Link></li>
               <li><Link to="/terms-and-conditions" className="body-small text-gray-600 hover:text-primary transition-colors">Terms of Service</Link></li>
-              <li><a href="#trademark-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Trademark and Logo Policy</a></li>
-              <li><a href="#data-protection" className="body-small text-gray-600 hover:text-primary transition-colors">Data Protection Policy</a></li>
-              <li><a href="#reselling-agreement" className="body-small text-gray-600 hover:text-primary transition-colors">Reselling Agreement</a></li>
+              <li><Link to="/trademark-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Trademark and Logo Policy</Link></li>
+              <li><Link to="/data-protection" className="body-small text-gray-600 hover:text-primary transition-colors">Data Protection Policy</Link></li>
+              <li><Link to="/reselling-agreement" className="body-small text-gray-600 hover:text-primary transition-colors">Reselling Agreement</Link></li>
             </ul>
           </div>
 
@@ -63,9 +63,9 @@ export default function UserFooter() {
               <li><Link to="/about-us" className="body-small text-gray-600 hover:text-primary transition-colors">About Us</Link></li>
               <li><Link to="/services-overview" className="body-small text-gray-600 hover:text-primary transition-colors">Services Overview</Link></li>
               <li><Link to="/how-it-works" className="body-small text-gray-600 hover:text-primary transition-colors">How It Works</Link></li>
-              <li><a href="#blog" className="body-small text-gray-600 hover:text-primary transition-colors">Blog Section</a></li>
-              <li><a href="#csr" className="body-small text-gray-600 hover:text-primary transition-colors">CSR</a></li>
-              <li><a href="#career" className="body-small text-gray-600 hover:text-primary transition-colors">Career</a></li>
+              <li><Link to="/blogs" className="body-small text-gray-600 hover:text-primary transition-colors">Blog Section</Link></li>
+              <li><Link to="/csr" className="body-small text-gray-600 hover:text-primary transition-colors">CSR</Link></li>
+              <li><Link to="/careers" className="body-small text-gray-600 hover:text-primary transition-colors">Career</Link></li>
               <li><Link to="/contact-us" className="body-small text-gray-600 hover:text-primary transition-colors">Contact US</Link></li>
               <li><Link to="/faq" className="body-small text-gray-600 hover:text-primary transition-colors">FAQ</Link></li>
             </ul>
@@ -75,13 +75,13 @@ export default function UserFooter() {
           <div>
             <h4 className="heading-4 text-gray-900 mb-4">Services & Partnerships</h4>
             <ul className="space-y-2">
-              <li><a href="#agency-registration" className="body-small text-gray-600 hover:text-primary transition-colors">Agency Registration</a></li>
-              <li><a href="#submit-publication" className="body-small text-gray-600 hover:text-primary transition-colors">Submit your Publication</a></li>
-              <li><a href="#editor-registration" className="body-small text-gray-600 hover:text-primary transition-colors">Editor/Contributor Registration</a></li>
-              <li><a href="#media-partnerships" className="body-small text-gray-600 hover:text-primary transition-colors">Media Partnerships for Events</a></li>
-              <li><a href="#press-guidelines" className="body-small text-gray-600 hover:text-primary transition-colors">Press Release Distribution Guidelines</a></li>
-              <li><a href="#affiliate-programme" className="body-small text-gray-600 hover:text-primary transition-colors">Affiliate Programme</a></li>
-              <li><a href="#brands-people" className="body-small text-gray-600 hover:text-primary transition-colors">Brands and People Featured</a></li>
+              <li><Link to="/agency-registration" className="body-small text-gray-600 hover:text-primary transition-colors">Agency Registration</Link></li>
+              <li><Link to="/submit-article" className="body-small text-gray-600 hover:text-primary transition-colors">Submit your Publication</Link></li>
+              <li><Link to="/reporter-registration" className="body-small text-gray-600 hover:text-primary transition-colors">Editor/Contributor Registration</Link></li>
+              <li><Link to="/event-enquiry" className="body-small text-gray-600 hover:text-primary transition-colors">Media Partnerships for Events</Link></li>
+              <li><Link to="/press-guidelines" className="body-small text-gray-600 hover:text-primary transition-colors">Press Release Distribution Guidelines</Link></li>
+              <li><Link to="/affiliate-program" className="body-small text-gray-600 hover:text-primary transition-colors">Affiliate Programme</Link></li>
+              <li><Link to="/brands-people" className="body-small text-gray-600 hover:text-primary transition-colors">Brands and People Featured</Link></li>
             </ul>
           </div>
         </div>

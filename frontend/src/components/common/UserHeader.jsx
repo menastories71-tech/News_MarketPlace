@@ -108,11 +108,11 @@ const UserHeader = ({ onShowAuth }) => {
               How It Works
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href="#blog" className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
+            <a href={isAuthenticated ? "/blog" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
               Blog
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href="#media-partnerships" className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
+            <a href={isAuthenticated ? "/media-partnerships" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
               Media Partnerships
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
@@ -125,7 +125,7 @@ const UserHeader = ({ onShowAuth }) => {
                 <button onClick={onShowAuth} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Agency Registration
                 </button>
-                <button className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                <button onClick={onShowAuth} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Editor Registration
                 </button>
                 <Link to="/reporter-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
@@ -158,9 +158,9 @@ const UserHeader = ({ onShowAuth }) => {
                 <Link to="/agency-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Agency Registration
                 </Link>
-                <Link to="/reporter-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                <button onClick={onShowAuth} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Reporter Registration
-                </Link>
+                </button>
                 {!isAdminAuthenticated && (
                   <Link to="/website-submission" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                     Upload Website
@@ -197,11 +197,11 @@ const UserHeader = ({ onShowAuth }) => {
                   <Icon name="question-mark-circle" size="xs" />
                   <span>How It Works</span>
                 </a>
-                <a href="#blog" className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
+                <a href={isAuthenticated ? "/blog" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
                   <Icon name="book" size="xs" />
                   <span>Blog</span>
                 </a>
-                <a href="#media-partnerships" className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
+                <a href={isAuthenticated ? "/media-partnerships" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
                   <Icon name="handshake" size="xs" />
                   <span>Media Partnerships</span>
                 </a>
@@ -214,12 +214,12 @@ const UserHeader = ({ onShowAuth }) => {
                     <button onClick={onShowAuth} className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Agency Registration
                     </button>
-                    <button className="w-full bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
+                    <button onClick={onShowAuth} className="w-full bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Editor Registration
                     </button>
-                    <Link to="/reporter-registration" className="bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 px-4 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center mx-auto block w-fit">
+                    <button onClick={onShowAuth} className="w-full bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Reporter Registration
-                    </Link>
+                    </button>
                     <button
                       onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : onShowAuth}
                       disabled={isAdminAuthenticated}

@@ -104,57 +104,71 @@ const HowItWorks = () => {
       </section>
 
       {/* Steps Section */}
-      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <div className="space-y-16 md:space-y-24">
-            {steps.map((step, index) => {
-              const IconComponent = step.icon;
-              const isEven = index % 2 === 0;
-              
-              return (
-                <motion.div
-                  key={step.id}
-                  initial={{ opacity: 0, y: 40 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
-                  transition={{ duration: 0.6, delay: index * 0.1 }}
-                  className={`flex flex-col ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12 md:gap-16`}
-                >
-                  {/* Step Number and Icon */}
-                  <div className="flex-shrink-0 w-full md:w-80">
-                    <div className="relative">
-                      <div className="flex items-center gap-6 mb-6">
-                        <div className="flex items-center justify-center w-16 h-16 rounded-lg bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-semibold text-xl shadow-md">
-                          {step.id}
-                        </div>
-                        <div className="h-px flex-1 bg-[#E0E0E0]"></div>
+      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA]">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-semibold text-[#212121] mb-4 tracking-tight">
+              How It Works
+            </h2>
+            <p className="text-lg text-[#757575] max-w-2xl mx-auto">
+              Follow these simple steps to get started with our professional marketplace platform.
+            </p>
+          </motion.div>
+
+          <div className="relative">
+            {/* Timeline Line */}
+            <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-[#E0E0E0]"></div>
+
+            <div className="space-y-12">
+              {steps.map((step, index) => {
+                const IconComponent = step.icon;
+
+                return (
+                  <motion.div
+                    key={step.id}
+                    initial={{ opacity: 0, x: -40 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true, margin: "-100px" }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="relative flex items-start gap-8"
+                  >
+                    {/* Timeline Node */}
+                    <div className="flex-shrink-0 relative">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                        {step.id}
                       </div>
-                      <div className="inline-flex items-center justify-center w-20 h-20 rounded-xl bg-[#E3F2FD] border border-[#E0E0E0] text-[#1976D2] mb-6">
-                        <IconComponent className="w-10 h-10" />
+                      <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-6 h-6 rounded-full bg-[#E3F2FD] border-2 border-[#1976D2] flex items-center justify-center">
+                        <IconComponent className="w-3 h-3 text-[#1976D2]" />
                       </div>
                     </div>
-                  </div>
 
-                  {/* Content */}
-                  <div className="flex-1">
-                    <h3 className="text-2xl md:text-3xl font-semibold text-[#212121] mb-4">
-                      {step.title}
-                    </h3>
-                    <p className="text-[#757575] text-lg mb-6 leading-relaxed">
-                      {step.description}
-                    </p>
-                    <ul className="space-y-3">
-                      {step.details.map((detail, detailIndex) => (
-                        <li key={detailIndex} className="flex items-start gap-3">
-                          <CheckCircle2 className="w-5 h-5 text-[#4CAF50] mt-0.5 flex-shrink-0" />
-                          <span className="text-[#757575]">{detail}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </motion.div>
-              );
-            })}
+                    {/* Content Card */}
+                    <div className="flex-1 bg-white rounded-xl p-8 shadow-sm border border-[#E0E0E0] hover:shadow-md transition-shadow">
+                      <h3 className="text-2xl font-semibold text-[#212121] mb-4">
+                        {step.title}
+                      </h3>
+                      <p className="text-[#757575] text-lg mb-6 leading-relaxed">
+                        {step.description}
+                      </p>
+                      <ul className="space-y-3">
+                        {step.details.map((detail, detailIndex) => (
+                          <li key={detailIndex} className="flex items-start gap-3">
+                            <CheckCircle2 className="w-5 h-5 text-[#4CAF50] mt-0.5 flex-shrink-0" />
+                            <span className="text-[#757575]">{detail}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </section>
@@ -212,42 +226,6 @@ const HowItWorks = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-[#0D47A1] to-[#1976D2]">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="text-3xl md:text-4xl font-semibold text-white mb-4 tracking-tight">
-              Get Started Today
-            </h2>
-            <p className="text-lg text-[#E3F2FD] mb-10 leading-relaxed max-w-2xl mx-auto">
-              Join our professional marketplace and start connecting with verified journalists and news consumers worldwide.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="bg-white text-[#1976D2] px-8 py-3 rounded-lg font-medium text-base hover:bg-[#E3F2FD] transition-colors duration-200 flex items-center gap-2 shadow-lg"
-              >
-                Register as Journalist
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="bg-transparent border-2 border-white text-white px-8 py-3 rounded-lg font-medium text-base hover:bg-white hover:text-[#1976D2] transition-colors duration-200 flex items-center gap-2"
-              >
-                Browse Marketplace
-                <ArrowRight className="w-5 h-5" />
-              </motion.button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
 
       {/* FAQ Section */}
       <section className="py-20 md:py-28 px-4 sm:px-6 lg:px-8 bg-white">
