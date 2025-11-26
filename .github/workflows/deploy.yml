@@ -4,11 +4,12 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:  # Allow manual triggers
+  workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -23,49 +24,63 @@ jobs:
           timeout: 300s
           script: |
             set -e
+            echo "🚀 Deployment started..."
 
-            echo "Starting deployment..."
-
-            # Navigate to project directory
+            #########################################
+            # 1. GIT UPDATE
+            #########################################
             cd /var/www/news-marketplace
 
-            # Pull latest changes
-            echo "Pulling latest changes..."
+            echo "📥 Pulling latest changes..."
             git fetch --all
             git reset --hard origin/main
             git clean -fd
 
-            # Backend: Install dependencies and restart
-            echo "Updating backend..."
+            #########################################
+            # 2. BACKEND SETUP
+            #########################################
+            echo "🔧 Installing backend dependencies..."
             cd backend
-            npm ci --production
+            npm install --production --legacy-peer-deps
 
-            # Restart backend with PM2
-            echo "Restarting backend..."
+            echo "🔄 Restarting backend with PM2..."
             pm2 restart news-marketplace-backend || pm2 start server.js --name news-marketplace-backend
 
-            # Frontend: Install, build, and deploy
-            echo "Building frontend..."
+            #########################################
+            # 3. FRONTEND BUILD
+            #########################################
+            echo "🎨 Building frontend..."
             cd ../frontend
 
-            # Clean node_modules to avoid corruption issues
             rm -rf node_modules package-lock.json
             npm install --legacy-peer-deps
             npm run build
 
-            # Ensure build directory has correct ownership
-            sudo chown -R deploy:deploy dist/
-            sudo chmod -R 755 dist/
+            #########################################
+            # 4. DEPLOY DIST FOLDER
+            #########################################
+            echo "📦 Deploying dist folder..."
 
-            # Copy build files to web server directory (adjust path as needed)
-            sudo cp -r dist/* /var/www/html/news-marketplace/
+            # Your dist files will be served from this location:
+            FRONTEND_PATH=/var/www/news-marketplace/dist
 
-            # Reload nginx to pick up any changes (needs sudo permission)
-            echo "Reloading nginx..."
-            sudo systemctl reload nginx
+            # Remove old build
+            rm -rf $FRONTEND_PATH
+            mkdir -p $FRONTEND_PATH
 
-            # Show PM2 status
-            echo "Deployment complete! PM2 status:"
+            # Copy fresh build
+            cp -r dist/* $FRONTEND_PATH/
+
+            #########################################
+            # 5. RELOAD NGINX
+            #########################################
+            echo "🔄 Reloading nginx..."
+            systemctl reload nginx || true
+
+            #########################################
+            # 6. FINISH
+            #########################################
+            echo "📊 PM2 Status:"
             pm2 status
 
-            echo "✅ Deployment successful!"
+            echo "✅ Deployment completed successfully!"
