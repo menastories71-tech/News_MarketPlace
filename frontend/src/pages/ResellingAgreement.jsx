@@ -82,7 +82,7 @@ const ResellingAgreement = () => {
 
             <div>
               <h3 className="heading-4 text-gray-900 mb-3">Contact Information</h3>
-              <p className="body-regular text-gray-600">
+              <p className="body-regular text-gray-600 break-words">
                 For partnership inquiries, please contact partnerships@newsmarketplace.com
               </p>
             </div>

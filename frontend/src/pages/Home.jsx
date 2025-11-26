@@ -12,6 +12,8 @@ import FAQ from './FAQ';
 import UserFooter from '../components/common/UserFooter';
 import AuthModal from '../components/auth/AuthModal';
 import Loader from '../components/common/Loader';
+import SEO from '../components/common/SEO';
+import Schema from '../components/common/Schema';
 
 const Home = () => {
   const [showAuth, setShowAuth] = useState(false);
@@ -55,6 +57,12 @@ const Home = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor, overflow: loading ? 'hidden' : 'auto' }}>
+      <SEO
+        title="Home"
+        description="Discover premium news content, connect with writers and readers, explore articles, awards, and more on News Marketplace."
+        keywords="news marketplace, articles, journalism, writers, readers, awards, power list"
+      />
+      <Schema type="organization" />
       {loading && !transitioning && <Loader />}
       <motion.div
         initial={{ x: '-100%' }}

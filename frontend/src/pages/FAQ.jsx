@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Icon from '../components/common/Icon';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
+import SEO from '../components/common/SEO';
 
 const FAQ = () => {
   const [openItems, setOpenItems] = useState(new Set());
@@ -97,6 +98,11 @@ const FAQ = () => {
 
   return (
     <div className="min-h-screen bg-[#E3F2FD]">
+      <SEO
+        title="FAQ"
+        description="Find answers to frequently asked questions about News Marketplace services, guaranteed publications, pricing, and media placement. Get all your questions answered."
+        keywords="FAQ, frequently asked questions, news marketplace, guaranteed publication, pricing, media outlets, PR services"
+      />
       {/* <UserHeader /> */}
 
       {/* Hero Section */}

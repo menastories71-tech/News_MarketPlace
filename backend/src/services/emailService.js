@@ -10,10 +10,10 @@ class EmailService {
       try {
         // Initialize the API instance directly without ApiClient.instance
         this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-        
+
         // Set API key directly on the instance
         this.apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, this.apiKey);
-        
+
         console.log('Brevo API initialized successfully');
       } catch (error) {
         console.warn('Failed to initialize Brevo API client:', error.message);
@@ -27,9 +27,15 @@ class EmailService {
 
   // Send OTP email
   async sendOTP(email, otp, type = 'verification') {
+    // Always log OTP to console for development
+    console.log(`DEVELOPMENT MODE - Email OTP for ${email}: ${otp}`);
+
     if (!this.apiInstance) {
       console.warn('Brevo API not initialized. Using development mode.');
-      console.log(`DEVELOPMENT MODE - Email OTP for ${email}: ${otp}`);
+      // In production, throw error instead of silently failing
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error('Email service not configured. Please contact support.');
+      }
       return true;
     }
 
@@ -47,28 +53,36 @@ class EmailService {
       const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
       sendSmtpEmail.subject = subject;
       sendSmtpEmail.htmlContent = htmlContent;
-      sendSmtpEmail.sender = { 
-        name: this.fromName || 'News Marketplace', 
+      sendSmtpEmail.sender = {
+        name: this.fromName || 'News Marketplace',
         email: this.fromEmail || 'madhavarora132005@gmail.com'
       };
       sendSmtpEmail.to = [{ email: email }];
-      sendSmtpEmail.replyTo = { 
-        email: this.fromEmail || 'madhavarora132005@gmail.com', 
+      sendSmtpEmail.replyTo = {
+        email: this.fromEmail || 'madhavarora132005@gmail.com',
         name: this.fromName || 'News Marketplace'
       };
 
       const result = await this.apiInstance.sendTransacEmail(sendSmtpEmail);
-      console.log('OTP email sent successfully:', result.messageId);
+      console.log('OTP email sent result:', result);
+
+      // Check if the result indicates success
+      if (result && result.body && result.body.messageId) {
+        console.log('OTP email sent successfully with messageId:', result.body.messageId);
+      } else {
+        console.warn('OTP email sent but no messageId in body. Check Brevo dashboard.');
+      }
+
       return result;
     } catch (error) {
       console.error('Error sending OTP email:', error);
-      
+
       // Fallback for development
       if (process.env.NODE_ENV === 'development') {
         console.log(`DEVELOPMENT MODE - Email OTP for ${email}: ${otp}`);
         return true;
       }
-      
+
       throw new Error('Failed to send OTP email');
     }
   }
@@ -87,13 +101,13 @@ class EmailService {
       const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
       sendSmtpEmail.subject = 'Reset Your News Marketplace Password';
       sendSmtpEmail.htmlContent = htmlContent;
-      sendSmtpEmail.sender = { 
-        name: this.fromName || 'News Marketplace', 
+      sendSmtpEmail.sender = {
+        name: this.fromName || 'News Marketplace',
         email: this.fromEmail || 'madhavarora132005@gmail.com'
       };
       sendSmtpEmail.to = [{ email: email }];
-      sendSmtpEmail.replyTo = { 
-        email: this.fromEmail || 'madhavarora132005@gmail.com', 
+      sendSmtpEmail.replyTo = {
+        email: this.fromEmail || 'madhavarora132005@gmail.com',
         name: this.fromName || 'News Marketplace'
       };
 
@@ -102,12 +116,12 @@ class EmailService {
       return result;
     } catch (error) {
       console.error('Error sending password reset email:', error);
-      
+
       if (process.env.NODE_ENV === 'development') {
         console.log(`DEVELOPMENT MODE - Password reset email for ${email}`);
         return true;
       }
-      
+
       throw new Error('Failed to send password reset email');
     }
   }
@@ -125,13 +139,13 @@ class EmailService {
       const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
       sendSmtpEmail.subject = 'Welcome to News Marketplace!';
       sendSmtpEmail.htmlContent = htmlContent;
-      sendSmtpEmail.sender = { 
-        name: this.fromName || 'News Marketplace', 
+      sendSmtpEmail.sender = {
+        name: this.fromName || 'News Marketplace',
         email: this.fromEmail || 'madhavarora132005@gmail.com'
       };
       sendSmtpEmail.to = [{ email: email }];
-      sendSmtpEmail.replyTo = { 
-        email: this.fromEmail || 'madhavarora132005@gmail.com', 
+      sendSmtpEmail.replyTo = {
+        email: this.fromEmail || 'madhavarora132005@gmail.com',
         name: this.fromName || 'News Marketplace'
       };
 
@@ -140,12 +154,12 @@ class EmailService {
       return result;
     } catch (error) {
       console.error('Error sending welcome email:', error);
-      
+
       if (process.env.NODE_ENV === 'development') {
         console.log(`DEVELOPMENT MODE - Welcome email for ${email}`);
         return true;
       }
-      
+
       throw new Error('Failed to send welcome email');
     }
   }

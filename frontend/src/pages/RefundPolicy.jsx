@@ -210,37 +210,37 @@ const RefundPolicy = () => {
           backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
         }} />
 
-        <div className="relative max-w-7xl mx-auto px-4 py-20">
-          <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
+        <div className="relative max-w-7xl mx-auto px-4 py-12 sm:py-16 lg:py-20">
+          <div className="flex flex-col lg:flex-row items-center lg:items-center gap-6 lg:gap-8">
             {/* Icon block */}
             <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
-                <SVGIcon type="currency-dollar" className="w-10 h-10 text-white" size={28} />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
+                <SVGIcon type="currency-dollar" className="w-8 h-8 sm:w-10 sm:h-10 text-white" size={28} />
               </div>
             </div>
 
             {/* Text block */}
-            <div className="w-full md:flex-1 text-center md:text-left">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight" style={{ color: '#ffffff' }}>
+            <div className="w-full lg:flex-1 text-center lg:text-left">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight" style={{ color: '#ffffff' }}>
                 Refund Policy
               </h1>
-              <p className="mt-3 text-base md:text-lg text-white/90 max-w-2xl">
+              <p className="mt-3 text-sm sm:text-base md:text-lg text-white/90 max-w-2xl mx-auto lg:mx-0">
                 Clear and fair refund terms — understanding your rights and our commitment to customer satisfaction.
               </p>
 
               {/* Badges */}
-              <div className="mt-5 flex flex-wrap gap-3 justify-center md:justify-start">
-                <div className="inline-flex items-center gap-2 bg-white/10 text-white/95 px-3 py-1.5 rounded-md border border-white/10">
-                  <SVGIcon type="shield-check" className="w-4 h-4 text-white/95" />
-                  <span className="text-sm">Fair Terms</span>
+              <div className="mt-4 sm:mt-5 flex flex-wrap gap-2 sm:gap-3 justify-center lg:justify-start">
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 text-white/95 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md border border-white/10 text-xs sm:text-sm">
+                  <SVGIcon type="shield-check" className="w-3 h-3 sm:w-4 sm:h-4 text-white/95" />
+                  <span>Fair Terms</span>
                 </div>
-                <div className="inline-flex items-center gap-2 bg-white/10 text-white/95 px-3 py-1.5 rounded-md border border-white/10">
-                  <SVGIcon type="clock" className="w-4 h-4 text-white/95" />
-                  <span className="text-sm">Fast Processing</span>
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 text-white/95 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md border border-white/10 text-xs sm:text-sm">
+                  <SVGIcon type="clock" className="w-3 h-3 sm:w-4 sm:h-4 text-white/95" />
+                  <span>Fast Processing</span>
                 </div>
-                <div className="inline-flex items-center gap-2 bg-white/10 text-white/95 px-3 py-1.5 rounded-md border border-white/10">
-                  <SVGIcon type="document-check" className="w-4 h-4 text-white/95" />
-                  <span className="text-sm">Transparent Process</span>
+                <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/10 text-white/95 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-md border border-white/10 text-xs sm:text-sm">
+                  <SVGIcon type="document-check" className="w-3 h-3 sm:w-4 sm:h-4 text-white/95" />
+                  <span>Transparent Process</span>
                 </div>
               </div>
             </div>
@@ -249,16 +249,16 @@ const RefundPolicy = () => {
       </section>
 
       {/* Content Area */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         {/* Introduction Card */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
           <div className="flex items-start space-x-4">
             <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E3F2FD' }}>
               <SVGIcon type="info" className="w-6 h-6" size={20} style={{ color: '#0D47A1' }} />
             </div>
-            <div>
+            <div className="flex-1 min-w-0">
               <h2 className="heading-4 text-gray-900">Refund Commitment</h2>
-              <p className="body-regular text-gray-600 mt-1">
+              <p className="body-regular text-gray-600 mt-1 break-words">
                 We are committed to fair and transparent refund practices. If a service is not fulfilled as promised, you are entitled to a full refund processed within the specified timeframe.
               </p>
             </div>
@@ -277,14 +277,15 @@ const RefundPolicy = () => {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="bg-gray-50">
-                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900">Condition</th>
-                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900">Refund Amount</th>
-                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900">Processing Time</th>
-                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900">Eligible</th>
+                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900 break-words">Condition</th>
+                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900 break-words">Refund Amount</th>
+                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900 break-words">Processing Time</th>
+                  <th className="border border-gray-200 px-4 py-3 text-left text-sm font-semibold text-gray-900 break-words">Eligible</th>
                 </tr>
               </thead>
               <tbody>
@@ -308,6 +309,36 @@ const RefundPolicy = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+
+          {/* Mobile Card Layout */}
+          <div className="md:hidden space-y-3">
+            {refundConditions.map((condition, index) => (
+              <div key={index} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div className="flex items-start justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-gray-900 flex-1 pr-2">{condition.condition}</h4>
+                  {condition.eligible ? (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium flex-shrink-0" style={{ backgroundColor: '#E8F5E9', color: '#4CAF50' }}>
+                      Eligible
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium flex-shrink-0" style={{ backgroundColor: '#FFEBEE', color: '#F44336' }}>
+                      Not Eligible
+                    </span>
+                  )}
+                </div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Refund:</span>
+                    <span className="text-gray-900 font-medium">{condition.refund}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Processing:</span>
+                    <span className="text-gray-900">{condition.timeframe}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -373,15 +404,15 @@ const RefundPolicy = () => {
 
                 <div
                   ref={(el) => (contentRefs.current[index] = el)}
-                  className={`px-5 pb-5 overflow-hidden transition-all duration-300 ${openIndex === index ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                  className={`px-4 sm:px-5 pb-4 sm:pb-5 overflow-hidden transition-all duration-300 ${openIndex === index ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                   style={{ maxHeight: openIndex === index ? `${contentRefs.current[index]?.scrollHeight ?? 600}px` : '0px' }}
                   aria-hidden={openIndex !== index}
                 >
-                  <div className="prose prose-sm md:prose text-gray-700 pt-2 break-words whitespace-pre-wrap">
-                    <p>{point.content}</p>
+                  <div className="prose prose-sm md:prose text-gray-700 pt-2 break-words whitespace-pre-wrap text-sm sm:text-base leading-relaxed max-w-none">
+                    <p className="break-words hyphens-auto">{point.content}</p>
                   </div>
 
-                  <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+                  <div className="mt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 text-xs text-gray-500">
                     <div className="flex items-center gap-2">
                       <SVGIcon type="eye" className="w-4 h-4" />
                       <span>Important for your rights</span>
@@ -414,9 +445,9 @@ const RefundPolicy = () => {
               <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm" style={{ backgroundColor: '#1976D2', color: '#ffffff' }}>
                 1
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h4 className="body-small font-semibold text-gray-900 mb-1">Contact Support</h4>
-                <p className="body-small text-gray-600">
+                <p className="body-small text-gray-600 break-words">
                   Email support@newsmarketplace.com with your order number and detailed description of the issue.
                 </p>
               </div>
@@ -425,9 +456,9 @@ const RefundPolicy = () => {
               <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm" style={{ backgroundColor: '#1976D2', color: '#ffffff' }}>
                 2
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h4 className="body-small font-semibold text-gray-900 mb-1">Review Process</h4>
-                <p className="body-small text-gray-600">
+                <p className="body-small text-gray-600 break-words">
                   Our team will review your dispute within 2-3 business days and respond with a resolution proposal.
                 </p>
               </div>
@@ -436,9 +467,9 @@ const RefundPolicy = () => {
               <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm" style={{ backgroundColor: '#1976D2', color: '#ffffff' }}>
                 3
               </div>
-              <div>
+              <div className="flex-1 min-w-0">
                 <h4 className="body-small font-semibold text-gray-900 mb-1">Resolution</h4>
-                <p className="body-small text-gray-600">
+                <p className="body-small text-gray-600 break-words">
                   If the initial resolution is unsatisfactory, you may request escalation. We aim to resolve all disputes within 7-10 business days.
                 </p>
               </div>
@@ -447,26 +478,26 @@ const RefundPolicy = () => {
         </div>
 
         {/* Contact Section */}
-        <div className="mt-8 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl p-6">
-          <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center">
-                <Icon name="chat-bubble-left" size="xl" className="text-white" />
+        <div className="mt-8 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl p-4 sm:p-6 lg:p-8">
+          <div className="flex flex-col xl:flex-row items-center xl:items-start xl:justify-between gap-6 xl:gap-8">
+            <div className="flex items-center gap-3 sm:gap-4 text-center xl:text-left max-w-md xl:max-w-none">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Icon name="chat-bubble-left" size="lg" className="text-white" />
               </div>
-              <div>
-                <h4 className="heading-4">Questions About Refunds?</h4>
-                <p className="body-small text-white/90">Contact our support team — we respond within 2-3 business days.</p>
+              <div className="flex-1">
+                <h4 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-1 sm:mb-2">Questions About Refunds?</h4>
+                <p className="text-sm sm:text-base text-white/90 leading-relaxed">Contact our support team — we respond within 2-3 business days.</p>
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10">
-                <p className="caption text-white/90">Email</p>
-                <p className="body-small font-medium break-words">support@newsmarketplace.com</p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full xl:w-auto xl:flex-shrink-0">
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 sm:px-6 py-3 sm:py-4 border border-white/20 text-center sm:text-left hover:bg-white/15 transition-colors">
+                <p className="text-xs sm:text-sm text-white/80 uppercase tracking-wider font-medium mb-1">General Support</p>
+                <p className="text-sm sm:text-base font-medium break-words text-white">support@newsmarketplace.com</p>
               </div>
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10">
-                <p className="caption text-white/90">Refunds</p>
-                <p className="body-small font-medium break-words">refunds@newsmarketplace.com</p>
+              <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 sm:px-6 py-3 sm:py-4 border border-white/20 text-center sm:text-left hover:bg-white/15 transition-colors">
+                <p className="text-xs sm:text-sm text-white/80 uppercase tracking-wider font-medium mb-1">Refund Inquiries</p>
+                <p className="text-sm sm:text-base font-medium break-words text-white">refunds@newsmarketplace.com</p>
               </div>
             </div>
           </div>

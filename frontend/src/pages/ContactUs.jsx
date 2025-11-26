@@ -4,6 +4,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
+import SEO from '../components/common/SEO';
 
 const ContactUs = () => {
   const recaptchaRef = useRef(null);
@@ -247,6 +248,11 @@ const ContactUs = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
+      <SEO
+        title="Contact Us"
+        description="Get in touch with News Marketplace. Contact us for inquiries, partnerships, or support. We're here to help with your publishing needs."
+        keywords="contact us, news marketplace, customer support, inquiries, partnerships, publishing support"
+      />
       <UserHeader />
       <Toaster />
 
@@ -580,7 +586,7 @@ const ContactUs = () => {
             {/* How did you hear about us */}
             <div>
               <label className="flex items-center text-sm font-medium text-[#212121] mb-2">
-                <Icon name="megaphone" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
+                <Icon name="question-mark-circle" size="sm" style={{ color: '#757575', marginRight: '8px' }} />
                 How did you hear about us?
               </label>
               <input
@@ -702,7 +708,7 @@ const ContactUs = () => {
             {/* Help Text */}
             <div className="text-center pt-4">
               <p className="text-xs sm:text-sm text-[#757575] flex items-center justify-center">
-                <Icon name="information-circle" size="xs" style={{ color: '#757575', marginRight: '6px' }} />
+                <Icon name="mail" size="xs" style={{ color: '#757575', marginRight: '6px' }} />
                 Need help? Contact us at support@newsmarketplace.com
               </p>
             </div>

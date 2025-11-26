@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Icon from '../components/common/Icon';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
+import SEO from '../components/common/SEO';
 
 const SVGIcon = ({ type, className = 'w-5 h-5', size = 20, style }) => {
 	switch (type) {
@@ -171,6 +172,11 @@ const PrivacyPolicy = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title="Privacy Policy"
+        description="Learn about News Marketplace's privacy policy - how we collect, use, and protect your personal information. Your privacy and data security are our top priorities."
+        keywords="privacy policy, data protection, personal information, privacy rights, GDPR, CCPA"
+      />
       <UserHeader />
 
       {/* Hero Section */}

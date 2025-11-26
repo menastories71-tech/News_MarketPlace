@@ -445,12 +445,12 @@ const TermsAndConditions = () => {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10 w-full sm:w-auto">
                 <p className="caption text-white/90">Email</p>
                 <p className="body-small font-medium break-words">thesheikhmedia@gmail.com</p>
               </div>
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10">
+              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10 w-full sm:w-auto">
                 <p className="caption text-white/90">Telegram</p>
                 <p className="body-small font-medium">@VisibilityExperts</p>
               </div>

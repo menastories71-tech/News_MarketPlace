@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Icon from '../components/common/Icon';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
+import SEO from '../components/common/SEO';
 
 // add: lightweight real inline SVG icon mapper for this page
 const SVGIcon = ({ type, className = 'w-5 h-5', size = 20, style }) => {
@@ -146,6 +147,11 @@ const AboutUs = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title="About Us"
+        description="Learn about News Marketplace - our mission to revolutionize digital publishing, connect content creators with global audiences, and provide comprehensive media solutions."
+        keywords="about us, news marketplace, digital publishing, media solutions, content creators, global publications"
+      />
       <UserHeader />
 
       {/* Hero Section - clean blue hero with white text and proper alignment */}
@@ -341,12 +347,12 @@ const AboutUs = () => {
               </div>
             </div>
 
-            <div className="flex gap-3">
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10">
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10 w-full sm:w-auto">
                 <p className="caption text-white/90">Email</p>
                 <p className="body-small font-medium break-words">thesheikhmedia@gmail.com</p>
               </div>
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10">
+              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10 w-full sm:w-auto">
                 <p className="caption text-white/90">Telegram</p>
                 <p className="body-small font-medium">@VisibilityExperts</p>
               </div>

@@ -18,8 +18,11 @@ const Awards = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/awards');
-      const transformedAwards = transformAwardsData(response.data.awards || []);
+      const timestamp = Date.now();
+      const response = await api.get(`/awards?sort=created_at&order=desc&_t=${timestamp}`);
+      const allAwards = response.data.awards || [];
+      const limitedAwards = allAwards.slice(0, 6); // Ensure only 6 awards are shown
+      const transformedAwards = transformAwardsData(limitedAwards);
       setAwards(transformedAwards);
     } catch (err) {
       console.error('Error fetching awards:', err);

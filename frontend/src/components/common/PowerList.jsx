@@ -16,8 +16,16 @@ const PowerList = () => {
   const fetchPowerlists = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/powerlist/public?limit=5');
-      const transformedData = transformData(response.data.powerlists || []);
+
+      const params = new URLSearchParams({
+        page: '1',
+        limit: '6'
+      });
+
+      const response = await api.get(`/powerlist/public?${params.toString()}`);
+      let powerlistsData = response.data.powerlists || [];
+
+      const transformedData = transformData(powerlistsData);
       setPowerListItems(transformedData);
     } catch (error) {
       console.error('Error fetching powerlists:', error);
@@ -34,9 +42,9 @@ const PowerList = () => {
       name: item.name,
       category: item.company_industry || 'General',
       description: item.position || 'Influential Professional',
-      followers: item.linkedin_url ? 'LinkedIn' : 'N/A', // Placeholder for followers count
-      growth: '+0%', // Placeholder for growth
-      avatar: '/api/placeholder/60/60',
+      followers: item.followers_count || (item.linkedin_url ? 'LinkedIn Connected' : 'N/A'),
+      growth: item.growth_percentage ? `+${item.growth_percentage}%` : '+0%',
+      avatar: item.avatar || item.profile_image || '/api/placeholder/60/60',
       linkedin_url: item.linkedin_url,
       instagram_url: item.instagram_url,
       company_website: item.company_website,

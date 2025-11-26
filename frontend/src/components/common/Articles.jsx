@@ -41,7 +41,7 @@ const ImageWithFallback = memo(function ImageWithFallback({ src, alt, className 
         className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
         onLoad={() => setLoaded(true)}
         onError={() => setFailed(true)}
-        fetchpriority="auto"
+        fetchPriority="auto"
       />
 
       {!loaded && <div className="absolute inset-0 bg-white/5 backdrop-blur-sm" aria-hidden="true" />}
@@ -193,7 +193,7 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false, n
           <div className="absolute inset-0 -skew-x-6 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" aria-hidden />
           <ImageWithFallback
             src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&h=800&fit=crop&crop=center" // AI/robotics themed image
-            alt="AI Generated Article"
+            alt="AI-generated article on News Marketplace platform showcasing innovative content creation"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
@@ -403,47 +403,56 @@ const Articles = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchApprovedAiArticles = async () => {
-      try {
-        const response = await api.get('/ai-generated-articles/approved?limit=4');
-        setApprovedAiArticles(response.data.articles || []);
-      } catch (err) {
-        console.error('Error fetching approved AI articles:', err);
-        // Don't set error for AI articles, just log it
-      }
-    };
-
-    const fetchRegularArticles = async () => {
+    const fetchArticles = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await api.get('/published-works?limit=4');
-        const transformedArticles = transformPublishedWorks(response.data.publishedWorks || []);
+        const timestamp = Date.now();
+        const response = await api.get(`/article-submissions/all-approved-articles?limit=6&sort=created_at&order=desc&_t=${timestamp}`);
+
+        const articles = response.data.articles || [];
+
+        // Transform all articles to a unified format
+        const transformedArticles = articles.map(article => {
+          if (article.article_type === 'ai') {
+            return {
+              type: 'ai',
+              id: article.id,
+              name: article.name,
+              story_type: article.story_type,
+              generated_content: article.generated_content,
+              created_at: article.created_at,
+              publication: article.publication,
+              seo_keywords: article.seo_keywords
+            };
+          } else {
+            return {
+              type: 'manual',
+              id: article.id,
+              title: article.title,
+              excerpt: article.sub_title || 'No description available.',
+              author: article.by_line || 'Unknown Author',
+              date: article.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
+              readTime: "5 min read",
+              category: article.publication?.publication_name || 'General',
+              image: article.image1 || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&crop=center"
+            };
+          }
+        });
+
         setRegularArticles(transformedArticles);
+        setApprovedAiArticles([]); // Clear AI articles since we're showing all in one section
       } catch (err) {
-        console.error('Error fetching regular articles:', err);
+        console.error('Error fetching articles:', err);
         setError('Failed to load articles. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRegularArticles();
-    fetchApprovedAiArticles();
+    fetchArticles();
   }, []);
 
-  const transformPublishedWorks = (works) => {
-    return works.map((work, index) => ({
-      id: work.id,
-      title: work.person_name ? `${work.person_name} - ${work.company_name}` : work.company_name,
-      excerpt: work.description || 'No description available.',
-      author: work.person_name || 'Unknown Author',
-      date: work.article_date || work.created_at?.split('T')[0] || new Date().toISOString().split('T')[0],
-      readTime: "5 min read", // Default read time
-      category: work.industry || 'General',
-      image: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=800&fit=crop&crop=center" // Default image
-    }));
-  };
 
   return (
     <section className="pt-24 pb-16 md:pt-16 relative overflow-hidden">
@@ -473,23 +482,23 @@ const Articles = () => {
           </p>
         </div>
 
-        {/* Regular Articles Section */}
+        {/* All Articles Section */}
         <div className="mb-16">
-          <div className="text-center mb-8">
+          {/* <div className="text-center mb-8">
             <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">
               <span className="bg-gradient-to-r from-[#4FC3F7] via-[#1976D2] to-[#0D47A1] bg-clip-text text-transparent">
-                Regular Articles
+                Latest Articles
               </span>
             </h3>
             <p className="text-slate-600 max-w-2xl mx-auto">
-              Curated articles from our publication network
+              Fresh perspectives, curated content, and trending stories from our community
             </p>
-          </div>
+          </div> */}
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-stretch">
             {loading ? (
               // Loading skeleton
-              Array.from({ length: 4 }).map((_, index) => (
+              Array.from({ length: 6 }).map((_, index) => (
                 <div key={index} className="rounded-3xl bg-white/60 backdrop-blur-md border border-white/20 shadow-2xl animate-pulse">
                   <div className={`${index === 0 ? 'h-64' : 'h-44'} bg-gradient-to-br from-[#E3F2FD] to-[#B3E5FC]`} />
                   <div className="p-6">
@@ -514,34 +523,16 @@ const Articles = () => {
                 <p className="text-slate-600">No articles found.</p>
               </div>
             ) : (
-              regularArticles.map((article, index) => (
-                <ArticleCard key={article.id} article={article} featured={index === 0} navigate={navigate} />
-              ))
+              regularArticles.map((article, index) => {
+                if (article.type === 'ai') {
+                  return <AiArticleCard key={article.id} article={article} featured={index === 0} navigate={navigate} />;
+                } else {
+                  return <ArticleCard key={article.id} article={article} featured={index === 0} navigate={navigate} />;
+                }
+              })
             )}
           </div>
         </div>
-
-        {/* AI Articles Section */}
-        {approvedAiArticles.length > 0 && (
-          <div className="mb-16">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl md:text-3xl font-bold text-slate-800 mb-4">
-                <span className="bg-gradient-to-r from-[#4FC3F7] via-[#1976D2] to-[#0D47A1] bg-clip-text text-transparent">
-                  Featured Articles
-                </span>
-              </h3>
-              <p className="text-slate-600 max-w-2xl mx-auto">
-                Handpicked stories and insights from our community
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 items-stretch">
-              {approvedAiArticles.map((article, index) => (
-                <AiArticleCard key={article.id} article={article} featured={index === 0} navigate={navigate} />
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* View All */}
         <div className="text-center mt-10">

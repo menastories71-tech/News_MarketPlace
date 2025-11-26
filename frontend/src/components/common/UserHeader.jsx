@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { useAuthModal } from '../../App';
 import Icon from './Icon';
 import PublicationSubmissionForm from '../user/PublicationSubmissionForm';
 
-const UserHeader = ({ onShowAuth }) => {
+const UserHeader = () => {
   const { isAuthenticated, user, logout, hasRole, hasAnyRole, getRoleLevel } = useAuth();
   const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
+  const { showAuthModal } = useAuthModal();
   const [language, setLanguage] = useState('en');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showPublicationForm, setShowPublicationForm] = useState(false);
@@ -47,13 +49,9 @@ const UserHeader = ({ onShowAuth }) => {
 
           {/* Center: Logo */}
           <div className="flex items-center group cursor-pointer">
-            <div className="relative mr-2">
-              <div className="bg-gradient-to-r from-[#1976D2] to-[#0D47A1] p-2 rounded-lg shadow-md group-hover:shadow-lg transition-shadow duration-300">
-                <Icon name="newspaper" size="md" className="text-white" />
-              </div>
-            </div>
+            <img src="/logo.png" alt="Visibility as a Service (VaaS) Solutions Logo" className="h-12 md:h-16 mr-3" />
             <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#212121] to-[#757575] bg-clip-text text-transparent">
-              News MarketPlace
+              Visibility as a Service (VaaS) Solutions
             </h1>
           </div>
 
@@ -87,7 +85,7 @@ const UserHeader = ({ onShowAuth }) => {
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden text-[#212121] hover:text-[#1976D2] p-2 rounded-lg hover:bg-white/50 transition-all duration-300 backdrop-blur-sm"
+              className="lg:hidden text-[#212121] hover:text-[#1976D2] p-2 rounded-lg hover:bg-white/50 transition-all duration-300 backdrop-blur-sm"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -97,7 +95,7 @@ const UserHeader = ({ onShowAuth }) => {
         </div>
 
         {/* Bottom Row: Navigation - Reduced Height */}
-        <div className="hidden md:flex justify-between items-center py-2">
+        <div className="hidden lg:flex justify-between items-center py-2">
           {/* Left: Navigation Links */}
           <nav className="flex items-center space-x-6">
             <a href="/services-overview" className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
@@ -108,11 +106,11 @@ const UserHeader = ({ onShowAuth }) => {
               How It Works
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href={isAuthenticated ? "/blog" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
+            <a href={isAuthenticated ? "/blog" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : undefined} className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
               Blog
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href={isAuthenticated ? "/media-partnerships" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
+            <a href={isAuthenticated ? "/media-partnerships" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : undefined} className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
               Media Partnerships
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
@@ -122,23 +120,23 @@ const UserHeader = ({ onShowAuth }) => {
           <div className="flex items-center space-x-2">
             {!isAuthenticated ? (
               <>
-                <button onClick={onShowAuth} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                <button onClick={showAuthModal} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Agency Registration
                 </button>
-                <button onClick={onShowAuth} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                <button onClick={showAuthModal} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Editor Registration
                 </button>
                 <Link to="/reporter-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Reporter Registration
                 </Link>
                 <button
-                  onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : onShowAuth}
+                  onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : showAuthModal}
                   disabled={isAdminAuthenticated}
                   className={`px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20 ${isAdminAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   Submit Publication
                 </button>
-                <button onClick={onShowAuth} className="px-5 py-2 bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-bold text-sm rounded-lg hover:from-[#0D47A1] hover:to-[#0D47A1] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg backdrop-blur-sm">
+                <button onClick={showAuthModal} className="px-5 py-2 bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-bold text-sm rounded-lg hover:from-[#0D47A1] hover:to-[#0D47A1] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg backdrop-blur-sm">
                   <span className="flex items-center space-x-1.5">
                     <Icon name="login" size="xs" />
                     <span>Sign In / Sign Up</span>
@@ -158,7 +156,7 @@ const UserHeader = ({ onShowAuth }) => {
                 <Link to="/agency-registration" className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Agency Registration
                 </Link>
-                <button onClick={onShowAuth} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
+                <button onClick={showAuthModal} className="px-4 py-1.5 bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium text-sm rounded-lg hover:bg-white/80 transition-all duration-300 hover:scale-105 shadow-sm hover:shadow-md border border-white/20">
                   Reporter Registration
                 </button>
                 {!isAdminAuthenticated && (
@@ -185,7 +183,7 @@ const UserHeader = ({ onShowAuth }) => {
 
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-white/20 py-3 space-y-3">
+          <div className="lg:hidden border-t border-white/20 py-3 space-y-3">
             <div className="bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/20">
               {/* Navigation Links */}
               <div className="space-y-2 mb-3">
@@ -197,12 +195,12 @@ const UserHeader = ({ onShowAuth }) => {
                   <Icon name="question-mark-circle" size="xs" />
                   <span>How It Works</span>
                 </a>
-                <a href={isAuthenticated ? "/blog" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
-                  <Icon name="book" size="xs" />
+                <a href={isAuthenticated ? "/blog" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : undefined} className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
+                  <Icon name="document-text" size="xs" />
                   <span>Blog</span>
                 </a>
-                <a href={isAuthenticated ? "/media-partnerships" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); onShowAuth(); } : undefined} className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
-                  <Icon name="handshake" size="xs" />
+                <a href={isAuthenticated ? "/media-partnerships" : "#"} onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : undefined} className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
+                  <Icon name="users" size="xs" />
                   <span>Media Partnerships</span>
                 </a>
               </div>
@@ -211,23 +209,23 @@ const UserHeader = ({ onShowAuth }) => {
               <div className="space-y-2">
                 {!isAuthenticated ? (
                   <>
-                    <button onClick={onShowAuth} className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
+                    <button onClick={showAuthModal} className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Agency Registration
                     </button>
-                    <button onClick={onShowAuth} className="w-full bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
+                    <button onClick={showAuthModal} className="w-full bg-white/60 backdrop-blur-sm text-[#1976D2] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Editor Registration
                     </button>
-                    <button onClick={onShowAuth} className="w-full bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
+                    <button onClick={showAuthModal} className="w-full bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
                       Reporter Registration
                     </button>
                     <button
-                      onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : onShowAuth}
+                      onClick={isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : showAuthModal}
                       disabled={isAdminAuthenticated}
                       className={`w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm ${isAdminAuthenticated ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       Submit Publication
                     </button>
-                    <button onClick={onShowAuth} className="w-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-bold py-3 rounded-lg hover:from-[#0D47A1] hover:to-[#0D47A1] transition-all duration-300 shadow-md text-sm">
+                    <button onClick={showAuthModal} className="w-full bg-gradient-to-r from-[#1976D2] to-[#0D47A1] text-white font-bold py-3 rounded-lg hover:from-[#0D47A1] hover:to-[#0D47A1] transition-all duration-300 shadow-md text-sm">
                       <span className="flex items-center justify-center space-x-1.5">
                         <Icon name="login" size="xs" />
                         <span>Sign In / Sign Up</span>

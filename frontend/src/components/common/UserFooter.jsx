@@ -21,8 +21,8 @@ export default function UserFooter() {
           {/* Company Info */}
           <div>
             <div className="flex items-center mb-4">
-              <Icon name="newspaper" size="lg" className="text-primary mr-3" />
-              <h3 className="heading-4 text-primary">News MarketPlace</h3>
+              <img src="/logo.png" alt="Visibility as a Service (VaaS) Solutions Logo" className="h-12 mr-3" />
+              <h3 className="heading-4 text-primary">Visibility as a Service (VaaS) Solutions</h3>
             </div>
             <p className="body-regular text-gray-600 mb-4">
               Your trusted platform for news distribution and media partnerships.
@@ -90,7 +90,7 @@ export default function UserFooter() {
         <div className="border-t border-gray-200 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="body-small text-gray-600 mb-4 md:mb-0">
-              © 2024 News MarketPlace. All rights reserved.
+              © 2024 Visibility as a Service (VaaS) Solutions. All rights reserved.
             </p>
             <div className="flex items-center space-x-6">
               <Link to="/privacy-policy" className="body-small text-gray-600 hover:text-primary transition-colors">Privacy</Link>

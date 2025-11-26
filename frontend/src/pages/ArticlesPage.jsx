@@ -6,6 +6,8 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
+import SEO from '../components/common/SEO';
+import Schema from '../components/common/Schema';
 import {
   ExternalLink, Eye, FileText, Calendar, User, Newspaper
 } from 'lucide-react';
@@ -156,6 +158,18 @@ const ArticlesPage = () => {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA]">
+      <SEO
+        title="Articles - News Marketplace"
+        description="Browse published articles on News Marketplace. Discover stories, insights, and content from various publications and authors."
+        keywords="articles, news marketplace, published articles, stories, content, publications"
+      />
+      <Schema
+        type="breadcrumb"
+        data={[
+          { name: "Home", url: window.location.origin },
+          { name: "Articles", url: window.location.href }
+        ]}
+      />
       <UserHeader onShowAuth={handleShowAuth} />
 
       {/* Hero Section */}

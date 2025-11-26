@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
+import SEO from '../components/common/SEO';
+import Schema from '../components/common/Schema';
 import {
   ArrowLeft, Calendar, User, Newspaper, Globe, Instagram, Facebook,
   Share2, Bookmark, Eye, Clock, Heart, FileText
@@ -273,39 +275,36 @@ const ArticleDetailPage = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.background }}>
-      {/* SEO Meta Tags for AI Articles */}
-      {article.article_type === 'ai' && (
-        <>
-          <title>{article.name || 'AI Generated Article'} | News MarketPlace</title>
-          <meta name="description" content={article.background ? article.background.substring(0, 160) : 'AI generated article on News MarketPlace'} />
-          {article.seo_keywords && <meta name="keywords" content={article.seo_keywords} />}
-          {article.person_name && <meta name="author" content={article.person_name} />}
-          {article.geo_location && <meta name="geo.region" content={article.geo_location} />}
-          {article.company_name && <meta property="article:publisher" content={article.company_name} />}
-          <meta property="og:title" content={article.name || 'AI Generated Article'} />
-          <meta property="og:description" content={article.background ? article.background.substring(0, 160) : 'AI generated article'} />
-          <meta property="og:type" content="article" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={article.name || 'AI Generated Article'} />
-          <meta name="twitter:description" content={article.background ? article.background.substring(0, 160) : 'AI generated article'} />
-        </>
-      )}
-
-      {/* SEO Meta Tags for Manual Articles */}
-      {article.article_type !== 'ai' && (
-        <>
-          <title>{article.title} | News MarketPlace</title>
-          <meta name="description" content={article.sub_title || article.article_text?.substring(0, 160) || 'Article on News MarketPlace'} />
-          {article.by_line && <meta name="author" content={article.by_line} />}
-          <meta property="og:title" content={article.title} />
-          <meta property="og:description" content={article.sub_title || article.article_text?.substring(0, 160) || 'Article'} />
-          <meta property="og:type" content="article" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content={article.title} />
-          <meta name="twitter:description" content={article.sub_title || article.article_text?.substring(0, 160) || 'Article'} />
-        </>
-      )}
-
+      <SEO
+        title={article.article_type === 'ai' ? (article.name || 'AI Generated Article') : article.title}
+        description={
+          article.article_type === 'ai'
+            ? (article.background ? article.background.substring(0, 160) : 'AI generated article on News Marketplace')
+            : (article.sub_title || article.article_text?.substring(0, 160) || 'Article on News Marketplace')
+        }
+        keywords={article.article_type === 'ai' ? article.seo_keywords : 'news, article, content'}
+        type="article"
+      />
+      <Schema
+        type="article"
+        data={{
+          headline: article.article_type === 'ai' ? (article.name || 'AI Generated Article') : article.title,
+          author: article.article_type === 'ai' ? (article.user ? `${article.user.first_name} ${article.user.last_name}` : 'AI Assistant') : (article.by_line || 'Anonymous'),
+          datePublished: article.article_type === 'ai' ? article.created_at : (article.tentative_publish_date || article.created_at),
+          dateModified: article.updated_at || article.created_at,
+          image: article.image1,
+          url: window.location.href,
+          articleSection: article.article_type === 'ai' ? 'AI Generated Content' : 'News'
+        }}
+      />
+      <Schema
+        type="breadcrumb"
+        data={[
+          { name: "Home", url: `${window.location.origin}/` },
+          { name: "Articles", url: `${window.location.origin}/articles` },
+          { name: article.article_type === 'ai' ? (article.name || 'AI Generated Article') : article.title, url: window.location.href }
+        ]}
+      />
       <UserHeader />
 
       {/* Navigation Bar */}
@@ -719,7 +718,7 @@ const ArticleDetailPage = () => {
                 >
                   <img
                     src={article.image2}
-                    alt={`${article.title} - secondary`}
+                    alt={`Secondary article image for ${article.title} on News Marketplace`}
                     style={{
                       width: '100%',
                       height: 'auto',

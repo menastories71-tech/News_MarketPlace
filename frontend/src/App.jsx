@@ -1,8 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
 import AuthModal from './components/auth/AuthModal';
+
+// Auth Modal Context
+export const AuthModalContext = createContext({
+  showAuthModal: () => console.warn('AuthModal not available')
+});
+
+export const useAuthModal = () => useContext(AuthModalContext);
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
 import GroupManagement from './components/admin/GroupManagement';
@@ -103,7 +111,7 @@ const ProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col">
-        <UserHeader />
+        <UserHeader onShowAuth={handleShowAuth} />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Icon name="arrow-path" size="lg" className="animate-spin text-primary mx-auto mb-4" />
@@ -126,7 +134,7 @@ const AdminProtectedRoute = ({ children }) => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <UserHeader />
+        <UserHeader onShowAuth={handleShowAuth} />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <Icon name="arrow-path" size="lg" className="animate-spin text-primary mx-auto mb-4" />
@@ -193,82 +201,6 @@ const IconBadge = ({ name = 'document', size = 20, bg = '#E3F2FD', color = '#0D4
   );
 };
 
-// Home Page Component
-const HomePage = () => {
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const { isAuthenticated } = useAuth();
-
-  const handleShowAuth = () => {
-    setShowAuthModal(true);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-80">
-      <UserHeader onShowAuth={handleShowAuth} />
-
-      {/* Feature Slider */}
-      <FeatureSlider />
-
-      <TopHeader />
-      <ServiceHeader />
-
-      {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center">
-          <h1 className="heading-1 mb-8">
-            Welcome to News Marketplace
-          </h1>
-          <p className="body-large mb-10 max-w-2xl mx-auto">
-            Discover, create, and share premium news content. Join our community of writers and readers.
-          </p>
-
-          {!isAuthenticated && (
-            <button
-              onClick={handleShowAuth}
-              className="btn-primary text-lg px-10 py-4"
-            >
-              Get Started
-            </button>
-          )}
-
-          {isAuthenticated && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-              <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-                <div className="mb-6 flex justify-center">
-                  <IconBadge name="pencil" />
-                </div>
-                <h3 className="heading-4 mb-4">Write Articles</h3>
-                <p className="body-small">Create and publish your own news content</p>
-              </div>
-              <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-                <div className="mb-6 flex justify-center">
-                  <IconBadge name="eye" />
-                </div>
-                <h3 className="heading-4 mb-4">Read Premium</h3>
-                <p className="body-small">Access exclusive articles and insights</p>
-              </div>
-              <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
-                <div className="mb-6 flex justify-center">
-                  <IconBadge name="bell" />
-                </div>
-                <h3 className="heading-4 mb-4">Stay Updated</h3>
-                <p className="body-small">Get notified about latest news and trends</p>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-      <FAQ />
-      <UserFooter />
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
-    </div>
-  );
-};
 
 // Dashboard Page Component
 const DashboardPage = () => {
@@ -276,7 +208,7 @@ const DashboardPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <UserHeader />
+      <UserHeader onShowAuth={handleShowAuth} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="bg-white rounded-lg shadow-sm p-8">
@@ -310,10 +242,18 @@ const DashboardPage = () => {
 
 // Main App Component
 function App() {
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
+  const handleShowAuth = () => {
+    setShowAuthModal(true);
+  };
+
   return (
-    <AuthProvider>
-      <AdminAuthProvider>
-        <Router>
+    <HelmetProvider>
+      <AuthProvider>
+        <AdminAuthProvider>
+          <AuthModalContext.Provider value={{ showAuthModal: handleShowAuth }}>
+            <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -760,9 +700,17 @@ function App() {
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+
+          {/* Global Auth Modal */}
+          <AuthModal
+            isOpen={showAuthModal}
+            onClose={() => setShowAuthModal(false)}
+          />
         </Router>
+          </AuthModalContext.Provider>
       </AdminAuthProvider>
     </AuthProvider>
+    </HelmetProvider>
   );
 }
 

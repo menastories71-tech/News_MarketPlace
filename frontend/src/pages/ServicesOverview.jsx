@@ -2,6 +2,7 @@ import React from 'react';
 import { PenTool, BookOpen, BarChart3, Check, FileText, Users, Headphones, Cpu, Shield, TrendingUp, Star, ArrowRight, Zap } from 'lucide-react';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
+import SEO from '../components/common/SEO';
 
 const ServicesOverview = () => {
   const services = [
@@ -53,6 +54,11 @@ const ServicesOverview = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title="Services Overview"
+        description="Explore our comprehensive services at News Marketplace - AI-powered content creation, publishing solutions, analytics, and more. Transform your content workflow today."
+        keywords="services overview, news marketplace services, content creation, publishing services, analytics, AI writing, SEO optimization"
+      />
       <UserHeader />
 
       {/* Hero Section - Redesigned */}

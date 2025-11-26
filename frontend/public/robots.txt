@@ -1,0 +1,4 @@
+User-agent: *
+Disallow:
+
+Sitemap: https://vaas.solutions/sitemap.xml

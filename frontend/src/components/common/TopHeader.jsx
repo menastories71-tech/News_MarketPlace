@@ -25,7 +25,7 @@ const TopHeader = () => {
 		{
 			href: "#how-to-guide",
 			text: "How-to Guide",
-			icon: "book-open",
+			icon: "question-mark-circle",
 			description: "Step-by-step platform instructions"
 		},
 		{
