@@ -25,8 +25,11 @@ const Awards = () => {
       const transformedAwards = transformAwardsData(limitedAwards);
       setAwards(transformedAwards);
     } catch (err) {
-      console.error('Error fetching awards:', err);
-      setError('Failed to load awards. Please try again later.');
+      console.error('Error fetching awards:', err?.message || err);
+      const errorMessage = err.response?.status === 404
+        ? 'Service temporarily unavailable. Please try again later.'
+        : 'Failed to load awards. Please try again later.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

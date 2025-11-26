@@ -8,6 +8,7 @@ const PowerList = () => {
   const navigate = useNavigate();
   const [powerListItems, setPowerListItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchPowerlists();
@@ -16,6 +17,7 @@ const PowerList = () => {
   const fetchPowerlists = async () => {
     try {
       setLoading(true);
+      setError(null);
 
       const params = new URLSearchParams({
         page: '1',
@@ -28,7 +30,11 @@ const PowerList = () => {
       const transformedData = transformData(powerlistsData);
       setPowerListItems(transformedData);
     } catch (error) {
-      console.error('Error fetching powerlists:', error);
+      console.error('Error fetching powerlists:', error?.message || error);
+      const errorMessage = error.response?.status === 404
+        ? 'Service temporarily unavailable. Please try again later.'
+        : 'Failed to load power lists. Please try again later.';
+      setError(errorMessage);
       setPowerListItems([]);
     } finally {
       setLoading(false);
@@ -99,6 +105,13 @@ const PowerList = () => {
           <div className="text-center py-20">
             <div className="animate-spin rounded-full h-16 w-16 mx-auto mb-4 border-b-2 border-[#1976D2]"></div>
             <p className="text-lg text-[#757575]">Loading power list...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-12">
+            <div className="text-red-500 mb-4">
+              <Icon name="alert-circle" size="lg" />
+            </div>
+            <p className="text-[#757575]">{error}</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10 mb-24">

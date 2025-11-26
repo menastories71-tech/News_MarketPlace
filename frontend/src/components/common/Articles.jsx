@@ -443,8 +443,11 @@ const Articles = () => {
         setRegularArticles(transformedArticles);
         setApprovedAiArticles([]); // Clear AI articles since we're showing all in one section
       } catch (err) {
-        console.error('Error fetching articles:', err);
-        setError('Failed to load articles. Please try again later.');
+        console.error('Error fetching articles:', err?.message || err);
+        const errorMessage = err.response?.status === 404
+          ? 'Service temporarily unavailable. Please try again later.'
+          : 'Failed to load articles. Please try again later.';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
