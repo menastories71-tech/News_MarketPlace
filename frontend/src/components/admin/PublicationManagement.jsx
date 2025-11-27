@@ -568,7 +568,7 @@ const PublicationManagement = () => {
   const [selectedPublications, setSelectedPublications] = useState([]);
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(25);
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [filtersOpen, setFiltersOpen] = useState(false);

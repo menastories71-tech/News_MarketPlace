@@ -127,17 +127,6 @@ export default function Sidebar({
             </li>
 
 
-            <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/media"
-                style={navItemBase}
-                onMouseEnter={e => e.currentTarget.style.background = '#FFF7ED'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <span style={navIconCircle('#fff7ed')}><Icon name="arrow-down-tray" size="sm" style={{ color: theme.warning }} /></span>
-                <span>Media</span>
-              </a>
-            </li>
 
             <li style={{ marginBottom: 10 }}>
               <a
@@ -477,7 +466,6 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/contacts" style={{ color: '#212121', textDecoration: 'none' }}>Contacts</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/users" style={{ color: '#212121', textDecoration: 'none' }}>Users</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/roles-permissions" style={{ color: '#212121', textDecoration: 'none' }}>Roles & Permissions</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/media" style={{ color: '#212121', textDecoration: 'none' }}>Media</a></li>
           </ul>
         </nav>
       </div>
