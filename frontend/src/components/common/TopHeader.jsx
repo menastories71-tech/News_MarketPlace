@@ -11,19 +11,19 @@ const TopHeader = () => {
 
 	const menuItems = [
 		{
-			href: "#video-tutorial",
+			href: "/video-tutorials",
 			text: "Video Tutorial",
 			icon: "play-circle",
 			description: "Learn how to use our platform effectively"
 		},
 		{
-			href: "#download-pr-questionnaire",
+			href: "/download-center",
 			text: "PR Questionnaire",
 			icon: "document",
 			description: "Download our comprehensive PR template"
 		},
 		{
-			href: "#how-to-guide",
+			href: "/how-to-guides",
 			text: "How-to Guide",
 			icon: "question-mark-circle",
 			description: "Step-by-step platform instructions"
@@ -35,13 +35,13 @@ const TopHeader = () => {
 			description: "Legal information and platform policies"
 		},
 		{
-			href: "#published-articles-press-releases",
+			href: "/articles",
 			text: "Published Articles and Press Releases",
 			icon: "newspaper",
 			description: "Browse published articles and press releases"
 		},
 		{
-			href: "#published-work-testimony",
+			href: "/published-works",
 			text: "Published Work/Testimony",
 			icon: "document-text",
 			description: "View published work and testimonies"
@@ -49,18 +49,18 @@ const TopHeader = () => {
 	];
 
 	const services = [
-		{ name: 'Submit Article', href: '#submit-article', icon: 'document-text' },
-		{ name: 'Publications', href: '#publications', icon: 'newspaper' },
-		{ name: 'Websites', href: '#websites', icon: 'globe-alt' },
-		{ name: 'Radio', href: '#radio', icon: 'microphone' },
-		{ name: 'Paparazzi', href: '#paparazzi', icon: 'camera' }, // Move to position 4 (index 4)
-		{ name: 'Power List', href: '#power-list', icon: 'chart-bar' }, // Move to position 5 (index 5)
-		{ name: 'Theme Pages', href: '#theme-pages', icon: 'tag' },
-		{ name: 'Awards', href: '#awards', icon: 'award' },
-		{ name: 'Events', href: '#events-awards', icon: 'calendar' },
-		{ name: 'Press Release', href: '#press-release', icon: 'megaphone' },
-		{ name: 'Podcasters', href: '#podcasters', icon: 'microphone' },
-		{ name: 'Real Estate', href: '#real-estate', icon: 'home' }
+		{ name: 'Submit Article', href: '/submit-article', icon: 'document-text' },
+		{ name: 'Publications', href: '/publications', icon: 'newspaper' },
+		{ name: 'Websites', href: '/website-submission', icon: 'globe-alt' },
+		{ name: 'Radio', href: '/radio', icon: 'microphone' },
+		{ name: 'Paparazzi', href: '/paparazzi', icon: 'camera' },
+		{ name: 'Power List', href: '/power-lists', icon: 'chart-bar' },
+		{ name: 'Theme Pages', href: '/themes', icon: 'tag' },
+		{ name: 'Awards', href: '/awards', icon: 'award' },
+		{ name: 'Events', href: '/events', icon: 'calendar' },
+		{ name: 'Press Release', href: '/press-packs', icon: 'megaphone' },
+		{ name: 'Podcasters', href: '/podcasters', icon: 'microphone' },
+		{ name: 'Real Estate', href: '/real-estates', icon: 'home' }
 	];
 
 	const allItems = [
