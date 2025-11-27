@@ -5,11 +5,37 @@ import { useNavigate } from 'react-router-dom';
 import Icon from '../common/Icon';
 import api from '../../services/api';
 
+// Custom hook for window width
+const useWindowWidth = () => {
+  const [windowWidth, setWindowWidth] = useState(() => {
+    // Check if window is available (client-side)
+    if (typeof window !== 'undefined') {
+      return window.innerWidth;
+    }
+    return 1024; // Default desktop width for SSR
+  });
+
+  useEffect(() => {
+    // Only add listeners if window is available
+    if (typeof window === 'undefined') return;
+
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return windowWidth;
+};
+
 // Reporter Submission Form Component
 const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
   const { isAuthenticated, user } = useAuth();
   const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
+  const windowWidth = useWindowWidth();
 
   const [formData, setFormData] = useState({
     function_department: '',
@@ -306,6 +332,8 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
     borderDark: '#757575'
   };
 
+  const isMobile = windowWidth < 768;
+
   const modalStyle = {
     position: 'fixed',
     top: 0,
@@ -315,23 +343,23 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
     backgroundColor: 'rgba(0,0,0,0.5)',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: window.innerWidth < 768 ? 'flex-start' : 'center',
+    justifyContent: isMobile ? 'flex-start' : 'center',
     zIndex: 10000,
-    padding: window.innerWidth < 768 ? '10px' : '20px',
+    padding: isMobile ? '10px' : '20px',
     overflowY: 'auto'
   };
 
   const contentStyle = {
     background: '#fff',
-    borderRadius: window.innerWidth < 768 ? '16px 16px 0 0' : '12px',
-    padding: window.innerWidth < 768 ? '20px' : '24px',
+    borderRadius: isMobile ? '16px 16px 0 0' : '12px',
+    padding: isMobile ? '20px' : '24px',
     maxWidth: '900px',
     width: '100%',
-    maxHeight: window.innerWidth < 768 ? 'calc(100vh - 20px)' : '90vh',
+    maxHeight: isMobile ? 'calc(100vh - 20px)' : '90vh',
     overflowY: 'auto',
-    boxShadow: window.innerWidth < 768 ? '0 -4px 20px rgba(0,0,0,0.1)' : '0 20px 40px rgba(0,0,0,0.15)',
-    margin: window.innerWidth < 768 ? 'auto 0 0 0' : 'auto',
-    marginTop: window.innerWidth < 768 ? '20px' : 'auto'
+    boxShadow: isMobile ? '0 -4px 20px rgba(0,0,0,0.1)' : '0 20px 40px rgba(0,0,0,0.15)',
+    margin: isMobile ? 'auto 0 0 0' : 'auto',
+    marginTop: isMobile ? '20px' : 'auto'
   };
 
   const formGroupStyle = {
@@ -392,16 +420,16 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
             style={{
               background: 'transparent',
               border: 'none',
-              fontSize: window.innerWidth < 768 ? '28px' : '24px',
+              fontSize: isMobile ? '28px' : '24px',
               cursor: 'pointer',
-              padding: window.innerWidth < 768 ? '8px' : '4px',
+              padding: isMobile ? '8px' : '4px',
               borderRadius: '6px',
               color: '#666',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              minWidth: window.innerWidth < 768 ? '44px' : '32px',
-              minHeight: window.innerWidth < 768 ? '44px' : '32px',
+              minWidth: isMobile ? '44px' : '32px',
+              minHeight: isMobile ? '44px' : '32px',
               transition: 'all 0.2s ease',
               zIndex: 10001
             }}
@@ -479,7 +507,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
           {/* Personal Information Section */}
           <div style={{ marginBottom: '24px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: theme.textPrimary }}>Personal Information</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>
                   Function Department <span style={requiredAsterisk}>*</span>
@@ -594,7 +622,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
           {/* Publication Information Section */}
           <div style={{ marginBottom: '24px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: theme.textPrimary }}>Publication Information</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>
                   Publication Name <span style={requiredAsterisk}>*</span>
@@ -676,7 +704,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
           {/* Social Media Links Section */}
           <div style={{ marginBottom: '24px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: theme.textPrimary }}>Social Media Links</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>LinkedIn</label>
                 <input
@@ -721,7 +749,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
           {/* Content Policies Section */}
           <div style={{ marginBottom: '24px' }}>
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: theme.textPrimary }}>Content Policies & Requirements</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Minimum Expectation (USD)</label>
                 <input
@@ -777,7 +805,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
 
             <div style={{ marginTop: '16px' }}>
               <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', color: theme.textPrimary }}>Article Permissions</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
                 <div style={formGroupStyle}>
                   <label style={{ display: 'flex', alignItems: 'center', fontSize: '14px' }}>
                     <input
@@ -874,7 +902,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
 
           {/* Additional Information Section */}
           <div style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>
                   How Did You Hear About Us? <span style={requiredAsterisk}>*</span>
@@ -914,7 +942,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '24px', flexDirection: window.innerWidth < 768 ? 'column' : 'row' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginTop: '24px', flexDirection: isMobile ? 'column' : 'row' }}>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <input
                 type="checkbox"
@@ -943,7 +971,7 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
             </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px', gap: '12px', flexDirection: window.innerWidth < 768 ? 'column' : 'row' }}>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px', gap: '12px', flexDirection: isMobile ? 'column' : 'row' }}>
             <button
               type="button"
               onClick={onClose}
