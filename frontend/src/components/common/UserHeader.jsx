@@ -234,34 +234,36 @@ const UserHeader = () => {
                   </>
                 ) : (
                   <>
-                    <a href="/profile" className="flex items-center space-x-2 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-white/20 hover:bg-white/80 transition-all duration-300">
+                    <a href="/profile" className="flex items-center space-x-2 p-3 bg-white/60 backdrop-blur-sm rounded-lg border border-white/20 hover:bg-white/80 transition-all duration-300 w-full">
                       <div className="w-8 h-8 bg-gradient-to-r from-[#1976D2] to-[#0D47A1] rounded-full flex items-center justify-center">
                         <Icon name="user" size="sm" className="text-white" />
                       </div>
-                      <span className="text-[#212121] font-medium text-sm">
+                      <span className="text-[#212121] font-medium text-sm flex-1 truncate">
                         {user?.email || `Welcome, ${user?.first_name}!`}
                       </span>
                     </a>
-                    <Link to="/agency-registration" className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
-                      Agency Registration
-                    </Link>
-                    <Link to="/reporter-registration" className="w-full bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
-                      Reporter Registration
-                    </Link>
-                    {!isAdminAuthenticated && (
-                      <Link to="/website-submission" className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
-                        Upload Website
+                    <div className="grid grid-cols-1 gap-2 w-full">
+                      <Link to="/agency-registration" className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
+                        Agency Registration
                       </Link>
-                    )}
-                    <button
-                      onClick={() => setShowPublicationForm(true)}
-                      className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm"
-                    >
-                      Submit Publication
-                    </button>
-                    <button onClick={logout} className="w-full bg-white/60 backdrop-blur-sm text-[#F44336] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm">
-                      Logout
-                    </button>
+                      <Link to="/reporter-registration" className="w-full bg-white/60 backdrop-blur-sm text-[#FF5722] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
+                        Reporter Registration
+                      </Link>
+                      {!isAdminAuthenticated && (
+                        <Link to="/website-submission" className="w-full bg-white/60 backdrop-blur-sm text-[#4CAF50] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
+                          Upload Website
+                        </Link>
+                      )}
+                      <button
+                        onClick={() => setShowPublicationForm(true)}
+                        className="w-full bg-white/60 backdrop-blur-sm text-[#9C27B0] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center"
+                      >
+                        Submit Publication
+                      </button>
+                      <button onClick={logout} className="w-full bg-white/60 backdrop-blur-sm text-[#F44336] font-medium py-2 rounded-lg hover:bg-white/80 transition-all duration-300 border border-white/20 text-sm text-center">
+                        Logout
+                      </button>
+                    </div>
                   </>
                 )}
               </div>
