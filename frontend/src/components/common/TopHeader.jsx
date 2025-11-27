@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 import { useAuth } from '../../context/AuthContext';
-import AuthModal from '../auth/AuthModal';
+import { useAuthModal } from '../../App';
 
 const TopHeader = () => {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-	const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 	const [mobileShowAllItems, setMobileShowAllItems] = useState(false);
 	const { isAuthenticated } = useAuth();
+	const { showAuthModal } = useAuthModal();
 
 	const menuItems = [
 		{
@@ -221,7 +221,7 @@ const TopHeader = () => {
 									onClick={(e) => {
 										if (!isAuthenticated) {
 											e.preventDefault();
-											setIsAuthModalOpen(true);
+											showAuthModal();
 										}
 									}}
 								>
@@ -259,7 +259,7 @@ const TopHeader = () => {
 														onClick={(e) => {
 															if (!isAuthenticated) {
 																e.preventDefault();
-																setIsAuthModalOpen(true);
+																showAuthModal();
 															}
 														}}
 													>
@@ -529,8 +529,6 @@ const TopHeader = () => {
 				<div className="h-0.5 bg-[#E3F2FD] opacity-20"></div>
 			</div>
 
-			{/* Auth Modal */}
-			<AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 		</div>
 	);
 };
