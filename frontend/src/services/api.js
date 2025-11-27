@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const baseURL = window.location.hostname === 'vaas.solutions'
-  ? 'https://vaas.solutions'
+  ? 'https://vaas.solutions/api'
   : '/api';
 
 const api = axios.create({
