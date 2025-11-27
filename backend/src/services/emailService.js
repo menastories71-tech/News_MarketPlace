@@ -6,7 +6,7 @@ class EmailService {
     this.fromName = process.env.BREVO_FROM_NAME || 'Magazine Website';
 
     // Initialize SMTP transporter
-    this.transporter = nodemailer.createTransporter({
+    this.transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT) || 587,
       secure: false, // true for 465, false for other ports
