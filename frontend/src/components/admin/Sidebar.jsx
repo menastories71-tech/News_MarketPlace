@@ -157,7 +157,7 @@ export default function Sidebar({
                 onMouseEnter={e => e.currentTarget.style.background = '#E3F2FD'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#e3f2fd')}><Icon name="cpu-chip" size="sm" style={{ color: '#1976D2' }} /></span>
+                <span style={navIconCircle('#e3f2fd')}><Icon name="bolt" size="sm" style={{ color: '#1976D2' }} /></span>
                 <span>AI Articles</span>
               </a>
             </li>
@@ -217,7 +217,7 @@ export default function Sidebar({
                 onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#fff3e0')}><Icon name="building-office" size="sm" style={{ color: '#FF9800' }} /></span>
+                <span style={navIconCircle('#fff3e0')}><Icon name="building" size="sm" style={{ color: '#FF9800' }} /></span>
                 <span>Career Management</span>
               </a>
             </li>
@@ -229,7 +229,7 @@ export default function Sidebar({
                 onMouseEnter={e => e.currentTarget.style.background = '#E0F2FE'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#e6f3ff')}><Icon name="phone" size="sm" style={{ color: '#0369a1' }} /></span>
+                <span style={navIconCircle('#e6f3ff')}><Icon name="envelope" size="sm" style={{ color: '#0369a1' }} /></span>
                 <span>Contact Management</span>
               </a>
             </li>
@@ -337,7 +337,7 @@ export default function Sidebar({
                 onMouseEnter={e => e.currentTarget.style.background = '#E8F5E8'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#e8f5e8')}><Icon name="folder-open" size="sm" style={{ color: '#4CAF50' }} /></span>
+                <span style={navIconCircle('#e8f5e8')}><Icon name="folder" size="sm" style={{ color: '#4CAF50' }} /></span>
                 <span>Published Works Management</span>
               </a>
             </li>
@@ -397,7 +397,7 @@ export default function Sidebar({
                 onMouseEnter={e => e.currentTarget.style.background = '#F3E5F5'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#f3e5f5')}><Icon name="palette" size="sm" style={{ color: '#9C27B0' }} /></span>
+                <span style={navIconCircle('#f3e5f5')}><Icon name="swatch" size="sm" style={{ color: '#9C27B0' }} /></span>
                 <span>Theme Management</span>
               </a>
             </li>
