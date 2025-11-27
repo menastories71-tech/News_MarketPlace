@@ -101,6 +101,7 @@ import DataProtection from './pages/DataProtection';
 import ResellingAgreement from './pages/ResellingAgreement';
 import PressGuidelines from './pages/PressGuidelines';
 import BrandsPeople from './pages/BrandsPeople';
+import MediaPartnerships from './pages/MediaPartnerships';
 import RolePermissionManagement from './components/admin/RolePermissionManagement';
 import Icon from './components/common/Icon';
 
@@ -266,6 +267,7 @@ function App() {
             <Route path="/reselling-agreement" element={<ResellingAgreement />} />
             <Route path="/press-guidelines" element={<PressGuidelines />} />
             <Route path="/brands-people" element={<BrandsPeople />} />
+            <Route path="/media-partnerships" element={<MediaPartnerships />} />
             <Route path="/services-overview" element={<ServicesOverview />} />
             <Route path="/podcasters" element={<PodcastersList />} />
             <Route path="/podcasters/:id" element={<PodcasterDetail />} />

@@ -110,7 +110,7 @@ const UserHeader = () => {
               Blog
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
-            <a href="/contact-us" className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
+            <a href="/media-partnerships" className="text-[#212121] hover:text-[#1976D2] transition-colors duration-300 font-medium text-sm relative group">
               Media Partnerships
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#FF9800] group-hover:w-full transition-all duration-300"></span>
             </a>
@@ -199,7 +199,7 @@ const UserHeader = () => {
                   <Icon name="document-text" size="xs" />
                   <span>Blog</span>
                 </a>
-                <a href="/contact-us" className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
+                <a href="/media-partnerships" className="flex items-center space-x-2 text-[#212121] hover:text-[#1976D2] py-2 px-3 rounded-lg hover:bg-white/50 transition-all duration-300 font-medium text-sm backdrop-blur-sm">
                   <Icon name="users" size="xs" />
                   <span>Media Partnerships</span>
                 </a>
