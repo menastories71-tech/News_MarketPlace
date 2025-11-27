@@ -315,21 +315,23 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
     backgroundColor: 'rgba(0,0,0,0.5)',
     display: 'flex',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: window.innerWidth < 768 ? 'flex-start' : 'center',
     zIndex: 10000,
-    padding: '20px'
+    padding: window.innerWidth < 768 ? '10px' : '20px',
+    overflowY: 'auto'
   };
 
   const contentStyle = {
     background: '#fff',
-    borderRadius: '12px',
-    padding: '24px',
+    borderRadius: window.innerWidth < 768 ? '16px 16px 0 0' : '12px',
+    padding: window.innerWidth < 768 ? '20px' : '24px',
     maxWidth: '900px',
     width: '100%',
-    maxHeight: '90vh',
+    maxHeight: window.innerWidth < 768 ? 'calc(100vh - 20px)' : '90vh',
     overflowY: 'auto',
-    boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
-    margin: 'auto'
+    boxShadow: window.innerWidth < 768 ? '0 -4px 20px rgba(0,0,0,0.1)' : '0 20px 40px rgba(0,0,0,0.15)',
+    margin: window.innerWidth < 768 ? 'auto 0 0 0' : 'auto',
+    marginTop: window.innerWidth < 768 ? '20px' : 'auto'
   };
 
   const formGroupStyle = {
@@ -385,7 +387,42 @@ const ReporterSubmissionForm = ({ onClose, onSuccess }) => {
           <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
             Reporter Profile Submission
           </h2>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              fontSize: window.innerWidth < 768 ? '28px' : '24px',
+              cursor: 'pointer',
+              padding: window.innerWidth < 768 ? '8px' : '4px',
+              borderRadius: '6px',
+              color: '#666',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minWidth: window.innerWidth < 768 ? '44px' : '32px',
+              minHeight: window.innerWidth < 768 ? '44px' : '32px',
+              transition: 'all 0.2s ease',
+              zIndex: 10001
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#f0f0f0';
+              e.target.style.color = '#333';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = 'transparent';
+              e.target.style.color = '#666';
+            }}
+            onTouchStart={(e) => {
+              e.target.style.backgroundColor = '#f0f0f0';
+              e.target.style.color = '#333';
+            }}
+            onTouchEnd={(e) => {
+              e.target.style.backgroundColor = 'transparent';
+              e.target.style.color = '#666';
+            }}
+            aria-label="Close form"
+          >
             ×
           </button>
         </div>
