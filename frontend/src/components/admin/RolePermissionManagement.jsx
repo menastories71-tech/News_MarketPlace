@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
@@ -40,6 +40,12 @@ const RolePermissionManagement = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [permissionFilter, setPermissionFilter] = useState('');
+
+  // Pagination states
+  const [rolesCurrentPage, setRolesCurrentPage] = useState(1);
+  const [rolesPageSize, setRolesPageSize] = useState(10);
+  const [permissionsCurrentPage, setPermissionsCurrentPage] = useState(1);
+  const [permissionsPageSize, setPermissionsPageSize] = useState(10);
 
   // Modal states
   const [showRoleModal, setShowRoleModal] = useState(false);
@@ -152,6 +158,21 @@ const RolePermissionManagement = () => {
       setLoading(false);
     }
   };
+
+  // Pagination logic
+  const paginatedRoles = useMemo(() => {
+    const startIndex = (rolesCurrentPage - 1) * rolesPageSize;
+    return roles.slice(startIndex, startIndex + rolesPageSize);
+  }, [roles, rolesCurrentPage, rolesPageSize]);
+
+  const rolesTotalPages = Math.ceil(roles.length / rolesPageSize);
+
+  const paginatedPermissions = useMemo(() => {
+    const startIndex = (permissionsCurrentPage - 1) * permissionsPageSize;
+    return permissions.slice(startIndex, startIndex + permissionsPageSize);
+  }, [permissions, permissionsCurrentPage, permissionsPageSize]);
+
+  const permissionsTotalPages = Math.ceil(permissions.length / permissionsPageSize);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
@@ -399,6 +420,39 @@ const RolePermissionManagement = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Table Controls */}
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
+                        Roles
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <select
+                        value={rolesPageSize}
+                        onChange={(e) => {
+                          setRolesPageSize(parseInt(e.target.value));
+                          setRolesCurrentPage(1);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          backgroundColor: '#fff'
+                        }}
+                      >
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
@@ -412,7 +466,7 @@ const RolePermissionManagement = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {roles.map((role) => (
+                      {paginatedRoles.map((role) => (
                         <tr key={role.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                           <td style={{ padding: '16px' }}>
                             <div style={{ fontWeight: '600', fontSize: '14px', color: theme.textPrimary }}>{role.name}</div>
@@ -473,6 +527,49 @@ const RolePermissionManagement = () => {
                     No roles found.
                   </div>
                 )}
+
+                {/* Pagination */}
+                {rolesTotalPages > 1 && (
+                  <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button
+                        onClick={() => setRolesCurrentPage(Math.max(1, rolesCurrentPage - 1))}
+                        disabled={rolesCurrentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          backgroundColor: rolesCurrentPage === 1 ? '#f3f4f6' : '#fff',
+                          color: rolesCurrentPage === 1 ? '#9ca3af' : theme.textPrimary,
+                          cursor: rolesCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Previous
+                      </button>
+
+                      <span style={{ fontSize: '14px', color: theme.textSecondary }}>
+                        Page {rolesCurrentPage} of {rolesTotalPages}
+                      </span>
+
+                      <button
+                        onClick={() => setRolesCurrentPage(Math.min(rolesTotalPages, rolesCurrentPage + 1))}
+                        disabled={rolesCurrentPage === rolesTotalPages}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          backgroundColor: rolesCurrentPage === rolesTotalPages ? '#f3f4f6' : '#fff',
+                          color: rolesCurrentPage === rolesTotalPages ? '#9ca3af' : theme.textPrimary,
+                          cursor: rolesCurrentPage === rolesTotalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -509,6 +606,39 @@ const RolePermissionManagement = () => {
                     </div>
                   </div>
                 </div>
+
+                {/* Table Controls */}
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
+                        Permissions
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <select
+                        value={permissionsPageSize}
+                        onChange={(e) => {
+                          setPermissionsPageSize(parseInt(e.target.value));
+                          setPermissionsCurrentPage(1);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          backgroundColor: '#fff'
+                        }}
+                      >
+                        <option value="10">10 per page</option>
+                        <option value="25">25 per page</option>
+                        <option value="50">50 per page</option>
+                        <option value="100">100 per page</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
@@ -522,7 +652,7 @@ const RolePermissionManagement = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {permissions.map((permission) => (
+                      {paginatedPermissions.map((permission) => (
                         <tr key={permission.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
                           <td style={{ padding: '16px' }}>
                             <div style={{ fontWeight: '600', fontSize: '14px', color: theme.textPrimary }}>{permission.name}</div>
@@ -586,6 +716,49 @@ const RolePermissionManagement = () => {
                 {permissions.length === 0 && (
                   <div style={{ padding: '40px', textAlign: 'center', color: theme.textSecondary }}>
                     No permissions found.
+                  </div>
+                )}
+
+                {/* Pagination */}
+                {permissionsTotalPages > 1 && (
+                  <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button
+                        onClick={() => setPermissionsCurrentPage(Math.max(1, permissionsCurrentPage - 1))}
+                        disabled={permissionsCurrentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          backgroundColor: permissionsCurrentPage === 1 ? '#f3f4f6' : '#fff',
+                          color: permissionsCurrentPage === 1 ? '#9ca3af' : theme.textPrimary,
+                          cursor: permissionsCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Previous
+                      </button>
+
+                      <span style={{ fontSize: '14px', color: theme.textSecondary }}>
+                        Page {permissionsCurrentPage} of {permissionsTotalPages}
+                      </span>
+
+                      <button
+                        onClick={() => setPermissionsCurrentPage(Math.min(permissionsTotalPages, permissionsCurrentPage + 1))}
+                        disabled={permissionsCurrentPage === permissionsTotalPages}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          backgroundColor: permissionsCurrentPage === permissionsTotalPages ? '#f3f4f6' : '#fff',
+                          color: permissionsCurrentPage === permissionsTotalPages ? '#9ca3af' : theme.textPrimary,
+                          cursor: permissionsCurrentPage === permissionsTotalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

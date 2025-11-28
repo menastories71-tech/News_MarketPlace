@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
@@ -1381,7 +1380,24 @@ const EventManagement = () => {
   const [eventSearchQuery, setEventSearchQuery] = useState('');
   const [eventStatusFilter, setEventStatusFilter] = useState('');
   const [eventCurrentPage, setEventCurrentPage] = useState(1);
+  const [eventPageSize, setEventPageSize] = useState(10);
   const [eventTotalPages, setEventTotalPages] = useState(1);
+
+  // Pagination states for different tabs
+  const [ticketsCurrentPage, setTicketsCurrentPage] = useState(1);
+  const [ticketsPageSize, setTicketsPageSize] = useState(10);
+  const [disclaimersCurrentPage, setDisclaimersCurrentPage] = useState(1);
+  const [disclaimersPageSize, setDisclaimersPageSize] = useState(10);
+  const [registrationsCurrentPage, setRegistrationsCurrentPage] = useState(1);
+  const [registrationsPageSize, setRegistrationsPageSize] = useState(10);
+  const [sponsorsCurrentPage, setSponsorsCurrentPage] = useState(1);
+  const [sponsorsPageSize, setSponsorsPageSize] = useState(10);
+  const [mediaPartnersCurrentPage, setMediaPartnersCurrentPage] = useState(1);
+  const [mediaPartnersPageSize, setMediaPartnersPageSize] = useState(10);
+  const [speakersCurrentPage, setSpeakersCurrentPage] = useState(1);
+  const [speakersPageSize, setSpeakersPageSize] = useState(10);
+  const [guestsCurrentPage, setGuestsCurrentPage] = useState(1);
+  const [guestsPageSize, setGuestsPageSize] = useState(10);
 
   // Layout constants
   const headerZ = 1000;
@@ -1449,7 +1465,7 @@ const EventManagement = () => {
     try {
       const params = new URLSearchParams({
         page: eventCurrentPage,
-        limit: 10,
+        limit: eventPageSize,
         search: eventSearchQuery
       });
       if (eventStatusFilter) params.append('status', eventStatusFilter);
@@ -1479,6 +1495,15 @@ const EventManagement = () => {
       console.error('Error fetching tickets:', error);
     }
   };
+
+  // Pagination logic for tickets
+  const paginatedTickets = useMemo(() => {
+    const filteredTickets = selectedEventId ? tickets.filter(ticket => ticket.event_id === parseInt(selectedEventId)) : tickets;
+    const startIndex = (ticketsCurrentPage - 1) * ticketsPageSize;
+    return filteredTickets.slice(startIndex, startIndex + ticketsPageSize);
+  }, [tickets, selectedEventId, ticketsCurrentPage, ticketsPageSize]);
+
+  const ticketsTotalPages = Math.ceil((selectedEventId ? tickets.filter(ticket => ticket.event_id === parseInt(selectedEventId)).length : tickets.length) / ticketsPageSize);
 
   const fetchDisclaimers = async () => {
     try {
@@ -2012,6 +2037,30 @@ const EventManagement = () => {
             <section className="py-12 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA]">
               <div className="max-w-7xl mx-auto">
                 <div className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden">
+                  {/* Table Controls */}
+                  <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAFC]">
+                    <div className="flex justify-between items-center flex-wrap gap-4">
+                      <div className="flex items-center gap-4">
+                        <span className="text-sm font-semibold text-[#212121]">Events</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <select
+                          value={eventPageSize}
+                          onChange={(e) => {
+                            setEventPageSize(parseInt(e.target.value));
+                            setEventCurrentPage(1);
+                          }}
+                          className="px-3 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent"
+                        >
+                          <option value="10">10 per page</option>
+                          <option value="25">25 per page</option>
+                          <option value="50">50 per page</option>
+                          <option value="100">100 per page</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="overflow-x-auto">
                     <table className="w-full border-collapse">
                       <thead>
@@ -2088,24 +2137,44 @@ const EventManagement = () => {
 
                 {/* Pagination */}
                 {eventTotalPages > 1 && (
-                  <div className="flex justify-center items-center gap-4 mt-6">
-                    <button
-                      onClick={() => setEventCurrentPage(prev => Math.max(prev - 1, 1))}
-                      disabled={eventCurrentPage === 1}
-                      className="px-4 py-2 border border-[#E0E0E0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors"
-                    >
-                      Previous
-                    </button>
-                    <span className="text-[#757575]">
-                      Page {eventCurrentPage} of {eventTotalPages}
-                    </span>
-                    <button
-                      onClick={() => setEventCurrentPage(prev => Math.min(prev + 1, eventTotalPages))}
-                      disabled={eventCurrentPage === eventTotalPages}
-                      className="px-4 py-2 border border-[#E0E0E0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors"
-                    >
-                      Next
-                    </button>
+                  <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <button
+                        onClick={() => setEventCurrentPage(Math.max(1, eventCurrentPage - 1))}
+                        disabled={eventCurrentPage === 1}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          backgroundColor: eventCurrentPage === 1 ? '#f3f4f6' : '#fff',
+                          color: eventCurrentPage === 1 ? '#9ca3af' : '#212121',
+                          cursor: eventCurrentPage === 1 ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Previous
+                      </button>
+
+                      <span style={{ fontSize: '14px', color: '#757575' }}>
+                        Page {eventCurrentPage} of {eventTotalPages}
+                      </span>
+
+                      <button
+                        onClick={() => setEventCurrentPage(Math.min(eventTotalPages, eventCurrentPage + 1))}
+                        disabled={eventCurrentPage === eventTotalPages}
+                        style={{
+                          padding: '8px 12px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          backgroundColor: eventCurrentPage === eventTotalPages ? '#f3f4f6' : '#fff',
+                          color: eventCurrentPage === eventTotalPages ? '#9ca3af' : '#212121',
+                          cursor: eventCurrentPage === eventTotalPages ? 'not-allowed' : 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Next
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -2167,7 +2236,7 @@ const EventManagement = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {tickets.filter(ticket => ticket.event_id === parseInt(selectedEventId)).map((ticket, index) => (
+                          {paginatedTickets.map((ticket, index) => (
                             <tr key={ticket.id} className={index % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'}>
                               <td className="px-6 py-4 text-sm text-[#212121]">{ticket.id}</td>
                               <td className="px-6 py-4 text-sm text-[#212121] font-medium">{ticket.name}</td>

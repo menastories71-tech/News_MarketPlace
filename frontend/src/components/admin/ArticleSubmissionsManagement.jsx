@@ -1329,6 +1329,7 @@ const ArticleSubmissionsManagement = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [totalSubmissions, setTotalSubmissions] = useState(0);
 
@@ -1372,13 +1373,13 @@ const ArticleSubmissionsManagement = () => {
 
   useEffect(() => {
     fetchSubmissions();
-  }, [currentPage, statusFilter]);
+  }, [currentPage, pageSize, statusFilter]);
 
   const fetchSubmissions = async () => {
     try {
       const params = new URLSearchParams({
         page: currentPage,
-        limit: 10,
+        limit: pageSize,
         search: searchQuery
       });
       if (statusFilter) params.append('status', statusFilter);
@@ -1659,6 +1660,30 @@ const ArticleSubmissionsManagement = () => {
         <section className="py-12 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA]">
           <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden">
+              {/* Table Controls */}
+              <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAFC]">
+                <div className="flex justify-between items-center flex-wrap gap-4">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-semibold text-[#212121]">Article Submissions</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(parseInt(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="px-3 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent"
+                    >
+                      <option value="10">10 per page</option>
+                      <option value="25">25 per page</option>
+                      <option value="50">50 per page</option>
+                      <option value="100">100 per page</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
@@ -1753,24 +1778,44 @@ const ArticleSubmissionsManagement = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-6">
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 border border-[#E0E0E0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors"
-                >
-                  Previous
-                </button>
-                <span className="text-[#757575]">
-                  Page {currentPage} of {totalPages} ({totalSubmissions} total)
-                </span>
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 border border-[#E0E0E0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors"
-                >
-                  Next
-                </button>
+              <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
+                      color: currentPage === 1 ? '#9ca3af' : '#212121',
+                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Previous
+                  </button>
+
+                  <span style={{ fontSize: '14px', color: '#757575' }}>
+                    Page {currentPage} of {totalPages}
+                  </span>
+
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
+                      color: currentPage === totalPages ? '#9ca3af' : '#212121',
+                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                      fontSize: '14px'
+                    }}
+                  >
+                    Next
+                  </button>
+                </div>
               </div>
             )}
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
@@ -732,6 +732,8 @@ const PublishedWorkManagement = () => {
   const [editingPublishedWork, setEditingPublishedWork] = useState(null);
   const [viewingPublishedWork, setViewingPublishedWork] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Layout constants
   const headerZ = 1000;
@@ -854,6 +856,14 @@ const PublishedWorkManagement = () => {
                          work.industry.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesSearch;
   });
+
+  // Pagination logic
+  const paginatedPublishedWorks = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredPublishedWorks.slice(startIndex, startIndex + pageSize);
+  }, [filteredPublishedWorks, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(filteredPublishedWorks.length / pageSize);
 
   if (loading) {
     return (
@@ -1001,6 +1011,30 @@ const PublishedWorkManagement = () => {
         <section className="py-12 px-4 sm:px-6 lg:px-8 bg-[#FAFAFA]">
           <div className="max-w-7xl mx-auto">
             <div className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden">
+              {/* Table Controls */}
+              <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAFC]">
+                <div className="flex justify-between items-center flex-wrap gap-4">
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm font-semibold text-[#212121]">Published Works</span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        setPageSize(parseInt(e.target.value));
+                        setCurrentPage(1);
+                      }}
+                      className="px-3 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent"
+                    >
+                      <option value="10">10 per page</option>
+                      <option value="25">25 per page</option>
+                      <option value="50">50 per page</option>
+                      <option value="100">100 per page</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                   <thead>
@@ -1020,7 +1054,7 @@ const PublishedWorkManagement = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredPublishedWorks.map((work, index) => (
+                    {paginatedPublishedWorks.map((work, index) => (
                       <tr key={work.id} className={index % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'}>
                         <td className="px-6 py-4 text-sm text-[#212121]">{work.sn}</td>
                         <td className="px-6 py-4 text-sm text-[#212121]">{work.publication_name}</td>
@@ -1087,6 +1121,29 @@ const PublishedWorkManagement = () => {
                   >
                     <Plus className="w-5 h-5" />
                     Add First Published Work
+                  </button>
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="px-6 py-4 border-t border-[#E5E7EB] bg-[#F8FAFC] flex justify-center items-center gap-4">
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 border border-[#E0E0E0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors text-sm"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-[#757575]">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 border border-[#E0E0E0] rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#F5F5F5] transition-colors text-sm"
+                  >
+                    Next
                   </button>
                 </div>
               )}
