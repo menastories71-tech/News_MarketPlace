@@ -7,7 +7,7 @@ import UserFooter from '../components/common/UserFooter';
 // Flipbook imports
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import HTMLFlipBook from 'react-pageflip';
-import SEO from '../Components/SEO';
+import SEO from '../components/common/SEO';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
