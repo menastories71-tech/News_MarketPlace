@@ -3,7 +3,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import api from '../../services/api';
-import { Eye, CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { Eye, Edit, Trash2, CheckCircle, XCircle, RefreshCw, FileText } from 'lucide-react';
 
 // Brand colors from Color palette .pdf - using only defined colors
 const theme = {
@@ -65,7 +65,6 @@ const AiArticlesManagement = () => {
   const leftGap = 24;
 
   const [articles, setArticles] = useState([]);
-  const [totalArticles, setTotalArticles] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -75,11 +74,7 @@ const AiArticlesManagement = () => {
     search: ''
   });
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-
-  // Pagination logic (server-side)
-  const totalPages = Math.ceil(totalArticles / pageSize);
-
+  const [totalPages, setTotalPages] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -100,20 +95,20 @@ const AiArticlesManagement = () => {
 
   useEffect(() => {
     fetchArticles();
-  }, [currentPage, pageSize, filters]);
+  }, [currentPage, filters]);
 
   const fetchArticles = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
         page: currentPage,
-        limit: pageSize,
+        limit: 10,
         ...filters
       });
 
       const response = await api.get(`/ai-generated-articles?${params.toString()}`);
       setArticles(response.data.articles || []);
-      setTotalArticles(response.data.pagination?.total || 0);
+      setTotalPages(response.data.pagination?.totalPages || 1);
     } catch (error) {
       console.error('Error fetching AI articles:', error);
       setArticles([]);
@@ -386,305 +381,128 @@ const AiArticlesManagement = () => {
             <p className="text-gray-600">Manage AI-generated article submissions</p>
           </div>
 
-      {/* Search and Filter Bar */}
-      <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', marginBottom: '16px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)' }}>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            style={{
-              padding: '12px 16px',
-              border: '2px solid #e0e0e0',
-              borderRadius: '8px',
-              fontSize: '14px',
-              minWidth: '150px',
-              transition: 'border-color 0.2s',
-              outline: 'none'
-            }}
-            onFocus={(e) => e.target.style.borderColor = theme.primary}
-            onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-          >
-            <option value="">All Statuses</option>
-            <option value="draft">Draft</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-          </select>
+      {/* Filters */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select
+              value={filters.status}
+              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Status</option>
+              <option value="draft">Draft</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
 
-          <select
-            value={filters.story_type}
-            onChange={(e) => setFilters({ ...filters, story_type: e.target.value })}
-            style={{
-              padding: '12px 16px',
-              border: '2px solid #e0e0e0',
-              borderRadius: '8px',
-              fontSize: '14px',
-              minWidth: '150px',
-              transition: 'border-color 0.2s',
-              outline: 'none'
-            }}
-            onFocus={(e) => e.target.style.borderColor = theme.primary}
-            onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
-          >
-            <option value="">All Types</option>
-            <option value="profile">Profile</option>
-            <option value="editorial">Editorial</option>
-            <option value="advertorial">Advertorial</option>
-            <option value="listicle">Listicle</option>
-          </select>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Story Type</label>
+            <select
+              value={filters.story_type}
+              onChange={(e) => setFilters({ ...filters, story_type: e.target.value })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">All Types</option>
+              <option value="profile">Profile</option>
+              <option value="editorial">Editorial</option>
+              <option value="advertorial">Advertorial</option>
+              <option value="listicle">Listicle</option>
+            </select>
+          </div>
 
-          <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textSecondary} strokeWidth="2" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }}>
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.35-4.35"></path>
-            </svg>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
             <input
               type="text"
               placeholder="Search by name, publication..."
               value={filters.search}
               onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-              style={{
-                width: '100%',
-                padding: '12px 16px 12px 44px',
-                border: '2px solid #e0e0e0',
-                borderRadius: '8px',
-                fontSize: '14px',
-                transition: 'border-color 0.2s',
-                outline: 'none'
-              }}
-              onFocus={(e) => e.target.style.borderColor = theme.primary}
-              onBlur={(e) => e.target.style.borderColor = '#e0e0e0'}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-
-            {filters.search && (
-              <button
-                onClick={() => setFilters({ ...filters, search: '' })}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: '4px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={theme.textSecondary} strokeWidth="2">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Search Results Summary */}
-        <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-            {filters.search || filters.status || filters.story_type ? (
-              <>
-                <span style={{ color: theme.primary, fontWeight: '600' }}>Filtered:</span> Found <strong>{totalArticles}</strong> article{totalArticles !== 1 ? 's' : ''}
-              </>
-            ) : (
-              <>
-                Showing <strong>{articles.length}</strong> of <strong>{totalArticles}</strong> article{totalArticles !== 1 ? 's' : ''}
-              </>
-            )}
           </div>
         </div>
       </div>
 
       {/* Articles Table */}
-      <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', overflow: 'hidden' }}>
-        {/* Table Controls */}
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
-                AI Articles
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <select
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(parseInt(e.target.value));
-                  setCurrentPage(1);
-                }}
-                style={{
-                  padding: '6px 12px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  backgroundColor: '#fff'
-                }}
-              >
-                <option value="10">10 per page</option>
-                <option value="25">25 per page</option>
-                <option value="50">50 per page</option>
-                <option value="100">100 per page</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {loading ? (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                border: '4px solid #e5e7eb',
-                borderTop: `4px solid ${theme.primary}`,
-                borderRadius: '50%',
-                animation: 'spin 1s linear infinite'
-              }}></div>
-              <span style={{ color: theme.textSecondary }}>Loading articles...</span>
-            </div>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
+            <span className="ml-2 text-gray-600">Loading articles...</span>
           </div>
         ) : articles.length === 0 ? (
-          <div style={{ padding: '80px', textAlign: 'center', color: theme.textSecondary }}>
-            <div style={{ fontSize: '64px', marginBottom: '16px' }}>
-              {filters.search || filters.status || filters.story_type ? '🔍' : '📝'}
-            </div>
-            <div style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>
-              {filters.search || filters.status || filters.story_type ? 'No articles found' : 'No articles available'}
-            </div>
-            <div style={{ fontSize: '16px', marginBottom: '16px' }}>
-              {filters.search || filters.status || filters.story_type ? (
-                <>
-                  No articles match your search or filter criteria.
-                  <br />
-                  Try different keywords or adjust your filters.
-                </>
-              ) : (
-                'No AI articles have been submitted yet.'
-              )}
-            </div>
-
-            <button
-              onClick={() => setFilters({ status: '', story_type: '', search: '' })}
-              style={{
-                padding: '12px 24px',
-                backgroundColor: theme.primary,
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                cursor: 'pointer',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                margin: '0 auto'
-              }}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-              </svg>
-              Clear Filters
-            </button>
+          <div className="text-center py-12">
+            <FileText size={48} className="mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No AI articles found</h3>
+            <p className="text-gray-600">No articles match your current filters.</p>
           </div>
         ) : (
           <>
-            <div style={{ overflowX: 'auto', maxHeight: articles.length > 50 ? '600px' : 'auto', overflowY: articles.length > 50 ? 'auto' : 'visible' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                    <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Article Info
                     </th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       User
                     </th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Created
                     </th>
-                    <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  {articles.map((article, index) => (
-                    <tr key={article.id} style={{
-                      borderBottom: '1px solid #f1f5f9',
-                      backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.target.closest('tr').style.backgroundColor = '#f1f5f9';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
-                    }}
-                    >
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '50%',
-                            backgroundColor: '#f3f4f6',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexShrink: 0,
-                            border: '2px solid #e5e7eb'
-                          }}>
-                            <span style={{ fontSize: '16px', color: theme.textSecondary, fontWeight: '600' }}>
-                              {article.story_type.charAt(0).toUpperCase()}
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {articles.map((article) => (
+                    <tr key={article.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4">
+                        <div>
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium text-gray-900 capitalize">
+                              {article.story_type}
                             </span>
-                          </div>
-                          <div>
-                            <div style={{ fontWeight: '600', fontSize: '14px', color: theme.textPrimary, marginBottom: '4px' }}>
-                              {article.story_type.charAt(0).toUpperCase() + article.story_type.slice(1)}
-                            </div>
                             {article.publication && (
-                              <div style={{ fontSize: '12px', color: theme.primary, fontWeight: '500' }}>
-                                {article.publication.publication_name}
-                              </div>
-                            )}
-                            {article.name && (
-                              <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '2px' }}>
-                                {article.name}
-                              </div>
+                              <span className="ml-2 text-sm text-gray-500">
+                                • {article.publication.publication_name}
+                              </span>
                             )}
                           </div>
+                          {article.name && (
+                            <div className="text-sm text-gray-600 mt-1">
+                              {article.name}
+                            </div>
+                          )}
+                          {article.generated_content && (
+                            <div className="text-xs text-gray-500 mt-1 line-clamp-2">
+                              {article.generated_content.substring(0, 100)}...
+                            </div>
+                          )}
                         </div>
                       </td>
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ fontSize: '14px', color: theme.textPrimary, fontWeight: '500' }}>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
                           {article.user?.first_name} {article.user?.last_name}
                         </div>
-                        <div style={{ fontSize: '12px', color: theme.textSecondary }}>
+                        <div className="text-sm text-gray-500">
                           {article.user?.email}
                         </div>
                       </td>
-                      <td style={{ padding: '16px' }}>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         <select
                           value={article.status}
                           onChange={(e) => handleStatusChange(article.id, e.target.value)}
-                          style={{
-                            backgroundColor: article.status === 'approved' ? '#4CAF5020' : article.status === 'rejected' ? '#F4433620' : article.status === 'pending' ? '#FF980020' : '#BDBDBD20',
-                            color: article.status === 'approved' ? '#4CAF50' : article.status === 'rejected' ? '#F44336' : article.status === 'pending' ? '#FF9800' : '#757575',
-                            padding: '4px 12px',
-                            borderRadius: '12px',
-                            fontSize: '12px',
-                            fontWeight: '600',
-                            border: 'none',
-                            cursor: 'pointer'
-                          }}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border-0 cursor-pointer ${getStatusColor(article.status)}`}
                         >
                           <option value="draft">Draft</option>
                           <option value="pending">Pending</option>
@@ -692,91 +510,47 @@ const AiArticlesManagement = () => {
                           <option value="rejected">Rejected</option>
                         </select>
                       </td>
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ fontSize: '12px', color: theme.textSecondary }}>
-                          {formatDate(article.created_at)}
-                        </div>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(article.created_at)}
                       </td>
-                      <td style={{ padding: '16px' }}>
-                        <div style={{ display: 'flex', gap: '6px' }}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex items-center space-x-2">
                           <button
                             onClick={() => {
                               setSelectedArticle(article);
                               setShowModal(true);
                             }}
-                            style={{
-                              padding: '6px 10px',
-                              backgroundColor: theme.info,
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              cursor: 'pointer',
-                              fontWeight: '600',
-                              transition: 'background-color 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#673ab7'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = theme.info}
+                            className="text-blue-600 hover:text-blue-900"
+                            title="View Details"
                           >
-                            View Details
+                            <Eye size={16} />
                           </button>
+
                           {article.status === 'pending' && (
                             <>
                               <button
                                 onClick={() => handleStatusChange(article.id, 'approved')}
-                                style={{
-                                  padding: '6px 10px',
-                                  backgroundColor: theme.success,
-                                  color: '#fff',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  fontSize: '12px',
-                                  cursor: 'pointer',
-                                  fontWeight: '600',
-                                  transition: 'background-color 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#388e3c'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = theme.success}
+                                className="text-green-600 hover:text-green-900"
+                                title="Approve"
                               >
-                                Approve
+                                <CheckCircle size={16} />
                               </button>
                               <button
                                 onClick={() => handleStatusChange(article.id, 'rejected')}
-                                style={{
-                                  padding: '6px 10px',
-                                  backgroundColor: theme.danger,
-                                  color: '#fff',
-                                  border: 'none',
-                                  borderRadius: '4px',
-                                  fontSize: '12px',
-                                  cursor: 'pointer',
-                                  fontWeight: '600',
-                                  transition: 'background-color 0.2s'
-                                }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = theme.danger}
+                                className="text-red-600 hover:text-red-900"
+                                title="Reject"
                               >
-                                Reject
+                                <XCircle size={16} />
                               </button>
                             </>
                           )}
+
                           <button
                             onClick={() => handleDelete(article.id)}
-                            style={{
-                              padding: '6px 10px',
-                              backgroundColor: theme.danger,
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: '4px',
-                              fontSize: '12px',
-                              cursor: 'pointer',
-                              fontWeight: '600',
-                              transition: 'background-color 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = theme.danger}
+                            className="text-red-600 hover:text-red-900"
+                            title="Delete"
                           >
-                            Delete
+                            <Trash2 size={16} />
                           </button>
                         </div>
                       </td>
@@ -788,41 +562,65 @@ const AiArticlesManagement = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                  Page {currentPage} of {totalPages} ({totalArticles} total articles)
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
+              <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+                <div className="flex-1 flex justify-between sm:hidden">
                   <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                     disabled={currentPage === 1}
-                    style={{
-                      padding: '8px 12px',
-                      backgroundColor: currentPage === 1 ? '#e5e7eb' : theme.primary,
-                      color: currentPage === 1 ? theme.textSecondary : '#fff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                    }}
+                    className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                   >
-                    ← Previous
+                    Previous
                   </button>
                   <button
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                     disabled={currentPage === totalPages}
-                    style={{
-                      padding: '8px 12px',
-                      backgroundColor: currentPage === totalPages ? '#e5e7eb' : theme.primary,
-                      color: currentPage === totalPages ? theme.textSecondary : '#fff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                    }}
+                    className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                   >
-                    Next →
+                    Next
                   </button>
+                </div>
+                <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-sm text-gray-700">
+                      Page <span className="font-medium">{currentPage}</span> of{' '}
+                      <span className="font-medium">{totalPages}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        Previous
+                      </button>
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        const pageNum = Math.max(1, currentPage - 2) + i;
+                        if (pageNum > totalPages) return null;
+                        return (
+                          <button
+                            key={pageNum}
+                            onClick={() => setCurrentPage(pageNum)}
+                            className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
+                              currentPage === pageNum
+                                ? 'z-10 bg-blue-50 border-blue-500 text-blue-600'
+                                : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
+                            }`}
+                          >
+                            {pageNum}
+                          </button>
+                        );
+                      })}
+                      <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        Next
+                      </button>
+                    </nav>
+                  </div>
                 </div>
               </div>
             )}

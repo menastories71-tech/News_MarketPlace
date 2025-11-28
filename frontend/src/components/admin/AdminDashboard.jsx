@@ -52,15 +52,14 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // z-index layering constants (header must be topmost)
-  const headerZ = 1000;
-  const mobileOverlayZ = 500; // under header but above page content
-  const sidebarZ = 200;       // desktop sidebar z-index (under overlay and header)
+  // z-index layering constants
+  const mobileOverlayZ = 500; // above page content
+  const sidebarZ = 200;       // desktop sidebar z-index (under overlay)
 
-  // header height used for mobile overlay positioning
-  const headerHeight = 64;
-  // apply this as top padding for the main content so nothing scrolls underneath the header
-  const mainPaddingTop = headerHeight + 18;
+  // header height used for mobile overlay positioning (no header, so 0)
+  const headerHeight = 0;
+  // apply this as top padding for the main content
+  const mainPaddingTop = 0;
 
   // Sidebar styles and items
   const sidebarWidth = 240;
@@ -73,12 +72,12 @@ const AdminDashboard = () => {
     boxSizing: 'border-box',
     borderRadius: 8
   };
-  // single mobileSidebarOverlay definition (keeps headerHeight/sidebarWidth in sync)
+  // single mobileSidebarOverlay definition
   const mobileSidebarOverlay = {
     position: 'fixed',
-    top: headerHeight,
+    top: 0,
     left: 0,
-    height: `calc(100vh - ${headerHeight}px)`,
+    height: '100vh',
     zIndex: mobileOverlayZ,
     backgroundColor: '#fff',
     padding: 16,
@@ -205,68 +204,6 @@ const AdminDashboard = () => {
       className="min-h-screen"
       style={{ backgroundColor: theme.muted, color: theme.text, paddingBottom: '3rem' }}
     >
-      {/* Header */}
-      <header
-        className="shadow-sm"
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: headerZ,
-          backgroundColor: theme.background,           // ensure header is opaque white
-          boxShadow: '0 6px 20px rgba(2,6,23,0.06)', // slightly stronger shadow
-          borderBottom: `1px solid ${theme.borderLight}`  // explicit bottom border to separate content
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10" style={{ minHeight: 64 }}>
-          <div className="flex justify-between items-center py-3">
-            <div className="flex items-center">
-              {/* Mobile toggle button */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="mr-3 md:hidden"
-                aria-label="Toggle sidebar"
-                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
-              >
-                <Icon name="menu" size="md" style={{ color: theme.textPrimary }} />
-              </button>
-
-              {/* Desktop toggle button */}
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="mr-3 hidden md:block"
-                aria-label="Toggle sidebar"
-                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
-              >
-                <Icon name="menu" size="md" style={{ color: theme.textPrimary }} />
-              </button>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Icon name="shield-check" size="lg" style={{ color: '#1976D2' }} />
-                <span style={{ fontWeight: 700, fontSize: 18 }}>News Marketplace Admin</span>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <button aria-label="Toggle theme" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                {/* simple moon icon */}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.text} strokeWidth="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>
-              </button>
-
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontWeight: 700 }}>{admin?.first_name ? `${admin.first_name} ${admin.last_name}` : 'Master Admin'}</div>
-                <div style={{ marginTop: 6 }}>
-                  <span style={getRoleStyle(admin?.role)}>{roleDisplayNames[admin?.role] || '—'}</span>
-                </div>
-              </div>
-
-              <button onClick={logout} style={{ ...btnPrimary, padding: '0.45rem 0.75rem' }}>
-                <Icon name="arrow-right-on-rectangle" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                Logout
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
 
       {/* Sidebar fixed on desktop (so it sits at viewport left) */}
       <Sidebar
