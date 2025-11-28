@@ -32,12 +32,9 @@ const useLocalStorage = (key, initialValue) => {
 const VideoTutorials = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [bookmarkedVideos, setBookmarkedVideos] = useLocalStorage('bookmarkedVideos', new Set(['1', '3', '7', '12']));
-  const [watchedVideos, setWatchedVideos] = useLocalStorage('watchedVideos', new Set(['1', '2', '5', '8', '15']));
-  const [videoProgress, setVideoProgress] = useLocalStorage('videoProgress', {
-    '1': 100, '2': 100, '5': 100, '8': 100, '15': 100,
-    '3': 45, '7': 30, '12': 75, '18': 20, '22': 60
-  });
+  const [bookmarkedVideos, setBookmarkedVideos] = useLocalStorage('bookmarkedVideos', new Set());
+  const [watchedVideos, setWatchedVideos] = useLocalStorage('watchedVideos', new Set());
+  const [videoProgress, setVideoProgress] = useLocalStorage('videoProgress', {});
   const [currentPlayingVideo, setCurrentPlayingVideo] = useState(null);
 
   const categories = [
@@ -755,140 +752,140 @@ const VideoTutorials = () => {
         </div>
       </section>
 
-      {/* Progress Summary */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-semibold text-[#212121] mb-6">Your Learning Progress</h2>
+      {/* Progress Summary - Only show if user has bookmarks or progress */}
+      {(bookmarkedVideos.size > 0 || watchedVideos.size > 0 || videos.some(v => getVideoProgress(v.id) > 0)) && (
+        <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+          <div className="max-w-7xl mx-auto">
+            <h2 className="text-2xl font-semibold text-[#212121] mb-6">Your Learning Progress</h2>
 
-          {/* Overall Progress */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
-            <div className="bg-[#E3F2FD] rounded-lg p-6 border border-[#E0E0E0]">
-              <div className="text-3xl font-bold text-[#1976D2] mb-2">
-                {Math.round((watchedVideos.size / videos.length) * 100)}%
-              </div>
-              <div className="text-[#757575] text-sm">Overall Completion</div>
-              <div className="text-xs text-[#757575] mt-1">
-                {watchedVideos.size} of {videos.length} videos completed
-              </div>
-            </div>
-            <div className="bg-[#E0F2F1] rounded-lg p-6 border border-[#E0E0E0]">
-              <div className="text-3xl font-bold text-[#00796B] mb-2">
-                {bookmarkedVideos.size}
-              </div>
-              <div className="text-[#757575] text-sm">Bookmarked Videos</div>
-              <div className="text-xs text-[#757575] mt-1">
-                Saved for later viewing
-              </div>
-            </div>
-            <div className="bg-[#FFF3E0] rounded-lg p-6 border border-[#E0E0E0]">
-              <div className="text-3xl font-bold text-[#FF9800] mb-2">
-                {videos.filter(v => getVideoProgress(v.id) > 0 && getVideoProgress(v.id) < 100).length}
-              </div>
-              <div className="text-[#757575] text-sm">In Progress</div>
-              <div className="text-xs text-[#757575] mt-1">
-                Currently watching
-              </div>
-            </div>
-            <div className="bg-[#F3E5F5] rounded-lg p-6 border border-[#E0E0E0]">
-              <div className="text-3xl font-bold text-[#9C27B0] mb-2">
-                {videos.filter(v => getVideoProgress(v.id) === 0).length}
-              </div>
-              <div className="text-[#757575] text-sm">Not Started</div>
-              <div className="text-xs text-[#757575] mt-1">
-                Ready to begin
-              </div>
-            </div>
-          </div>
-
-          {/* Category Progress */}
-          <h3 className="text-xl font-semibold text-[#212121] mb-4">Category Progress</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {categoriesWithStats.filter(cat => cat.id !== 'all').map((category) => (
-              <div key={category.id} className="bg-white rounded-lg p-6 border border-[#E0E0E0] shadow-sm">
-                <div className="flex items-center justify-between mb-3">
-                  <h4 className="font-semibold text-[#212121] text-sm">
-                    {category.name.split(' (')[0]}
-                  </h4>
-                  <span className="text-lg font-bold" style={{ color: getProgressColor(category.completionRate) }}>
-                    {category.completionRate}%
-                  </span>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs text-[#757575]">
-                    <span>Completed</span>
-                    <span>{category.completed}/{category.total}</span>
+            {/* Overall Progress */}
+            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-8">
+              {watchedVideos.size > 0 && (
+                <div className="bg-[#E3F2FD] rounded-lg p-6 border border-[#E0E0E0]">
+                  <div className="text-3xl font-bold text-[#1976D2] mb-2">
+                    {Math.round((watchedVideos.size / videos.length) * 100)}%
                   </div>
-                  <div className="w-full bg-[#E0E0E0] rounded-full h-2">
-                    <div
-                      className="h-2 rounded-full transition-all"
-                      style={{
-                        width: `${category.completionRate}%`,
-                        backgroundColor: getProgressColor(category.completionRate)
-                      }}
-                    />
+                  <div className="text-[#757575] text-sm">Overall Completion</div>
+                  <div className="text-xs text-[#757575] mt-1">
+                    {watchedVideos.size} of {videos.length} videos completed
                   </div>
-                  {category.inProgress > 0 && (
-                    <div className="text-xs text-[#FF9800]">
-                      {category.inProgress} in progress
-                    </div>
-                  )}
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+              {bookmarkedVideos.size > 0 && (
+                <div className="bg-[#E0F2F1] rounded-lg p-6 border border-[#E0E0E0]">
+                  <div className="text-3xl font-bold text-[#00796B] mb-2">
+                    {bookmarkedVideos.size}
+                  </div>
+                  <div className="text-[#757575] text-sm">Bookmarked Videos</div>
+                  <div className="text-xs text-[#757575] mt-1">
+                    Saved for later viewing
+                  </div>
+                </div>
+              )}
+              {videos.filter(v => getVideoProgress(v.id) > 0 && getVideoProgress(v.id) < 100).length > 0 && (
+                <div className="bg-[#FFF3E0] rounded-lg p-6 border border-[#E0E0E0]">
+                  <div className="text-3xl font-bold text-[#FF9800] mb-2">
+                    {videos.filter(v => getVideoProgress(v.id) > 0 && getVideoProgress(v.id) < 100).length}
+                  </div>
+                  <div className="text-[#757575] text-sm">In Progress</div>
+                  <div className="text-xs text-[#757575] mt-1">
+                    Currently watching
+                  </div>
+                </div>
+              )}
+            </div>
 
-          {/* Recent Activity */}
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold text-[#212121] mb-4">Recent Activity</h3>
-            <div className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden">
-              <div className="divide-y divide-[#E0E0E0]">
-                {videos
-                  .filter(v => getVideoProgress(v.id) > 0)
-                  .sort((a, b) => getVideoProgress(b.id) - getVideoProgress(a.id))
-                  .slice(0, 5)
-                  .map((video) => {
-                    const progress = getVideoProgress(video.id);
-                    return (
-                      <div key={video.id} className="p-4 flex items-center gap-4">
-                        <img
-                          src={video.thumbnail}
-                          alt={video.title}
-                          className="w-16 h-12 object-cover rounded"
-                        />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-[#212121] text-sm line-clamp-1">
-                            {video.title}
-                          </h4>
-                          <div className="flex items-center gap-2 mt-1">
-                            <div className="flex-1 bg-[#E0E0E0] rounded-full h-1.5">
-                              <div
-                                className="h-1.5 rounded-full transition-all"
-                                style={{
-                                  width: `${progress}%`,
-                                  backgroundColor: getProgressColor(progress)
-                                }}
-                              />
-                            </div>
-                            <span className="text-xs text-[#757575]">{progress}%</span>
-                          </div>
+            {/* Category Progress - Only show if there's progress */}
+            {watchedVideos.size > 0 && (
+              <>
+                <h3 className="text-xl font-semibold text-[#212121] mb-4">Category Progress</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                  {categoriesWithStats.filter(cat => cat.id !== 'all' && cat.completed > 0).map((category) => (
+                    <div key={category.id} className="bg-white rounded-lg p-6 border border-[#E0E0E0] shadow-sm">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-[#212121] text-sm">
+                          {category.name.split(' (')[0]}
+                        </h4>
+                        <span className="text-lg font-bold" style={{ color: getProgressColor(category.completionRate) }}>
+                          {category.completionRate}%
+                        </span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs text-[#757575]">
+                          <span>Completed</span>
+                          <span>{category.completed}/{category.total}</span>
                         </div>
-                        {progress === 100 && (
-                          <CheckCircle2 className="w-5 h-5 text-[#4CAF50]" />
+                        <div className="w-full bg-[#E0E0E0] rounded-full h-2">
+                          <div
+                            className="h-2 rounded-full transition-all"
+                            style={{
+                              width: `${category.completionRate}%`,
+                              backgroundColor: getProgressColor(category.completionRate)
+                            }}
+                          />
+                        </div>
+                        {category.inProgress > 0 && (
+                          <div className="text-xs text-[#FF9800]">
+                            {category.inProgress} in progress
+                          </div>
                         )}
                       </div>
-                    );
-                  })}
-                {videos.filter(v => getVideoProgress(v.id) > 0).length === 0 && (
-                  <div className="p-8 text-center text-[#757575]">
-                    <p>No recent activity. Start watching videos to track your progress!</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {/* Recent Activity - Only show if there's activity */}
+            {videos.filter(v => getVideoProgress(v.id) > 0).length > 0 && (
+              <div className="mt-8">
+                <h3 className="text-xl font-semibold text-[#212121] mb-4">Recent Activity</h3>
+                <div className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden">
+                  <div className="divide-y divide-[#E0E0E0]">
+                    {videos
+                      .filter(v => getVideoProgress(v.id) > 0)
+                      .sort((a, b) => getVideoProgress(b.id) - getVideoProgress(a.id))
+                      .slice(0, 5)
+                      .map((video) => {
+                        const progress = getVideoProgress(video.id);
+                        return (
+                          <div key={video.id} className="p-4 flex items-center gap-4">
+                            <img
+                              src={video.thumbnail}
+                              alt={video.title}
+                              className="w-16 h-12 object-cover rounded"
+                            />
+                            <div className="flex-1">
+                              <h4 className="font-medium text-[#212121] text-sm line-clamp-1">
+                                {video.title}
+                              </h4>
+                              <div className="flex items-center gap-2 mt-1">
+                                <div className="flex-1 bg-[#E0E0E0] rounded-full h-1.5">
+                                  <div
+                                    className="h-1.5 rounded-full transition-all"
+                                    style={{
+                                      width: `${progress}%`,
+                                      backgroundColor: getProgressColor(progress)
+                                    }}
+                                  />
+                                </div>
+                                <span className="text-xs text-[#757575]">{progress}%</span>
+                              </div>
+                            </div>
+                            {progress === 100 && (
+                              <CheckCircle2 className="w-5 h-5 text-[#4CAF50]" />
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <UserFooter />
     </div>
