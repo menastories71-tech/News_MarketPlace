@@ -15,6 +15,15 @@ class MessageCentralService {
    */
   async sendOTP(mobileNumber, flowType = 'SMS', countryCode = '91') {
     try {
+      // Check if credentials are configured
+      if (!this.customerId || !this.authToken) {
+        console.error('❌ MessageCentral credentials not configured:');
+        console.error('   Customer ID:', this.customerId ? '✅ SET' : '❌ MISSING');
+        console.error('   Auth Token:', this.authToken ? '✅ SET' : '❌ MISSING');
+        console.error('   Base URL:', this.baseUrl);
+        throw new Error('MessageCentral credentials not configured');
+      }
+
       const url = `${this.baseUrl}/verification/v3/send`;
 
       const params = {
@@ -23,6 +32,12 @@ class MessageCentralService {
         flowType: flowType.toUpperCase(),
         mobileNumber
       };
+
+      console.log(`📱 Sending ${flowType} OTP to ${mobileNumber}`);
+      console.log('🔗 MessageCentral URL:', url);
+      console.log('👤 Customer ID:', this.customerId);
+      console.log('🔐 Auth token present:', !!this.authToken);
+      console.log('📊 Request params:', params);
 
       const response = await axios.post(url, null, {
         params,
@@ -33,6 +48,7 @@ class MessageCentralService {
         timeout: 30000 // 30 seconds timeout
       });
 
+      console.log('✅ MessageCentral sendOTP success:', response.data);
       return {
         success: true,
         data: response.data,
@@ -40,7 +56,21 @@ class MessageCentralService {
       };
 
     } catch (error) {
-      console.error('MessageCentral sendOTP error:', error.response?.data || error.message);
+      console.error('❌ MessageCentral sendOTP error details:');
+      console.error('   Status:', error.response?.status);
+      console.error('   Status Text:', error.response?.statusText);
+      console.error('   Response Data:', error.response?.data);
+      console.error('   Request URL:', error.config?.url);
+      console.error('   Error Message:', error.message);
+
+      if (error.response?.status === 401) {
+        console.error('🚫 Authentication failed - check auth token validity and completeness');
+        console.error('💡 Token should be a complete JWT starting with "eyJ..."');
+      } else if (error.response?.status === 400) {
+        console.error('⚠️ Bad request - check parameters and phone number format');
+      } else if (error.code === 'ECONNREFUSED') {
+        console.error('🌐 Connection refused - check network connectivity');
+      }
 
       return {
         success: false,
@@ -59,6 +89,12 @@ class MessageCentralService {
    */
   async validateOTP(mobileNumber, verificationId, code, countryCode = '91') {
     try {
+      // Check if credentials are configured
+      if (!this.customerId || !this.authToken) {
+        console.error('❌ MessageCentral credentials not configured for validation');
+        throw new Error('MessageCentral credentials not configured');
+      }
+
       const url = `${this.baseUrl}/verification/v3/validateOtp`;
 
       const params = {
@@ -69,6 +105,10 @@ class MessageCentralService {
         code
       };
 
+      console.log(`🔍 Validating OTP for ${mobileNumber}`);
+      console.log('🔗 Validation URL:', url);
+      console.log('📊 Validation params:', { ...params, code: '***' }); // Hide OTP in logs
+
       const response = await axios.get(url, {
         params,
         headers: {
@@ -77,6 +117,7 @@ class MessageCentralService {
         timeout: 30000 // 30 seconds timeout
       });
 
+      console.log('✅ MessageCentral validateOTP success:', response.data);
       return {
         success: true,
         data: response.data,
@@ -84,7 +125,18 @@ class MessageCentralService {
       };
 
     } catch (error) {
-      console.error('MessageCentral validateOTP error:', error.response?.data || error.message);
+      console.error('❌ MessageCentral validateOTP error details:');
+      console.error('   Status:', error.response?.status);
+      console.error('   Status Text:', error.response?.statusText);
+      console.error('   Response Data:', error.response?.data);
+      console.error('   Request URL:', error.config?.url);
+      console.error('   Error Message:', error.message);
+
+      if (error.response?.status === 401) {
+        console.error('🚫 Authentication failed - check auth token');
+      } else if (error.response?.status === 400) {
+        console.error('⚠️ Bad request - check verification ID and OTP code');
+      }
 
       return {
         success: false,
