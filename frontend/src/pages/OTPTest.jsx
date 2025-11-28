@@ -12,19 +12,12 @@ const OTPTest = () => {
   const [validateResponse, setValidateResponse] = useState(null);
   const [error, setError] = useState('');
 
-  // Message Central API Configuration
-  const MESSAGECENTRAL_BASE_URL = process.env.REACT_APP_MESSAGECENTRAL_BASE_URL || 'https://cpaas.messagecentral.com';
-  const CUSTOMER_ID = process.env.REACT_APP_MESSAGECENTRAL_CUSTOMER_ID || 'C-3E1A77655A28403';
-  const AUTH_TOKEN = process.env.REACT_APP_MESSAGECENTRAL_AUTH_TOKEN;
+  // Backend API base URL
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000';
 
   const sendOTP = async () => {
     if (!phoneNumber || phoneNumber.length !== 10) {
       setError('Please enter a valid 10-digit phone number');
-      return;
-    }
-
-    if (!AUTH_TOKEN) {
-      setError('Message Central auth token not configured');
       return;
     }
 
@@ -33,19 +26,21 @@ const OTPTest = () => {
     setSendResponse(null);
 
     try {
-      const url = `${MESSAGECENTRAL_BASE_URL}/verification/v3/send?countryCode=91&customerId=${CUSTOMER_ID}&flowType=${flowType}&mobileNumber=${phoneNumber}`;
-
-      const response = await fetch(url, {
+      const response = await fetch(`${API_BASE_URL}/api/otp/send`, {
         method: 'POST',
         headers: {
-          'authToken': AUTH_TOKEN,
           'Content-Type': 'application/json'
-        }
+        },
+        body: JSON.stringify({
+          mobileNumber: phoneNumber,
+          flowType: flowType,
+          countryCode: '91'
+        })
       });
 
       const data = await response.json();
 
-      if (data.responseCode === 200) {
+      if (data.success) {
         setSendResponse(data);
         setVerificationId(data.data.verificationId);
         setError('');
@@ -71,29 +66,28 @@ const OTPTest = () => {
       return;
     }
 
-    if (!AUTH_TOKEN) {
-      setError('Message Central auth token not configured');
-      return;
-    }
-
     setLoading(true);
     setError('');
     setValidateResponse(null);
 
     try {
-      const url = `${MESSAGECENTRAL_BASE_URL}/verification/v3/validateOtp?countryCode=91&mobileNumber=${phoneNumber}&verificationId=${verificationId}&customerId=${CUSTOMER_ID}&code=${otp}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
+      const response = await fetch(`${API_BASE_URL}/api/otp/validate`, {
+        method: 'POST',
         headers: {
-          'authToken': AUTH_TOKEN
-        }
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          mobileNumber: phoneNumber,
+          verificationId: verificationId,
+          code: otp,
+          countryCode: '91'
+        })
       });
 
       const data = await response.json();
       setValidateResponse(data);
 
-      if (data.responseCode === 200) {
+      if (data.success) {
         setError('');
       } else {
         setError(data.message || 'OTP validation failed');
@@ -202,19 +196,19 @@ const OTPTest = () => {
             {/* Send Response */}
             {sendResponse && (
               <div className={`mb-6 p-4 border rounded-lg ${
-                sendResponse.responseCode === 200
+                sendResponse.success
                   ? 'bg-green-50 border-green-200'
                   : 'bg-red-50 border-red-200'
               }`}>
                 <h3 className={`font-semibold mb-2 ${
-                  sendResponse.responseCode === 200
+                  sendResponse.success
                     ? 'text-green-800'
                     : 'text-red-800'
                 }`}>
-                  {sendResponse.responseCode === 200 ? 'OTP Sent Successfully!' : 'Failed to Send OTP'}
+                  {sendResponse.success ? 'OTP Sent Successfully!' : 'Failed to Send OTP'}
                 </h3>
                 <pre className={`text-sm whitespace-pre-wrap ${
-                  sendResponse.responseCode === 200
+                  sendResponse.success
                     ? 'text-green-700'
                     : 'text-red-700'
                 }`}>
@@ -253,19 +247,19 @@ const OTPTest = () => {
             {/* Validate Response */}
             {validateResponse && (
               <div className={`mb-6 p-4 border rounded-lg ${
-                validateResponse.responseCode === 200
+                validateResponse.success
                   ? 'bg-green-50 border-green-200'
                   : 'bg-red-50 border-red-200'
               }`}>
                 <h3 className={`font-semibold mb-2 ${
-                  validateResponse.responseCode === 200
+                  validateResponse.success
                     ? 'text-green-800'
                     : 'text-red-800'
                 }`}>
-                  {validateResponse.responseCode === 200 ? 'OTP Validated Successfully!' : 'Validation Failed'}
+                  {validateResponse.success ? 'OTP Validated Successfully!' : 'Validation Failed'}
                 </h3>
                 <pre className={`text-sm whitespace-pre-wrap ${
-                  validateResponse.responseCode === 200
+                  validateResponse.success
                     ? 'text-green-700'
                     : 'text-red-700'
                 }`}>
@@ -294,10 +288,11 @@ const OTPTest = () => {
           <div className="mt-8 bg-gray-50 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-[#212121] mb-4">API Information</h3>
             <div className="space-y-2 text-sm text-[#757575]">
-              <p><strong>API Base URL:</strong> {MESSAGECENTRAL_BASE_URL}</p>
-              <p><strong>Send OTP:</strong> POST /verification/v3/send</p>
-              <p><strong>Validate OTP:</strong> GET /verification/v3/validateOtp</p>
-              <p><strong>Customer ID:</strong> {CUSTOMER_ID}</p>
+              <p><strong>Backend API:</strong> {API_BASE_URL}/api/otp</p>
+              <p><strong>Send OTP:</strong> POST /api/otp/send</p>
+              <p><strong>Validate OTP:</strong> POST /api/otp/validate</p>
+              <p><strong>Health Check:</strong> GET /api/otp/health</p>
+              <p><strong>Service Info:</strong> GET /api/otp/info</p>
               <p><strong>Provider:</strong> Message Central</p>
               <p><strong>Country Code:</strong> 91 (India)</p>
               <p><strong>Flow Types:</strong> SMS, WhatsApp</p>
