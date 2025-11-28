@@ -106,10 +106,41 @@ class Agency {
     return result.rows[0] ? new Agency(result.rows[0]) : null;
   }
 
-  // Find all agencies
-  static async findAll() {
-    const sql = 'SELECT * FROM agencies ORDER BY created_at DESC';
-    const result = await query(sql);
+  // Find all agencies with search and pagination
+  static async findAll(filters = {}, searchSql = '', searchValues = [], limit = null, offset = null) {
+    let sql = 'SELECT * FROM agencies WHERE 1=1';
+    const values = [];
+    let paramCount = 1;
+
+    if (filters.status) {
+      sql += ` AND status = $${paramCount}`;
+      values.push(filters.status);
+      paramCount++;
+    }
+
+    // Add search conditions
+    if (searchSql) {
+      sql += searchSql;
+      values.push(...searchValues);
+      paramCount += searchValues.length;
+    }
+
+    sql += ' ORDER BY created_at DESC';
+
+    // Add pagination
+    if (limit) {
+      sql += ` LIMIT $${paramCount}`;
+      values.push(limit);
+      paramCount++;
+    }
+
+    if (offset) {
+      sql += ` OFFSET $${paramCount}`;
+      values.push(offset);
+      paramCount++;
+    }
+
+    const result = await query(sql, values);
     return result.rows.map(row => new Agency(row));
   }
 

@@ -160,6 +160,7 @@ const AgencyManagement = () => {
   }
 
   const [agencies, setAgencies] = useState([]);
+  const [totalAgencies, setTotalAgencies] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -169,8 +170,6 @@ const AgencyManagement = () => {
   const [showBulkActions, setShowBulkActions] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [sortField, setSortField] = useState('created_at');
-  const [sortDirection, setSortDirection] = useState('desc');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedAgency, setSelectedAgency] = useState(null);
@@ -279,12 +278,22 @@ const AgencyManagement = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentPage, pageSize, debouncedSearchTerm, statusFilter]);
 
   const fetchAgencies = async () => {
     try {
-      const response = await api.get('/agencies');
+      const params = new URLSearchParams();
+      params.append('page', currentPage.toString());
+      params.append('limit', pageSize.toString());
+      if (debouncedSearchTerm) {
+        params.append('agency_name', debouncedSearchTerm);
+      }
+      if (statusFilter) {
+        params.append('status', statusFilter);
+      }
+      const response = await api.get(`/agencies?${params.toString()}`);
       setAgencies(response.data.agencies || []);
+      setTotalAgencies(response.data.pagination?.total || 0);
     } catch (error) {
       console.error('Error fetching agencies:', error);
       if (error.response?.status === 401) {
@@ -299,59 +308,17 @@ const AgencyManagement = () => {
     }
   };
 
-  // Filtered agencies
-  const filteredAgencies = useMemo(() => {
-    let filtered = agencies;
-
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(agency =>
-        agency.agency_name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        agency.agency_owner_name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        agency.agency_email.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      );
-    }
-
-    if (statusFilter) {
-      filtered = filtered.filter(agency => agency.status === statusFilter);
-    }
-
-    return filtered;
-  }, [agencies, debouncedSearchTerm, statusFilter]);
-
-  // Update filtered agencies when filters change
+  // Update current page when filters change
   useEffect(() => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [debouncedSearchTerm, statusFilter]);
 
-  // Sorting logic
-  const sortedAgencies = useMemo(() => {
-    return [...filteredAgencies].sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      if (sortField === 'created_at' || sortField === 'updated_at' || sortField === 'agency_founded_year') {
-        aValue = aValue ? new Date(aValue) : new Date(0);
-        bValue = bValue ? new Date(bValue) : new Date(0);
-      } else {
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
-      }
-
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  }, [filteredAgencies, sortField, sortDirection]);
-
-  // Pagination logic
+  // Pagination logic (server-side)
   const paginatedAgencies = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortedAgencies.slice(startIndex, startIndex + pageSize);
-  }, [sortedAgencies, currentPage, pageSize]);
+    return agencies; // Since pagination is now handled server-side
+  }, [agencies]);
 
-  const totalPages = Math.ceil(sortedAgencies.length / pageSize);
+  const totalPages = Math.ceil(totalAgencies / pageSize);
 
   const getStatusStyle = (status) => {
     const statusOption = statusOptions.find(opt => opt.value === status);
@@ -372,19 +339,6 @@ const AgencyManagement = () => {
     return new Date(dateString).toLocaleString();
   };
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const getSortIcon = (field) => {
-    if (sortField !== field) return '';
-    return sortDirection === 'asc' ? '↑' : '↓';
-  };
 
   const handleViewDetails = (agency) => {
     setSelectedAgency(agency);
@@ -410,10 +364,10 @@ const AgencyManagement = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedAgencies.length === filteredAgencies.length) {
+    if (selectedAgencies.length === paginatedAgencies.length) {
       setSelectedAgencies([]);
     } else {
-      setSelectedAgencies(filteredAgencies.map(a => a.id));
+      setSelectedAgencies(paginatedAgencies.map(a => a.id));
     }
   };
 
@@ -757,11 +711,11 @@ const AgencyManagement = () => {
                 <div style={{ fontSize: '14px', color: theme.textSecondary }}>
                   {debouncedSearchTerm || statusFilter ? (
                     <>
-                      <span style={{ color: theme.primary, fontWeight: '600' }}>Filtered:</span> Found <strong>{sortedAgencies.length}</strong> agenc{sortedAgencies.length !== 1 ? 'ies' : 'y'}
+                      <span style={{ color: theme.primary, fontWeight: '600' }}>Filtered:</span> Found <strong>{totalAgencies}</strong> agenc{totalAgencies !== 1 ? 'ies' : 'y'}
                     </>
                   ) : (
                     <>
-                      Showing <strong>{paginatedAgencies.length}</strong> of <strong>{sortedAgencies.length}</strong> agenc{sortedAgencies.length !== 1 ? 'ies' : 'y'}
+                      Showing <strong>{paginatedAgencies.length}</strong> of <strong>{totalAgencies}</strong> agenc{totalAgencies !== 1 ? 'ies' : 'y'}
                     </>
                   )}
                 </div>
@@ -830,38 +784,23 @@ const AgencyManagement = () => {
                           style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
                         />
                       </th>
-                      <th
-                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('agency_name')}
-                      >
-                        Agency Name {getSortIcon('agency_name')}
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Agency Name
                       </th>
-                      <th
-                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('agency_owner_name')}
-                      >
-                        Owner Name {getSortIcon('agency_owner_name')}
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Owner Name
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Agency Email
                       </th>
-                      <th
-                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('status')}
-                      >
-                        Status {getSortIcon('status')}
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Status
                       </th>
-                      <th
-                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('agency_founded_year')}
-                      >
-                        Founded Year {getSortIcon('agency_founded_year')}
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Founded Year
                       </th>
-                      <th
-                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('created_at')}
-                      >
-                        Created At {getSortIcon('created_at')}
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Created At
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Actions
@@ -1020,7 +959,7 @@ const AgencyManagement = () => {
               {totalPages > 1 && (
                 <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    Page {currentPage} of {totalPages} ({sortedAgencies.length} total agencies)
+                    Page {currentPage} of {totalPages} ({totalAgencies} total agencies)
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button

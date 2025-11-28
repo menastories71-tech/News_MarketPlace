@@ -306,12 +306,60 @@ class AgencyController {
     }
   }
 
-  // Get all agencies (admin only)
+  // Get all agencies with filtering and pagination (admin only)
   async getAllAgencies(req, res) {
     try {
-      const agencies = await Agency.findAll();
+      const {
+        page = 1,
+        limit = 10,
+        status,
+        agency_name
+      } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+
+      // Add search filters
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (agency_name) {
+        searchSql += ` AND agency_name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${agency_name}%`);
+        searchParamCount++;
+      }
+
+      const offset = (page - 1) * limit;
+      const agencies = await Agency.findAll(filters, searchSql, searchValues, limit, offset);
+
+      // Get total count for pagination
+      let countSql = 'SELECT COUNT(*) as total FROM agencies WHERE 1=1';
+      const countValues = [];
+      let countParamCount = 1;
+
+      if (filters.status) {
+        countSql += ` AND status = $${countParamCount}`;
+        countValues.push(filters.status);
+        countParamCount++;
+      }
+
+      if (agency_name) {
+        countSql += ` AND agency_name ILIKE $${countParamCount}`;
+        countValues.push(`%${agency_name}%`);
+        countParamCount++;
+      }
+
+      const countResult = await require('../config/database').query(countSql, countValues);
+      const total = parseInt(countResult.rows[0].total);
+
       res.json({
-        agencies: agencies.map(agency => agency.toJSON())
+        agencies: agencies.map(agency => agency.toJSON()),
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: total
+        }
       });
     } catch (error) {
       console.error('Get all agencies error:', error);
