@@ -512,14 +512,14 @@ const ExhibitionFormPage = () => {
   };
 
   const theme = useMemo(() => ({
-    primary: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    primarySolid: '#667eea',
-    primaryDark: '#5a6fd8',
-    primaryLight: 'rgba(102, 126, 234, 0.1)',
-    secondary: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    secondarySolid: '#f093fb',
-    accent: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    accentSolid: '#4facfe',
+    primary: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+    primarySolid: '#3b82f6',
+    primaryDark: '#1d4ed8',
+    primaryLight: 'rgba(59, 130, 246, 0.1)',
+    secondary: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+    secondarySolid: '#60a5fa',
+    accent: 'linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%)',
+    accentSolid: '#93c5fd',
     success: '#10b981',
     warning: '#f59e0b',
     danger: '#ef4444',
@@ -528,13 +528,13 @@ const ExhibitionFormPage = () => {
     textMuted: '#9ca3af',
     background: '#ffffff',
     backgroundAlt: '#f8fafc',
-    backgroundGradient: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+    backgroundGradient: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
     cardBackground: 'rgba(255, 255, 255, 0.95)',
     borderLight: '#e5e7eb',
     borderMedium: '#d1d5db',
-    shadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-    shadowHover: '0 20px 40px rgba(0, 0, 0, 0.15)',
-    glow: '0 0 20px rgba(102, 126, 234, 0.3)'
+    shadow: '0 10px 25px rgba(59, 130, 246, 0.1)',
+    shadowHover: '0 20px 40px rgba(59, 130, 246, 0.15)',
+    glow: '0 0 20px rgba(59, 130, 246, 0.3)'
   }), []);
 
   const formGroupStyle = {
@@ -622,6 +622,45 @@ const ExhibitionFormPage = () => {
           .checkbox-item:hover {
             background-color: ${theme.backgroundAlt} !important;
             border-radius: 6px !important;
+          }
+
+          /* Mobile Responsiveness */
+          @media (max-width: 640px) {
+            .form-container {
+              padding: '20px 16px' !important;
+            }
+
+            .form-section {
+              padding: '20px' !important;
+              margin-bottom: '24px' !important;
+            }
+
+            .section-title {
+              font-size: '1.25rem' !important;
+            }
+
+            .input-grid {
+              grid-template-columns: 1fr !important;
+            }
+
+            .language-grid {
+              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+            }
+
+            .submit-button {
+              width: '100%' !important;
+              max-width: 'none' !important;
+            }
+          }
+
+          @media (min-width: 641px) {
+            .input-grid {
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+            }
+
+            .language-grid {
+              grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+            }
           }
 
           /* Firework/Cracker Animations */
@@ -730,7 +769,7 @@ const ExhibitionFormPage = () => {
         background: theme.backgroundGradient,
         padding: '40px 20px'
       }}>
-      <div style={{
+      <div className="form-container" style={{
         maxWidth: '900px',
         margin: '0 auto',
         background: theme.cardBackground,
@@ -853,37 +892,17 @@ const ExhibitionFormPage = () => {
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '20px',
+              <h2 className="section-title" style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: '0 0 20px 0',
+                color: theme.textPrimary,
                 paddingBottom: '12px',
                 borderBottom: `2px solid ${theme.primarySolid}`
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
-                  background: theme.primary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px',
-                  color: 'white',
-                  fontSize: '18px'
-                }}>
-                  👤
-                </div>
-                <h2 style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  margin: 0,
-                  color: theme.textPrimary
-                }}>
-                  Personal Information
-                </h2>
-              </div>
-              <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+                Personal Information
+              </h2>
+              <div className="input-grid" style={{ display: 'grid', gap: '16px' }}>
                 <div style={formGroupStyle}>
                   <label style={labelStyle}>
                     Name <span style={requiredAsterisk}>*</span>
@@ -987,36 +1006,16 @@ const ExhibitionFormPage = () => {
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '20px',
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: '0 0 20px 0',
+                color: theme.textPrimary,
                 paddingBottom: '12px',
                 borderBottom: `2px solid ${theme.secondarySolid}`
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
-                  background: theme.secondary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px',
-                  color: 'white',
-                  fontSize: '18px'
-                }}>
-                  🌍
-                </div>
-                <h2 style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  margin: 0,
-                  color: theme.textPrimary
-                }}>
-                  Language Preferences
-                </h2>
-              </div>
+                Language Preferences
+              </h2>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Languages (Select multiple)</label>
                 <div style={{
@@ -1027,7 +1026,7 @@ const ExhibitionFormPage = () => {
                   padding: '12px',
                   backgroundColor: theme.background
                 }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '8px' }}>
+                  <div className="language-grid" style={{ display: 'grid', gap: '8px' }}>
                     {languages.map(language => (
                       <label key={language} className="checkbox-item" style={{
                         display: 'flex',
@@ -1074,36 +1073,16 @@ const ExhibitionFormPage = () => {
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '20px',
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: '0 0 20px 0',
+                color: theme.textPrimary,
                 paddingBottom: '12px',
                 borderBottom: `2px solid ${theme.accentSolid}`
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
-                  background: theme.accent,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px',
-                  color: 'white',
-                  fontSize: '18px'
-                }}>
-                  💼
-                </div>
-                <h2 style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  margin: 0,
-                  color: theme.textPrimary
-                }}>
-                  Professional Information
-                </h2>
-              </div>
+                Professional Information
+              </h2>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Current Role (Select multiple)</label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '8px' }}>
@@ -1136,36 +1115,16 @@ const ExhibitionFormPage = () => {
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '20px',
+              <h2 style={{
+                fontSize: '1.5rem',
+                fontWeight: '700',
+                margin: '0 0 20px 0',
+                color: theme.textPrimary,
                 paddingBottom: '12px',
                 borderBottom: `2px solid ${theme.success}`
               }}>
-                <div style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
-                  background: `linear-gradient(135deg, ${theme.success} 0%, #059669 100%)`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  marginRight: '12px',
-                  color: 'white',
-                  fontSize: '18px'
-                }}>
-                  🎯
-                </div>
-                <h2 style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '700',
-                  margin: 0,
-                  color: theme.textPrimary
-                }}>
-                  Areas of Interest
-                </h2>
-              </div>
+                Areas of Interest
+              </h2>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>You are interested in (Select multiple)</label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '8px' }}>
@@ -1228,12 +1187,11 @@ const ExhibitionFormPage = () => {
             }}>
               <button
                 type="submit"
+                className="submit-button"
                 style={{
                   ...buttonStyle,
                   background: theme.primary,
                   color: '#fff',
-                  width: '100%',
-                  maxWidth: '280px',
                   border: 'none',
                   position: 'relative',
                   overflow: 'hidden',
