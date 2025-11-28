@@ -237,77 +237,98 @@ const RolePermissionManagement = () => {
   }
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: theme.backgroundSoft, color: theme.textPrimary, paddingBottom: '3rem' }}>
+    <div style={{ backgroundColor: theme.backgroundSoft, minHeight: '100vh', color: theme.textPrimary }}>
       {/* Header */}
-      <header
-        className="shadow-sm"
-        style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: headerZ,
-          backgroundColor: theme.background,
-          boxShadow: '0 6px 20px rgba(2,6,23,0.06)',
-          borderBottom: `1px solid ${theme.borderLight}`
-        }}
-      >
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10" style={{ minHeight: 64 }}>
-          <div className="flex justify-between items-center py-3">
-            <div className="flex items-center">
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="mr-3 md:hidden"
-                aria-label="Toggle sidebar"
-                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
-              </button>
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: headerHeight,
+        backgroundColor: theme.background,
+        borderBottom: `1px solid ${theme.borderLight}`,
+        zIndex: headerZ,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textSecondary} strokeWidth="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
 
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="mr-3 hidden md:block"
-                aria-label="Toggle sidebar"
-                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
-              </button>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <Icon name="shield-check" size="lg" style={{ color: '#1976D2' }} />
-                <span style={{ fontWeight: 700, fontSize: 18 }}>News Marketplace Admin</span>
-              </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #1976D2, #0D47A1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#fff', fontSize: '18px', fontWeight: '800' }}>N</span>
             </div>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-              <button aria-label="Toggle theme" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textPrimary} strokeWidth="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" /></svg>
-              </button>
-
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontWeight: 700 }}>{admin?.first_name ? `${admin.first_name} ${admin.last_name}` : 'Master Admin'}</div>
-                <div style={{ marginTop: 6 }}>
-                  <span style={{
-                    backgroundColor: theme.secondaryLight,
-                    color: theme.secondaryDark,
-                    padding: '0.125rem 0.5rem',
-                    borderRadius: '9999px',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '0.25rem',
-                    lineHeight: 1
-                  }}>
-                    {roleDisplayNames[admin?.role] || '—'}
-                  </span>
-                </div>
-              </div>
-
-              <button onClick={logout} style={{ ...btnPrimary, padding: '0.45rem 0.75rem' }}>
-                <Icon name="arrow-right-on-rectangle" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                Logout
-              </button>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: theme.textPrimary }}>News MarketPlace</h1>
+              <p style={{ margin: 0, fontSize: '12px', color: theme.textSecondary }}>Admin Panel</p>
             </div>
           </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
+              {admin?.first_name} {admin?.last_name}
+            </div>
+            <div style={{
+              backgroundColor: theme.secondaryLight,
+              color: theme.secondaryDark,
+              padding: '0.125rem 0.5rem',
+              borderRadius: '9999px',
+              fontSize: '0.75rem',
+              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem',
+              lineHeight: 1
+            }}>{roleDisplayNames[admin?.role] || 'User'}</div>
+          </div>
+
+          <button
+            onClick={logout}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#fee2e2'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            title="Logout"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={theme.danger} strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16,17 21,12 16,7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
         </div>
       </header>
 

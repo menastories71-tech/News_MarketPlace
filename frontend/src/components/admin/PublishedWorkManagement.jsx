@@ -784,6 +784,22 @@ const PublishedWorkManagement = () => {
     boxShadow: `0 6px 18px rgba(25,118,210,0.14)`
   };
 
+  const getRoleStyle = (role) => {
+    const r = theme.roleColors[role] || theme.roleColors.other;
+    return {
+      backgroundColor: r.bg,
+      color: r.color,
+      padding: '0.125rem 0.5rem',
+      borderRadius: '9999px',
+      fontSize: '0.75rem',
+      fontWeight: 600,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.25rem',
+      lineHeight: 1
+    };
+  };
+
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', onResize);
