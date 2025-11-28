@@ -128,7 +128,7 @@ export default function Sidebar({
 
             <li style={{ marginBottom: 10 }}>
               <a
-                href="/admin/affiliate-enquiries"
+                href="/admin/affiliatea-enquiries"
                 style={navItemBase}
                 onMouseEnter={e => e.currentTarget.style.background = '#E8F5E8'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}

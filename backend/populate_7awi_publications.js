@@ -519,14 +519,14 @@ async function populate7awiPublications() {
     let successCount = 0;
     let errorCount = 0;
 
-    // Step 1: Create or find the group
+    // Step 1: Create or find the group using integer SN
     console.log('\nStep 1: Creating/finding 7awi Media Group...');
-    let group = await findGroupBySN('7AWI-GRP');
+    let group = await findGroupBySN('1');
     
     if (!group) {
       console.log('7awi Media Group not found, creating it...');
       group = await createGroup({
-        group_sn: '7AWI-GRP',
+        group_sn: '1',
         group_name: '7awi Media Group',
         group_location: 'Dubai, UAE',
         group_website: 'https://7awi.com/',
@@ -545,17 +545,17 @@ async function populate7awiPublications() {
       try {
         console.log(`\n[${index + 1}/${PUBLICATIONS_DATA.length}] Processing: ${publicationData.publication_name}`);
 
-        // Check if publication already exists
-        const existing = await findPublicationBySN(`7AWI-${String(publicationData.publication_sn).padStart(3, '0')}`);
+        // Check if publication already exists using simple integer SN
+        const existing = await findPublicationBySN(publicationData.publication_sn.toString());
         if (existing) {
           console.log(`   Publication already exists, skipping...`);
           continue;
         }
 
-        // Create publication
+        // Create publication with correct data mapping
         const createdPub = await createPublication({
           group_id: group.id,
-          publication_sn: `7AWI-${String(publicationData.publication_sn).padStart(3, '0')}`,
+          publication_sn: publicationData.publication_sn.toString(),
           publication_grade: publicationData.publication_grade,
           publication_name: publicationData.publication_name,
           publication_website: publicationData.publication_website,
@@ -569,16 +569,16 @@ async function populate7awiPublications() {
           website_news_index: publicationData.website_news_index || '',
           da: publicationData.da,
           dr: publicationData.dr,
-          sponsored_or_not: publicationData.sponsored_or_not || false,
+          sponsored_or_not: publicationData.sponsored_or_not === 'Yes' ? true : false,
           words_limit: publicationData.words_limit,
           word_limit: publicationData.words_limit || 500,
           number_of_images: publicationData.no_of_images,
-          do_follow_link: publicationData.do_follow_link || false,
+          do_follow_link: publicationData.do_follow_link === 'Yes' ? true : false,
           example_link: publicationData.example_link || '',
           excluding_categories: publicationData.excluding_categories || '',
           other_remarks: publicationData.other_remarks || '',
           tags_badges: publicationData.hot_deals || '',
-          live_on_platform: publicationData.live_on_platform || false,
+          live_on_platform: publicationData.live_on_platform || true,
           status: publicationData.status || 'approved'
         });
 
@@ -711,9 +711,9 @@ async function createPublication(publicationData) {
 // Test mode function that doesn't require database
 function testPopulate7awiPublications() {
   console.log('=== TEST MODE: 7awi Media Group Publications ===');
-  console.log('⚠️  IMPORTANT: Create the group first via GroupManagement.jsx');
+  console.log('⚠️  IMPORTANT: This script will create both group and publications');
   console.log('');
-  console.log('📝 Group Details (create in GroupManagement.jsx):');
+  console.log('📝 Group Details to be created:');
   console.log('- Group SN: 1');
   console.log('- Group Name: 7awi Media Group');
   console.log('- Location: Dubai, UAE');
@@ -735,7 +735,7 @@ function testPopulate7awiPublications() {
     console.log('');
   });
 
-  console.log('✅ Test completed - create group first, then run script for publications.');
+  console.log('✅ Test completed - ready to create group and publications.');
 }
 
 // Run the populator

@@ -47,6 +47,7 @@ const AffiliateEnquiriesView = () => {
   }
 
   const [enquiries, setEnquiries] = useState([]);
+  const [totalEnquiries, setTotalEnquiries] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -56,8 +57,6 @@ const AffiliateEnquiriesView = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [sortField, setSortField] = useState('submitted_at');
-  const [sortDirection, setSortDirection] = useState('desc');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
 
@@ -134,7 +133,7 @@ const AffiliateEnquiriesView = () => {
 
   useEffect(() => {
     fetchEnquiries();
-  }, []);
+  }, [currentPage, pageSize, debouncedSearchTerm, statusFilter, dateFromFilter, dateToFilter]);
 
   const fetchEnquiries = async () => {
     try {
@@ -149,6 +148,7 @@ const AffiliateEnquiriesView = () => {
 
       const response = await api.get(`/affiliate-enquiries?${params}`);
       setEnquiries(response.data.enquiries || []);
+      setTotalEnquiries(response.data.pagination?.total || 0);
     } catch (error) {
       console.error('Error fetching affiliate enquiries:', error);
       if (error.response?.status === 401) {
@@ -163,84 +163,18 @@ const AffiliateEnquiriesView = () => {
     }
   };
 
-  // Filtered enquiries based on search and filters
-  const filteredEnquiries = useMemo(() => {
-    let filtered = enquiries;
 
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(enquiry =>
-        enquiry.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        enquiry.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
-      );
-    }
 
-    if (statusFilter) {
-      filtered = filtered.filter(enquiry => enquiry.status === statusFilter);
-    }
 
-    if (dateFromFilter) {
-      filtered = filtered.filter(enquiry => new Date(enquiry.submitted_at) >= new Date(dateFromFilter));
-    }
+  // Pagination logic (server-side)
+  const paginatedEnquiries = enquiries;
 
-    if (dateToFilter) {
-      filtered = filtered.filter(enquiry => new Date(enquiry.submitted_at) <= new Date(dateToFilter));
-    }
-
-    return filtered;
-  }, [enquiries, debouncedSearchTerm, statusFilter, dateFromFilter, dateToFilter]);
-
-  // Update filtered enquiries when filters change
-  useEffect(() => {
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [debouncedSearchTerm, statusFilter, dateFromFilter, dateToFilter]);
-
-  // Sorting logic
-  const sortedEnquiries = useMemo(() => {
-    return [...filteredEnquiries].sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      if (sortField === 'submitted_at' || sortField === 'created_at' || sortField === 'updated_at') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else {
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
-      }
-
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  }, [filteredEnquiries, sortField, sortDirection]);
-
-  // Pagination logic
-  const paginatedEnquiries = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortedEnquiries.slice(startIndex, startIndex + pageSize);
-  }, [sortedEnquiries, currentPage, pageSize]);
-
-  const totalPages = Math.ceil(sortedEnquiries.length / pageSize);
+  const totalPages = Math.ceil(totalEnquiries / pageSize);
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleString();
   };
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const getSortIcon = (field) => {
-    if (sortField !== field) return '';
-    return sortDirection === 'asc' ? '↑' : '↓';
-  };
 
   const handleViewEnquiry = async (enquiry) => {
     try {
@@ -262,6 +196,7 @@ const AffiliateEnquiriesView = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page when search changes
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
@@ -572,7 +507,10 @@ const AffiliateEnquiriesView = () => {
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap', marginTop: '16px' }}>
                 <select
                   value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   style={{
                     padding: '8px 12px',
                     border: '1px solid #e0e0e0',
@@ -591,7 +529,10 @@ const AffiliateEnquiriesView = () => {
                 <input
                   type="date"
                   value={dateFromFilter}
-                  onChange={(e) => setDateFromFilter(e.target.value)}
+                  onChange={(e) => {
+                    setDateFromFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   style={{
                     padding: '8px 12px',
                     border: '1px solid #e0e0e0',
@@ -605,7 +546,10 @@ const AffiliateEnquiriesView = () => {
                 <input
                   type="date"
                   value={dateToFilter}
-                  onChange={(e) => setDateToFilter(e.target.value)}
+                  onChange={(e) => {
+                    setDateToFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   style={{
                     padding: '8px 12px',
                     border: '1px solid #e0e0e0',
@@ -636,10 +580,7 @@ const AffiliateEnquiriesView = () => {
               {/* Search Results Summary */}
               <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                  Showing <strong>{paginatedEnquiries.length}</strong> of <strong>{sortedEnquiries.length}</strong> enquiries
-                  {sortedEnquiries.length !== enquiries.length && (
-                    <span> (filtered from {enquiries.length} total)</span>
-                  )}
+                  Showing <strong>{paginatedEnquiries.length}</strong> of <strong>{totalEnquiries}</strong> enquiries
                 </div>
               </div>
             </div>
@@ -682,11 +623,8 @@ const AffiliateEnquiriesView = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th
-                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('name')}
-                      >
-                        Name {getSortIcon('name')}
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Name
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Email
@@ -700,11 +638,8 @@ const AffiliateEnquiriesView = () => {
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Status
                       </th>
-                      <th
-                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('submitted_at')}
-                      >
-                        Submitted At {getSortIcon('submitted_at')}
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Submitted At
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Actions
@@ -887,9 +822,9 @@ const AffiliateEnquiriesView = () => {
               <div style={{ backgroundColor: '#f8fafc', padding: '16px', borderRadius: '8px' }}>
                 <h3 style={{ margin: '0 0 12px 0', fontSize: '18px', fontWeight: '700', color: theme.textPrimary }}>Social Media</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
-                  <div><strong>LinkedIn:</strong> {selectedEnquiry.linkedin ? <a href={selectedEnquiry.linkedin} target="_blank" rel="noopener noreferrer">{selectedEnquiry.linkedin}</a> : 'Not provided'}</div>
-                  <div><strong>Instagram:</strong> {selectedEnquiry.ig ? <a href={selectedEnquiry.ig} target="_blank" rel="noopener noreferrer">{selectedEnquiry.ig}</a> : 'Not provided'}</div>
-                  <div><strong>Facebook:</strong> {selectedEnquiry.facebook ? <a href={selectedEnquiry.facebook} target="_blank" rel="noopener noreferrer">{selectedEnquiry.facebook}</a> : 'Not provided'}</div>
+                  <div style={{ wordBreak: 'break-word' }}><strong>LinkedIn:</strong> {selectedEnquiry.linkedin ? <a href={selectedEnquiry.linkedin} target="_blank" rel="noopener noreferrer">{selectedEnquiry.linkedin}</a> : 'Not provided'}</div>
+                  <div style={{ wordBreak: 'break-word' }}><strong>Instagram:</strong> {selectedEnquiry.ig ? <a href={selectedEnquiry.ig} target="_blank" rel="noopener noreferrer">{selectedEnquiry.ig}</a> : 'Not provided'}</div>
+                  <div style={{ wordBreak: 'break-word' }}><strong>Facebook:</strong> {selectedEnquiry.facebook ? <a href={selectedEnquiry.facebook} target="_blank" rel="noopener noreferrer">{selectedEnquiry.facebook}</a> : 'Not provided'}</div>
                 </div>
               </div>
 
