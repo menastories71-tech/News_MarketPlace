@@ -68,6 +68,13 @@ class MessageCentralService {
         console.error('💡 Token should be a complete JWT starting with "eyJ..."');
       } else if (error.response?.status === 400) {
         console.error('⚠️ Bad request - check parameters and phone number format');
+        // Handle specific Message Central error codes
+        if (error.response?.data?.responseCode === 506) {
+          console.error('📱 Request already exists - cannot send multiple OTPs to same number quickly');
+          console.error('💡 Wait for current OTP to expire or use a different flow type');
+        } else if (error.response?.data?.responseCode === 400) {
+          console.error('📞 Invalid phone number or parameters');
+        }
       } else if (error.code === 'ECONNREFUSED') {
         console.error('🌐 Connection refused - check network connectivity');
       }

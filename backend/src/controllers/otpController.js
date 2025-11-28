@@ -48,9 +48,26 @@ class OTPController {
       } else {
         console.error('Failed to send OTP:', result.error);
 
-        res.status(result.status || 500).json({
+        // Handle Message Central specific errors with user-friendly messages
+        let errorMessage = 'Failed to send OTP';
+        let statusCode = result.status || 500;
+
+        if (result.error && typeof result.error === 'object') {
+          if (result.error.responseCode === 506) {
+            errorMessage = 'OTP already sent to this number recently. Please wait 60 seconds before requesting a new OTP.';
+            statusCode = 429; // Too Many Requests
+          } else if (result.error.responseCode === 400) {
+            errorMessage = 'Invalid phone number or request parameters.';
+            statusCode = 400;
+          } else if (result.error.responseCode === 401) {
+            errorMessage = 'Authentication failed. Please contact administrator.';
+            statusCode = 500;
+          }
+        }
+
+        res.status(statusCode).json({
           success: false,
-          message: 'Failed to send OTP',
+          message: errorMessage,
           error: result.error
         });
       }
@@ -103,13 +120,47 @@ class OTPController {
       const result = await messageCentralService.validateOTP(mobileNumber, verificationId, code, countryCode);
 
       if (result.success) {
-        console.log('OTP validated successfully:', result.data);
+        console.log('OTP validation response:', result.data);
 
-        res.status(200).json({
-          success: true,
-          message: 'OTP validated successfully',
-          data: result.data
-        });
+        // Handle Message Central validation response codes
+        const responseData = result.data;
+
+        if (responseData.responseCode === 200 || responseData.responseCode === 703) {
+          // 200 = SUCCESS, 703 = VERIFICATION_COMPLETED
+          res.status(200).json({
+            success: true,
+            message: 'OTP validated successfully',
+            data: responseData
+          });
+        } else if (responseData.responseCode === 702) {
+          // 702 = WRONG_OTP_PROVIDED
+          res.status(400).json({
+            success: false,
+            message: 'Invalid OTP code. Please check and try again.',
+            error: 'INVALID_OTP'
+          });
+        } else if (responseData.responseCode === 704) {
+          // 704 = OTP_EXPIRED
+          res.status(400).json({
+            success: false,
+            message: 'OTP has expired. Please request a new OTP.',
+            error: 'OTP_EXPIRED'
+          });
+        } else if (responseData.responseCode === 705) {
+          // 705 = MAX_ATTEMPTS_REACHED
+          res.status(429).json({
+            success: false,
+            message: 'Maximum validation attempts reached. Please request a new OTP.',
+            error: 'MAX_ATTEMPTS_EXCEEDED'
+          });
+        } else {
+          // Unknown response code
+          res.status(400).json({
+            success: false,
+            message: 'OTP validation failed. Please try again.',
+            error: responseData.message || 'VALIDATION_FAILED'
+          });
+        }
       } else {
         console.error('Failed to validate OTP:', result.error);
 
