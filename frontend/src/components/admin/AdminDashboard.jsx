@@ -52,14 +52,15 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  // z-index layering constants
-  const mobileOverlayZ = 500; // above page content
-  const sidebarZ = 200;       // desktop sidebar z-index (under overlay)
+  // z-index layering constants (header must be topmost)
+  const headerZ = 1000;
+  const mobileOverlayZ = 500; // under header but above page content
+  const sidebarZ = 200;       // desktop sidebar z-index (under overlay and header)
 
-  // header height used for mobile overlay positioning (no header, so 0)
-  const headerHeight = 0;
-  // apply this as top padding for the main content
-  const mainPaddingTop = 0;
+  // header height used for mobile overlay positioning
+  const headerHeight = 64;
+  // apply this as top padding for the main content so nothing scrolls underneath the header
+  const mainPaddingTop = headerHeight + 18;
 
   // Sidebar styles and items
   const sidebarWidth = 240;
@@ -72,12 +73,12 @@ const AdminDashboard = () => {
     boxSizing: 'border-box',
     borderRadius: 8
   };
-  // single mobileSidebarOverlay definition
+  // single mobileSidebarOverlay definition (keeps headerHeight/sidebarWidth in sync)
   const mobileSidebarOverlay = {
     position: 'fixed',
-    top: 0,
+    top: headerHeight,
     left: 0,
-    height: '100vh',
+    height: `calc(100vh - ${headerHeight}px)`,
     zIndex: mobileOverlayZ,
     backgroundColor: '#fff',
     padding: 16,
@@ -200,36 +201,137 @@ const AdminDashboard = () => {
   }, [sidebarOpen, isMobile]);
 
   return (
-    <div
-      className="min-h-screen"
-      style={{ backgroundColor: theme.muted, color: theme.text, paddingBottom: '3rem' }}
-    >
-
-      {/* Sidebar fixed on desktop (so it sits at viewport left) */}
-      <Sidebar
-        admin={admin}
-        roleDisplayNames={roleDisplayNames}
-        theme={theme}
-        sidebarOpen={sidebarOpen}
-        setSidebarOpen={setSidebarOpen}
-        sidebarStyles={sidebarStyles}
-        mobileSidebarOverlay={mobileSidebarOverlay}
-        isMobile={isMobile}
-        headerHeight={headerHeight}
-        sidebarWidth={sidebarWidth}
-        sidebarZ={sidebarZ}
-        mobileOverlayZ={mobileOverlayZ}
-      />
-
-      {/* Main Layout content (centered max width). On desktop add left margin equal to sidebar width + leftGap when sidebar visible.
-          mainPaddingTop prevents content from sliding under the sticky header when scrolling. */}
-      <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-10" style={{
-        paddingTop: mainPaddingTop,
-        marginLeft: !isMobile && sidebarOpen ? (sidebarWidth + leftGap) : 0,
-        transition: 'margin-left 0.28s ease-in-out'
+    <div style={{ backgroundColor: theme.backgroundSoft, minHeight: '100vh', color: theme.textPrimary }}>
+      {/* Header */}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: headerHeight,
+        backgroundColor: theme.background,
+        borderBottom: `1px solid ${theme.borderLight}`,
+        zIndex: headerZ,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '0 24px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.04)'
       }}>
-         <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start' }}>
-          <main style={{ flex: 1, minWidth: 0, paddingLeft: !isMobile ? leftGap : 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textSecondary} strokeWidth="2">
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg, #1976D2, #0D47A1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <span style={{ color: '#fff', fontSize: '18px', fontWeight: '800' }}>N</span>
+            </div>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '18px', fontWeight: '800', color: theme.textPrimary }}>News MarketPlace</h1>
+              <p style={{ margin: 0, fontSize: '12px', color: theme.textSecondary }}>Admin Panel</p>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
+              {admin?.first_name} {admin?.last_name}
+            </div>
+            <div style={getRoleStyle(admin?.role)}>
+              {roleDisplayNames[admin?.role] || 'User'}
+            </div>
+          </div>
+
+          <button
+            onClick={logout}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#fee2e2'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+            title="Logout"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={theme.danger} strokeWidth="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <polyline points="16,17 21,12 16,7" />
+              <line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      {/* Sidebar */}
+      {sidebarOpen && (
+        <>
+          {isMobile && (
+            <div
+              style={mobileSidebarOverlay}
+              onClick={() => setSidebarOpen(false)}
+            />
+          )}
+          <aside style={{
+            position: isMobile ? 'fixed' : 'fixed',
+            top: headerHeight,
+            left: 0,
+            width: sidebarWidth,
+            height: `calc(100vh - ${headerHeight}px)`,
+            zIndex: sidebarZ,
+            ...sidebarStyles
+          }}>
+            <Sidebar
+              admin={admin}
+              roleDisplayNames={roleDisplayNames}
+              theme={theme}
+              sidebarOpen={sidebarOpen}
+              setSidebarOpen={setSidebarOpen}
+              sidebarStyles={sidebarStyles}
+              mobileSidebarOverlay={mobileSidebarOverlay}
+              isMobile={isMobile}
+              headerHeight={headerHeight}
+              sidebarWidth={sidebarWidth}
+              sidebarZ={sidebarZ}
+              mobileOverlayZ={mobileOverlayZ}
+            />
+          </aside>
+        </>
+      )}
+
+      {/* Main Content */}
+      <main style={{
+        marginLeft: sidebarOpen && !isMobile ? sidebarWidth + leftGap : leftGap,
+        paddingTop: mainPaddingTop,
+        paddingRight: leftGap,
+        paddingBottom: leftGap,
+        minHeight: '100vh',
+        transition: 'margin-left 0.3s ease'
+      }}>
             {/* Hero / big title */}
             <div style={{ background: '#fff', borderRadius: 12, padding: 28, border: `4px solid #000`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginTop: 0 }}>
               <div>
@@ -340,9 +442,7 @@ const AdminDashboard = () => {
                 </div>
               </div>
             </div>
-           </main>
-         </div>
-       </div>
+      </main>
     </div>
   );
 };
