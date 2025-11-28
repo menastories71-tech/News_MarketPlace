@@ -75,8 +75,9 @@ class MessageCentralService {
    * @param {string} flowType - 'SMS' or 'WHATSAPP'
    * @param {string} countryCode - Default '91' for India
    * @param {number} otpLength - OTP length (4-8, default 4)
+   * @param {string} customMessage - Custom message template (optional)
    */
-  async sendOTP(mobileNumber, flowType = 'SMS', countryCode = '91', otpLength = 4) {
+  async sendOTP(mobileNumber, flowType = 'SMS', countryCode = '91', otpLength = 4, customMessage = null) {
     try {
       // Check if credentials are configured
       if (!this.authToken) {
@@ -94,6 +95,11 @@ class MessageCentralService {
         mobileNumber,
         otpLength
       };
+
+      // Add custom message if provided
+      if (customMessage) {
+        params.message = customMessage;
+      }
 
       console.log(`📱 Sending ${flowType} OTP to ${mobileNumber}`);
       console.log('🔗 MessageCentral URL:', url);

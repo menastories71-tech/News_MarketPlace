@@ -31,7 +31,7 @@ const validateRateLimit = rateLimit({
  * @route POST /api/otp/send
  * @desc Send OTP to mobile number
  * @access Public
- * @body { mobileNumber: string, flowType?: 'SMS'|'WHATSAPP', countryCode?: string, otpLength?: number }
+ * @body { mobileNumber: string, flowType?: 'SMS'|'WHATSAPP', countryCode?: string, otpLength?: number, customMessage?: string }
  */
 router.post('/send', otpRateLimit, async (req, res) => {
   await otpController.sendOTP(req, res);
@@ -54,6 +54,16 @@ router.post('/validate', validateRateLimit, async (req, res) => {
  */
 router.get('/health', async (req, res) => {
   await otpController.healthCheck(req, res);
+});
+
+/**
+ * @route POST /api/otp/generate-token
+ * @desc Generate MessageCentral authentication token
+ * @access Public
+ * @body { email?: string, country?: string, scope?: string }
+ */
+router.post('/generate-token', async (req, res) => {
+  await otpController.generateToken(req, res);
 });
 
 /**

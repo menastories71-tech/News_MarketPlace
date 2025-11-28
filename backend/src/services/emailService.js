@@ -4,7 +4,7 @@ const SibApiV3Sdk = require('@getbrevo/brevo');
 class EmailService {
   constructor() {
     this.fromEmail = process.env.BREVO_FROM_EMAIL || process.env.FROM_EMAIL;
-    this.fromName = process.env.BREVO_FROM_NAME || 'Magazine Website';
+    this.fromName = process.env.BREVO_FROM_NAME || 'vaas solutions';
 
     // Initialize Brevo API client
     this.apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
@@ -27,7 +27,7 @@ class EmailService {
     }
 
     const subject = type === 'registration'
-      ? 'Verify Your Magazine Website Account'
+      ? 'Verify Your vaas solutions Account'
       : type === 'password_reset'
       ? 'Password Reset Verification Code'
       : type === 'contact_form'
@@ -68,7 +68,7 @@ class EmailService {
 
     try {
       const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-      sendSmtpEmail.subject = 'Reset Your Magazine Website Password';
+      sendSmtpEmail.subject = 'Reset Your vaas solutions Password';
       sendSmtpEmail.htmlContent = htmlContent;
       sendSmtpEmail.sender = {
         name: this.fromName,
@@ -97,7 +97,7 @@ class EmailService {
 
     try {
       const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-      sendSmtpEmail.subject = 'Welcome to Magazine Website!';
+      sendSmtpEmail.subject = 'Welcome to vaas solutions!';
       sendSmtpEmail.htmlContent = htmlContent;
       sendSmtpEmail.sender = {
         name: this.fromName,
@@ -141,7 +141,7 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Magazine Website</h1>
+              <h1>vaas solutions</h1>
             </div>
             <div class="content">
               <h2>Your Verification Code</h2>
@@ -151,7 +151,7 @@ class EmailService {
               <p>If you didn't request this code, please ignore this email.</p>
             </div>
             <div class="footer">
-              <p>&copy; 2024 Magazine Website. All rights reserved.</p>
+              <p>&copy; 2024 vaas solutions. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -178,18 +178,18 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Magazine Website</h1>
+              <h1>vaas solutions</h1>
             </div>
             <div class="content">
               <h2>Reset Your Password</h2>
-              <p>You requested a password reset for your Magazine Website account.</p>
+              <p>You requested a password reset for your vaas solutions account.</p>
               <p>Click the button below to reset your password:</p>
               <a href="${resetUrl}" class="button">Reset Password</a>
               <p>This link will expire in 30 minutes.</p>
               <p>If you didn't request this reset, please ignore this email.</p>
             </div>
             <div class="footer">
-              <p>&copy; 2024 Magazine Website. All rights reserved.</p>
+              <p>&copy; 2024 vaas solutions. All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -215,11 +215,11 @@ class EmailService {
         <body>
           <div class="container">
             <div class="header">
-              <h1>Welcome to Magazine Website!</h1>
+              <h1>Welcome to vaas solutions!</h1>
             </div>
             <div class="content">
               <h2>Hello ${firstName}!</h2>
-              <p>Thank you for joining Magazine Website. Your account has been successfully verified.</p>
+              <p>Thank you for joining vaas solutions. Your account has been successfully verified.</p>
               <p>You can now:</p>
               <ul>
                 <li>Browse and purchase premium articles</li>
@@ -230,7 +230,7 @@ class EmailService {
               <p>Get started by exploring our latest articles and publications.</p>
             </div>
             <div class="footer">
-              <p>&copy; 2024 Magazine Website. All rights reserved.</p>
+              <p>&copy; 2024 vaas solutions. All rights reserved.</p>
             </div>
           </div>
         </body>

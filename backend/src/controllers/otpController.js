@@ -6,7 +6,7 @@ class OTPController {
    */
   async sendOTP(req, res) {
     try {
-      const { mobileNumber, flowType = 'SMS', countryCode = '91', otpLength = 4 } = req.body;
+      const { mobileNumber, flowType = 'SMS', countryCode = '91', otpLength = 4, customMessage } = req.body;
 
       // Validate input
       if (!mobileNumber) {
@@ -43,7 +43,7 @@ class OTPController {
       console.log(`Sending ${flowType} OTP to ${countryCode}${mobileNumber}`);
 
       // Send OTP via Message Central
-      const result = await messageCentralService.sendOTP(mobileNumber, flowType, countryCode, otpLength);
+      const result = await messageCentralService.sendOTP(mobileNumber, flowType, countryCode, otpLength, customMessage);
 
       if (result.success) {
         console.log('OTP sent successfully:', result.data);
@@ -222,6 +222,47 @@ class OTPController {
   }
 
   /**
+   * Generate authentication token
+   */
+  async generateToken(req, res) {
+    try {
+      const { email, country = '91', scope = 'NEW' } = req.body;
+
+      console.log('🔑 Generating MessageCentral authentication token');
+
+      // Generate token using MessageCentral service
+      const result = await messageCentralService.generateToken(email, country, scope);
+
+      if (result.success) {
+        console.log('✅ Token generation successful');
+
+        res.status(200).json({
+          success: true,
+          message: 'Authentication token generated successfully',
+          data: result.data
+        });
+      } else {
+        console.error('❌ Token generation failed:', result.error);
+
+        res.status(result.status || 500).json({
+          success: false,
+          message: 'Failed to generate authentication token',
+          error: result.error
+        });
+      }
+
+    } catch (error) {
+      console.error('Token generation controller error:', error);
+
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error during token generation',
+        error: error.message
+      });
+    }
+  }
+
+  /**
    * Get OTP service information
    */
   async getServiceInfo(req, res) {
@@ -235,8 +276,12 @@ class OTPController {
           customerId: messageCentralService.customerId,
           supportedCountries: ['91'], // India
           supportedFlows: ['SMS', 'WHATSAPP'],
-          otpLength: '4-6 digits',
-          phoneNumberFormat: '10 digits (Indian mobile numbers)'
+          otpLength: '4-8 digits',
+          phoneNumberFormat: '10 digits (Indian mobile numbers)',
+          tokenGeneration: {
+            endpoint: 'POST /api/otp/generate-token',
+            parameters: ['email', 'country', 'scope']
+          }
         }
       });
 

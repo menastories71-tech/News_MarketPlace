@@ -5,6 +5,8 @@ import UserFooter from '../components/common/UserFooter';
 const OTPTest = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [flowType, setFlowType] = useState('SMS');
+  const [otpLength, setOtpLength] = useState(4);
+  const [customMessage, setCustomMessage] = useState('');
   const [otp, setOtp] = useState('');
   const [verificationId, setVerificationId] = useState('');
   const [loading, setLoading] = useState(false);
@@ -34,7 +36,9 @@ const OTPTest = () => {
         body: JSON.stringify({
           mobileNumber: phoneNumber,
           flowType: flowType,
-          countryCode: '91'
+          countryCode: '91',
+          otpLength: otpLength,
+          customMessage: customMessage || undefined
         })
       });
 
@@ -56,8 +60,8 @@ const OTPTest = () => {
   };
 
   const validateOTP = async () => {
-    if (!otp || otp.length < 4 || otp.length > 6) {
-      setError('Please enter a valid 4-6 digit OTP');
+    if (!otp || otp.length !== otpLength) {
+      setError(`Please enter a valid ${otpLength}-digit OTP`);
       return;
     }
 
@@ -102,6 +106,9 @@ const OTPTest = () => {
 
   const resetForm = () => {
     setPhoneNumber('');
+    setFlowType('SMS');
+    setOtpLength(4);
+    setCustomMessage('');
     setOtp('');
     setVerificationId('');
     setSendResponse(null);
@@ -178,6 +185,41 @@ const OTPTest = () => {
               </div>
             </div>
 
+            {/* OTP Length Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#212121] mb-2">
+                OTP Length
+              </label>
+              <select
+                value={otpLength}
+                onChange={(e) => setOtpLength(parseInt(e.target.value))}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#1976D2] focus:border-[#1976D2] text-[#212121]"
+              >
+                <option value={4}>4 digits</option>
+                <option value={5}>5 digits</option>
+                <option value={6}>6 digits</option>
+                <option value={7}>7 digits</option>
+                <option value={8}>8 digits</option>
+              </select>
+            </div>
+
+            {/* Custom Message */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-[#212121] mb-2">
+                Custom Message (Optional)
+              </label>
+              <textarea
+                value={customMessage}
+                onChange={(e) => setCustomMessage(e.target.value)}
+                placeholder="Enter custom SMS message. Use {otp} as placeholder for OTP code. Leave empty for default MessageCentral template."
+                rows={3}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#1976D2] focus:border-[#1976D2] text-[#212121] resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Example: "Your vaas solutions verification code is {otp}. Valid for 5 minutes."
+              </p>
+            </div>
+
             {/* Send OTP Button */}
             <div className="mb-6">
               <button
@@ -221,13 +263,14 @@ const OTPTest = () => {
             {verificationId && (
               <div className="mb-6">
                 <label className="block text-sm font-medium text-[#212121] mb-2">
-                  Enter OTP (6 digits)
+                  Enter OTP ({otpLength} digits)
                 </label>
                 <input
                   type="text"
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="Enter 6-digit OTP"
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, otpLength))}
+                  placeholder={`Enter ${otpLength}-digit OTP`}
+                  maxLength={otpLength}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-[#1976D2] focus:border-[#1976D2] text-[#212121]"
                 />
                 <button
@@ -289,13 +332,16 @@ const OTPTest = () => {
             <h3 className="text-lg font-semibold text-[#212121] mb-4">API Information</h3>
             <div className="space-y-2 text-sm text-[#757575]">
               <p><strong>Backend API:</strong> {API_BASE_URL}/api/otp</p>
-              <p><strong>Send OTP:</strong> POST /api/otp/send</p>
-              <p><strong>Validate OTP:</strong> POST /api/otp/validate</p>
+              <p><strong>Generate Token:</strong> POST /api/otp/generate-token (email, country, scope)</p>
+              <p><strong>Send OTP:</strong> POST /api/otp/send (mobileNumber, flowType, countryCode, otpLength, customMessage)</p>
+              <p><strong>Validate OTP:</strong> POST /api/otp/validate (verificationId, code, flowType, langid)</p>
               <p><strong>Health Check:</strong> GET /api/otp/health</p>
               <p><strong>Service Info:</strong> GET /api/otp/info</p>
               <p><strong>Provider:</strong> Message Central</p>
               <p><strong>Country Code:</strong> 91 (India)</p>
               <p><strong>Flow Types:</strong> SMS, WhatsApp</p>
+              <p><strong>OTP Length:</strong> 4-8 digits (configurable)</p>
+              <p><strong>Custom Messages:</strong> Supported (use {otp} placeholder)</p>
               <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
                 <p className="text-green-800 text-xs">
                   <strong>Status:</strong> OTP service is configured and ready. If you're getting authentication errors, please verify your Message Central auth token is complete and valid.

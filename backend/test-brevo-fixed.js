@@ -18,7 +18,7 @@ async function testBrevoAPI() {
       sendSmtpEmail.subject = "Test Email from News Marketplace";
       sendSmtpEmail.htmlContent = "<p>This is a test email to verify Brevo integration.</p>";
       sendSmtpEmail.sender = { 
-        name: 'News Marketplace Test', 
+        name: 'vaas solutions Test',
         email: process.env.BREVO_FROM_EMAIL || 'madhavarora132005@gmail.com'
       };
       sendSmtpEmail.to = [{ email: 'madhavarora132005@gmail.com' }];
