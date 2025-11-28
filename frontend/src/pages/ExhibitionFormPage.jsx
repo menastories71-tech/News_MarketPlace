@@ -624,15 +624,55 @@ const ExhibitionFormPage = () => {
             border-radius: 6px !important;
           }
 
-          /* Mobile Responsiveness */
-          @media (max-width: 640px) {
+          /* Mobile Responsiveness - Very Small Screens (320px and up) */
+          @media (max-width: 320px) {
+            .form-container {
+              padding: '16px 12px' !important;
+              margin: '16px' !important;
+            }
+
+            .form-section {
+              padding: '16px' !important;
+              margin-bottom: '16px' !important;
+              border-radius: '12px' !important;
+            }
+
+            .section-title {
+              font-size: '1.1rem' !important;
+              margin-bottom: '16px' !important;
+            }
+
+            .input-grid, .language-grid {
+              grid-template-columns: 1fr !important;
+              gap: '12px' !important;
+            }
+
+            .submit-button {
+              width: '100%' !important;
+              max-width: 'none' !important;
+              padding: '12px 24px' !important;
+              font-size: '14px' !important;
+            }
+
+            input, select, textarea {
+              font-size: '14px' !important;
+              padding: '12px 14px' !important;
+            }
+
+            label {
+              font-size: '13px' !important;
+            }
+          }
+
+          /* Small Mobile (321px - 480px) */
+          @media (min-width: 321px) and (max-width: 480px) {
             .form-container {
               padding: '20px 16px' !important;
             }
 
             .form-section {
               padding: '20px' !important;
-              margin-bottom: '24px' !important;
+              margin-bottom: '20px' !important;
             }
 
             .section-title {
@@ -644,15 +684,51 @@ const ExhibitionFormPage = () => {
             }
 
             .language-grid {
-              grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+              grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
             }
 
             .submit-button {
               width: '100%' !important;
               max-width: 'none' !important;
+              padding: '14px 28px' !important;
+            }
+
+            input, select, textarea {
+              font-size: '15px' !important;
+              padding: '14px 16px' !important;
             }
           }
 
+          /* Medium Mobile (481px - 640px) */
+          @media (min-width: 481px) and (max-width: 640px) {
+            .form-container {
+              padding: '24px 20px' !important;
+            }
+
+            .form-section {
+              padding: '24px' !important;
+              margin-bottom: '24px' !important;
+            }
+
+            .section-title {
+              font-size: '1.4rem' !important;
+            }
+
+            .input-grid {
+              grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+            }
+
+            .language-grid {
+              grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important;
+            }
+
+            .submit-button {
+              width: '100%' !important;
+              max-width: '320px' !important;
+            }
+          }
+
+          /* Desktop and larger */
           @media (min-width: 641px) {
             .input-grid {
               grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
@@ -660,6 +736,65 @@ const ExhibitionFormPage = () => {
 
             .language-grid {
               grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+            }
+
+            .submit-button {
+              max-width: '280px' !important;
+            }
+          }
+
+          /* Responsive Text Sizing */
+          @media (max-width: 320px) {
+            .form-header {
+              padding: '24px 16px' !important;
+            }
+
+            .main-title {
+              font-size: '1.8rem' !important;
+            }
+
+            .main-subtitle {
+              font-size: '0.9rem' !important;
+            }
+
+            .registration-title {
+              font-size: '1.4rem' !important;
+            }
+          }
+
+          @media (min-width: 321px) and (max-width: 480px) {
+            .form-header {
+              padding: '32px 24px' !important;
+            }
+
+            .main-title {
+              font-size: '2.1rem' !important;
+            }
+
+            .main-subtitle {
+              font-size: '1rem' !important;
+            }
+
+            .registration-title {
+              font-size: '1.6rem' !important;
+            }
+          }
+
+          @media (min-width: 481px) and (max-width: 640px) {
+            .form-header {
+              padding: '36px 28px' !important;
+            }
+
+            .main-title {
+              font-size: '2.3rem' !important;
+            }
+
+            .main-subtitle {
+              font-size: '1.05rem' !important;
+            }
+
+            .registration-title {
+              font-size: '1.7rem' !important;
             }
           }
 
@@ -767,7 +902,7 @@ const ExhibitionFormPage = () => {
       <div style={{
         minHeight: '100vh',
         background: theme.backgroundGradient,
-        padding: '40px 20px'
+        padding: '20px 16px'
       }}>
       <div className="form-container" style={{
         maxWidth: '900px',
@@ -781,7 +916,7 @@ const ExhibitionFormPage = () => {
         position: 'relative'
       }}>
         {/* Header with gradient background */}
-        <div style={{
+        <div className="form-header" style={{
           background: theme.primary,
           padding: '40px 32px',
           textAlign: 'center',
@@ -797,7 +932,7 @@ const ExhibitionFormPage = () => {
             background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.05"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
             opacity: 0.1
           }}></div>
-          <h1 style={{
+          <h1 className="main-title" style={{
             fontSize: '2.5rem',
             fontWeight: '800',
             color: 'white',
@@ -808,7 +943,7 @@ const ExhibitionFormPage = () => {
           }}>
             Exhibition Registration
           </h1>
-          <p style={{
+          <p className="main-subtitle" style={{
             fontSize: '1.1rem',
             color: 'rgba(255,255,255,0.9)',
             margin: 0,
@@ -821,7 +956,7 @@ const ExhibitionFormPage = () => {
         </div>
 
         <div style={{ padding: '40px 32px' }}>
-          <h2 style={{
+          <h2 className="registration-title" style={{
             fontSize: '1.8rem',
             fontWeight: '700',
             color: theme.textPrimary,
