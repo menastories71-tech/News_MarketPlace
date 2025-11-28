@@ -96,6 +96,7 @@ import ArticleDetailPage from './pages/ArticleDetailPage';
 import ArticleSubmissionPage from './pages/ArticleSubmissionPage';
 import AiArticleQuestionnairePage from './pages/AiArticleQuestionnairePage';
 import AiArticleGenerationPage from './pages/AiArticleGenerationPage';
+import ExhibitionFormPage from './pages/ExhibitionFormPage';
 import CSR from './pages/CSR';
 import TrademarkPolicy from './pages/TrademarkPolicy';
 import DataProtection from './pages/DataProtection';
@@ -423,6 +424,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/new/form/exhibition_form" element={<ExhibitionFormPage />} />
             <Route
               path="/reporter-submissions"
               element={
