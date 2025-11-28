@@ -708,8 +708,17 @@ const theme = {
 const PublishedWorkManagement = () => {
   const { admin, logout, hasRole } = useAdminAuth();
 
+  const roleDisplayNames = {
+    'super_admin': 'Super Administrator',
+    'content_manager': 'Content Manager',
+    'editor': 'Editor',
+    'registered_user': 'Registered User',
+    'agency': 'Agency',
+    'other': 'Other'
+  };
+
   // Check if user has permission to manage published works
-  if (!hasRole('super_admin')) {
+  if (loading || !hasRole || !hasRole('super_admin')) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: theme.backgroundSoft }}>
         <div style={{ textAlign: 'center' }}>

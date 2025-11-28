@@ -1302,6 +1302,40 @@ const theme = {
 const ArticleSubmissionsManagement = () => {
   const { admin, logout, hasRole } = useAdminAuth();
 
+  const roleDisplayNames = {
+    'super_admin': 'Super Administrator',
+    'content_manager': 'Content Manager',
+    'editor': 'Editor',
+    'registered_user': 'Registered User',
+    'agency': 'Agency',
+    'other': 'Other'
+  };
+
+  const getRoleStyle = (role) => {
+    const roleColors = {
+      super_admin: { bg: '#E0F2F1', color: '#004D40' },
+      content_manager: { bg: '#E3F2FD', color: '#0D47A1' },
+      editor: { bg: '#FFF3E0', color: '#E65100' },
+      registered_user: { bg: '#F3E5F5', color: '#6A1B9A' },
+      agency: { bg: '#E8F5E8', color: '#2E7D32' },
+      other: { bg: '#FAFAFA', color: '#616161' }
+    };
+
+    const r = roleColors[role] || roleColors.other;
+    return {
+      backgroundColor: r.bg,
+      color: r.color,
+      padding: '0.125rem 0.5rem',
+      borderRadius: '9999px',
+      fontSize: '0.75rem',
+      fontWeight: 600,
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '0.25rem',
+      lineHeight: 1
+    };
+  };
+
   // Check if user has permission to manage article submissions
   if (!hasRole('super_admin')) {
     return (
