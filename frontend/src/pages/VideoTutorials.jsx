@@ -54,9 +54,9 @@ const useLocalStorage = (key, initialValue) => {
 const VideoTutorials = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [bookmarkedVideos, setBookmarkedVideos] = useLocalStorage('bookmarkedVideos', new Set());
-  const [watchedVideos, setWatchedVideos] = useLocalStorage('watchedVideos', new Set());
-  const [videoProgress, setVideoProgress] = useLocalStorage('videoProgress', {});
+  const [bookmarkedVideos, setBookmarkedVideos] = useLocalStorage('bookmarkedVideos2', new Set());
+  const [watchedVideos, setWatchedVideos] = useLocalStorage('watchedVideos2', new Set());
+  const [videoProgress, setVideoProgress] = useLocalStorage('videoProgress2', {});
   const [currentPlayingVideo, setCurrentPlayingVideo] = useState(null);
 
   const categories = [
