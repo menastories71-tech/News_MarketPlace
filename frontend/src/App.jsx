@@ -39,6 +39,7 @@ import RealEstateList from './pages/RealEstateList';
 import RealEstateDetail from './pages/RealEstateDetail';
 import HowToGuides from './pages/HowToGuides';
 import DownloadCenter from './pages/DownloadCenter';
+import OTPTest from './pages/OTPTest';
 import ResourceLibrary from './pages/ResourceLibrary';
 import PublicationsPage from './pages/PublicationsPage';
 import PublicationDetailPage from './pages/PublicationDetailPage';
@@ -268,6 +269,7 @@ function App() {
             <Route path="/press-guidelines" element={<PressGuidelines />} />
             <Route path="/brands-people" element={<BrandsPeople />} />
             <Route path="/media-partnerships" element={<MediaPartnerships />} />
+            <Route path="/otp" element={<OTPTest />} />
             <Route path="/services-overview" element={<ServicesOverview />} />
             <Route path="/podcasters" element={<PodcastersList />} />
             <Route path="/podcasters/:id" element={<PodcasterDetail />} />
