@@ -11,16 +11,26 @@ const useLocalStorage = (key, initialValue) => {
       const item = window.localStorage.getItem(key);
       if (item) {
         const parsed = JSON.parse(item);
-        // Convert arrays back to Sets if initialValue is a Set
+        // Validate and convert data
         if (initialValue instanceof Set) {
-          return Array.isArray(parsed) ? new Set(parsed) : initialValue;
+          if (Array.isArray(parsed)) {
+            return new Set(parsed);
+          }
+        } else if (typeof initialValue === 'object' && initialValue !== null) {
+          if (typeof parsed === 'object' && parsed !== null) {
+            return parsed;
+          }
+        } else {
+          return parsed;
         }
-        // Ensure objects are returned as objects
-        return typeof parsed === 'object' && parsed !== null ? parsed : initialValue;
       }
       return initialValue;
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
+      // Clear corrupted data
+      try {
+        window.localStorage.removeItem(key);
+      } catch (e) {}
       return initialValue;
     }
   });
