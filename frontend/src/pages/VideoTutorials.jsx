@@ -12,7 +12,11 @@ const useLocalStorage = (key, initialValue) => {
       if (item) {
         const parsed = JSON.parse(item);
         // Convert arrays back to Sets if initialValue is a Set
-        return initialValue instanceof Set ? new Set(parsed) : parsed;
+        if (initialValue instanceof Set) {
+          return Array.isArray(parsed) ? new Set(parsed) : initialValue;
+        }
+        // Ensure objects are returned as objects
+        return typeof parsed === 'object' && parsed !== null ? parsed : initialValue;
       }
       return initialValue;
     } catch (error) {
@@ -43,6 +47,19 @@ const VideoTutorials = () => {
   const [watchedVideos, setWatchedVideos] = useLocalStorage('watchedVideos', new Set());
   const [videoProgress, setVideoProgress] = useLocalStorage('videoProgress', {});
   const [currentPlayingVideo, setCurrentPlayingVideo] = useState(null);
+
+  // Fix corrupted localStorage data
+  useEffect(() => {
+    if (!(bookmarkedVideos instanceof Set)) {
+      setBookmarkedVideos(new Set());
+    }
+    if (!(watchedVideos instanceof Set)) {
+      setWatchedVideos(new Set());
+    }
+    if (!(videoProgress instanceof Object) || videoProgress === null) {
+      setVideoProgress({});
+    }
+  }, [bookmarkedVideos, watchedVideos, videoProgress, setBookmarkedVideos, setWatchedVideos, setVideoProgress]);
 
   const categories = [
     { id: 'all', name: 'All Videos (24)', count: 24 },
@@ -446,7 +463,7 @@ const VideoTutorials = () => {
   };
 
   const getVideoProgress = (videoId) => {
-    return videoProgress[videoId] || 0;
+    return (videoProgress && typeof videoProgress === 'object' && videoProgress[videoId]) || 0;
   };
 
   const getProgressColor = (progress) => {
