@@ -627,14 +627,14 @@ const ExhibitionFormPage = () => {
           /* Mobile Responsiveness - Very Small Screens (320px and up) */
           @media (max-width: 320px) {
             .form-container {
-              padding: '16px 12px' !important;
-              margin: '16px' !important;
+              padding: '12px 8px' !important;
+              margin: '8px' !important;
             }
 
             .form-section {
-              padding: '16px' !important;
-              margin-bottom: '16px' !important;
-              border-radius: '12px' !important;
+              padding: '12px 8px' !important;
+              margin-bottom: '12px' !important;
+              border-radius: '8px' !important;
             }
 
             .section-title {
@@ -667,12 +667,12 @@ const ExhibitionFormPage = () => {
           /* Small Mobile (321px - 480px) */
           @media (min-width: 321px) and (max-width: 480px) {
             .form-container {
-              padding: '20px 16px' !important;
+              padding: '16px 12px' !important;
             }
 
             .form-section {
-              padding: '20px' !important;
-              margin-bottom: '20px' !important;
+              padding: '16px 12px' !important;
+              margin-bottom: '16px' !important;
             }
 
             .section-title {
@@ -702,12 +702,12 @@ const ExhibitionFormPage = () => {
           /* Medium Mobile (481px - 640px) */
           @media (min-width: 481px) and (max-width: 640px) {
             .form-container {
-              padding: '24px 20px' !important;
+              padding: '20px 16px' !important;
             }
 
             .form-section {
-              padding: '24px' !important;
-              margin-bottom: '24px' !important;
+              padding: '20px 16px' !important;
+              margin-bottom: '20px' !important;
             }
 
             .section-title {
@@ -730,6 +730,15 @@ const ExhibitionFormPage = () => {
 
           /* Desktop and larger */
           @media (min-width: 641px) {
+            .form-container {
+              padding: '32px 24px' !important;
+            }
+
+            .form-section {
+              padding: '28px 24px' !important;
+              margin-bottom: '28px' !important;
+            }
+
             .input-grid {
               grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
             }
@@ -902,14 +911,14 @@ const ExhibitionFormPage = () => {
       <div style={{
         minHeight: '100vh',
         background: theme.backgroundGradient,
-        padding: '20px 16px'
+        padding: '16px 12px'
       }}>
       <div className="form-container" style={{
-        maxWidth: '900px',
+        maxWidth: '800px',
         margin: '0 auto',
         background: theme.cardBackground,
         backdropFilter: 'blur(20px)',
-        borderRadius: '24px',
+        borderRadius: '20px',
         boxShadow: theme.shadow,
         border: `1px solid ${theme.borderLight}`,
         overflow: 'hidden',
@@ -955,7 +964,7 @@ const ExhibitionFormPage = () => {
           </p>
         </div>
 
-        <div style={{ padding: '40px 32px' }}>
+        <div style={{ padding: '32px 24px' }}>
           <h2 className="registration-title" style={{
             fontSize: '1.8rem',
             fontWeight: '700',
@@ -1020,10 +1029,10 @@ const ExhibitionFormPage = () => {
           <form onSubmit={handleSubmit}>
             {/* Personal Information Section */}
             <div className="form-section" style={{
-              marginBottom: '40px',
+              marginBottom: '28px',
               background: `linear-gradient(135deg, ${theme.backgroundAlt} 0%, rgba(255,255,255,0.8) 100%)`,
-              borderRadius: '16px',
-              padding: '24px',
+              borderRadius: '12px',
+              padding: '20px',
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
@@ -1134,10 +1143,10 @@ const ExhibitionFormPage = () => {
 
             {/* Language Section */}
             <div className="form-section" style={{
-              marginBottom: '40px',
+              marginBottom: '28px',
               background: `linear-gradient(135deg, ${theme.backgroundAlt} 0%, rgba(255,255,255,0.8) 100%)`,
-              borderRadius: '16px',
-              padding: '24px',
+              borderRadius: '12px',
+              padding: '20px',
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
@@ -1201,10 +1210,10 @@ const ExhibitionFormPage = () => {
 
             {/* Current Role Section */}
             <div className="form-section" style={{
-              marginBottom: '40px',
+              marginBottom: '28px',
               background: `linear-gradient(135deg, ${theme.backgroundAlt} 0%, rgba(255,255,255,0.8) 100%)`,
-              borderRadius: '16px',
-              padding: '24px',
+              borderRadius: '12px',
+              padding: '20px',
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
@@ -1243,10 +1252,10 @@ const ExhibitionFormPage = () => {
 
             {/* Interested In Section */}
             <div className="form-section" style={{
-              marginBottom: '40px',
+              marginBottom: '28px',
               background: `linear-gradient(135deg, ${theme.backgroundAlt} 0%, rgba(255,255,255,0.8) 100%)`,
-              borderRadius: '16px',
-              padding: '24px',
+              borderRadius: '12px',
+              padding: '20px',
               border: `1px solid ${theme.borderLight}`,
               boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
             }}>
