@@ -157,7 +157,7 @@ export default function Sidebar({
                 onMouseEnter={e => e.currentTarget.style.background = '#E3F2FD'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#e3f2fd')}><Icon name="cpu" size="sm" style={{ color: '#1976D2' }} /></span>
+                <span style={navIconCircle('#e3f2fd')}><Icon name="light-bulb" size="sm" style={{ color: '#1976D2' }} /></span>
                 <span>AI Articles</span>
               </a>
             </li>
@@ -229,7 +229,7 @@ export default function Sidebar({
                 onMouseEnter={e => e.currentTarget.style.background = '#E0F2FE'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                <span style={navIconCircle('#e6f3ff')}><Icon name="envelope" size="sm" style={{ color: '#0369a1' }} /></span>
+                <span style={navIconCircle('#e6f3ff')}><Icon name="chat-bubble-left" size="sm" style={{ color: '#0369a1' }} /></span>
                 <span>Contact Management</span>
               </a>
             </li>
