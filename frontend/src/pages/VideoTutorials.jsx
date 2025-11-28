@@ -9,43 +9,8 @@ import { videos } from '../data/videos';
 const useLocalStorage = (key, initialValue) => {
   const [storedValue, setStoredValue] = useState(initialValue);
 
-  useEffect(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      if (item) {
-        const parsed = JSON.parse(item);
-        // Validate and convert data
-        if (initialValue instanceof Set) {
-          if (Array.isArray(parsed)) {
-            setStoredValue(new Set(parsed));
-          }
-        } else if (typeof initialValue === 'object' && initialValue !== null) {
-          if (typeof parsed === 'object' && parsed !== null) {
-            setStoredValue(parsed);
-          }
-        } else {
-          setStoredValue(parsed);
-        }
-      }
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
-      // Clear corrupted data
-      try {
-        window.localStorage.removeItem(key);
-      } catch (e) {}
-    }
-  }, [key, initialValue]);
-
   const setValue = (value) => {
-    try {
-      const valueToStore = value instanceof Function ? value(storedValue) : value;
-      setStoredValue(valueToStore);
-      // Convert Sets to arrays for JSON storage
-      const serializedValue = valueToStore instanceof Set ? Array.from(valueToStore) : valueToStore;
-      window.localStorage.setItem(key, JSON.stringify(serializedValue));
-    } catch (error) {
-      console.error(`Error setting localStorage key "${key}":`, error);
-    }
+    setStoredValue(value);
   };
 
   return [storedValue, setValue];
