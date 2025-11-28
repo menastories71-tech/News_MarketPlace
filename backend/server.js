@@ -38,6 +38,7 @@ const aiGeneratedArticlesRoutes = require('./src/routes/aiGeneratedArticles');
 const rolePermissionsRoutes = require('./src/routes/rolePermissions');
 const eventsRoutes = require('./src/routes/events');
 const eventApplicationsRoutes = require('./src/routes/eventApplications');
+const otpRoutes = require('./src/routes/otp');
 // const userRoutes = require('./src/routes/users');
 // const articleRoutes = require('./src/routes/articles');
 // const paymentRoutes = require('./src/routes/payments');
@@ -164,6 +165,7 @@ app.use('/api/ai-generated-articles', aiGeneratedArticlesRoutes);
 app.use('/api/admin/role-permissions', rolePermissionsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/event-applications', eventApplicationsRoutes);
+app.use('/api/otp', otpRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/articles', articleRoutes);
 // app.use('/api/payments', paymentRoutes);
@@ -193,6 +195,7 @@ app.get('/', (req, res) => {
       themes: '/api/themes',
       pressPacks: '/api/press-packs',
       affiliateEnquiries: '/api/affiliate-enquiries',
+      otp: '/api/otp',
       admin: '/api/admin',
       uploads: '/api/uploads'
     }
