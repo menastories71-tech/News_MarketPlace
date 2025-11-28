@@ -32,33 +32,7 @@ const VideoTutorials = () => {
     { id: 'marketing', name: 'Marketing & PR (5)', count: 5 }
   ];
 
-  const filteredVideos = videos.filter(video => {
-    let matchesCategory = true;
-    let matchesSearch = true;
-
-    try {
-      // Handle special filter categories
-      if (selectedCategory === 'bookmarked') {
-        matchesCategory = bookmarkedVideos instanceof Set && bookmarkedVideos.has(video.id);
-      } else if (selectedCategory === 'in-progress') {
-        matchesCategory = getVideoProgress(video.id) > 0 && getVideoProgress(video.id) < 100;
-      } else if (selectedCategory === 'completed') {
-        matchesCategory = getVideoProgress(video.id) === 100;
-      } else if (selectedCategory !== 'all') {
-        matchesCategory = video.category === selectedCategory;
-      }
-
-      // Search filter
-      matchesSearch = video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                      Array.isArray(video.tags) && video.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-    } catch (error) {
-      console.error('Error in video filter:', error);
-      return false;
-    }
-
-    return matchesCategory && matchesSearch;
-  });
+  const filteredVideos = videos;
 
   const toggleBookmark = (videoId) => {
     setBookmarkedVideos(prev => {
