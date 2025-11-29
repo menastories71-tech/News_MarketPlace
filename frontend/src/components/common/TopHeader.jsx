@@ -1,71 +1,57 @@
 import React, { useState } from 'react';
 import Icon from './Icon';
 import { useAuth } from '../../context/AuthContext';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useAuthModal } from '../../App';
 
 const TopHeader = () => {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const [mobileShowAllItems, setMobileShowAllItems] = useState(false);
 	const { isAuthenticated } = useAuth();
+	const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
 	const { showAuthModal } = useAuthModal();
 
-	const menuItems = [
+	const navigationItems = [
 		{
-			href: "/video-tutorials",
-			text: "Video Tutorial",
-			icon: "play-circle",
-			description: "Learn how to use our platform effectively"
+			href: "/services-overview",
+			text: "Services",
+			icon: "cog-6-tooth",
+			description: "Learn about our services",
+			hasAuthCheck: false
 		},
 		{
-			href: "/download-center",
-			text: "PR Questionnaire",
-			icon: "document",
-			description: "Download our comprehensive PR template"
-		},
-		{
-			href: "/how-to-guides",
-			text: "How-to Guide",
+			href: "/how-it-works",
+			text: "How It Works",
 			icon: "question-mark-circle",
-			description: "Step-by-step platform instructions"
+			description: "Step-by-step platform instructions",
+			hasAuthCheck: false
 		},
 		{
-			href: "/terms-and-conditions",
-			text: "Terms & Policies",
-			icon: "shield-check",
-			description: "Legal information and platform policies"
-		},
-		{
-			href: "/articles",
-			text: "Published Articles and Press Releases",
-			icon: "newspaper",
-			description: "Browse published articles and press releases"
-		},
-		{
-			href: "/published-works",
-			text: "Published Work/Testimony",
+			href: "/blogs",
+			text: "Blog",
 			icon: "document-text",
-			description: "View published work and testimonies"
+			description: "Browse published articles and press releases",
+			hasAuthCheck: true
+		},
+		{
+			href: "/media-partnerships",
+			text: "Media Partnerships",
+			icon: "users",
+			description: "Media partnership information",
+			hasAuthCheck: false
 		}
 	];
 
-	const services = [
-		{ name: 'Submit Article', href: '/submit-article', icon: 'document-text' },
-		{ name: 'Publications', href: '/publications', icon: 'newspaper' },
-		{ name: 'Websites', href: '/website-submission', icon: 'globe-alt' },
-		{ name: 'Radio', href: '/radio', icon: 'microphone' },
-		{ name: 'Paparazzi', href: '/paparazzi', icon: 'camera' },
-		{ name: 'Power List', href: '/power-lists', icon: 'chart-bar' },
-		{ name: 'Theme Pages', href: '/themes', icon: 'tag' },
-		{ name: 'Awards', href: '/awards', icon: 'award' },
-		{ name: 'Events', href: '/events', icon: 'calendar' },
-		{ name: 'Press Release', href: '/press-packs', icon: 'megaphone' },
-		{ name: 'Podcasters', href: '/podcasters', icon: 'microphone' },
-		{ name: 'Real Estate', href: '/real-estates', icon: 'home' }
+	const actionItems = [
+		{ name: 'Agency Registration', href: '/agency-registration', icon: 'user-group', color: '#4CAF50', isLink: true, hasAuthCheck: false },
+		{ name: 'Editor Registration', href: '#', icon: 'user', color: '#1976D2', isLink: false, hasAuthCheck: true },
+		{ name: 'Reporter Registration', href: '/reporter-registration', icon: 'user-plus', color: '#FF5722', isLink: true, hasAuthCheck: false },
+		{ name: 'Submit Publication', href: '#', icon: 'document-plus', color: '#9C27B0', isLink: false, hasAuthCheck: true }
 	];
 
 	const allItems = [
-		...menuItems.map(item => ({ name: item.text, href: item.href, icon: item.icon })),
-		...services
+		...navigationItems.map(item => ({ name: item.text, href: item.href, icon: item.icon, hasAuthCheck: item.hasAuthCheck, isLink: false })),
+		...actionItems.map(item => ({ name: item.name, href: item.href, icon: item.icon, hasAuthCheck: item.hasAuthCheck, isLink: item.isLink }))
 	];
 
 	// Updated responsive breakpoint logic to show more services directly
@@ -89,6 +75,26 @@ const TopHeader = () => {
 		}
 	};
 
+	const getDisplayedAction = (breakpoint) => {
+		switch (breakpoint) {
+			case 'sm': return actionItems.slice(0, 2);
+			case 'md': return actionItems.slice(0, 2);
+			case 'lg': return actionItems.slice(0, 2);
+			case 'xl': return actionItems.slice(0, 2);
+			default: return actionItems.slice(0, 2);
+		}
+	};
+
+	const getMoreAction = (breakpoint) => {
+		switch (breakpoint) {
+			case 'sm': return actionItems.slice(2);
+			case 'md': return actionItems.slice(2);
+			case 'lg': return actionItems.slice(2);
+			case 'xl': return actionItems.slice(2);
+			default: return actionItems.slice(2);
+		}
+	};
+
 	return (
 		<div className="bg-[#E3F2FD] border-b border-gray-200 shadow-sm ">
 			<div className="w-full px-2 sm:px-3 lg:px-6">
@@ -102,9 +108,12 @@ const TopHeader = () => {
 									href={item.href}
 									className="flex flex-col items-center text-center p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
 									onClick={(e) => {
-										if (!isAuthenticated) {
+										if (item.hasAuthCheck && !isAuthenticated) {
 											e.preventDefault();
 											showAuthModal();
+										} else if (item.name === 'Submit Publication' && isAdminAuthenticated) {
+											e.preventDefault();
+											alert('Admins should submit publications through the admin panel.');
 										}
 									}}
 								>
@@ -121,9 +130,12 @@ const TopHeader = () => {
 									href={item.href}
 									className="flex flex-col items-center text-center p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
 									onClick={(e) => {
-										if (!isAuthenticated) {
+										if (item.hasAuthCheck && !isAuthenticated) {
 											e.preventDefault();
 											showAuthModal();
+										} else if (item.name === 'Submit Publication' && isAdminAuthenticated) {
+											e.preventDefault();
+											alert('Admins should submit publications through the admin panel.');
 										}
 									}}
 								>
@@ -174,7 +186,7 @@ const TopHeader = () => {
 										size="sm"
 										className="text-gray-500 group-hover:text-blue-600 transition-colors"
 									/>
-									<span>Resources</span>
+									<span>Navigation</span>
 									<Icon
 										name="chevron-down"
 										size="xs"
@@ -185,7 +197,7 @@ const TopHeader = () => {
 								{/* Responsive dropdown positioning */}
 								<div className="absolute top-full right-0 mt-2 mr-4 w-52 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
 									<div className="p-2">
-										<h4 className="text-sm font-semibold text-gray-900 mb-2">Resource Center</h4>
+										<h4 className="text-sm font-semibold text-gray-900 mb-2">Navigation</h4>
 										<div className="space-y-1">
 											{menuItems.map((item, index) => (
 												<a
@@ -212,30 +224,25 @@ const TopHeader = () => {
 								</div>
 							</div>
 							
-							{/* Display Services - Now shows 4 including Paparazzi */}
-							{getDisplayedServices('sm').map((service, index) => (
+							{/* Display Actions - Now shows 2 actions */}
+							{getDisplayedAction('sm').map((action, index) => (
 								<a
-									key={`service-${index}`}
-									href={service.href}
+									key={`action-${index}`}
+									href={action.href}
 									className="flex-shrink-0 flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 group whitespace-nowrap"
-									onClick={(e) => {
-										if (!isAuthenticated) {
-											e.preventDefault();
-											showAuthModal();
-										}
-									}}
+									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert('Admins should submit publications through the admin panel.'); } : undefined}
 								>
 									<Icon
-										name={service.icon}
+										name={action.icon}
 										size="sm"
 										className="text-gray-500 group-hover:text-blue-600 transition-colors"
 									/>
-									<span>{service.name}</span>
+									<span>{action.name}</span>
 								</a>
 							))}
 
-							{/* More Services Dropdown */}
-							{getMoreServices('sm').length > 0 && (
+							{/* More Actions Dropdown */}
+							{getMoreAction('sm').length > 0 && (
 								<div className="group relative flex-shrink-0">
 									<button className="flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 whitespace-nowrap">
 										<Icon
@@ -243,32 +250,27 @@ const TopHeader = () => {
 											size="sm"
 											className="text-gray-500 group-hover:text-blue-600 transition-colors"
 										/>
-										<span>More ({getMoreServices('sm').length})</span>
+										<span>More ({getMoreAction('sm').length})</span>
 									</button>
 
 									{/* Responsive more dropdown */}
 									<div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
 										<div className="p-2">
-											<h4 className="text-sm font-semibold text-gray-900 mb-2">More Services</h4>
+											<h4 className="text-sm font-semibold text-gray-900 mb-2">More Actions</h4>
 											<div className="grid grid-cols-1 gap-1">
-												{getMoreServices('sm').map((service, index) => (
+												{getMoreAction('sm').map((action, index) => (
 													<a
 														key={index}
-														href={service.href}
+														href={action.href}
 														className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200 w-full"
-														onClick={(e) => {
-															if (!isAuthenticated) {
-																e.preventDefault();
-																showAuthModal();
-															}
-														}}
+														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert('Admins should submit publications through the admin panel.'); } : undefined}
 													>
 														<Icon
-															name={service.icon}
+															name={action.icon}
 															size="xs"
 															className="text-gray-500 flex-shrink-0"
 														/>
-														<span className="text-left flex-1">{service.name}</span>
+														<span className="text-left flex-1">{action.name}</span>
 													</a>
 												))}
 											</div>
@@ -292,7 +294,7 @@ const TopHeader = () => {
 										size="sm"
 										className="text-gray-500 group-hover:text-blue-600 transition-colors"
 									/>
-									<span>Resources</span>
+									<span>Navigation</span>
 									<Icon
 										name="chevron-down"
 										size="xs"
@@ -303,9 +305,9 @@ const TopHeader = () => {
 								{/* Tablet responsive dropdown */}
 								<div className="absolute top-full right-0 mt-2 mr-6 w-52 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
 									<div className="p-2">
-										<h4 className="text-sm font-semibold text-gray-900 mb-2">Resource Center</h4>
+										<h4 className="text-sm font-semibold text-gray-900 mb-2">Navigation</h4>
 										<div className="space-y-1">
-											{menuItems.map((item, index) => (
+											{navigationItems.map((item, index) => (
 												<a
 													key={index}
 													href={item.href}
@@ -330,30 +332,25 @@ const TopHeader = () => {
 								</div>
 							</div>
 
-							{/* Display Services - Now shows 5 including Power List */}
-							{getDisplayedServices('md').map((service, index) => (
+							{/* Display Actions - Now shows 2 actions */}
+							{getDisplayedAction('md').map((action, index) => (
 								<a
-									key={`service-${index}`}
-									href={service.href}
+									key={`action-${index}`}
+									href={action.href}
 									className="flex items-center space-x-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md group"
-									onClick={(e) => {
-										if (!isAuthenticated) {
-											e.preventDefault();
-											showAuthModal();
-										}
-									}}
+									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert('Admins should submit publications through the admin panel.'); } : undefined}
 								>
 									<Icon
-										name={service.icon}
+										name={action.icon}
 										size="sm"
 										className="text-gray-500 group-hover:text-blue-600 transition-colors"
 									/>
-									<span className="whitespace-nowrap">{service.name}</span>
+									<span className="whitespace-nowrap">{action.name}</span>
 								</a>
 							))}
 
 							{/* More Dropdown */}
-							{getMoreServices('md').length > 0 && (
+							{getMoreAction('md').length > 0 && (
 								<div className="group relative">
 									<button className="flex items-center space-x-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md">
 										<Icon
@@ -372,26 +369,21 @@ const TopHeader = () => {
 									{/* Tablet more dropdown */}
 									<div className="absolute top-full right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
 										<div className="p-2">
-											<h4 className="text-sm font-semibold text-gray-900 mb-2">More Services</h4>
+											<h4 className="text-sm font-semibold text-gray-900 mb-2">More Actions</h4>
 											<div className="grid grid-cols-1 gap-1">
-												{getMoreServices('md').map((service, index) => (
+												{getMoreAction('md').map((action, index) => (
 													<a
 														key={index}
-														href={service.href}
+														href={action.href}
 														className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200"
-														onClick={(e) => {
-															if (!isAuthenticated) {
-																e.preventDefault();
-																showAuthModal();
-															}
-														}}
+														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert('Admins should submit publications through the admin panel.'); } : undefined}
 													>
 														<Icon
-															name={service.icon}
+															name={action.icon}
 															size="xs"
 															className="text-gray-500 flex-shrink-0"
 														/>
-														<span className="text-left flex-1">{service.name}</span>
+														<span className="text-left flex-1">{action.name}</span>
 													</a>
 												))}
 											</div>
@@ -406,122 +398,53 @@ const TopHeader = () => {
 				{/* Desktop Layout (>= 1024px) */}
 				<div className="hidden lg:flex justify-center items-center py-1.5">
 					<div className="flex items-center space-x-2 xl:space-x-3 2xl:space-x-4">
-						{/* Resources Dropdown */}
-						<div className="group relative">
-							<button className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md">
-								<Icon
-									name="boxes"
-									size="sm"
-									className="text-gray-500 group-hover:text-blue-600 transition-colors"
-								/>
-								<span className="whitespace-nowrap">Resources</span>
-								<Icon
-									name="chevron-down"
-									size="xs"
-									className="text-gray-500 group-hover:text-blue-600 transition-colors"
-								/>
-							</button>
-
-							<div className="absolute top-full left-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
-								<div className="p-4">
-									<h4 className="text-sm font-semibold text-gray-900 mb-3">Resource Center</h4>
-									<div className="grid grid-cols-1 gap-2">
-										{menuItems.map((item, index) => (
-											<a
-												key={index}
-												href={item.href}
-												className="flex items-center space-x-2 px-3 py-3 text-sm text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200"
-												onClick={(e) => {
-													if (!isAuthenticated) {
-														e.preventDefault();
-														showAuthModal();
-													}
-												}}
-											>
-												<Icon
-													name={item.icon}
-													size="sm"
-													className="text-gray-500 flex-shrink-0"
-												/>
-												<div>
-													<div className="font-medium">{item.text}</div>
-													<div className="text-xs text-gray-500 mt-1">{item.description}</div>
-												</div>
-											</a>
-										))}
-									</div>
-								</div>
-							</div>
-						</div>
-
-						{/* Main Services - Now shows 6-7 services including both Paparazzi and Power List */}
-						{getDisplayedServices(window.innerWidth >= 1280 ? 'xl' : 'lg').map((service, index) => (
+						{/* Navigation Links */}
+						{navigationItems.map((item, index) => (
 							<a
-								key={`service-${index}`}
-								href={service.href}
+								key={`nav-${index}`}
+								href={item.href}
 								className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
-								onClick={(e) => {
-									if (!isAuthenticated) {
-										e.preventDefault();
-										showAuthModal();
-									}
-								}}
+								onClick={item.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : undefined}
 							>
 								<Icon
-									name={service.icon}
+									name={item.icon}
 									size="sm"
 									className="text-gray-500 group-hover:text-blue-600 transition-colors"
 								/>
-								<span className="whitespace-nowrap">{service.name}</span>
+								<span className="whitespace-nowrap">{item.text}</span>
 							</a>
 						))}
 
-						{/* More Dropdown */}
-						{getMoreServices(window.innerWidth >= 1280 ? 'xl' : 'lg').length > 0 && (
-							<div className="group relative">
-								<button className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md">
+						{/* Action Buttons */}
+						{actionItems.map((item, index) => (
+							item.isLink ? (
+								<Link
+									key={`action-${index}`}
+									to={item.href}
+									className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
+								>
 									<Icon
-										name="menu"
+										name={item.icon}
 										size="sm"
 										className="text-gray-500 group-hover:text-blue-600 transition-colors"
 									/>
-									<span className="whitespace-nowrap">More</span>
+									<span className="whitespace-nowrap">{item.name}</span>
+								</Link>
+							) : (
+								<button
+									key={`action-${index}`}
+									onClick={item.name === 'Submit Publication' ? (isAdminAuthenticated ? () => alert('Admins should submit publications through the admin panel.') : showAuthModal) : showAuthModal}
+									className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
+								>
 									<Icon
-										name="chevron-down"
-										size="xs"
+										name={item.icon}
+										size="sm"
 										className="text-gray-500 group-hover:text-blue-600 transition-colors"
 									/>
+									<span className="whitespace-nowrap">{item.name}</span>
 								</button>
-
-								<div className="absolute top-full right-0 mt-2 w-60 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
-									<div className="p-3">
-										<h4 className="text-sm font-semibold text-gray-900 mb-3">Additional Services</h4>
-										<div className="grid grid-cols-1 gap-2">
-											{getMoreServices(window.innerWidth >= 1280 ? 'xl' : 'lg').map((service, index) => (
-												<a
-													key={index}
-													href={service.href}
-													className="flex items-center space-x-2 px-3 py-2.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200"
-													onClick={(e) => {
-														if (!isAuthenticated) {
-															e.preventDefault();
-															setIsAuthModalOpen(true);
-														}
-													}}
-												>
-													<Icon
-														name={service.icon}
-														size="xs"
-														className="text-gray-500 flex-shrink-0"
-													/>
-													<span className="text-left flex-1">{service.name}</span>
-												</a>
-											))}
-										</div>
-									</div>
-								</div>
-							</div>
-						)}
+							)
+						))}
 					</div>
 				</div>
 

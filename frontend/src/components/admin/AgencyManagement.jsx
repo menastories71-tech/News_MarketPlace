@@ -562,23 +562,27 @@ const AgencyManagement = () => {
       >
         <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10" style={{ minHeight: 64 }}>
           <div className="flex justify-between items-center py-3">
-            <div className="flex items-center">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="mr-3 md:hidden"
-                aria-label="Toggle sidebar"
-                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '6px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = '#f3f4f6'}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
               >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.text} strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
-              </button>
-
-              <button
-                onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="mr-3 hidden md:block"
-                aria-label="Toggle sidebar"
-                style={{ background: 'transparent', border: 'none', padding: 6, cursor: 'pointer' }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.text} strokeWidth="2"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={theme.textSecondary} strokeWidth="2">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
