@@ -24,6 +24,11 @@ const Home = () => {
   const [hasTransitioned, setHasTransitioned] = useState(false);
   const { scrollYProgress } = useScroll();
 
+  // Translated texts
+  const homeTitle = useTranslatedText('Home');
+  const homeDescription = useTranslatedText('Discover premium news content, connect with writers and readers, explore articles, awards, and more on News Marketplace.');
+  const homeKeywords = useTranslatedText('news marketplace, articles, journalism, writers, readers, awards, power list');
+
   // Set the entire page background to primary light color
   const backgroundColor = '#E3F2FD';
 
@@ -60,9 +65,9 @@ const Home = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor, overflow: loading ? 'hidden' : 'auto' }}>
       <SEO
-        title={useTranslatedText('Home')}
-        description={useTranslatedText('Discover premium news content, connect with writers and readers, explore articles, awards, and more on News Marketplace.')}
-        keywords={useTranslatedText('news marketplace, articles, journalism, writers, readers, awards, power list')}
+        title={homeTitle}
+        description={homeDescription}
+        keywords={homeKeywords}
       />
       <Schema type="organization" />
       {loading && !transitioning && <Loader />}
