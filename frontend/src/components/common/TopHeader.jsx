@@ -12,17 +12,30 @@ const TopHeader = () => {
 	const { isAuthenticated } = useAuth();
 	const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
 	const { showAuthModal } = useAuthModal();
-	const t = useTranslatedText();
+
+	// Translated strings
+	const agencyRegistration = useTranslatedText('Agency Registration');
+	const editorRegistration = useTranslatedText('Editor Registration');
+	const reporterRegistration = useTranslatedText('Reporter Registration');
+	const submitPublication = useTranslatedText('Submit Publication');
+	const themePages = useTranslatedText('Theme Pages');
+	const events = useTranslatedText('Events');
+	const pressRelease = useTranslatedText('Press Release');
+	const podcasters = useTranslatedText('Podcasters');
+	const more = useTranslatedText('More');
+	const showLess = useTranslatedText('Show Less');
+	const moreActions = useTranslatedText('More Actions');
+	const adminAlert = useTranslatedText('Admins should submit publications through the admin panel.');
 
 	const actionItems = [
-		{ name: 'Agency Registration', displayName: t('Agency Registration'), href: '/agency-registration', icon: 'user-group', color: '#4CAF50', isLink: true, hasAuthCheck: false },
-		{ name: 'Editor Registration', displayName: t('Editor Registration'), href: '#', icon: 'user', color: '#1976D2', isLink: false, hasAuthCheck: true },
-		{ name: 'Reporter Registration', displayName: t('Reporter Registration'), href: '/reporter-registration', icon: 'user-plus', color: '#FF5722', isLink: true, hasAuthCheck: false },
-		{ name: 'Submit Publication', displayName: t('Submit Publication'), href: '#', icon: 'document-plus', color: '#9C27B0', isLink: false, hasAuthCheck: true },
-		{ name: 'Theme Pages', displayName: t('Theme Pages'), href: '/themes', icon: 'tag', color: '#FF9800', isLink: true, hasAuthCheck: false },
-		{ name: 'Events', displayName: t('Events'), href: '/events', icon: 'calendar', color: '#2196F3', isLink: true, hasAuthCheck: false },
-		{ name: 'Press Release', displayName: t('Press Release'), href: '/press-packs', icon: 'megaphone', color: '#4CAF50', isLink: true, hasAuthCheck: false },
-		{ name: 'Podcasters', displayName: t('Podcasters'), href: '/podcasters', icon: 'microphone', color: '#9C27B0', isLink: true, hasAuthCheck: false }
+		{ name: 'Agency Registration', displayName: agencyRegistration, href: '/agency-registration', icon: 'user-group', color: '#4CAF50', isLink: true, hasAuthCheck: false },
+		{ name: 'Editor Registration', displayName: editorRegistration, href: '#', icon: 'user', color: '#1976D2', isLink: false, hasAuthCheck: true },
+		{ name: 'Reporter Registration', displayName: reporterRegistration, href: '/reporter-registration', icon: 'user-plus', color: '#FF5722', isLink: true, hasAuthCheck: false },
+		{ name: 'Submit Publication', displayName: submitPublication, href: '#', icon: 'document-plus', color: '#9C27B0', isLink: false, hasAuthCheck: true },
+		{ name: 'Theme Pages', displayName: themePages, href: '/themes', icon: 'tag', color: '#FF9800', isLink: true, hasAuthCheck: false },
+		{ name: 'Events', displayName: events, href: '/events', icon: 'calendar', color: '#2196F3', isLink: true, hasAuthCheck: false },
+		{ name: 'Press Release', displayName: pressRelease, href: '/press-packs', icon: 'megaphone', color: '#4CAF50', isLink: true, hasAuthCheck: false },
+		{ name: 'Podcasters', displayName: podcasters, href: '/podcasters', icon: 'microphone', color: '#9C27B0', isLink: true, hasAuthCheck: false }
 	];
 
 
@@ -65,7 +78,7 @@ const TopHeader = () => {
 											showAuthModal();
 										} else if (item.name === 'Submit Publication' && isAdminAuthenticated) {
 											e.preventDefault();
-											alert(t('Admins should submit publications through the admin panel.'));
+											alert(adminAlert);
 										}
 									}}
 								>
@@ -87,7 +100,7 @@ const TopHeader = () => {
 											showAuthModal();
 										} else if (item.name === 'Submit Publication' && isAdminAuthenticated) {
 											e.preventDefault();
-											alert(t('Admins should submit publications through the admin panel.'));
+											alert(adminAlert);
 										}
 									}}
 								>
@@ -109,7 +122,7 @@ const TopHeader = () => {
 										size="xs"
 										className="mb-1 text-gray-500 hover:text-blue-600 transition-colors"
 									/>
-									<span className="text-xs leading-tight truncate w-full">{t('More')}</span>
+									<span className="text-xs leading-tight truncate w-full">{more}</span>
 								</button>
 							)}
 						</div>
@@ -119,7 +132,7 @@ const TopHeader = () => {
 									onClick={() => setMobileShowAllItems(false)}
 									className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors"
 								>
-									{t('Show Less')}
+									{showLess}
 								</button>
 							</div>
 						)}
@@ -136,7 +149,7 @@ const TopHeader = () => {
 									key={`action-${index}`}
 									href={action.href}
 									className="flex-shrink-0 flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 group whitespace-nowrap"
-									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(t('Admins should submit publications through the admin panel.')); } : undefined}
+									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
 								>
 									<Icon
 										name={action.icon}
@@ -156,20 +169,20 @@ const TopHeader = () => {
 											size="sm"
 											className="text-gray-500 group-hover:text-blue-600 transition-colors"
 										/>
-										<span>{t('More')} ({getMoreAction('sm').length})</span>
+										<span>{more} ({getMoreAction('sm').length})</span>
 									</button>
 
 									{/* Responsive more dropdown */}
 									<div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
 										<div className="p-2">
-											<h4 className="text-sm font-semibold text-gray-900 mb-2">{t('More Actions')}</h4>
+											<h4 className="text-sm font-semibold text-gray-900 mb-2">{moreActions}</h4>
 											<div className="grid grid-cols-1 gap-1">
 												{getMoreAction('sm').map((action, index) => (
 													<a
 														key={index}
 														href={action.href}
 														className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200 w-full"
-														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(t('Admins should submit publications through the admin panel.')); } : undefined}
+														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
 													>
 														<Icon
 															name={action.icon}
@@ -198,7 +211,7 @@ const TopHeader = () => {
 									key={`action-${index}`}
 									href={action.href}
 									className="flex items-center space-x-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md group"
-									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(t('Admins should submit publications through the admin panel.')); } : undefined}
+									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
 								>
 									<Icon
 										name={action.icon}
@@ -218,7 +231,7 @@ const TopHeader = () => {
 											size="sm"
 											className="text-gray-500 group-hover:text-blue-600 transition-colors"
 										/>
-										<span>{t('More')}</span>
+										<span>{more}</span>
 										<Icon
 											name="chevron-down"
 											size="xs"
@@ -229,14 +242,14 @@ const TopHeader = () => {
 									{/* Tablet more dropdown */}
 									<div className="absolute top-full right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
 										<div className="p-2">
-											<h4 className="text-sm font-semibold text-gray-900 mb-2">{t('More Actions')}</h4>
+											<h4 className="text-sm font-semibold text-gray-900 mb-2">{moreActions}</h4>
 											<div className="grid grid-cols-1 gap-1">
 												{getMoreAction('md').map((action, index) => (
 													<a
 														key={index}
 														href={action.href}
 														className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200"
-														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(t('Admins should submit publications through the admin panel.')); } : undefined}
+														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
 													>
 														<Icon
 															name={action.icon}
@@ -276,7 +289,7 @@ const TopHeader = () => {
 							) : (
 								<button
 									key={`action-${index}`}
-									onClick={item.name === 'Submit Publication' ? (isAdminAuthenticated ? () => alert(t('Admins should submit publications through the admin panel.')) : showAuthModal) : showAuthModal}
+									onClick={item.name === 'Submit Publication' ? (isAdminAuthenticated ? () => alert(adminAlert) : showAuthModal) : showAuthModal}
 									className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
 								>
 									<Icon
