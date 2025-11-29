@@ -199,7 +199,7 @@ const UserHeader = () => {
         </div>
 
         {/* Bottom Row: Resources and Services */}
-        <div className="hidden lg:flex justify-between items-center py-2">
+        <div className="hidden xl:flex justify-between items-center py-2">
           <div className="flex items-center space-x-2 xl:space-x-3 2xl:space-x-4">
             {/* Services shown directly */}
             {services.map((service, index) => (
