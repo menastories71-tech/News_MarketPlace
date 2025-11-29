@@ -90,15 +90,12 @@ const ArticlesPage = () => {
     });
   };
 
-  // Clean markdown symbols from preview text
+  // Clean HTML tags from preview text
   const cleanPreviewText = (text) => {
     if (!text) return '';
     return text
-      .replace(/^#+\s*/gm, '') // Remove # headers
-      .replace(/\*\*(.*?)\*\*/g, '$1') // Remove **bold**
-      .replace(/\*(.*?)\*/g, '$1') // Remove *italic*
-      .replace(/^- /gm, '') // Remove - bullet points
-      .replace(/\n+/g, ' ') // Replace newlines with spaces
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/\s+/g, ' ') // Replace multiple whitespace with single space
       .trim();
   };
 
