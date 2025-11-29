@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import AuthModal from './components/auth/AuthModal';
 
 // Auth Modal Context
@@ -97,6 +98,7 @@ import ArticleSubmissionPage from './pages/ArticleSubmissionPage';
 import AiArticleQuestionnairePage from './pages/AiArticleQuestionnairePage';
 import AiArticleGenerationPage from './pages/AiArticleGenerationPage';
 import ExhibitionFormPage from './pages/ExhibitionFormPage';
+import UserCookiesData from './pages/UserCookiesData';
 import CSR from './pages/CSR';
 import TrademarkPolicy from './pages/TrademarkPolicy';
 import DataProtection from './pages/DataProtection';
@@ -249,10 +251,11 @@ function App() {
 
   return (
     <HelmetProvider>
-      <AuthProvider>
-        <AdminAuthProvider>
-          <AuthModalContext.Provider value={{ showAuthModal: handleShowAuth }}>
-            <Router>
+      <LanguageProvider>
+        <AuthProvider>
+          <AdminAuthProvider>
+            <AuthModalContext.Provider value={{ showAuthModal: handleShowAuth }}>
+              <Router>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Home />} />
@@ -694,6 +697,14 @@ function App() {
                 </AdminProtectedRoute>
               }
             />
+            <Route
+              path="/data/new/cookies/user"
+              element={
+                <AdminProtectedRoute>
+                  <UserCookiesData />
+                </AdminProtectedRoute>
+              }
+            />
 
             {/* Catch all route - redirect to admin login if accessing /admin */}
             <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
@@ -710,8 +721,9 @@ function App() {
           />
         </Router>
           </AuthModalContext.Provider>
-      </AdminAuthProvider>
-    </AuthProvider>
+        </AdminAuthProvider>
+      </AuthProvider>
+      </LanguageProvider>
     </HelmetProvider>
   );
 }
