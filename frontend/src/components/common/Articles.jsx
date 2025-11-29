@@ -102,9 +102,9 @@ const AiArticleCard = memo(function AiArticleCard({ article, featured = false, n
   // Translated texts
   const readArticleText = useTranslatedText('Read Article');
   const featuredText = useTranslatedText('Featured');
-  const removeBookmarkText = useTranslatedText('Remove bookmark');
-  const bookmarkText = useTranslatedText('Bookmark');
-  const shareArticleText = useTranslatedText('Share article');
+  const removeBookmarkTextAC = useTranslatedText('Remove bookmark');
+  const bookmarkTextAC = useTranslatedText('Bookmark');
+  const shareArticleTextAC = useTranslatedText('Share article');
   const aiArticleAlt = useTranslatedText('AI-generated article on News Marketplace platform showcasing innovative content creation');
   const contentPending = useTranslatedText('Content pending...');
   const aiAuthor = useTranslatedText('AI Author');
@@ -301,9 +301,9 @@ const ArticleCard = memo(function ArticleCard({ article, featured = false, navig
   // Translated texts
   const readText = useTranslatedText('Read');
   const editorsPick = useTranslatedText('Editor\'s pick');
-  const removeBookmarkTextAC = useTranslatedText('Remove bookmark');
-  const bookmarkTextAC = useTranslatedText('Bookmark');
-  const shareArticleTextAC = useTranslatedText('Share article');
+  const removeBookmarkText = useTranslatedText('Remove bookmark');
+  const bookmarkText = useTranslatedText('Bookmark');
+  const shareArticleText = useTranslatedText('Share article');
 
   const onToggleBookmark = useCallback((e) => {
     e.stopPropagation();
