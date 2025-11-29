@@ -15,6 +15,40 @@ const FAQ = () => {
   const faqSeoDescription = useTranslatedText('Find answers to frequently asked questions about News Marketplace services, guaranteed publications, pricing, and media placement. Get all your questions answered.');
   const faqSeoKeywords = useTranslatedText('FAQ, frequently asked questions, news marketplace, guaranteed publication, pricing, media outlets, PR services');
 
+  // FAQ questions and answers
+  const q1 = useTranslatedText("What Does \"Guaranteed Publication\" Mean?");
+  const a1 = useTranslatedText("Our guaranteed publication service ensures that your content will be published in the selected media outlets within the agreed timeframe. Unlike traditional PR methods, we provide a 100% publication guarantee with transparent pricing and no hidden fees.");
+  const q2 = useTranslatedText("In Which Media Outlets Can You Place Materials?");
+  const a2 = useTranslatedText("We have access to thousands of reputable publications from top news outlets (Forbes, Business Insider, TechCrunch) to niche platforms in different countries. Our network spans across North America, Europe, Asia, and the Middle East, covering both mainstream and industry-specific publications.");
+  const q3 = useTranslatedText("What Is the Difference Between PR Through the Editorial Office and Guaranteed Publications?");
+  const a3 = useTranslatedText("Traditional PR through editorial offices involves pitching stories to journalists with no guarantee of publication. Our guaranteed publication service provides certainty - you pay for confirmed placement in selected media outlets, ensuring your content reaches the target audience without the uncertainty of traditional PR methods.");
+  const q4 = useTranslatedText("How Much Does It Cost and What Does the Price Depend on?");
+  const a4 = useTranslatedText("Pricing depends on several factors including the publication's reach, authority, topic relevance, and content length. Prices typically range from $500 to $5,000+ per article, depending on the outlet's prestige and your specific requirements. We provide transparent pricing with no hidden costs.");
+  const q5 = useTranslatedText("How Long Does Publication Take?");
+  const a5 = useTranslatedText("Publication timelines vary by outlet, typically ranging from 3-7 business days for standard placements to 2-4 weeks for premium publications. We provide specific timelines for each outlet during the selection process and keep you updated throughout the publication process.");
+  const q6 = useTranslatedText("Can I Choose Specific Media Outlets Myself?");
+  const a6 = useTranslatedText("Yes, you control the choice of platforms yourself. The platform displays a list of available media outlets with prices and parameters. You can select specific publications based on your target audience, industry, geographic reach, and budget requirements.");
+  const q7 = useTranslatedText("What Publication Formats Are Available?");
+  const a7 = useTranslatedText("We offer various publication formats including articles, interviews, opinion pieces, case studies, press releases, and sponsored content. Each format is optimized for the specific publication and your content goals.");
+  const q8 = useTranslatedText("How Do You Guarantee That the Article Will Be Published Exactly as Agreed?");
+  const a8 = useTranslatedText("We have established relationships with publications and use proven processes to ensure content is published as agreed. This includes content approval workflows, direct relationships with editorial teams, and quality control measures. Any deviations are addressed immediately.");
+  const q9 = useTranslatedText("What Happens If the Publication Does not Come out?");
+  const a9 = useTranslatedText("In the rare event that a publication doesn't occur as guaranteed, we provide a full refund or republish in an equivalent or better outlet at no additional cost. Our track record shows 99.9% success rate in meeting publication commitments.");
+  const q10 = useTranslatedText("Is the Service Suitable for Startups and Small Businesses?");
+  const a10 = useTranslatedText("Absolutely! Our service is designed to be accessible for businesses of all sizes. We offer flexible pricing, payment plans, and can create content specifically tailored for startups and small businesses looking to build credibility and reach.");
+  const q11 = useTranslatedText("Can Publications Be Targeted by Region or Language?");
+  const a11 = useTranslatedText("Yes, we offer geo-targeted and language-specific publication options. Whether you need coverage in specific countries, regions, or languages, we can target publications that reach your desired audience demographics.");
+  const q12 = useTranslatedText("Will the Materials Be Marked as \"Advertisement\" or \"Sponsored\"?");
+  const a12 = useTranslatedText("Our standard publications appear as editorial content, not advertisements. However, some publications may include disclaimers based on their editorial policies. We always clarify disclosure requirements upfront so there are no surprises.");
+  const q13 = useTranslatedText("How Is the Effectiveness of Publications Measured?");
+  const a13 = useTranslatedText("We provide detailed analytics including publication links, traffic data, social media engagement, backlink profiles, and SEO impact. For premium packages, we include comprehensive reporting on reach, engagement, and ROI metrics.");
+  const q14 = useTranslatedText("Can I Order a Series of Publications for a PR Campaign?");
+  const a14 = useTranslatedText("Yes, we specialize in coordinated PR campaigns with multiple publications across different outlets. This approach builds momentum and maximizes your content's reach and impact over time.");
+  const q15 = useTranslatedText("I Don't Have Any Important News, How Can I Promote Myself?");
+  const a15 = useTranslatedText("We help create newsworthy content from your expertise, achievements, and industry insights. Our content strategists work with you to develop compelling narratives that position you or your company as thought leaders in your field.");
+  const q16 = useTranslatedText("How Is Medialister Different from a PR Agency?");
+  const a16 = useTranslatedText("Unlike traditional PR agencies that pitch stories with uncertain outcomes, Medialister provides guaranteed publication with transparent pricing. We eliminate the guesswork and provide measurable results, making content marketing predictable and reliable.");
+
   const toggleItem = (index) => {
     const newOpenItems = new Set(openItems);
     if (newOpenItems.has(index)) {
@@ -27,68 +61,68 @@ const FAQ = () => {
 
   const faqData = [
     {
-      question: useTranslatedText("What Does \"Guaranteed Publication\" Mean?"),
-      answer: useTranslatedText("Our guaranteed publication service ensures that your content will be published in the selected media outlets within the agreed timeframe. Unlike traditional PR methods, we provide a 100% publication guarantee with transparent pricing and no hidden fees.")
+      question: q1,
+      answer: a1
     },
     {
-      question: useTranslatedText("In Which Media Outlets Can You Place Materials?"),
-      answer: useTranslatedText("We have access to thousands of reputable publications from top news outlets (Forbes, Business Insider, TechCrunch) to niche platforms in different countries. Our network spans across North America, Europe, Asia, and the Middle East, covering both mainstream and industry-specific publications.")
+      question: q2,
+      answer: a2
     },
     {
-      question: useTranslatedText("What Is the Difference Between PR Through the Editorial Office and Guaranteed Publications?"),
-      answer: useTranslatedText("Traditional PR through editorial offices involves pitching stories to journalists with no guarantee of publication. Our guaranteed publication service provides certainty - you pay for confirmed placement in selected media outlets, ensuring your content reaches the target audience without the uncertainty of traditional PR methods.")
+      question: q3,
+      answer: a3
     },
     {
-      question: useTranslatedText("How Much Does It Cost and What Does the Price Depend on?"),
-      answer: useTranslatedText("Pricing depends on several factors including the publication's reach, authority, topic relevance, and content length. Prices typically range from $500 to $5,000+ per article, depending on the outlet's prestige and your specific requirements. We provide transparent pricing with no hidden costs.")
+      question: q4,
+      answer: a4
     },
     {
-      question: useTranslatedText("How Long Does Publication Take?"),
-      answer: useTranslatedText("Publication timelines vary by outlet, typically ranging from 3-7 business days for standard placements to 2-4 weeks for premium publications. We provide specific timelines for each outlet during the selection process and keep you updated throughout the publication process.")
+      question: q5,
+      answer: a5
     },
     {
-      question: useTranslatedText("Can I Choose Specific Media Outlets Myself?"),
-      answer: useTranslatedText("Yes, you control the choice of platforms yourself. The platform displays a list of available media outlets with prices and parameters. You can select specific publications based on your target audience, industry, geographic reach, and budget requirements.")
+      question: q6,
+      answer: a6
     },
     {
-      question: useTranslatedText("What Publication Formats Are Available?"),
-      answer: useTranslatedText("We offer various publication formats including articles, interviews, opinion pieces, case studies, press releases, and sponsored content. Each format is optimized for the specific publication and your content goals.")
+      question: q7,
+      answer: a7
     },
     {
-      question: useTranslatedText("How Do You Guarantee That the Article Will Be Published Exactly as Agreed?"),
-      answer: useTranslatedText("We have established relationships with publications and use proven processes to ensure content is published as agreed. This includes content approval workflows, direct relationships with editorial teams, and quality control measures. Any deviations are addressed immediately.")
+      question: q8,
+      answer: a8
     },
     {
-      question: useTranslatedText("What Happens If the Publication Does not Come out?"),
-      answer: useTranslatedText("In the rare event that a publication doesn't occur as guaranteed, we provide a full refund or republish in an equivalent or better outlet at no additional cost. Our track record shows 99.9% success rate in meeting publication commitments.")
+      question: q9,
+      answer: a9
     },
     {
-      question: useTranslatedText("Is the Service Suitable for Startups and Small Businesses?"),
-      answer: useTranslatedText("Absolutely! Our service is designed to be accessible for businesses of all sizes. We offer flexible pricing, payment plans, and can create content specifically tailored for startups and small businesses looking to build credibility and reach.")
+      question: q10,
+      answer: a10
     },
     {
-      question: useTranslatedText("Can Publications Be Targeted by Region or Language?"),
-      answer: useTranslatedText("Yes, we offer geo-targeted and language-specific publication options. Whether you need coverage in specific countries, regions, or languages, we can target publications that reach your desired audience demographics.")
+      question: q11,
+      answer: a11
     },
     {
-      question: useTranslatedText("Will the Materials Be Marked as \"Advertisement\" or \"Sponsored\"?"),
-      answer: useTranslatedText("Our standard publications appear as editorial content, not advertisements. However, some publications may include disclaimers based on their editorial policies. We always clarify disclosure requirements upfront so there are no surprises.")
+      question: q12,
+      answer: a12
     },
     {
-      question: useTranslatedText("How Is the Effectiveness of Publications Measured?"),
-      answer: useTranslatedText("We provide detailed analytics including publication links, traffic data, social media engagement, backlink profiles, and SEO impact. For premium packages, we include comprehensive reporting on reach, engagement, and ROI metrics.")
+      question: q13,
+      answer: a13
     },
     {
-      question: useTranslatedText("Can I Order a Series of Publications for a PR Campaign?"),
-      answer: useTranslatedText("Yes, we specialize in coordinated PR campaigns with multiple publications across different outlets. This approach builds momentum and maximizes your content's reach and impact over time.")
+      question: q14,
+      answer: a14
     },
     {
-      question: useTranslatedText("I Don't Have Any Important News, How Can I Promote Myself?"),
-      answer: useTranslatedText("We help create newsworthy content from your expertise, achievements, and industry insights. Our content strategists work with you to develop compelling narratives that position you or your company as thought leaders in your field.")
+      question: q15,
+      answer: a15
     },
     {
-      question: useTranslatedText("How Is Medialister Different from a PR Agency?"),
-      answer: useTranslatedText("Unlike traditional PR agencies that pitch stories with uncertain outcomes, Medialister provides guaranteed publication with transparent pricing. We eliminate the guesswork and provide measurable results, making content marketing predictable and reliable.")
+      question: q16,
+      answer: a16
     }
   ];
 
