@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import TopHeader from '../components/common/TopHeader';
+import Ticker from '../components/common/Ticker';
 import UserHeader from '../components/common/UserHeader';
 import FloatingLines from '../components/common/FloatingLines';
 import FeatureSlider from '../components/common/FeatureSlider';
@@ -74,6 +75,7 @@ const Home = () => {
         {/* Main Header */}
         <UserHeader onShowAuth={handleShowAuth} />
         <TopHeader />
+        <Ticker />
 
         {/* Hero Section */}
         <div style={{ width: '100%', height: '600px', position: 'relative' }}>
