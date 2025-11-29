@@ -152,11 +152,11 @@ const UserHeader = () => {
           </div>
 
           {/* Center: Logo */}
-          <div className="flex items-center group cursor-pointer">
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#212121] to-[#757575] bg-clip-text text-transparent">
+          <Link to="/" className="flex items-center group cursor-pointer">
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-[#212121] to-[#757575] bg-clip-text text-transparent hover:from-[#1976D2] hover:to-[#0D47A1] transition-all duration-300">
               VaaS Solutions: Vision to Visibility, Instantly
             </h1>
-          </div>
+          </Link>
 
           {/* Right: Language & Contact Icons */}
           <div className="flex items-center space-x-3">
