@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../../context/LanguageContext';
 
 const languages = [
   { code: 'en', apertiumCode: 'eng', name: 'English', flag: '🇺🇸' },
@@ -11,29 +11,24 @@ const languages = [
 ];
 
 function LanguageSwitcher() {
-  const { i18n } = useTranslation();
+  const { language, setLanguage } = useLanguage();
 
-  const handleLanguageChange = (langCode) => {
-    i18n.changeLanguage(langCode);
+  const handleLanguageChange = (e) => {
+    setLanguage(e.target.value);
   };
 
   return (
-    <div className="language-switcher flex flex-wrap gap-2 justify-center md:justify-start">
+    <select
+      value={language}
+      onChange={handleLanguageChange}
+      className="bg-white/50 border border-white/20 rounded-lg px-3 py-2 text-sm font-medium text-[#212121] hover:bg-white/60 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent"
+    >
       {languages.map((lang) => (
-        <button
-          key={lang.code}
-          onClick={() => handleLanguageChange(lang.code)}
-          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center gap-2 ${
-            i18n.language === lang.code
-              ? 'bg-blue-500 text-white shadow-md'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          <span>{lang.flag}</span>
-          <span className="hidden sm:inline">{lang.name}</span>
-        </button>
+        <option key={lang.code} value={lang.code}>
+          {lang.flag} {lang.name}
+        </option>
       ))}
-    </div>
+    </select>
   );
 }
 

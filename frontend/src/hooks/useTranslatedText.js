@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../context/LanguageContext';
 
 // Global cache for ongoing translation requests to avoid duplicates
 const translationPromises = new Map();
 
 function useTranslatedText(text, sourceLang = 'en') {
-  const { i18n } = useTranslation();
-  const currentLang = i18n.language;
+  const { language } = useLanguage();
+  const currentLang = language;
   const [translatedText, setTranslatedText] = useState(text);
 
   // Map language codes to Apertium's 3-letter ISO-639-3 codes
@@ -81,51 +81,6 @@ function useTranslatedText(text, sourceLang = 'en') {
     });
   }, [text, sourceLang, currentLang]);
 
-  // Listen for language changes to ensure immediate re-translation
-  useEffect(() => {
-    const handleLanguageChange = (lng) => {
-      if (lng !== sourceLang) {
-        const key = `translation:${lng}:${text}`;
-        const cached = localStorage.getItem(key);
-        if (cached) {
-          setTranslatedText(cached);
-        } else {
-          // Trigger re-translation for new language
-          const fetchTranslation = async () => {
-            try {
-              const response = await fetch('/api/translations/translate', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  text,
-                  sourceLang: getApertiumCode(sourceLang),
-                  targetLang: getApertiumCode(lng)
-                }),
-              });
-              const data = await response.json();
-              if (data.translatedText) {
-                localStorage.setItem(key, data.translatedText);
-                setTranslatedText(data.translatedText);
-              }
-            } catch (error) {
-              // Keep current text if translation fails
-            }
-          };
-          fetchTranslation();
-        }
-      } else {
-        setTranslatedText(text);
-      }
-    };
-
-    i18n.on('languageChanged', handleLanguageChange);
-
-    return () => {
-      i18n.off('languageChanged', handleLanguageChange);
-    };
-  }, [text, sourceLang, i18n]);
 
   return translatedText;
 }

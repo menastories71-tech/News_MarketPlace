@@ -1,9 +1,10 @@
-const { translateText } = require('../services/translationService');
-
-const supportedLanguages = ['en', 'ar', 'hi', 'ru', 'zh', 'fr'];
+const { translateText, SUPPORTED_LANGUAGES } = require('../services/translationService');
 
 function getSupportedLanguages(req, res) {
-  res.json({ languages: supportedLanguages });
+  res.json({
+    languages: SUPPORTED_LANGUAGES,
+    note: 'All major languages supported via Google Translate through deep-translator Python library'
+  });
 }
 
 async function translate(req, res) {

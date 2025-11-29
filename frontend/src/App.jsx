@@ -1,9 +1,9 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import './i18n';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
+import { LanguageProvider } from './context/LanguageContext';
 import AuthModal from './components/auth/AuthModal';
 
 // Auth Modal Context
@@ -106,6 +106,8 @@ import PressGuidelines from './pages/PressGuidelines';
 import BrandsPeople from './pages/BrandsPeople';
 import MediaPartnerships from './pages/MediaPartnerships';
 import RolePermissionManagement from './components/admin/RolePermissionManagement';
+import CookieConsent from './components/common/CookieConsent';
+import UserCookiesData from './pages/UserCookiesData';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -250,7 +252,8 @@ function App() {
 
   return (
     <HelmetProvider>
-      <AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
         <AdminAuthProvider>
           <AuthModalContext.Provider value={{ showAuthModal: handleShowAuth }}>
             <Router>
@@ -271,6 +274,7 @@ function App() {
             <Route path="/press-guidelines" element={<PressGuidelines />} />
             <Route path="/brands-people" element={<BrandsPeople />} />
             <Route path="/media-partnerships" element={<MediaPartnerships />} />
+            <Route path="/data/new/cookies/user" element={<UserCookiesData />} />
             <Route path="/otp" element={<OTPTest />} />
             <Route path="/services-overview" element={<ServicesOverview />} />
             <Route path="/podcasters" element={<PodcastersList />} />
@@ -709,10 +713,14 @@ function App() {
             isOpen={showAuthModal}
             onClose={() => setShowAuthModal(false)}
           />
+
+          {/* Global Cookie Consent Banner */}
+          <CookieConsent />
         </Router>
           </AuthModalContext.Provider>
       </AdminAuthProvider>
     </AuthProvider>
+      </LanguageProvider>
     </HelmetProvider>
   );
 }

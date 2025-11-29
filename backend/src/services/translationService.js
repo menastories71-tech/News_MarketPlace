@@ -1,165 +1,148 @@
-const axios = require('axios');
+const { execFile } = require('child_process');
+const path = require('path');
 const redis = require('redis');
-const client = redis.createClient();
-client.connect();
 
-// List of translation APIs to try in order
-const TRANSLATION_APIS = [
-  // LibreTranslate APIs
-  'https://translate.argosopentech.com/translate',
-  'https://libretranslate.de/translate',
-  'https://translate.astian.org/translate',
-  'https://libretranslate.com/translate',
-  'https://lt.qiling.org/translate',
-  'https://translate.fortytwo-it.com/translate',
-  // Apertium API
-  'https://apertium.org/apy/translate'
-];
+// Initialize Redis client with lazy loading
+let redisClient = null;
+let redisInitialized = false;
 
-async function testApiEndpoint(apiUrl) {
+async function getRedisClient() {
+  if (redisInitialized) {
+    return redisClient;
+  }
+
   try {
-    const response = await axios.post(apiUrl, {
-      q: 'Hello world',
-      source: 'en',
-      target: 'es'
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      timeout: 5000 // 5 second timeout
+    // Use URL-based connection for Redis Cloud
+    const redisUrl = `redis://default:${process.env.REDIS_PASSWORD}@${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`;
+
+    const client = redis.createClient({
+      url: redisUrl,
+      retry_strategy: () => null // Disable retries
     });
 
-    if (response.status === 200 && response.data && response.data.translatedText) {
-      return true;
-    }
-    return false;
+    client.on('error', (err) => {
+      console.warn('Redis connection failed:', err.message);
+      redisClient = null;
+    });
+
+    client.on('connect', () => {
+      console.log('Redis connected successfully');
+    });
+
+    await client.connect();
+    redisClient = client;
+    redisInitialized = true;
+
+    return redisClient;
   } catch (error) {
-    console.log(`API ${apiUrl} failed:`, error.message);
-    return false;
+    console.warn('Redis initialization failed:', error.message);
+    redisClient = null;
+    redisInitialized = true; // Don't try again
+    return null;
   }
 }
 
-async function findWorkingApi() {
-  console.log('Testing LibreTranslate APIs...');
+// Language mapping for deep-translator (frontend codes → deep-translator codes)
+const LANGUAGE_MAP = {
+  'en': 'en',      // English
+  'ar': 'ar',      // Arabic
+  'hi': 'hi',      // Hindi
+  'ru': 'ru',      // Russian
+  'zh': 'zh-CN',  // Chinese (Simplified)
+  'fr': 'fr',      // French
+  'es': 'es',      // Spanish
+  'de': 'de',      // German
+  'it': 'it',      // Italian
+  'pt': 'pt',      // Portuguese
+  'ja': 'ja',      // Japanese
+  'ko': 'ko'       // Korean
+};
 
-  for (const apiUrl of TRANSLATION_APIS) {
-    console.log(`Testing ${apiUrl}...`);
-    const isWorking = await testApiEndpoint(apiUrl);
-    if (isWorking) {
-      console.log(`✅ Working API found: ${apiUrl}`);
-      return apiUrl;
-    } else {
-      console.log(`❌ API ${apiUrl} not working`);
-    }
-  }
+// Supported languages for translation (frontend codes)
+const SUPPORTED_LANGUAGES = ['en', 'ar', 'hi', 'ru', 'zh', 'fr'];
 
-  console.log('❌ No working API found');
-  return null;
-}
-
-// Cache the working API URL
-let workingApiUrl = null;
-
-async function getWorkingApi() {
-  if (workingApiUrl) {
-    return workingApiUrl;
-  }
-
-  workingApiUrl = await findWorkingApi();
-  return workingApiUrl;
-}
+// Path to the Python translator script
+const TRANSLATOR_SCRIPT = path.join(__dirname, '../../translator.py');
 
 async function translateText(text, sourceLang, targetLang) {
-    try {
-        const key = `translate:${sourceLang}:${targetLang}:${Buffer.from(text).toString('base64')}`;
-        try {
-            const cached = await client.get(key);
-            if (cached) {
-                return { translatedText: cached };
-            }
-        } catch (redisError) {
-            // Ignore Redis error, proceed to API
-        }
-
-        // Get working API
-        const apiUrl = await getWorkingApi();
-        if (!apiUrl) {
-            return { error: true, message: 'No translation service available' };
-        }
-
-        console.log(`Using translation API: ${apiUrl}`);
-
-        let requestData;
-        let translatedText;
-
-        let response;
-
-        // Different API formats
-        if (apiUrl.includes('apertium.org')) {
-            // Apertium APY uses GET with query parameters
-            const params = new URLSearchParams({
-                langpair: `${sourceLang}|${targetLang}`,
-                q: text
-            });
-
-            response = await axios.get(`${apiUrl}?${params}`, {
-                timeout: 10000 // 10 second timeout
-            });
-        } else {
-            // LibreTranslate format
-            const requestData = {
-                q: text,
-                source: sourceLang,
-                target: targetLang
-            };
-
-            response = await axios.post(apiUrl, requestData, {
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                timeout: 10000 // 10 second timeout
-            });
-        }
-
-        if (response.status === 200 && response.data) {
-            if (apiUrl.includes('apertium.org')) {
-                // Apertium APY format: {"responseStatus": 200, "responseData": {"translatedText": "..."}}
-                if (response.data.responseStatus === 200 && response.data.responseData?.translatedText) {
-                    translatedText = response.data.responseData.translatedText;
-                } else {
-                    return { error: true, message: 'Invalid response from Apertium API' };
-                }
-            } else {
-                // LibreTranslate format
-                translatedText = response.data.translatedText;
-            }
-
-            if (translatedText) {
-                try {
-                    await client.setEx(key, 3600, translatedText);
-                } catch (redisError) {
-                    // Ignore
-                }
-                return { translatedText };
-            } else {
-                return { error: true, message: 'Invalid response from translation API' };
-            }
-        } else {
-            return { error: true, message: 'Invalid response from translation API' };
-        }
-    } catch (error) {
-        if (error.response) {
-            if (error.response.status === 429) {
-                return { error: true, message: 'Rate limit exceeded' };
-            } else {
-                return { error: true, message: `API error: ${error.response.status} ${error.response.statusText}` };
-            }
-        } else if (error.request) {
-            return { error: true, message: 'Network error: Unable to reach translation API' };
-        } else {
-            return { error: true, message: `Unexpected error: ${error.message}` };
-        }
+  try {
+    // Validate input
+    if (!text || !sourceLang || !targetLang) {
+      return { error: true, message: 'Missing required parameters: text, sourceLang, targetLang' };
     }
+
+    if (!SUPPORTED_LANGUAGES.includes(sourceLang) || !SUPPORTED_LANGUAGES.includes(targetLang)) {
+      return { error: true, message: `Unsupported language pair: ${sourceLang} → ${targetLang}` };
+    }
+
+    // Map frontend language codes to deep-translator codes
+    const deepTranslatorSource = LANGUAGE_MAP[sourceLang];
+    const deepTranslatorTarget = LANGUAGE_MAP[targetLang];
+
+    // Create cache key
+    const key = `translate:${sourceLang}:${targetLang}:${Buffer.from(text).toString('base64')}`;
+
+    // Check cache first
+    try {
+      const client = await getRedisClient();
+      if (client) {
+        const cached = await client.get(key);
+        if (cached) {
+          console.log(`Cache hit for: ${sourceLang} → ${targetLang}`);
+          return { translatedText: cached };
+        }
+      }
+    } catch (redisError) {
+      console.warn('Redis cache error:', redisError.message);
+    }
+
+    console.log(`Translating "${text.substring(0, 50)}${text.length > 50 ? '...' : ''}" from ${sourceLang} to ${targetLang}`);
+
+    // Call Python translator script
+    const result = await new Promise((resolve, reject) => {
+      execFile('python', [TRANSLATOR_SCRIPT, deepTranslatorSource, deepTranslatorTarget, text], {
+        timeout: 30000, // 30 second timeout
+        maxBuffer: 1024 * 1024 // 1MB buffer
+      }, (error, stdout, stderr) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(stdout.trim());
+          if (parsed.error) {
+            reject(new Error(parsed.error));
+          } else {
+            resolve(parsed);
+          }
+        } catch (parseError) {
+          reject(new Error(`Failed to parse Python output: ${stdout}`));
+        }
+      });
+    });
+
+    const translatedText = result.translation;
+
+    // Cache the result
+    try {
+      const client = await getRedisClient();
+      if (client && translatedText) {
+        await client.setEx(key, 3600, translatedText); // Cache for 1 hour
+      }
+    } catch (redisError) {
+      console.warn('Redis cache write error:', redisError.message);
+    }
+
+    return { translatedText };
+
+  } catch (error) {
+    console.error('Translation error:', error.message);
+    return {
+      error: true,
+      message: `Translation failed: ${error.message}`
+    };
+  }
 }
 
-module.exports = { translateText, findWorkingApi };
+module.exports = { translateText, SUPPORTED_LANGUAGES };

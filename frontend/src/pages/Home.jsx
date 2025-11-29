@@ -18,7 +18,7 @@ import Schema from '../components/common/Schema';
 import useTranslatedText from '../hooks/useTranslatedText';
 
 const Home = () => {
-  const [showAuth, setShowAuth] = useState(false);
+  const [showAuth, setSowAuth] = useState(false);
   const [loading, setLoading] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
   const [hasTransitioned, setHasTransitioned] = useState(false);
