@@ -15,8 +15,8 @@ const UserCookiesData = () => {
 
   // Load cookie data on component mount
   useEffect(() => {
-    loadAllUsersCookieData();
-  }, []);
+    loadUserCookieData();
+  }, [user]);
 
   // Translated texts
   const pageTitle = useTranslatedText('Cookie Data Overview');
@@ -45,36 +45,65 @@ const UserCookiesData = () => {
   const osLabel = useTranslatedText('Operating System');
   const userAgentLabel = useTranslatedText('User Agent');
   const refreshDataLabel = useTranslatedText('Refresh Data');
-  const exportAllDataLabel = useTranslatedText('Export All Data');
+  const exportDataLabel = useTranslatedText('Export Data');
   const noDataLabel = useTranslatedText('No data available');
   const enabledLabel = useTranslatedText('Enabled');
   const disabledLabel = useTranslatedText('Disabled');
   const accessDeniedLabel = useTranslatedText('Access Denied');
   const adminOnlyLabel = useTranslatedText('This page is only accessible to administrators.');
 
-  const loadAllUsersCookieData = async () => {
+  const loadUserCookieData = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get('/cookies/admin/all-users-data');
-      setAllUsersData(response.data.data || []);
+
+      // If user is logged in, get their specific cookie data
+      if (user?.userId) {
+        const response = await api.get(`/cookies/user/${user.userId}/data`);
+        setAllUsersData([response.data.data] || []);
+      } else {
+        // For non-logged-in users, show general cookie information
+        setAllUsersData([{
+          userId: 'guest',
+          email: 'Not logged in',
+          firstName: 'Guest',
+          lastName: 'User',
+          cookiePreferences: {
+            necessary: true,
+            analytics: false,
+            marketing: false,
+            consentId: 'guest_consent',
+            timestamp: new Date().toISOString()
+          },
+          trackingData: {
+            totalEvents: 0,
+            pagesViewed: [],
+            timeSpent: 0,
+            lastActivity: new Date().toISOString()
+          },
+          deviceInfo: {
+            userAgent: navigator.userAgent,
+            browser: 'Unknown',
+            os: 'Unknown'
+          }
+        }]);
+      }
     } catch (err) {
-      console.error('Error loading all users cookie data:', err);
+      console.error('Error loading user cookie data:', err);
       setError(err.response?.data?.message || 'Failed to load data');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleExportAllData = () => {
+  const handleExportData = () => {
     const dataStr = JSON.stringify({
       exportDate: new Date().toISOString(),
-      totalUsers: allUsersData.length,
-      usersData: allUsersData
+      userData: allUsersData[0] || {}
     }, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
 
-    const exportFileDefaultName = `all-users-cookie-data-${new Date().toISOString().split('T')[0]}.json`;
+    const exportFileDefaultName = `cookie-data-${new Date().toISOString().split('T')[0]}.json`;
 
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
@@ -127,34 +156,36 @@ const UserCookiesData = () => {
         </div>
 
         {/* Stats Overview */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#1976D2] mb-2">{allUsersData.length}</div>
-              <div className="text-[#757575] font-medium">{totalUsersLabel}</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#4CAF50] mb-2">
-                {allUsersData.reduce((sum, user) => sum + (user.trackingData?.totalEvents || 0), 0)}
+        {allUsersData.length > 0 && (
+          <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-[#1976D2] mb-2">{allUsersData[0]?.trackingData?.totalEvents || 0}</div>
+                <div className="text-[#757575] font-medium">Total Events Tracked</div>
               </div>
-              <div className="text-[#757575] font-medium">Total Events Tracked</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-[#FF9800] mb-2">
-                {allUsersData.filter(user => user.cookiePreferences?.marketing).length}
+              <div className="text-center">
+                <div className="text-3xl font-bold text-[#4CAF50] mb-2">
+                  {allUsersData[0]?.cookiePreferences?.marketing ? 'Yes' : 'No'}
+                </div>
+                <div className="text-[#757575] font-medium">Marketing Consent</div>
               </div>
-              <div className="text-[#757575] font-medium">Marketing Consent Given</div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-[#FF9800] mb-2">
+                  {allUsersData[0]?.cookiePreferences?.analytics ? 'Yes' : 'No'}
+                </div>
+                <div className="text-[#757575] font-medium">Analytics Consent</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 justify-center mb-8">
-          <CosmicButton onClick={loadAllUsersCookieData}>
+          <CosmicButton onClick={loadUserCookieData}>
             {refreshDataLabel}
           </CosmicButton>
-          <CosmicButton variant="secondary" onClick={handleExportAllData}>
-            {exportAllDataLabel}
+          <CosmicButton variant="secondary" onClick={handleExportData}>
+            {exportDataLabel}
           </CosmicButton>
         </div>
 
