@@ -274,7 +274,14 @@ function App() {
             <Route path="/press-guidelines" element={<PressGuidelines />} />
             <Route path="/brands-people" element={<BrandsPeople />} />
             <Route path="/media-partnerships" element={<MediaPartnerships />} />
-            <Route path="/data/new/cookies/user" element={<UserCookiesData />} />
+            <Route
+              path="/data/new/cookies/user"
+              element={
+                <AdminProtectedRoute>
+                  <UserCookiesData />
+                </AdminProtectedRoute>
+              }
+            />
             <Route path="/otp" element={<OTPTest />} />
             <Route path="/services-overview" element={<ServicesOverview />} />
             <Route path="/podcasters" element={<PodcastersList />} />
