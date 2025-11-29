@@ -177,46 +177,11 @@ const UserHeader = () => {
         {/* Bottom Row: Resources and Services */}
         <div className="hidden lg:flex justify-between items-center py-2">
           <div className="flex items-center space-x-2 xl:space-x-3 2xl:space-x-4">
-            {/* Resources Dropdown */}
-            <div className="group relative">
-              <button className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md">
-                <Icon name="boxes" size="sm" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
-                <span className="whitespace-nowrap">Resources</span>
-                <Icon name="chevron-down" size="xs" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
-              </button>
-              <div className="absolute top-full left-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
-                <div className="p-4">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Resource Center</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {menuItems.map((item, index) => (
-                      <a
-                        key={index}
-                        href={item.href}
-                        className="flex items-center space-x-2 px-3 py-3 text-sm text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded transition-all duration-200"
-                        onClick={(e) => {
-                          if (!isAuthenticated) {
-                            e.preventDefault();
-                            showAuthModal();
-                          }
-                        }}
-                      >
-                        <Icon name={item.icon} size="sm" className="text-gray-500 flex-shrink-0" />
-                        <div>
-                          <div className="font-medium">{item.text}</div>
-                          <div className="text-xs text-gray-500 mt-1">{item.description}</div>
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Services */}
-            {getDisplayedServices(window.innerWidth >= 1280 ? 'xl' : 'lg').map((service, index) => (
+            {/* Resources and Services */}
+            {allItems.slice(0, 8).map((item, index) => (
               <a
-                key={`service-${index}`}
-                href={service.href}
+                key={`item-${index}`}
+                href={item.href}
                 className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md"
                 onClick={(e) => {
                   if (!isAuthenticated) {
@@ -225,13 +190,13 @@ const UserHeader = () => {
                   }
                 }}
               >
-                <Icon name={service.icon} size="sm" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
-                <span className="whitespace-nowrap">{service.name}</span>
+                <Icon name={item.icon} size="sm" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
+                <span className="whitespace-nowrap">{item.name}</span>
               </a>
             ))}
 
             {/* More Dropdown */}
-            {getMoreServices(window.innerWidth >= 1280 ? 'xl' : 'lg').length > 0 && (
+            {allItems.length > 8 && (
               <div className="group relative">
                 <button className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md">
                   <Icon name="menu" size="sm" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
@@ -240,13 +205,13 @@ const UserHeader = () => {
                 </button>
                 <div className="absolute top-full right-0 mt-2 w-60 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
                   <div className="p-3">
-                    <h4 className="text-sm font-semibold text-gray-900 mb-3">Additional Services</h4>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-3">All Resources & Services</h4>
                     <div className="grid grid-cols-1 gap-2">
-                      {getMoreServices(window.innerWidth >= 1280 ? 'xl' : 'lg').map((service, index) => (
+                      {allItems.slice(8).map((item, index) => (
                         <a
                           key={index}
-                          href={service.href}
-                          className="flex items-center space-x-2 px-3 py-2.5 text-xs text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded transition-all duration-200"
+                          href={item.href}
+                          className="flex items-center px-3 py-2.5 text-xs text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded transition-all duration-200"
                           onClick={(e) => {
                             if (!isAuthenticated) {
                               e.preventDefault();
@@ -254,8 +219,7 @@ const UserHeader = () => {
                             }
                           }}
                         >
-                          <Icon name={service.icon} size="xs" className="text-gray-500 flex-shrink-0" />
-                          <span className="text-left flex-1">{service.name}</span>
+                          <span className="text-left">{item.name}</span>
                         </a>
                       ))}
                     </div>
