@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Icon from './Icon';
 import { useAuth } from '../../context/AuthContext';
 import { useAdminAuth } from '../../context/AdminAuthContext';
@@ -54,26 +55,6 @@ const TopHeader = () => {
 		...actionItems.map(item => ({ name: item.name, href: item.href, icon: item.icon, hasAuthCheck: item.hasAuthCheck, isLink: item.isLink }))
 	];
 
-	// Updated responsive breakpoint logic to show more services directly
-	const getDisplayedServices = (breakpoint) => {
-		switch (breakpoint) {
-			case 'sm': return services.slice(0, 4); // Show 4 services including Paparazzi
-			case 'md': return services.slice(0, 5); // Show 5 services including Power List
-			case 'lg': return services.slice(0, 6); // Show 6 services on desktop
-			case 'xl': return services.slice(0, 7); // Show 7 services on large desktop
-			default: return services.slice(0, 5);
-		}
-	};
-
-	const getMoreServices = (breakpoint) => {
-		switch (breakpoint) {
-			case 'sm': return services.slice(4); // Rest after first 4
-			case 'md': return services.slice(5); // Rest after first 5
-			case 'lg': return services.slice(6); // Rest after first 6
-			case 'xl': return services.slice(7); // Rest after first 7
-			default: return services.slice(5);
-		}
-	};
 
 	const getDisplayedAction = (breakpoint) => {
 		switch (breakpoint) {
@@ -199,17 +180,12 @@ const TopHeader = () => {
 									<div className="p-2">
 										<h4 className="text-sm font-semibold text-gray-900 mb-2">Navigation</h4>
 										<div className="space-y-1">
-											{menuItems.map((item, index) => (
+											{navigationItems.map((item, index) => (
 												<a
 													key={index}
 													href={item.href}
 													className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200 w-full"
-													onClick={(e) => {
-														if (!isAuthenticated) {
-															e.preventDefault();
-															showAuthModal();
-														}
-													}}
+													onClick={item.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : undefined}
 												>
 													<Icon
 														name={item.icon}

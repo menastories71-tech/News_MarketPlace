@@ -85,7 +85,7 @@ const UserHeader = () => {
 
   const allItems = [
     ...menuItems.map(item => ({ name: item.text, href: item.href, icon: item.icon })),
-    ...services
+    ...services.map(item => ({ name: item.name, href: item.href, icon: item.icon }))
   ];
 
   const getDisplayedServices = (breakpoint) => {
