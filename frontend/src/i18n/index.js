@@ -12,7 +12,17 @@ i18n.use(initReactI18next).init({
     zh: { translation: {} },
     fr: { translation: {} }
   },
-  interpolation: { escapeValue: false }
+  interpolation: { escapeValue: false },
+  react: {
+    useSuspense: false
+  }
 });
+
+// Add debugging for language changes
+i18n.on('languageChanged', (lng) => {
+  console.log('i18n: Language changed to:', lng);
+});
+
+console.log('i18n initialized with language:', i18n.language);
 
 export default i18n;

@@ -67,12 +67,15 @@ function useTranslatedText(text, sourceLang = 'en') {
   // Listen for language changes to ensure immediate re-translation
   useEffect(() => {
     const handleLanguageChange = (lng) => {
+      console.log('useTranslatedText: Language changed to:', lng, 'for text:', text);
       if (lng !== sourceLang) {
         const key = `translation:${lng}:${text}`;
         const cached = localStorage.getItem(key);
         if (cached) {
+          console.log('useTranslatedText: Using cached translation:', cached);
           setTranslatedText(cached);
         } else {
+          console.log('useTranslatedText: Fetching translation for:', text);
           // Trigger re-translation for new language
           const fetchTranslation = async () => {
             try {
@@ -85,16 +88,21 @@ function useTranslatedText(text, sourceLang = 'en') {
               });
               const data = await response.json();
               if (data.translatedText) {
+                console.log('useTranslatedText: Received translation:', data.translatedText);
                 localStorage.setItem(key, data.translatedText);
                 setTranslatedText(data.translatedText);
+              } else {
+                console.log('useTranslatedText: No translation received');
               }
             } catch (error) {
+              console.error('useTranslatedText: Translation fetch error:', error);
               // Keep current text if translation fails
             }
           };
           fetchTranslation();
         }
       } else {
+        console.log('useTranslatedText: Language is source language, using original text');
         setTranslatedText(text);
       }
     };
