@@ -189,6 +189,117 @@ const deleteUserCookieData = async (req, res) => {
   }
 };
 
+// Get all users' cookie data (Admin only)
+const getAllUsersCookieData = async (req, res) => {
+  try {
+    // Check if user is admin
+    if (!req.user || req.user.role !== 'admin') {
+      return res.status(403).json({
+        error: true,
+        message: 'Admin access required'
+      });
+    }
+
+    // Here you would query the database for all users' cookie and tracking data
+    // For now, return mock data with comprehensive information
+    const mockAllUsersData = [
+      {
+        userId: 'user_001',
+        email: 'john.doe@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        cookiePreferences: {
+          necessary: true,
+          analytics: true,
+          marketing: false,
+          consentId: 'consent_123456',
+          timestamp: '2024-01-15T10:30:00Z'
+        },
+        trackingData: {
+          totalEvents: 45,
+          pagesViewed: ['/home', '/services', '/contact', '/about'],
+          timeSpent: 1250, // seconds
+          lastActivity: '2024-01-20T14:25:00Z',
+          events: [
+            { event: 'page_view', url: '/home', timestamp: '2024-01-20T10:00:00Z' },
+            { event: 'button_click', data: { button: 'contact_us' }, timestamp: '2024-01-20T10:15:00Z' }
+          ]
+        },
+        deviceInfo: {
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          ipAddress: '192.168.1.100',
+          location: {
+            country: 'United States',
+            region: 'California',
+            city: 'San Francisco',
+            latitude: 37.7749,
+            longitude: -122.4194
+          },
+          browser: 'Chrome',
+          os: 'Windows 10'
+        },
+        consentHistory: [
+          { consentId: 'consent_123456', timestamp: '2024-01-15T10:30:00Z', preferences: { necessary: true, analytics: true, marketing: false } },
+          { consentId: 'consent_789012', timestamp: '2024-01-10T09:15:00Z', preferences: { necessary: true, analytics: false, marketing: false } }
+        ]
+      },
+      {
+        userId: 'user_002',
+        email: 'jane.smith@example.com',
+        firstName: 'Jane',
+        lastName: 'Smith',
+        cookiePreferences: {
+          necessary: true,
+          analytics: false,
+          marketing: true,
+          consentId: 'consent_789012',
+          timestamp: '2024-01-18T16:45:00Z'
+        },
+        trackingData: {
+          totalEvents: 23,
+          pagesViewed: ['/home', '/blog', '/products'],
+          timeSpent: 890,
+          lastActivity: '2024-01-19T11:20:00Z',
+          events: [
+            { event: 'page_view', url: '/blog', timestamp: '2024-01-19T09:30:00Z' },
+            { event: 'form_submit', data: { form: 'newsletter' }, timestamp: '2024-01-19T09:45:00Z' }
+          ]
+        },
+        deviceInfo: {
+          userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15',
+          ipAddress: '10.0.0.50',
+          location: {
+            country: 'Canada',
+            region: 'Ontario',
+            city: 'Toronto',
+            latitude: 43.6532,
+            longitude: -79.3832
+          },
+          browser: 'Safari',
+          os: 'macOS'
+        },
+        consentHistory: [
+          { consentId: 'consent_789012', timestamp: '2024-01-18T16:45:00Z', preferences: { necessary: true, analytics: false, marketing: true } }
+        ]
+      }
+    ];
+
+    res.json({
+      success: true,
+      data: mockAllUsersData,
+      totalUsers: mockAllUsersData.length,
+      lastUpdated: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Error retrieving all users cookie data:', error);
+    res.status(500).json({
+      error: true,
+      message: 'Failed to retrieve all users cookie data'
+    });
+  }
+};
+
 // Export user cookie data (GDPR compliance)
 const exportUserCookieData = async (req, res) => {
   try {
@@ -231,5 +342,6 @@ module.exports = {
   trackUserActivity,
   getUserTrackingData,
   deleteUserCookieData,
-  exportUserCookieData
+  exportUserCookieData,
+  getAllUsersCookieData
 };
