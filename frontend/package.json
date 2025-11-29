@@ -30,7 +30,8 @@
     "react-phone-number-input": "^3.4.14",
     "react-router-dom": "^6.20.1",
     "styled-components": "^6.1.19",
-    "tailwindcss": "^4.1.16"
+    "tailwindcss": "^4.1.16",
+    "three": "^0.181.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
