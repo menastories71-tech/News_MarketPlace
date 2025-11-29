@@ -102,10 +102,14 @@ async function translateText(text, sourceLang, targetLang) {
     const result = await new Promise((resolve, reject) => {
       execFile('python', [TRANSLATOR_SCRIPT, deepTranslatorSource, deepTranslatorTarget, text], {
         timeout: 30000, // 30 second timeout
-        maxBuffer: 1024 * 1024 // 1MB buffer
+        maxBuffer: 1024 * 1024, // 1MB buffer
+        cwd: path.dirname(TRANSLATOR_SCRIPT) // Set working directory to script location
       }, (error, stdout, stderr) => {
+        console.log('Python script output:', { stdout: stdout?.trim(), stderr: stderr?.trim(), error: error?.message });
+
         if (error) {
-          reject(error);
+          console.error('Python execution error:', error);
+          reject(new Error(`Python execution failed: ${error.message}`));
           return;
         }
 
@@ -117,6 +121,7 @@ async function translateText(text, sourceLang, targetLang) {
             resolve(parsed);
           }
         } catch (parseError) {
+          console.error('JSON parse error:', parseError, 'Raw output:', stdout);
           reject(new Error(`Failed to parse Python output: ${stdout}`));
         }
       });
