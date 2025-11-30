@@ -640,6 +640,8 @@ const PowerlistManagement = () => {
   const [selectedPowerlists, setSelectedPowerlists] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
@@ -765,7 +767,11 @@ const PowerlistManagement = () => {
       });
 
       const response = await api.get(`/powerlist?${params}`);
-      setPowerlists(response.data.powerlists || []);
+      const data = response.data;
+
+      setPowerlists(data.powerlists || []);
+      setTotalCount(data.pagination?.total || 0);
+      setTotalPages(data.pagination?.pages || 1);
     } catch (error) {
       console.error('Error fetching powerlists:', error);
       if (error.response?.status === 401) {
@@ -780,41 +786,14 @@ const PowerlistManagement = () => {
     }
   }, [currentPage, pageSize, debouncedSearchTerm, statusFilter, industryFilter, genderFilter]);
 
-  // Simple search for powerlists
-  const filteredPowerlists = useMemo(() => {
-    let filtered = powerlists.filter(powerlist => powerlist.is_active !== false);
-
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(powerlist =>
-        powerlist.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        powerlist.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (powerlist.current_company && powerlist.current_company.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
-      );
-    }
-
-    if (statusFilter) {
-      filtered = filtered.filter(powerlist => powerlist.status === statusFilter);
-    }
-
-    if (industryFilter) {
-      filtered = filtered.filter(powerlist => powerlist.company_industry === industryFilter);
-    }
-
-    if (genderFilter) {
-      filtered = filtered.filter(powerlist => powerlist.gender === genderFilter);
-    }
-
-    return filtered;
-  }, [powerlists, debouncedSearchTerm, statusFilter, industryFilter, genderFilter]);
-
-  // Update filtered powerlists when filters change
+  // Reset to first page when filters change
   useEffect(() => {
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [debouncedSearchTerm, statusFilter, industryFilter, genderFilter]);
 
-  // Sorting logic
+  // Sorting logic (client-side sorting of current page results)
   const sortedPowerlists = useMemo(() => {
-    return [...filteredPowerlists].sort((a, b) => {
+    return [...powerlists].sort((a, b) => {
       let aValue = a[sortField];
       let bValue = b[sortField];
 
@@ -832,15 +811,7 @@ const PowerlistManagement = () => {
         return aValue < bValue ? 1 : -1;
       }
     });
-  }, [filteredPowerlists, sortField, sortDirection]);
-
-  // Pagination logic
-  const paginatedPowerlists = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortedPowerlists.slice(startIndex, startIndex + pageSize);
-  }, [sortedPowerlists, currentPage, pageSize]);
-
-  const totalPages = Math.ceil(sortedPowerlists.length / pageSize);
+  }, [powerlists, sortField, sortDirection]);
 
   const getStatusStyle = (status) => {
     const statusOption = statusOptions.find(opt => opt.value === status);
@@ -923,10 +894,10 @@ const PowerlistManagement = () => {
   };
 
   const handleSelectAll = () => {
-    if (selectedPowerlists.length === filteredPowerlists.length) {
+    if (selectedPowerlists.length === powerlists.length) {
       setSelectedPowerlists([]);
     } else {
-      setSelectedPowerlists(filteredPowerlists.map(p => p.id));
+      setSelectedPowerlists(powerlists.map(p => p.id));
     }
   };
 
@@ -1317,11 +1288,11 @@ const PowerlistManagement = () => {
                 <div style={{ fontSize: '14px', color: theme.textSecondary }}>
                   {debouncedSearchTerm || statusFilter || industryFilter || genderFilter ? (
                     <>
-                      <span style={{ color: theme.primary, fontWeight: '600' }}>Filtered:</span> Found <strong>{sortedPowerlists.length}</strong> entries
+                      <span style={{ color: theme.primary, fontWeight: '600' }}>Filtered:</span> Found <strong>{totalCount}</strong> entries
                     </>
                   ) : (
                     <>
-                      Showing <strong>{paginatedPowerlists.length}</strong> of <strong>{sortedPowerlists.length}</strong> entries
+                      Showing <strong>{powerlists.length}</strong> of <strong>{totalCount}</strong> entries
                     </>
                   )}
                 </div>
@@ -1376,11 +1347,11 @@ const PowerlistManagement = () => {
                     </select>
                     <button
                       onClick={() => {
-                        // Export filtered results as CSV
+                        // Export current page results as CSV
                         const headers = ['Name', 'Email', 'Company', 'Position', 'Industry', 'Gender', 'Status', 'Created At'];
                         const csvData = [
                           headers.join(','),
-                          ...filteredPowerlists.map(powerlist => [
+                          ...powerlists.map(powerlist => [
                             `"${powerlist.name}"`,
                             `"${powerlist.email}"`,
                             `"${powerlist.current_company || ''}"`,
@@ -1419,14 +1390,14 @@ const PowerlistManagement = () => {
                 </div>
               </div>
 
-              <div style={{ overflowX: 'auto', maxHeight: paginatedPowerlists.length > 50 ? '600px' : 'auto', overflowY: paginatedPowerlists.length > 50 ? 'auto' : 'visible' }}>
+              <div style={{ overflowX: 'auto', maxHeight: powerlists.length > 50 ? '600px' : 'auto', overflowY: powerlists.length > 50 ? 'auto' : 'visible' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', width: '50px' }}>
                         <input
                           type="checkbox"
-                          checked={paginatedPowerlists.length > 0 && selectedPowerlists.length === paginatedPowerlists.length}
+                          checked={powerlists.length > 0 && selectedPowerlists.length === powerlists.length}
                           onChange={handleSelectAll}
                           style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
                         />
@@ -1452,7 +1423,7 @@ const PowerlistManagement = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {paginatedPowerlists.map((powerlist, index) => (
+                    {powerlists.map((powerlist, index) => (
                       <tr key={powerlist.id} style={{
                         borderBottom: '1px solid #f1f5f9',
                         backgroundColor: selectedPowerlists.includes(powerlist.id) ? '#e0f2fe' : (index % 2 === 0 ? '#ffffff' : '#fafbfc'),
@@ -1603,7 +1574,7 @@ const PowerlistManagement = () => {
               {totalPages > 1 && (
                 <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    Page {currentPage} of {totalPages} ({sortedPowerlists.length} total entries)
+                    Page {currentPage} of {totalPages} ({totalCount} total entries)
                   </div>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button
@@ -1640,7 +1611,7 @@ const PowerlistManagement = () => {
                 </div>
               )}
 
-              {paginatedPowerlists.length === 0 && (
+              {powerlists.length === 0 && (
                 <div style={{ padding: '80px', textAlign: 'center', color: theme.textSecondary }}>
                   <div style={{ fontSize: '64px', marginBottom: '16px' }}>
                     {debouncedSearchTerm || statusFilter || industryFilter || genderFilter ? '🔍' : '📭'}

@@ -61,7 +61,10 @@ const OrderViewModal = ({ isOpen, onClose, order }) => {
             <strong>ID:</strong> {order.id}
           </div>
           <div>
-            <strong>Publication:</strong> {order.publication_name}
+            <strong>Service:</strong> {order.order_type === 'paparazzi' ? order.paparazzi_name : order.publication_name}
+          </div>
+          <div>
+            <strong>Type:</strong> {order.order_type === 'paparazzi' ? 'Paparazzi' : 'Publication'}
           </div>
           <div>
             <strong>Price:</strong> ${order.price}
@@ -539,7 +542,7 @@ const OrderManagement = () => {
                 Order Management
               </h1>
               <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-                Manage call booking requests and publication orders from users across the platform.
+                Manage call booking requests for publications and paparazzi services from users across the platform.
               </p>
             </motion.div>
           </div>
@@ -576,7 +579,7 @@ const OrderManagement = () => {
               <div className="px-6 py-4 border-b border-[#E5E7EB] bg-[#F8FAFC]">
                 <div className="flex justify-between items-center flex-wrap gap-4">
                   <div className="flex items-center gap-4">
-                    <span className="text-sm font-semibold text-[#212121]">Call Booking Orders</span>
+                    <span className="text-sm font-semibold text-[#212121]">Service Orders</span>
                   </div>
                   <div className="flex items-center gap-4">
                     <select
@@ -601,7 +604,8 @@ const OrderManagement = () => {
                   <thead>
                     <tr className="bg-[#F8FAFC] border-b-2 border-[#E2E8F0]">
                       <th className="px-6 py-4 text-left font-bold text-xs text-[#212121] uppercase tracking-wider">ID</th>
-                      <th className="px-6 py-4 text-left font-bold text-xs text-[#212121] uppercase tracking-wider">Publication</th>
+                      <th className="px-6 py-4 text-left font-bold text-xs text-[#212121] uppercase tracking-wider">Service</th>
+                      <th className="px-6 py-4 text-left font-bold text-xs text-[#212121] uppercase tracking-wider">Type</th>
                       <th className="px-6 py-4 text-left font-bold text-xs text-[#212121] uppercase tracking-wider">Customer</th>
                       <th className="px-6 py-4 text-left font-bold text-xs text-[#212121] uppercase tracking-wider">Price</th>
                       <th className="px-6 py-4 text-left font-bold text-xs text-[#212121] uppercase tracking-wider">Status</th>
@@ -613,7 +617,12 @@ const OrderManagement = () => {
                     {orders.map((order, index) => (
                       <tr key={order.id} className={index % 2 === 0 ? 'bg-white' : 'bg-[#FAFBFC]'}>
                         <td className="px-6 py-4 text-sm text-[#212121]">{order.id}</td>
-                        <td className="px-6 py-4 text-sm text-[#212121] font-medium">{order.publication_name}</td>
+                        <td className="px-6 py-4 text-sm text-[#212121] font-medium">
+                          {order.order_type === 'paparazzi' ? order.paparazzi_name : order.publication_name}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-[#212121]">
+                          {order.order_type === 'paparazzi' ? 'Paparazzi' : 'Publication'}
+                        </td>
                         <td className="px-6 py-4 text-sm text-[#212121]">
                           <div>
                             <div className="font-medium">{order.customer_name}</div>

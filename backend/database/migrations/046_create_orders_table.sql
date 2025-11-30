@@ -1,8 +1,11 @@
--- Create orders table for publication booking requests
+-- Create orders table for publication and paparazzi booking requests
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    publication_id INT NOT NULL,
-    publication_name VARCHAR(255) NOT NULL,
+    order_type VARCHAR(20) DEFAULT 'publication' CHECK (order_type IN ('publication', 'paparazzi')),
+    publication_id INT NULL,
+    publication_name VARCHAR(255) NULL,
+    paparazzi_id INT NULL,
+    paparazzi_name VARCHAR(255) NULL,
     price DECIMAL(10,2),
     customer_name VARCHAR(255) NOT NULL,
     customer_email VARCHAR(255) NOT NULL,
@@ -14,12 +17,15 @@ CREATE TABLE IF NOT EXISTS orders (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    -- Foreign key constraint
-    CONSTRAINT fk_orders_publication FOREIGN KEY (publication_id) REFERENCES publications(id) ON DELETE CASCADE,
+    -- Foreign key constraints (nullable since order_type determines which one is used)
+    CONSTRAINT fk_orders_publication FOREIGN KEY (publication_id) REFERENCES publications(id) ON DELETE SET NULL,
+    CONSTRAINT fk_orders_paparazzi FOREIGN KEY (paparazzi_id) REFERENCES paparazzi(id) ON DELETE SET NULL,
 
     -- Indexes for better performance
     INDEX idx_orders_status (status),
+    INDEX idx_orders_type (order_type),
     INDEX idx_orders_publication (publication_id),
+    INDEX idx_orders_paparazzi (paparazzi_id),
     INDEX idx_orders_customer_email (customer_email),
     INDEX idx_orders_date (order_date)
 );

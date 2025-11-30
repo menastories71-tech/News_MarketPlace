@@ -194,7 +194,7 @@ const PublicationDetailPage = () => {
     setIsOrdering(true);
 
     try {
-      // Create order data
+      // Create order data for API
       const orderData = {
         publicationId: publication.id,
         publicationName: publication.publication_name,
@@ -203,49 +203,21 @@ const PublicationDetailPage = () => {
         orderDate: new Date().toISOString()
       };
 
-      // Initialize Razorpay for testing
-      const options = {
-        key: 'rzp_test_1234567890', // Test key - replace with actual test key
-        amount: Math.round(parseFloat(publication.publication_price) * 100), // Amount in paise
-        currency: 'USD',
-        name: 'News Marketplace',
-        description: `Order for ${publication.publication_name}`,
-        order_id: `order_${Date.now()}`, // Generate unique order ID
-        handler: function (response) {
-          // Payment successful
-          console.log('Payment successful:', response);
-          alert('Order placed successfully! Payment ID: ' + response.razorpay_payment_id);
-          setShowOrderModal(false);
-          setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
-        },
-        prefill: {
-          name: orderFormData.fullName,
-          email: orderFormData.email,
-          contact: orderFormData.phone
-        },
-        notes: {
-          address: orderFormData.message
-        },
-        theme: {
-          color: theme.primary
-        }
-      };
+      // Submit order to backend
+      const response = await api.post('/orders', orderData);
 
-      // For testing purposes, simulate payment success
-      setTimeout(() => {
-        alert('Order placed successfully! (Test Mode)');
+      if (response.data.success) {
+        alert('Call booking request submitted successfully! Our team will contact you soon.');
         setShowOrderModal(false);
         setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
-        setIsOrdering(false);
-      }, 2000);
-
-      // In production, uncomment this to use actual Razorpay
-      // const rzp = new window.Razorpay(options);
-      // rzp.open();
+      } else {
+        throw new Error(response.data.message || 'Failed to submit booking request');
+      }
 
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Error placing order. Please try again.');
+      const errorMessage = error.response?.data?.message || error.message || 'Error submitting booking request. Please try again.';
+      alert(errorMessage);
     } finally {
       setIsOrdering(false);
     }
@@ -1050,20 +1022,6 @@ const PublicationDetailPage = () => {
                   </div>
                 </div>
 
-                <div style={{
-                  backgroundColor: theme.info + '10',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  marginBottom: '16px'
-                }}>
-                  <p style={{
-                    margin: 0,
-                    fontSize: '12px',
-                    color: theme.textSecondary
-                  }}>
-                    <strong>Test Mode:</strong> This is a demo order. No actual payment will be processed.
-                  </p>
-                </div>
               </form>
             </div>
 
@@ -1110,7 +1068,7 @@ const PublicationDetailPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                {isOrdering ? 'Processing...' : 'Pay Now'}
+                {isOrdering ? 'Processing...' : 'Book Call Now'}
               </button>
             </div>
           </div>
