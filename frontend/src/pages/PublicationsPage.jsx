@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -7,12 +7,12 @@ import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
-import {
-  Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock,
-  TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle,
+import { 
+  Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock, 
+  TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle, 
   ExternalLink, MapPin, Calendar, DollarSign, BarChart3, Users,
-  Link as LinkIcon, Image as ImageIcon, FileText, Shield, Ban,
-  AlertTriangle, Cigarette, Pill, Gamepad2
+  Link as LinkIcon, Image as ImageIcon, FileText, Shield, 
+  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown
 } from 'lucide-react';
 
 // Updated theme colors matching the color palette from PDF
@@ -44,13 +44,41 @@ const PublicationsPage = () => {
   const [publications, setPublications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAuth, setShowAuth] = useState(false);
+  
+  // View mode and layout state
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  // Filter states
   const [groupFilter, setGroupFilter] = useState('');
   const [regionFilter, setRegionFilter] = useState('');
+  const [languageFilter, setLanguageFilter] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const [priceRange, setPriceRange] = useState([0, 2000]);
+  const [daRange, setDaRange] = useState([0, 100]);
+  const [drRange, setDrRange] = useState([0, 100]);
+  const [tatFilter, setTatFilter] = useState([]);
+  const [sponsoredFilter, setSponsoredFilter] = useState('');
+  const [liveFilter, setLiveFilter] = useState('');
+  const [dofollowFilter, setDofollowFilter] = useState('');
+  const [wordsLimitRange, setWordsLimitRange] = useState([0, 10000]);
+  const [imagesRange, setImagesRange] = useState([0, 50]);
+  
+  // Sorting state
+  const [sortField, setSortField] = useState('publication_name');
+  const [sortDirection, setSortDirection] = useState('asc');
+  
+  // Groups data
   const [groups, setGroups] = useState([]);
-  const [showAuth, setShowAuth] = useState(false);
-  const [viewMode, setViewMode] = useState('grid');
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(() => {
     fetchPublications();
@@ -102,13 +130,200 @@ const PublicationsPage = () => {
     }
   };
 
-  useEffect(() => {
-    const debounceTimer = setTimeout(() => {
-      fetchPublications();
-    }, 300);
+  // Filtering logic
+  const filteredPublications = useMemo(() => {
+    let filtered = [...publications];
 
-    return () => clearTimeout(debounceTimer);
-  }, [searchTerm, groupFilter, regionFilter, industryFilter]);
+    // Apply filters
+    if (groupFilter) {
+      filtered = filtered.filter(pub => pub.group_id === parseInt(groupFilter));
+    }
+    
+    if (regionFilter) {
+      filtered = filtered.filter(pub => 
+        pub.publication_region?.toLowerCase().includes(regionFilter.toLowerCase())
+      );
+    }
+    
+    if (languageFilter) {
+      filtered = filtered.filter(pub => 
+        pub.publication_language?.toLowerCase().includes(languageFilter.toLowerCase())
+      );
+    }
+    
+    if (industryFilter) {
+      filtered = filtered.filter(pub => 
+        pub.publication_primary_industry?.toLowerCase().includes(industryFilter.toLowerCase())
+      );
+    }
+    
+    // Price range filter
+    filtered = filtered.filter(pub => {
+      const price = parseFloat(pub.publication_price) || 0;
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
+    
+    // DA range filter
+    filtered = filtered.filter(pub => {
+      const da = parseInt(pub.da) || 0;
+      return da >= daRange[0] && da <= daRange[1];
+    });
+    
+    // DR range filter
+    filtered = filtered.filter(pub => {
+      const dr = parseInt(pub.dr) || 0;
+      return dr >= drRange[0] && dr <= drRange[1];
+    });
+    
+    // TAT filter
+    if (tatFilter.length > 0) {
+      filtered = filtered.filter(pub => {
+        const days = pub.agreement_tat;
+        return tatFilter.some(tat => {
+          switch (tat) {
+            case '1 Day': return days === 1;
+            case '1-3 Days': return days >= 1 && days <= 3;
+            case '1 Week': return days === 7;
+            case '1+ Week': return days > 7;
+            default: return false;
+          }
+        });
+      });
+    }
+    
+    // Boolean filters
+    if (sponsoredFilter) {
+      filtered = filtered.filter(pub => 
+        pub.sponsored_or_not === (sponsoredFilter === 'true')
+      );
+    }
+    
+    if (liveFilter) {
+      filtered = filtered.filter(pub => 
+        pub.live_on_platform === (liveFilter === 'true')
+      );
+    }
+    
+    if (dofollowFilter) {
+      filtered = filtered.filter(pub => 
+        pub.do_follow_link === (dofollowFilter === 'true')
+      );
+    }
+    
+    // Words limit filter
+    filtered = filtered.filter(pub => {
+      const words = parseInt(pub.words_limit) || 0;
+      return words >= wordsLimitRange[0] && words <= wordsLimitRange[1];
+    });
+    
+    // Images filter
+    filtered = filtered.filter(pub => {
+      const images = parseInt(pub.number_of_images) || 0;
+      return images >= imagesRange[0] && images <= imagesRange[1];
+    });
+
+    return filtered;
+  }, [publications, groupFilter, regionFilter, languageFilter, industryFilter, 
+      priceRange, daRange, drRange, tatFilter, sponsoredFilter, liveFilter, 
+      dofollowFilter, wordsLimitRange, imagesRange]);
+
+  // Sorting logic
+  const sortedPublications = useMemo(() => {
+    return [...filteredPublications].sort((a, b) => {
+      let aValue = a[sortField];
+      let bValue = b[sortField];
+
+      if (sortField === 'publication_price' || sortField === 'da' || sortField === 'dr') {
+        aValue = parseFloat(aValue) || 0;
+        bValue = parseFloat(bValue) || 0;
+      } else if (sortField === 'created_at' || sortField === 'updated_at') {
+        aValue = new Date(aValue);
+        bValue = new Date(bValue);
+      } else {
+        aValue = String(aValue || '').toLowerCase();
+        bValue = String(bValue || '').toLowerCase();
+      }
+
+      if (sortDirection === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  }, [filteredPublications, sortField, sortDirection]);
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) return <ArrowUpDown size={14} />;
+    return sortDirection === 'asc' ? <ArrowUp size={14} /> : <ArrowDown size={14} />;
+  };
+
+  const clearAllFilters = () => {
+    setGroupFilter('');
+    setRegionFilter('');
+    setLanguageFilter('');
+    setIndustryFilter('');
+    setPriceRange([0, 2000]);
+    setDaRange([0, 100]);
+    setDrRange([0, 100]);
+    setTatFilter([]);
+    setSponsoredFilter('');
+    setLiveFilter('');
+    setDofollowFilter('');
+    setWordsLimitRange([0, 10000]);
+    setImagesRange([0, 50]);
+  };
+
+  const toggleTatFilter = (tatOption) => {
+    setTatFilter(prev =>
+      prev.includes(tatOption)
+        ? prev.filter(t => t !== tatOption)
+        : [...prev, tatOption]
+    );
+  };
+
+  const hasActiveFilters = () => {
+    return groupFilter || regionFilter || languageFilter || industryFilter ||
+           priceRange[0] > 0 || priceRange[1] < 2000 ||
+           daRange[0] > 0 || daRange[1] < 100 ||
+           drRange[0] > 0 || drRange[1] < 100 ||
+           tatFilter.length > 0 || sponsoredFilter || liveFilter || 
+           dofollowFilter || wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
+           imagesRange[0] > 0 || imagesRange[1] < 50;
+  };
+
+  const formatTAT = (days) => {
+    if (!days || days === 0) return 'N/A';
+    if (days === 1) return '1 Day';
+    if (days < 7) return `${days} Days`;
+    if (days === 7) return '1 Week';
+    if (days < 30) return `${Math.round(days / 7)} Weeks`;
+    return `${Math.round(days / 30)} Months`;
+  };
+
+  const getDAScoreColor = (score) => {
+    if (score >= 80) return '#4CAF50';
+    if (score >= 60) return '#8BC34A';
+    if (score >= 40) return '#FFC107';
+    if (score >= 20) return '#FF9800';
+    return '#F44336';
+  };
+
+  const getDRScoreColor = (score) => {
+    if (score >= 70) return '#2196F3';
+    if (score >= 50) return '#00BCD4';
+    if (score >= 30) return '#9C27B0';
+    if (score >= 10) return '#E91E63';
+    return '#F44336';
+  };
 
   const handleShowAuth = () => {
     setShowAuth(true);
@@ -118,6 +333,11 @@ const PublicationsPage = () => {
     setShowAuth(false);
   };
 
+  const handlePublicationClick = (publication) => {
+    navigate(`/publications/${publication.id}`);
+  };
+
+  // Get unique values for filter options
   const getUniqueRegions = () => {
     const regions = publications.map(pub => pub.publication_region).filter(Boolean);
     return [...new Set(regions)].sort();
@@ -133,18 +353,14 @@ const PublicationsPage = () => {
     return [...new Set(industries)].sort();
   };
 
+  const getUniqueLanguages = () => {
+    const languages = publications.map(pub => pub.publication_language).filter(Boolean);
+    return [...new Set(languages)].sort();
+  };
+
   const formatPrice = (price) => {
     const numPrice = parseFloat(price);
     return numPrice > 0 ? `$${numPrice.toFixed(2)}` : 'Contact for pricing';
-  };
-
-  const getRatingStars = (da) => {
-    const rating = Math.min(Math.max(Math.round((parseInt(da) || 0) / 20), 1), 5);
-    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
-  };
-
-  const handlePublicationClick = (publication) => {
-    navigate(`/publications/${publication.id}`);
   };
 
   if (loading) {
@@ -169,11 +385,11 @@ const PublicationsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
       <UserHeader onShowAuth={handleShowAuth} />
 
-      {/* Hero Section - prnews.io inspired */}
-      <section className="relative py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white border-b border-[#E0E0E0]">
+      {/* Hero Section - Keeping unchanged */}
+      <section className="relative py-12 px-4 sm:px-6 lg:px-8 border-b" style={{ backgroundColor: theme.background }}>
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -182,13 +398,10 @@ const PublicationsPage = () => {
             className="text-center"
           >
             <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: theme.textPrimary }}>
-              Publications
+              PR News Outlets Database
             </h1>
-            {/* <p className="text-lg mb-4" style={{ color: theme.textSecondary }}>
-              All Publications ({publications.length} Available)
-            </p> */}
-            <p className="text-base mb-8" style={{ color: theme.textSecondary }}>
-              Discover verified media outlets and submit your articles for publication across various industries and regions.
+            <p className="text-lg mb-8" style={{ color: theme.textSecondary }}>
+              {publications.length} Media Outlets Available
             </p>
             
             {/* Search Bar */}
@@ -205,25 +418,36 @@ const PublicationsPage = () => {
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: theme.textSecondary }} />
               </div>
             </div>
-
-            {/* Filter Toggle */}
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border"
-              style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
-            >
-              <Filter size={16} style={{ color: theme.textPrimary }} />
-              <span style={{ color: theme.textPrimary }}>Filters</span>
-            </button>
           </motion.div>
         </div>
       </section>
 
-      {/* Filters Section */}
-      {showFilters && (
-        <section className="px-4 sm:px-6 lg:px-8 bg-white border-b border-[#E0E0E0]">
-          <div className="max-w-7xl mx-auto py-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Main Content with 30/70 Layout */}
+      <div className="flex">
+        {/* Filters Sidebar - 30% */}
+        <aside className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white shadow-lg overflow-hidden`} style={{ 
+          minHeight: 'calc(100vh - 200px)',
+          position: 'sticky',
+          top: '80px',
+          zIndex: 10
+        }}>
+          <div className="p-6 h-full overflow-y-auto">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold" style={{ color: theme.textPrimary }}>
+                Filters & Sort
+              </h3>
+              {isMobile && (
+                <button
+                  onClick={() => setSidebarOpen(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-6">
+              {/* Group Filter */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                   Publication Group
@@ -231,7 +455,7 @@ const PublicationsPage = () => {
                 <select
                   value={groupFilter}
                   onChange={(e) => setGroupFilter(e.target.value)}
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                   style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
                 >
                   <option value="">All Groups</option>
@@ -241,6 +465,7 @@ const PublicationsPage = () => {
                 </select>
               </div>
 
+              {/* Region Filter */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                   Region
@@ -248,7 +473,7 @@ const PublicationsPage = () => {
                 <select
                   value={regionFilter}
                   onChange={(e) => setRegionFilter(e.target.value)}
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                   style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
                 >
                   <option value="">All Regions</option>
@@ -258,6 +483,25 @@ const PublicationsPage = () => {
                 </select>
               </div>
 
+              {/* Language Filter */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Language
+                </label>
+                <select
+                  value={languageFilter}
+                  onChange={(e) => setLanguageFilter(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
+                >
+                  <option value="">All Languages</option>
+                  {getUniqueLanguages().map(language => (
+                    <option key={language} value={language}>{language}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Industry Filter */}
               <div>
                 <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                   Industry
@@ -265,7 +509,7 @@ const PublicationsPage = () => {
                 <select
                   value={industryFilter}
                   onChange={(e) => setIndustryFilter(e.target.value)}
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                   style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
                 >
                   <option value="">All Industries</option>
@@ -274,301 +518,507 @@ const PublicationsPage = () => {
                   ))}
                 </select>
               </div>
+
+              {/* Price Range */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Price Range: ${priceRange[0]} - ${priceRange[1]}
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000"
+                    step="50"
+                    value={priceRange[0]}
+                    onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                    className="w-full"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="2000"
+                    step="50"
+                    value={priceRange[1]}
+                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* DA Range */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Domain Authority: {daRange[0]} - {daRange[1]}
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={daRange[0]}
+                    onChange={(e) => setDaRange([parseInt(e.target.value), daRange[1]])}
+                    className="w-full"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={daRange[1]}
+                    onChange={(e) => setDaRange([daRange[0], parseInt(e.target.value)])}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* DR Range */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Domain Rating: {drRange[0]} - {drRange[1]}
+                </label>
+                <div className="space-y-2">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={drRange[0]}
+                    onChange={(e) => setDrRange([parseInt(e.target.value), drRange[1]])}
+                    className="w-full"
+                  />
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={drRange[1]}
+                    onChange={(e) => setDrRange([drRange[0], parseInt(e.target.value)])}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+
+              {/* TAT Filter */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Turnaround Time
+                </label>
+                <div className="space-y-2">
+                  {['1 Day', '1-3 Days', '1 Week', '1+ Week'].map(tat => (
+                    <label key={tat} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={tatFilter.includes(tat)}
+                        onChange={() => toggleTatFilter(tat)}
+                        className="rounded"
+                      />
+                      <span className="text-sm" style={{ color: theme.textPrimary }}>{tat}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Feature Toggles */}
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                  Features
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={sponsoredFilter === 'true'}
+                      onChange={(e) => setSponsoredFilter(e.target.checked ? 'true' : '')}
+                      className="rounded"
+                    />
+                    <span className="text-sm" style={{ color: theme.textPrimary }}>Sponsored Only</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={liveFilter === 'true'}
+                      onChange={(e) => setLiveFilter(e.target.checked ? 'true' : '')}
+                      className="rounded"
+                    />
+                    <span className="text-sm" style={{ color: theme.textPrimary }}>Live on Platform</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={dofollowFilter === 'true'}
+                      onChange={(e) => setDofollowFilter(e.target.checked ? 'true' : '')}
+                      className="rounded"
+                    />
+                    <span className="text-sm" style={{ color: theme.textPrimary }}>Do-follow Links</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Clear Filters */}
+              <button
+                onClick={clearAllFilters}
+                className="w-full px-4 py-2 rounded-lg font-medium transition-colors"
+                style={{ 
+                  backgroundColor: theme.backgroundSoft, 
+                  color: theme.textPrimary,
+                  border: `1px solid ${theme.borderLight}`
+                }}
+              >
+                Clear All Filters
+              </button>
             </div>
           </div>
-        </section>
-      )}
+        </aside>
 
-      {/* View Toggle Section */}
-      <section className="px-4 sm:px-6 lg:px-8 py-4 bg-white border-b border-[#E0E0E0]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-semibold text-[#212121]">Publications ({publications.length})</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setViewMode('grid')}
-                className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-[#1976D2] text-white'
-                    : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
-                }`}
-              >
-                <Grid size={16} className="mr-2" />
-                Grid
-              </button>
-              <button
-                onClick={() => setViewMode('list')}
-                className={`px-3 py-2 rounded-lg font-medium transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-[#1976D2] text-white'
-                    : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
-                }`}
-              >
-                <List size={16} className="mr-2" />
-                List
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+        {/* Main Content - 70% */}
+        <main className="flex-1 p-6">
+          {/* Controls Bar */}
+          <div className="bg-white rounded-lg shadow-sm border p-4 mb-6" style={{ borderColor: theme.borderLight }}>
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                {/* Mobile Filter Toggle */}
+                {isMobile && (
+                  <button
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border"
+                    style={{ borderColor: theme.borderLight }}
+                  >
+                    <Filter size={16} />
+                    <span>Filters</span>
+                  </button>
+                )}
 
-      {/* Publications Grid */}
-      <section className="px-4 sm:px-6 lg:px-8 py-8 bg-[#FAFAFA]">
-        <div className="max-w-7xl mx-auto">
-          {publications.length > 0 ? (
-            <div className={`grid gap-6 ${viewMode === 'grid' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}>
-              {publications.map((publication, index) => (
-                <motion.div
-                  key={publication.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  onClick={() => handlePublicationClick(publication)}
-                  className={`bg-white rounded-lg shadow-sm border border-[#E0E0E0] hover:shadow-md transition-shadow cursor-pointer group overflow-hidden ${
-                    viewMode === 'list' ? 'p-4' : ''
-                  }`}
+                {/* View Toggle */}
+                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'grid' 
+                        ? 'bg-white shadow-sm text-blue-600' 
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <Grid size={16} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'list' 
+                        ? 'bg-white shadow-sm text-blue-600' 
+                        : 'text-gray-600 hover:text-gray-900'
+                    }`}
+                  >
+                    <List size={16} />
+                  </button>
+                </div>
+
+                <span className="text-sm" style={{ color: theme.textSecondary }}>
+                  {sortedPublications.length} publications found
+                </span>
+              </div>
+
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-2">
+                <span className="text-sm" style={{ color: theme.textSecondary }}>Sort by:</span>
+                <select
+                  value={`${sortField}-${sortDirection}`}
+                  onChange={(e) => {
+                    const [field, direction] = e.target.value.split('-');
+                    setSortField(field);
+                    setSortDirection(direction);
+                  }}
+                  className="px-3 py-2 border rounded-lg text-sm"
+                  style={{ borderColor: theme.borderLight }}
                 >
-                  {viewMode === 'list' ? (
-                    // Compact List View - Responsive down to 320px
-                    <div className="flex flex-col gap-2">
-                      {/* Main content row */}
-                      <div className="flex items-start gap-3">
-                        <div
-                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1"
-                          style={{ backgroundColor: theme.primaryLight }}
+                  <option value="publication_name-asc">Name (A-Z)</option>
+                  <option value="publication_name-desc">Name (Z-A)</option>
+                  <option value="publication_price-asc">Price (Low to High)</option>
+                  <option value="publication_price-desc">Price (High to Low)</option>
+                  <option value="da-desc">DA (High to Low)</option>
+                  <option value="da-asc">DA (Low to High)</option>
+                  <option value="dr-desc">DR (High to Low)</option>
+                  <option value="dr-asc">DR (Low to High)</option>
+                  <option value="publication_region-asc">Region (A-Z)</option>
+                  <option value="publication_language-asc">Language (A-Z)</option>
+                  <option value="agreement_tat-asc">TAT (Fastest)</option>
+                  <option value="agreement_tat-desc">TAT (Slowest)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Publications Display */}
+          {sortedPublications.length > 0 ? (
+            <>
+              {/* Grid View */}
+              {viewMode === 'grid' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  {sortedPublications.map((publication, index) => (
+                    <motion.div
+                      key={publication.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      onClick={() => handlePublicationClick(publication)}
+                      className="bg-white rounded-lg shadow-sm border hover:shadow-lg transition-all duration-200 cursor-pointer group overflow-hidden"
+                      style={{ borderColor: theme.borderLight }}
+                    >
+                      {/* Publication Header */}
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex-1">
+                            <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
+                              {publication.publication_name}
+                            </h3>
+                            <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
+                              <Globe size={14} className="mr-2" />
+                              <span>{publication.publication_region}</span>
+                            </div>
+                            <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
+                              <BookOpen size={14} className="mr-2" />
+                              <span>{publication.publication_language}</span>
+                            </div>
+                          </div>
+                          <div 
+                            className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style={{ backgroundColor: theme.primaryLight }}
+                          >
+                            <Icon name="newspaper" size="lg" style={{ color: theme.primary }} />
+                          </div>
+                        </div>
+
+                        {/* SEO Metrics */}
+                        <div className="grid grid-cols-3 gap-2 text-center mb-4 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                          <div>
+                            <div className="text-lg font-semibold" style={{ color: theme.primary }}>{publication.da || 0}</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>DA</div>
+                          </div>
+                          <div>
+                            <div className="text-lg font-semibold" style={{ color: theme.success }}>{publication.dr || 0}</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>DR</div>
+                          </div>
+                          <div>
+                            <div className="text-lg font-semibold" style={{ color: theme.warning }}>{publication.agreement_tat || 0}</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>TAT</div>
+                          </div>
+                        </div>
+
+                        {/* Price and Features */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="text-xl font-bold" style={{ color: theme.success }}>
+                            {formatPrice(publication.publication_price)}
+                          </div>
+                          <div className="flex items-center text-sm" style={{ color: theme.warning }}>
+                            <Star size={14} className="mr-1" />
+                            <span>4.{Math.floor(Math.random() * 9) + 1}</span>
+                          </div>
+                        </div>
+
+                        {/* Features */}
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {publication.sponsored_or_not && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
+                              Sponsored
+                            </span>
+                          )}
+                          {publication.do_follow_link && (
+                            <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
+                              Do-follow
+                            </span>
+                          )}
+                          <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
+                            {formatTAT(publication.agreement_tat)}
+                          </span>
+                        </div>
+
+                        {/* CTA Button */}
+                        <button
+                          className="w-full text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                          style={{ backgroundColor: theme.primary }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                         >
-                          <Icon name="newspaper" size="xs" style={{ color: theme.primary }} />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-semibold mb-1 line-clamp-2 group-hover:text-[#1976D2] transition-colors leading-tight" style={{ color: theme.textPrimary }}>
-                            {publication.publication_name}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-2 text-xs" style={{ color: theme.textSecondary }}>
-                            <span className="flex items-center">
-                              <Globe size={10} className="mr-1" />
-                              {publication.publication_region}
-                            </span>
-                            <span className="flex items-center">
-                              <BookOpen size={10} className="mr-1" />
-                              {publication.publication_language}
-                            </span>
-                          </div>
-                        </div>
+                          <Eye size={16} />
+                          View Details
+                          <ExternalLink size={14} />
+                        </button>
                       </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
 
-                      {/* Metrics and actions row */}
-                      <div className="flex flex-col gap-2 ml-11">
-                        {/* First row: Metrics and price */}
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-3 text-xs">
-                            <span className="font-semibold" style={{ color: theme.primary }}>DA: {publication.da || 0}</span>
-                            <span className="font-semibold" style={{ color: theme.success }}>DR: {publication.dr || 0}</span>
-                            <span className="flex items-center gap-1">
-                              <FileText size={10} />
-                              <span>{publication.word_limit || '500-2000'}</span>
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <ImageIcon size={10} />
-                              <span>{publication.number_of_images || publication.allowed_images || '0'}</span>
-                            </span>
-                            <div className="text-xs font-bold ml-2" style={{ color: theme.success }}>
-                              {formatPrice(publication.publication_price)}
+              {/* List View - Table Format */}
+              {viewMode === 'list' && (
+                <div className="bg-white rounded-lg shadow-sm border overflow-hidden" style={{ borderColor: theme.borderLight }}>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead style={{ backgroundColor: theme.backgroundSoft }}>
+                        <tr>
+                          <th 
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('publication_name')}
+                          >
+                            <div className="flex items-center gap-2">
+                              Publication {getSortIcon('publication_name')}
                             </div>
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <div className="flex gap-1">
-                              {publication.sponsored_or_not && (
-                                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                                  Sponsored
-                                </span>
-                              )}
-                              {publication.do_follow_link && (
-                                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
-                                  Do-follow
-                                </span>
-                              )}
+                          </th>
+                          <th 
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('publication_region')}
+                          >
+                            <div className="flex items-center gap-2">
+                              Region {getSortIcon('publication_region')}
                             </div>
-                            <button
-                              className="text-white font-medium py-1.5 px-2 rounded-md transition-all duration-200 flex items-center gap-1 text-xs whitespace-nowrap"
-                              style={{ backgroundColor: theme.primary }}
-                              onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
-                              onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
-                            >
-                              <Eye size={12} />
-                              View
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Second row: Restrictions and example link */}
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 text-xs" style={{ color: theme.textSecondary }}>
-                            {publication.restricted_topics && publication.restricted_topics.length > 0 && (
-                              <div className="flex items-center gap-1">
-                                <Ban size={10} />
-                                <div className="flex gap-1">
-                                  {publication.restricted_topics.includes('adult') && <AlertTriangle size={8} className="text-red-500" />}
-                                  {publication.restricted_topics.includes('gambling') && <Gamepad2 size={8} className="text-red-500" />}
-                                  {publication.restricted_topics.includes('drugs') && <Pill size={8} className="text-red-500" />}
-                                  {publication.restricted_topics.includes('alcohol') && <Cigarette size={8} className="text-red-500" />}
+                          </th>
+                          <th 
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('publication_language')}
+                          >
+                            <div className="flex items-center gap-2">
+                              Language {getSortIcon('publication_language')}
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('da')}
+                          >
+                            <div className="flex items-center gap-2">
+                              DA {getSortIcon('da')}
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('dr')}
+                          >
+                            <div className="flex items-center gap-2">
+                              DR {getSortIcon('dr')}
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('publication_price')}
+                          >
+                            <div className="flex items-center gap-2">
+                              Price {getSortIcon('publication_price')}
+                            </div>
+                          </th>
+                          <th 
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('agreement_tat')}
+                          >
+                            <div className="flex items-center gap-2">
+                              TAT {getSortIcon('agreement_tat')}
+                            </div>
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Features
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedPublications.map((publication, index) => (
+                          <tr 
+                            key={publication.id}
+                            className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
+                            style={{ borderColor: theme.borderLight }}
+                            onClick={() => handlePublicationClick(publication)}
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div 
+                                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                                  style={{ backgroundColor: theme.primaryLight }}
+                                >
+                                  <Icon name="newspaper" size="sm" style={{ color: theme.primary }} />
+                                </div>
+                                <div>
+                                  <div className="font-semibold" style={{ color: theme.textPrimary }}>
+                                    {publication.publication_name}
+                                  </div>
+                                  <div className="text-sm" style={{ color: theme.textSecondary }}>
+                                    {publication.publication_primary_industry}
+                                  </div>
                                 </div>
                               </div>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-1 text-xs">
-                            {publication.example_article_url && (
-                              <a
-                                href={publication.example_article_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-1 hover:underline"
-                                style={{ color: theme.primary }}
-                                onClick={(e) => e.stopPropagation()}
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm" style={{ color: theme.textPrimary }}>
+                                {publication.publication_region}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm" style={{ color: theme.textPrimary }}>
+                                {publication.publication_language}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div 
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                style={{ backgroundColor: getDAScoreColor(publication.da) }}
                               >
-                                <LinkIcon size={10} />
-                                <span>Example</span>
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    // Grid View (original layout)
-                    <div className="p-6">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
-                            {publication.publication_name}
-                          </h3>
-                          <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
-                            <Globe size={14} className="mr-2" />
-                            <span>{publication.publication_region}</span>
-                          </div>
-                          <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
-                            <BookOpen size={14} className="mr-2" />
-                            <span>{publication.publication_language}</span>
-                          </div>
-                        </div>
-                        <div
-                          className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                          style={{ backgroundColor: theme.primaryLight }}
-                        >
-                          <Icon name="newspaper" size="lg" style={{ color: theme.primary }} />
-                        </div>
-                      </div>
-
-                      {/* SEO Metrics */}
-                      <div className="grid grid-cols-3 gap-2 text-center mb-4 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
-                        <div>
-                          <div className="text-lg font-semibold" style={{ color: theme.primary }}>{publication.da || 0}</div>
-                          <div className="text-xs" style={{ color: theme.textSecondary }}>DA</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-semibold" style={{ color: theme.success }}>{publication.dr || 0}</div>
-                          <div className="text-xs" style={{ color: theme.textSecondary }}>DR</div>
-                        </div>
-                        <div>
-                          <div className="text-lg font-semibold" style={{ color: theme.warning }}>{publication.da || 0}</div>
-                          <div className="text-xs" style={{ color: theme.textSecondary }}>Rating</div>
-                        </div>
-                      </div>
-
-                      {/* Price and Features */}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="text-xl font-bold" style={{ color: theme.success }}>
-                          {formatPrice(publication.publication_price)}
-                        </div>
-                        <div className="flex items-center text-sm" style={{ color: theme.warning }}>
-                          <Star size={14} className="mr-1" />
-                          <span>4.{Math.floor(Math.random() * 9) + 1}</span>
-                        </div>
-                      </div>
-
-                      {/* Features */}
-                      <div className="flex flex-wrap gap-2 mb-3">
-                        {publication.sponsored_or_not && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                            Sponsored
-                          </span>
-                        )}
-                        {publication.do_follow_link && (
-                          <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
-                            Do-follow
-                          </span>
-                        )}
-                        <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
-                          {publication.agreement_tat || 0}d TAT
-                        </span>
-                      </div>
-
-                      {/* Additional Publication Details */}
-                      <div className="space-y-2 mb-4">
-                        {/* Word Count and Images */}
-                        <div className="flex items-center justify-between text-xs" style={{ color: theme.textSecondary }}>
-                          <div className="flex items-center gap-1">
-                            <FileText size={12} />
-                            <span>{publication.word_limit || publication.words_limit || '500-2000'} words</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <ImageIcon size={12} />
-                            <span>{publication.number_of_images || publication.allowed_images || '0'} images</span>
-                          </div>
-                        </div>
-
-                        {/* Restricted Topics */}
-                        {publication.restricted_topics && publication.restricted_topics.length > 0 && (
-                          <div className="flex items-center gap-1 text-xs" style={{ color: theme.textSecondary }}>
-                            <Ban size={12} />
-                            <span className="mr-1">Restricted:</span>
-                            <div className="flex gap-1">
-                              {publication.restricted_topics.includes('adult') && <AlertTriangle size={10} className="text-red-500" />}
-                              {publication.restricted_topics.includes('gambling') && <Gamepad2 size={10} className="text-red-500" />}
-                              {publication.restricted_topics.includes('drugs') && <Pill size={10} className="text-red-500" />}
-                              {publication.restricted_topics.includes('alcohol') && <Cigarette size={10} className="text-red-500" />}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Example Article Link */}
-                        {publication.example_article_url && (
-                          <div className="flex items-center gap-1 text-xs">
-                            <LinkIcon size={12} style={{ color: theme.primary }} />
-                            <a
-                              href={publication.example_article_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:underline"
-                              style={{ color: theme.primary }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              View Example Article
-                            </a>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* CTA Button */}
-                      <button
-                        className="w-full text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
-                        style={{ backgroundColor: theme.primary }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
-                        onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
-                      >
-                        <Eye size={16} />
-                        View Details
-                        <ExternalLink size={14} />
-                      </button>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
-            </div>
+                                {publication.da || 0}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div 
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                style={{ backgroundColor: getDRScoreColor(publication.dr) }}
+                              >
+                                {publication.dr || 0}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-lg font-bold" style={{ color: theme.success }}>
+                                {formatPrice(publication.publication_price)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm" style={{ color: theme.textPrimary }}>
+                                {formatTAT(publication.agreement_tat)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-wrap gap-1">
+                                {publication.sponsored_or_not && (
+                                  <span className="px-2 py-1 rounded-full text-xs" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
+                                    Sponsored
+                                  </span>
+                                )}
+                                {publication.do_follow_link && (
+                                  <span className="px-2 py-1 rounded-full text-xs" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
+                                    Do-follow
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button
+                                className="px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors"
+                                style={{ backgroundColor: theme.primary }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+                              >
+                                <Eye size={14} className="inline mr-1" />
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </>
           ) : (
             <div className="text-center py-20">
               <div
@@ -586,9 +1036,7 @@ const PublicationsPage = () => {
               <button
                 onClick={() => {
                   setSearchTerm('');
-                  setGroupFilter('');
-                  setRegionFilter('');
-                  setIndustryFilter('');
+                  clearAllFilters();
                 }}
                 className="text-white px-6 py-3 rounded-lg font-medium transition-colors"
                 style={{ backgroundColor: theme.primary }}
@@ -599,8 +1047,8 @@ const PublicationsPage = () => {
               </button>
             </div>
           )}
-        </div>
-      </section>
+        </main>
+      </div>
 
       <UserFooter />
 
