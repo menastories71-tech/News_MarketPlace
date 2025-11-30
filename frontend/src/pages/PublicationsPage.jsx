@@ -183,8 +183,11 @@ const PublicationsPage = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: theme.textPrimary }}>
               Publications
             </h1>
-            <p className="text-lg mb-8" style={{ color: theme.textSecondary }}>
+            <p className="text-lg mb-4" style={{ color: theme.textSecondary }}>
               All Publications ({publications.length} Available)
+            </p>
+            <p className="text-base mb-8" style={{ color: theme.textSecondary }}>
+              Discover verified media outlets and submit your articles for publication across various industries and regions.
             </p>
             
             {/* Search Bar */}
@@ -327,58 +330,67 @@ const PublicationsPage = () => {
                   }`}
                 >
                   {viewMode === 'list' ? (
-                    // Compact List View
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
-                        style={{ backgroundColor: theme.primaryLight }}
-                      >
-                        <Icon name="newspaper" size="sm" style={{ color: theme.primary }} />
+                    // Compact List View - Responsive down to 320px
+                    <div className="flex flex-col gap-2">
+                      {/* Main content row */}
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1"
+                          style={{ backgroundColor: theme.primaryLight }}
+                        >
+                          <Icon name="newspaper" size="xs" style={{ color: theme.primary }} />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <h3 className="text-sm font-semibold mb-1 line-clamp-2 group-hover:text-[#1976D2] transition-colors leading-tight" style={{ color: theme.textPrimary }}>
+                            {publication.publication_name}
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-2 text-xs" style={{ color: theme.textSecondary }}>
+                            <span className="flex items-center">
+                              <Globe size={10} className="mr-1" />
+                              {publication.publication_region}
+                            </span>
+                            <span className="flex items-center">
+                              <BookOpen size={10} className="mr-1" />
+                              {publication.publication_language}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-base font-semibold mb-1 line-clamp-1 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
-                          {publication.publication_name}
-                        </h3>
-                        <div className="flex items-center gap-4 text-xs" style={{ color: theme.textSecondary }}>
-                          <span className="flex items-center">
-                            <Globe size={12} className="mr-1" />
-                            {publication.publication_region}
-                          </span>
-                          <span className="flex items-center">
-                            <BookOpen size={12} className="mr-1" />
-                            {publication.publication_language}
-                          </span>
+                      {/* Metrics and actions row */}
+                      <div className="flex items-center justify-between gap-2 ml-11">
+                        <div className="flex items-center gap-3 text-xs">
                           <span className="font-semibold" style={{ color: theme.primary }}>DA: {publication.da || 0}</span>
                           <span className="font-semibold" style={{ color: theme.success }}>DR: {publication.dr || 0}</span>
+                          <div className="text-xs font-bold ml-2" style={{ color: theme.success }}>
+                            {formatPrice(publication.publication_price)}
+                          </div>
                         </div>
-                      </div>
 
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        <div className="text-sm font-bold" style={{ color: theme.success }}>
-                          {formatPrice(publication.publication_price)}
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-1">
+                            {publication.sponsored_or_not && (
+                              <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
+                                Sponsored
+                              </span>
+                            )}
+                            {publication.do_follow_link && (
+                              <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
+                                Do-follow
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            className="text-white font-medium py-1.5 px-2 rounded-md transition-all duration-200 flex items-center gap-1 text-xs whitespace-nowrap"
+                            style={{ backgroundColor: theme.primary }}
+                            onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                            onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+                          >
+                            <Eye size={12} />
+                            View
+                          </button>
                         </div>
-                        <div className="flex gap-1">
-                          {publication.sponsored_or_not && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                              Sponsored
-                            </span>
-                          )}
-                          {publication.do_follow_link && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
-                              Do-follow
-                            </span>
-                          )}
-                        </div>
-                        <button
-                          className="text-white font-medium py-2 px-3 rounded-lg transition-all duration-200 flex items-center gap-1 text-sm"
-                          style={{ backgroundColor: theme.primary }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
-                        >
-                          <Eye size={14} />
-                          View
-                        </button>
                       </div>
                     </div>
                   ) : (
