@@ -177,9 +177,11 @@ const UserHeader = () => {
               className="hidden md:block bg-white/60 backdrop-blur-sm text-[#212121] text-xs py-1.5 px-3 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] transition-all duration-300"
             >
               <option value="en">🇺🇸 EN</option>
-              <option value="es">🇪🇸 ES</option>
+              <option value="ar">🇸🇦 AR</option>
+              <option value="hi">🇮🇳 HI</option>
+              <option value="ru">🇷🇺 RU</option>
+              <option value="zh">🇨🇳 ZH</option>
               <option value="fr">🇫🇷 FR</option>
-              <option value="de">🇩🇪 DE</option>
             </select>
 
             {/* Contact Icons */}
@@ -270,7 +272,7 @@ const UserHeader = () => {
             </button>
           ) : (
             <button onClick={logout} className="px-5 py-2 bg-gradient-to-r from-[#F44336] to-[#D32F2F] text-white font-bold text-sm rounded-lg hover:from-[#D32F2F] hover:to-[#D32F2F] transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg backdrop-blur-sm">
-              <span className="flex items-center space-x-1.5">
+              <span className="flex items-center justify-center space-x-1.5">
                 <Icon name="logout" size="xs" />
                 <span>Logout</span>
               </span>
@@ -369,9 +371,11 @@ const UserHeader = () => {
                   className="bg-white/60 backdrop-blur-sm text-[#212121] text-sm py-2 px-3 border border-white/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] transition-all duration-300"
                 >
                   <option value="en">🇺🇸 EN</option>
-                  <option value="es">🇪🇸 ES</option>
+                  <option value="ar">🇸🇦 AR</option>
+                  <option value="hi">🇮🇳 HI</option>
+                  <option value="ru">🇷🇺 RU</option>
+                  <option value="zh">🇨🇳 ZH</option>
                   <option value="fr">🇫🇷 FR</option>
-                  <option value="de">🇩🇪 DE</option>
                 </select>
                 
                 <div className="flex space-x-1">
@@ -418,4 +422,3 @@ const UserHeader = () => {
 };
 
 export default UserHeader;
-
