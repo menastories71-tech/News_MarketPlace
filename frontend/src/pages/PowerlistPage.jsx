@@ -59,11 +59,17 @@ const PowerlistPage = () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
+      
+      // Add status filter for public access - only show approved entries
+      params.append('status', 'approved');
+      
       if (searchTerm.trim()) {
         params.append('name', searchTerm.trim());
         params.append('current_company', searchTerm.trim());
       }
-      const url = `/api/powerlist/public${params.toString() ? `?${params.toString()}` : ''}`;
+      
+      // Use the same endpoint as PowerlistManagement but with status filter
+      const url = `/powerlist${params.toString() ? `?${params.toString()}` : '?status=approved'}`;
       const response = await api.get(url);
       setPowerlists(response.data.powerlists || []);
     } catch (error) {
