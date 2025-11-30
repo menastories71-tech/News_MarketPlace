@@ -1022,20 +1022,6 @@ const PaparazziDetailPage = () => {
                   </div>
                 </div>
 
-                <div style={{
-                  backgroundColor: theme.info + '10',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  marginBottom: '16px'
-                }}>
-                  <p style={{
-                    margin: 0,
-                    fontSize: '12px',
-                    color: theme.textSecondary
-                  }}>
-                    <strong>Test Mode:</strong> This is a demo order. No actual payment will be processed.
-                  </p>
-                </div>
               </form>
             </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Camera, Search, Filter, Globe, MapPin, Users, DollarSign, Plus } from 'lucide-react';
+import { Camera, Search, Filter, Globe, MapPin, Users, DollarSign, Plus, Grid, List } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -41,6 +41,7 @@ const PaparazziPage = () => {
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
@@ -315,6 +316,30 @@ const PaparazziPage = () => {
                   </button>
                 )}
 
+                {/* View Toggle */}
+                <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
+                  <button
+                    onClick={() => setViewMode('grid')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'grid'
+                        ? 'bg-white shadow-sm text-[#1976D2]'
+                        : 'text-[#757575] hover:text-[#212121]'
+                    }`}
+                  >
+                    <Grid size={16} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode('list')}
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === 'list'
+                        ? 'bg-white shadow-sm text-[#1976D2]'
+                        : 'text-[#757575] hover:text-[#212121]'
+                    }`}
+                  >
+                    <List size={16} />
+                  </button>
+                </div>
+
                 <span className="text-sm font-medium text-[#212121]">
                   {filteredPaparazzi.length} paparazzi found
                   {searchQuery && (
@@ -346,57 +371,161 @@ const PaparazziPage = () => {
           ) : (
             <>
               {/* Enhanced Grid View */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPaparazzi.map((p) => (
-                  <motion.div
-                    key={p.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => handleCardClick(p.id)}
-                  >
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="bg-[#1976D2] rounded-full p-3">
-                          <Camera className="w-6 h-6 text-white" />
-                        </div>
-                        <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
-                          {p.platform}
-                        </span>
-                      </div>
-                      <h3 className="text-xl font-semibold text-[#212121] mb-2 line-clamp-2">
-                        {p.page_name}
-                      </h3>
-                      <p className="text-sm text-[#757575] mb-3">@{p.username}</p>
-                      <div className="space-y-2 text-sm text-[#757575]">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>{formatFollowers(p.followers_count)} followers</span>
-                        </div>
-                        {p.category && (
-                          <div className="flex items-center gap-2">
-                            <Filter className="w-4 h-4" />
-                            <span>{p.category}</span>
+              {viewMode === 'grid' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredPaparazzi.map((p) => (
+                    <motion.div
+                      key={p.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.4 }}
+                      className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => handleCardClick(p.id)}
+                    >
+                      <div className="p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="bg-[#1976D2] rounded-full p-3">
+                            <Camera className="w-6 h-6 text-white" />
                           </div>
-                        )}
-                        {p.location && (
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4" />
-                            <span>{p.location}</span>
-                          </div>
-                        )}
-                        <div className="flex items-center gap-2 pt-2 border-t border-[#E0E0E0]">
-                          <DollarSign className="w-4 h-4" />
-                          <span className="text-[#1976D2] font-medium">
-                            {formatPrice(p.price_reel_with_tag)}
+                          <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
+                            {p.platform}
                           </span>
                         </div>
+                        <h3 className="text-xl font-semibold text-[#212121] mb-2 line-clamp-2">
+                          {p.page_name}
+                        </h3>
+                        <p className="text-sm text-[#757575] mb-3">@{p.username}</p>
+                        <div className="space-y-2 text-sm text-[#757575]">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4" />
+                            <span>{formatFollowers(p.followers_count)} followers</span>
+                          </div>
+                          {p.category && (
+                            <div className="flex items-center gap-2">
+                              <Filter className="w-4 h-4" />
+                              <span>{p.category}</span>
+                            </div>
+                          )}
+                          {p.location && (
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4" />
+                              <span>{p.location}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2 pt-2 border-t border-[#E0E0E0]">
+                            <DollarSign className="w-4 h-4" />
+                            <span className="text-[#1976D2] font-medium">
+                              {formatPrice(p.price_reel_with_tag)}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+
+              {/* Enhanced List View - Table Format */}
+              {viewMode === 'list' && (
+                <div className="bg-white rounded-lg shadow-lg border overflow-hidden" style={{
+                  borderColor: theme.borderLight,
+                  boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
+                }}>
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead style={{ backgroundColor: theme.backgroundSoft }}>
+                        <tr>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Paparazzi
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Platform
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Followers
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Category
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Location
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Price
+                          </th>
+                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredPaparazzi.map((p, index) => (
+                          <tr
+                            key={p.id}
+                            className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
+                            style={{ borderColor: theme.borderLight }}
+                            onClick={() => handleCardClick(p.id)}
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div
+                                  className="w-10 h-10 rounded-lg flex items-center justify-center"
+                                  style={{ backgroundColor: theme.primaryLight }}
+                                >
+                                  <Camera size={20} style={{ color: theme.primary }} />
+                                </div>
+                                <div>
+                                  <div className="font-semibold" style={{ color: theme.textPrimary }}>
+                                    {p.page_name}
+                                  </div>
+                                  <div className="text-sm" style={{ color: theme.textSecondary }}>
+                                    @{p.username}
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm font-medium" style={{ color: theme.primary }}>
+                                {p.platform}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm" style={{ color: theme.textPrimary }}>
+                                {formatFollowers(p.followers_count)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm" style={{ color: theme.textPrimary }}>
+                                {p.category || 'General'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm" style={{ color: theme.textPrimary }}>
+                                {p.location || 'Global'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm font-medium" style={{ color: theme.success }}>
+                                {formatPrice(p.price_reel_with_tag)}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <button
+                                className="px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors"
+                                style={{ backgroundColor: theme.primary }}
+                                onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                                onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+                              >
+                                View Details
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
               {!loading && !error && filteredPaparazzi.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-lg shadow-lg border" style={{ borderColor: theme.borderLight }}>
