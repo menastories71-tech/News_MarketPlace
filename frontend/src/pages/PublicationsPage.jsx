@@ -7,11 +7,12 @@ import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
-import { 
-  Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock, 
-  TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle, 
+import {
+  Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock,
+  TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle,
   ExternalLink, MapPin, Calendar, DollarSign, BarChart3, Users,
-  Link as LinkIcon, Image as ImageIcon, FileText, Shield
+  Link as LinkIcon, Image as ImageIcon, FileText, Shield, Ban,
+  AlertTriangle, Cigarette, Pill, Gamepad2
 } from 'lucide-react';
 
 // Updated theme colors matching the color palette from PDF
@@ -183,9 +184,9 @@ const PublicationsPage = () => {
             <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: theme.textPrimary }}>
               Publications
             </h1>
-            <p className="text-lg mb-4" style={{ color: theme.textSecondary }}>
+            {/* <p className="text-lg mb-4" style={{ color: theme.textSecondary }}>
               All Publications ({publications.length} Available)
-            </p>
+            </p> */}
             <p className="text-base mb-8" style={{ color: theme.textSecondary }}>
               Discover verified media outlets and submit your articles for publication across various industries and regions.
             </p>
@@ -359,37 +360,81 @@ const PublicationsPage = () => {
                       </div>
 
                       {/* Metrics and actions row */}
-                      <div className="flex items-center justify-between gap-2 ml-11">
-                        <div className="flex items-center gap-3 text-xs">
-                          <span className="font-semibold" style={{ color: theme.primary }}>DA: {publication.da || 0}</span>
-                          <span className="font-semibold" style={{ color: theme.success }}>DR: {publication.dr || 0}</span>
-                          <div className="text-xs font-bold ml-2" style={{ color: theme.success }}>
-                            {formatPrice(publication.publication_price)}
+                      <div className="flex flex-col gap-2 ml-11">
+                        {/* First row: Metrics and price */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-3 text-xs">
+                            <span className="font-semibold" style={{ color: theme.primary }}>DA: {publication.da || 0}</span>
+                            <span className="font-semibold" style={{ color: theme.success }}>DR: {publication.dr || 0}</span>
+                            <span className="flex items-center gap-1">
+                              <FileText size={10} />
+                              <span>{publication.word_limit || '500-2000'}</span>
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <ImageIcon size={10} />
+                              <span>{publication.allowed_images || '3-5'}</span>
+                            </span>
+                            <div className="text-xs font-bold ml-2" style={{ color: theme.success }}>
+                              {formatPrice(publication.publication_price)}
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <div className="flex gap-1">
+                              {publication.sponsored_or_not && (
+                                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
+                                  Sponsored
+                                </span>
+                              )}
+                              {publication.do_follow_link && (
+                                <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
+                                  Do-follow
+                                </span>
+                              )}
+                            </div>
+                            <button
+                              className="text-white font-medium py-1.5 px-2 rounded-md transition-all duration-200 flex items-center gap-1 text-xs whitespace-nowrap"
+                              style={{ backgroundColor: theme.primary }}
+                              onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                              onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+                            >
+                              <Eye size={12} />
+                              View
+                            </button>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2">
-                          <div className="flex gap-1">
-                            {publication.sponsored_or_not && (
-                              <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                                Sponsored
-                              </span>
-                            )}
-                            {publication.do_follow_link && (
-                              <span className="px-1.5 py-0.5 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
-                                Do-follow
-                              </span>
+                        {/* Second row: Restrictions and example link */}
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 text-xs" style={{ color: theme.textSecondary }}>
+                            {publication.restricted_topics && publication.restricted_topics.length > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Ban size={10} />
+                                <div className="flex gap-1">
+                                  {publication.restricted_topics.includes('adult') && <AlertTriangle size={8} className="text-red-500" />}
+                                  {publication.restricted_topics.includes('gambling') && <Gamepad2 size={8} className="text-red-500" />}
+                                  {publication.restricted_topics.includes('drugs') && <Pill size={8} className="text-red-500" />}
+                                  {publication.restricted_topics.includes('alcohol') && <Cigarette size={8} className="text-red-500" />}
+                                </div>
+                              </div>
                             )}
                           </div>
-                          <button
-                            className="text-white font-medium py-1.5 px-2 rounded-md transition-all duration-200 flex items-center gap-1 text-xs whitespace-nowrap"
-                            style={{ backgroundColor: theme.primary }}
-                            onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
-                            onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
-                          >
-                            <Eye size={12} />
-                            View
-                          </button>
+
+                          <div className="flex items-center gap-1 text-xs">
+                            {publication.example_article_url && (
+                              <a
+                                href={publication.example_article_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 hover:underline"
+                                style={{ color: theme.primary }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <LinkIcon size={10} />
+                                <span>Example</span>
+                              </a>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -446,7 +491,7 @@ const PublicationsPage = () => {
                       </div>
 
                       {/* Features */}
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-3">
                         {publication.sponsored_or_not && (
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
                             Sponsored
@@ -460,6 +505,52 @@ const PublicationsPage = () => {
                         <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
                           {publication.agreement_tat || 0}d TAT
                         </span>
+                      </div>
+
+                      {/* Additional Publication Details */}
+                      <div className="space-y-2 mb-4">
+                        {/* Word Count and Images */}
+                        <div className="flex items-center justify-between text-xs" style={{ color: theme.textSecondary }}>
+                          <div className="flex items-center gap-1">
+                            <FileText size={12} />
+                            <span>{publication.word_limit || '500-2000'} words</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <ImageIcon size={12} />
+                            <span>{publication.allowed_images || '3-5'} images</span>
+                          </div>
+                        </div>
+
+                        {/* Restricted Topics */}
+                        {publication.restricted_topics && publication.restricted_topics.length > 0 && (
+                          <div className="flex items-center gap-1 text-xs" style={{ color: theme.textSecondary }}>
+                            <Ban size={12} />
+                            <span className="mr-1">Restricted:</span>
+                            <div className="flex gap-1">
+                              {publication.restricted_topics.includes('adult') && <AlertTriangle size={10} className="text-red-500" />}
+                              {publication.restricted_topics.includes('gambling') && <Gamepad2 size={10} className="text-red-500" />}
+                              {publication.restricted_topics.includes('drugs') && <Pill size={10} className="text-red-500" />}
+                              {publication.restricted_topics.includes('alcohol') && <Cigarette size={10} className="text-red-500" />}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Example Article Link */}
+                        {publication.example_article_url && (
+                          <div className="flex items-center gap-1 text-xs">
+                            <LinkIcon size={12} style={{ color: theme.primary }} />
+                            <a
+                              href={publication.example_article_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:underline"
+                              style={{ color: theme.primary }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              View Example Article
+                            </a>
+                          </div>
+                        )}
                       </div>
 
                       {/* CTA Button */}

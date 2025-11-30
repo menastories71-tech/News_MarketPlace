@@ -15,17 +15,34 @@ const pool = new Pool({
 async function runMigration() {
   const client = await pool.connect();
   try {
-    console.log('Running migration: Add approval columns to podcasters table');
+    console.log('Running migration: Create orders table');
 
     const sql = `
-      -- Add approval-related columns to podcasters table
-      ALTER TABLE podcasters
-      ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP,
-      ADD COLUMN IF NOT EXISTS approved_by INTEGER REFERENCES admins(id),
-      ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP,
-      ADD COLUMN IF NOT EXISTS rejected_by INTEGER REFERENCES admins(id),
-      ADD COLUMN IF NOT EXISTS rejection_reason TEXT,
-      ADD COLUMN IF NOT EXISTS admin_comments TEXT;
+      -- Create orders table for call booking requests
+      CREATE TABLE IF NOT EXISTS orders (
+        id SERIAL PRIMARY KEY,
+        publication_id INTEGER NOT NULL REFERENCES publications(id) ON DELETE CASCADE,
+        publication_name VARCHAR(255) NOT NULL,
+        price DECIMAL(10,2) DEFAULT 0,
+        customer_name VARCHAR(255) NOT NULL,
+        customer_email VARCHAR(255) NOT NULL,
+        customer_phone VARCHAR(50),
+        customer_message TEXT,
+        status VARCHAR(50) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'completed')),
+        admin_notes TEXT,
+        order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+
+      -- Create index on status for faster queries
+      CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+
+      -- Create index on publication_id for faster queries
+      CREATE INDEX IF NOT EXISTS idx_orders_publication_id ON orders(publication_id);
+
+      -- Create index on created_at for faster queries
+      CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);
     `;
 
     await client.query(sql);
