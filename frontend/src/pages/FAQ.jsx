@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import Icon from '../components/common/Icon';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
-import SEO from '../components/common/SEO';
 import useTranslatedText from '../hooks/useTranslatedText';
 
 const FAQ = () => {
@@ -139,22 +138,8 @@ const FAQ = () => {
 
   return (
     <div className="min-h-screen bg-[#E3F2FD]">
-      <SEO
-        title={faqSeoTitle}
-        description={faqSeoDescription}
-        keywords={faqSeoKeywords}
-      />
       {/* <UserHeader /> */}
 
-      {/* Hero Section */}
-      <section className=" py-8">
-
-        <div className="relative max-w-4xl mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold" style={{ color: '#212121' }}>
-            {faqTitle}
-          </h1>
-        </div>
-      </section>
 
       {/* FAQ Content */}
       <section className="py-10">
