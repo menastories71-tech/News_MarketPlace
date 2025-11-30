@@ -12,13 +12,13 @@ import {
   TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle, 
   ExternalLink, MapPin, Calendar, DollarSign, BarChart3, Users,
   Link as LinkIcon, Image as ImageIcon, FileText, Shield, 
-  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown
+  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Newspaper
 } from 'lucide-react';
 
-// Updated theme colors matching the color palette from PDF
+// Enhanced theme colors inspired by VideoTutorials
 const theme = {
   primary: '#1976D2',
-  primaryDark: '#0D47A1',
+  primaryDark: '#1565C0',
   primaryLight: '#E3F2FD',
   secondary: '#00796B',
   secondaryDark: '#004D40',
@@ -35,7 +35,13 @@ const theme = {
   backgroundSoft: '#F5F5F5',
   borderLight: '#E0E0E0',
   borderMedium: '#BDBDBD',
-  borderDark: '#757575'
+  borderDark: '#757575',
+  gradientFrom: '#E3F2FD',
+  gradientTo: '#FFFFFF',
+  cardBg: '#FFFFFF',
+  cardBorder: '#E0E0E0',
+  cardShadow: 'rgba(2,6,23,0.06)',
+  hoverBg: '#F5F5F5'
 };
 
 const PublicationsPage = () => {
@@ -136,7 +142,7 @@ const PublicationsPage = () => {
 
     // Apply filters
     if (groupFilter) {
-      filtered = filtered.filter(pub => pub.group_id === parseInt(groupFilter));
+      filtered = filtered.filter(pub => pub.group_name === groupFilter);
     }
     
     if (regionFilter) {
@@ -388,8 +394,8 @@ const PublicationsPage = () => {
     <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
       <UserHeader onShowAuth={handleShowAuth} />
 
-      {/* Hero Section - Keeping unchanged */}
-      <section className="relative py-12 px-4 sm:px-6 lg:px-8 border-b" style={{ backgroundColor: theme.background }}>
+      {/* Enhanced Hero Section */}
+      <section className="relative py-16 md:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white border-b border-[#E0E0E0]">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -397,23 +403,22 @@ const PublicationsPage = () => {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: theme.textPrimary }}>
-              PR News Outlets Database
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
+              Publications
             </h1>
-            <p className="text-lg mb-8" style={{ color: theme.textSecondary }}>
-              {publications.length} Media Outlets Available
+            <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
+              Discover premium media outlets and publication opportunities to amplify your stories and reach your target audience effectively.
             </p>
             
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mb-6">
+            <div className="max-w-2xl mx-auto mt-8">
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search by name, topic, or region..."
+                  placeholder="Search publications by name, region, or industry..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 border rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent"
-                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
+                  className="w-full pl-12 pr-4 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
                 />
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: theme.textSecondary }} />
               </div>
@@ -422,24 +427,26 @@ const PublicationsPage = () => {
         </div>
       </section>
 
-      {/* Main Content with 30/70 Layout */}
+      {/* Main Content with Enhanced Layout */}
       <div className="flex">
-        {/* Filters Sidebar - 30% */}
-        <aside className={`${sidebarOpen ? 'w-80' : 'w-0'} transition-all duration-300 bg-white shadow-lg overflow-hidden`} style={{ 
+        {/* Enhanced Filters Sidebar - More space */}
+        <aside className={`${sidebarOpen ? 'w-96' : 'w-0'} transition-all duration-300 bg-white shadow-lg overflow-hidden`} style={{ 
           minHeight: 'calc(100vh - 200px)',
           position: 'sticky',
           top: '80px',
-          zIndex: 10
+          zIndex: 10,
+          borderRight: `1px solid ${theme.borderLight}`
         }}>
           <div className="p-6 h-full overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold" style={{ color: theme.textPrimary }}>
+              <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
+                <Filter size={20} className="text-[#1976D2]" />
                 Filters & Sort
               </h3>
               {isMobile && (
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg"
+                  className="p-2 hover:bg-gray-100 rounded-lg text-[#757575]"
                 >
                   ×
                 </button>
@@ -447,168 +454,181 @@ const PublicationsPage = () => {
             </div>
 
             <div className="space-y-6">
-              {/* Group Filter */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Publication Group
-                </label>
-                <select
-                  value={groupFilter}
-                  onChange={(e) => setGroupFilter(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
-                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
-                >
-                  <option value="">All Groups</option>
-                  {getUniqueGroupNames().map(group => (
-                    <option key={group} value={group}>{group}</option>
-                  ))}
-                </select>
-              </div>
+              {/* Enhanced Filter Sections */}
+              <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E0E0E0]">
+                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
+                  <Globe size={16} className="text-[#1976D2]" />
+                  Basic Filters
+                </h4>
+                
+                {/* Group Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Publication Group
+                  </label>
+                  <select
+                    value={groupFilter}
+                    onChange={(e) => setGroupFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Groups</option>
+                    {getUniqueGroupNames().map(group => (
+                      <option key={group} value={group}>{group}</option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Region Filter */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Region
-                </label>
-                <select
-                  value={regionFilter}
-                  onChange={(e) => setRegionFilter(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
-                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
-                >
-                  <option value="">All Regions</option>
-                  {getUniqueRegions().map(region => (
-                    <option key={region} value={region}>{region}</option>
-                  ))}
-                </select>
-              </div>
+                {/* Region Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Region
+                  </label>
+                  <select
+                    value={regionFilter}
+                    onChange={(e) => setRegionFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Regions</option>
+                    {getUniqueRegions().map(region => (
+                      <option key={region} value={region}>{region}</option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Language Filter */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Language
-                </label>
-                <select
-                  value={languageFilter}
-                  onChange={(e) => setLanguageFilter(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
-                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
-                >
-                  <option value="">All Languages</option>
-                  {getUniqueLanguages().map(language => (
-                    <option key={language} value={language}>{language}</option>
-                  ))}
-                </select>
-              </div>
+                {/* Language Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Language
+                  </label>
+                  <select
+                    value={languageFilter}
+                    onChange={(e) => setLanguageFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Languages</option>
+                    {getUniqueLanguages().map(language => (
+                      <option key={language} value={language}>{language}</option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Industry Filter */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Industry
-                </label>
-                <select
-                  value={industryFilter}
-                  onChange={(e) => setIndustryFilter(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
-                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
-                >
-                  <option value="">All Industries</option>
-                  {getUniqueIndustries().map(industry => (
-                    <option key={industry} value={industry}>{industry}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Price Range */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Price Range: ${priceRange[0]} - ${priceRange[1]}
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="2000"
-                    step="50"
-                    value={priceRange[0]}
-                    onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                    className="w-full"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="2000"
-                    step="50"
-                    value={priceRange[1]}
-                    onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                    className="w-full"
-                  />
+                {/* Industry Filter */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Industry
+                  </label>
+                  <select
+                    value={industryFilter}
+                    onChange={(e) => setIndustryFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Industries</option>
+                    {getUniqueIndustries().map(industry => (
+                      <option key={industry} value={industry}>{industry}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
-              {/* DA Range */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Domain Authority: {daRange[0]} - {daRange[1]}
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={daRange[0]}
-                    onChange={(e) => setDaRange([parseInt(e.target.value), daRange[1]])}
-                    className="w-full"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={daRange[1]}
-                    onChange={(e) => setDaRange([daRange[0], parseInt(e.target.value)])}
-                    className="w-full"
-                  />
+              {/* SEO Metrics Section */}
+              <div className="bg-[#E3F2FD] rounded-lg p-4 border border-[#1976D2]">
+                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
+                  <BarChart3 size={16} className="text-[#1976D2]" />
+                  SEO Metrics
+                </h4>
+                
+                {/* Price Range */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Price Range: ${priceRange[0]} - ${priceRange[1]}
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="2000"
+                      step="50"
+                      value={priceRange[0]}
+                      onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
+                      className="w-full accent-[#1976D2]"
+                    />
+                    <input
+                      type="range"
+                      min="0"
+                      max="2000"
+                      step="50"
+                      value={priceRange[1]}
+                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                      className="w-full accent-[#1976D2]"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* DR Range */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Domain Rating: {drRange[0]} - {drRange[1]}
-                </label>
-                <div className="space-y-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={drRange[0]}
-                    onChange={(e) => setDrRange([parseInt(e.target.value), drRange[1]])}
-                    className="w-full"
-                  />
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={drRange[1]}
-                    onChange={(e) => setDrRange([drRange[0], parseInt(e.target.value)])}
-                    className="w-full"
-                  />
+                {/* DA Range */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Domain Authority: {daRange[0]} - {daRange[1]}
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={daRange[0]}
+                      onChange={(e) => setDaRange([parseInt(e.target.value), daRange[1]])}
+                      className="w-full accent-[#1976D2]"
+                    />
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={daRange[1]}
+                      onChange={(e) => setDaRange([daRange[0], parseInt(e.target.value)])}
+                      className="w-full accent-[#1976D2]"
+                    />
+                  </div>
+                </div>
+
+                {/* DR Range */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Domain Rating: {drRange[0]} - {drRange[1]}
+                  </label>
+                  <div className="space-y-2">
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={drRange[0]}
+                      onChange={(e) => setDrRange([parseInt(e.target.value), drRange[1]])}
+                      className="w-full accent-[#1976D2]"
+                    />
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={drRange[1]}
+                      onChange={(e) => setDrRange([drRange[0], parseInt(e.target.value)])}
+                      className="w-full accent-[#1976D2]"
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* TAT Filter */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+              <div className="bg-[#FFF3E0] rounded-lg p-4 border border-[#FF9800]">
+                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
+                  <Clock size={16} className="text-[#FF9800]" />
                   Turnaround Time
-                </label>
-                <div className="space-y-2">
+                </h4>
+                <div className="space-y-3">
                   {['1 Day', '1-3 Days', '1 Week', '1+ Week'].map(tat => (
-                    <label key={tat} className="flex items-center gap-2 cursor-pointer">
+                    <label key={tat} className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                       <input
                         type="checkbox"
                         checked={tatFilter.includes(tat)}
                         onChange={() => toggleTatFilter(tat)}
-                        className="rounded"
+                        className="rounded accent-[#FF9800]"
                       />
                       <span className="text-sm" style={{ color: theme.textPrimary }}>{tat}</span>
                     </label>
@@ -617,35 +637,36 @@ const PublicationsPage = () => {
               </div>
 
               {/* Feature Toggles */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+              <div className="bg-[#E0F2F1] rounded-lg p-4 border border-[#00796B]">
+                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
+                  <CheckCircle size={16} className="text-[#00796B]" />
                   Features
-                </label>
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 cursor-pointer">
+                </h4>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                     <input
                       type="checkbox"
                       checked={sponsoredFilter === 'true'}
                       onChange={(e) => setSponsoredFilter(e.target.checked ? 'true' : '')}
-                      className="rounded"
+                      className="rounded accent-[#00796B]"
                     />
                     <span className="text-sm" style={{ color: theme.textPrimary }}>Sponsored Only</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                     <input
                       type="checkbox"
                       checked={liveFilter === 'true'}
                       onChange={(e) => setLiveFilter(e.target.checked ? 'true' : '')}
-                      className="rounded"
+                      className="rounded accent-[#00796B]"
                     />
                     <span className="text-sm" style={{ color: theme.textPrimary }}>Live on Platform</span>
                   </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
+                  <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                     <input
                       type="checkbox"
                       checked={dofollowFilter === 'true'}
                       onChange={(e) => setDofollowFilter(e.target.checked ? 'true' : '')}
-                      className="rounded"
+                      className="rounded accent-[#00796B]"
                     />
                     <span className="text-sm" style={{ color: theme.textPrimary }}>Do-follow Links</span>
                   </label>
@@ -655,12 +676,7 @@ const PublicationsPage = () => {
               {/* Clear Filters */}
               <button
                 onClick={clearAllFilters}
-                className="w-full px-4 py-2 rounded-lg font-medium transition-colors"
-                style={{ 
-                  backgroundColor: theme.backgroundSoft, 
-                  color: theme.textPrimary,
-                  border: `1px solid ${theme.borderLight}`
-                }}
+                className="w-full px-4 py-3 rounded-lg font-medium transition-colors bg-[#F5F5F5] hover:bg-[#E0E0E0] text-[#212121] border border-[#E0E0E0]"
               >
                 Clear All Filters
               </button>
@@ -668,32 +684,35 @@ const PublicationsPage = () => {
           </div>
         </aside>
 
-        {/* Main Content - 70% */}
-        <main className="flex-1 p-6">
-          {/* Controls Bar */}
-          <div className="bg-white rounded-lg shadow-sm border p-4 mb-6" style={{ borderColor: theme.borderLight }}>
+        {/* Main Content - Enhanced */}
+        <main className="flex-1 p-6 min-w-0">
+          {/* Enhanced Controls Bar */}
+          <div className="bg-white rounded-lg shadow-lg border p-6 mb-6" style={{ 
+            borderColor: theme.borderLight,
+            boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
+          }}>
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-4">
                 {/* Mobile Filter Toggle */}
                 {isMobile && (
                   <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-lg border"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-[#F5F5F5] hover:bg-[#E0E0E0] transition-colors"
                     style={{ borderColor: theme.borderLight }}
                   >
                     <Filter size={16} />
-                    <span>Filters</span>
+                    <span className="text-[#212121]">Filters</span>
                   </button>
                 )}
 
                 {/* View Toggle */}
-                <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded-md transition-colors ${
                       viewMode === 'grid' 
-                        ? 'bg-white shadow-sm text-blue-600' 
-                        : 'text-gray-600 hover:text-gray-900'
+                        ? 'bg-white shadow-sm text-[#1976D2]' 
+                        : 'text-[#757575] hover:text-[#212121]'
                     }`}
                   >
                     <Grid size={16} />
@@ -702,22 +721,22 @@ const PublicationsPage = () => {
                     onClick={() => setViewMode('list')}
                     className={`p-2 rounded-md transition-colors ${
                       viewMode === 'list' 
-                        ? 'bg-white shadow-sm text-blue-600' 
-                        : 'text-gray-600 hover:text-gray-900'
+                        ? 'bg-white shadow-sm text-[#1976D2]' 
+                        : 'text-[#757575] hover:text-[#212121]'
                     }`}
                   >
                     <List size={16} />
                   </button>
                 </div>
 
-                <span className="text-sm" style={{ color: theme.textSecondary }}>
+                <span className="text-sm font-medium text-[#212121]">
                   {sortedPublications.length} publications found
                 </span>
               </div>
 
-              {/* Sort Dropdown */}
-              <div className="flex items-center gap-2">
-                <span className="text-sm" style={{ color: theme.textSecondary }}>Sort by:</span>
+              {/* Enhanced Sort Dropdown */}
+              <div className="flex items-center gap-3">
+                <span className="text-sm font-medium text-[#757575]">Sort by:</span>
                 <select
                   value={`${sortField}-${sortDirection}`}
                   onChange={(e) => {
@@ -725,8 +744,7 @@ const PublicationsPage = () => {
                     setSortField(field);
                     setSortDirection(direction);
                   }}
-                  className="px-3 py-2 border rounded-lg text-sm"
-                  style={{ borderColor: theme.borderLight }}
+                  className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
                   <option value="publication_name-asc">Name (A-Z)</option>
                   <option value="publication_name-desc">Name (Z-A)</option>
@@ -748,9 +766,9 @@ const PublicationsPage = () => {
           {/* Publications Display */}
           {sortedPublications.length > 0 ? (
             <>
-              {/* Grid View */}
+              {/* Enhanced Grid View */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {sortedPublications.map((publication, index) => (
                     <motion.div
                       key={publication.id}
@@ -758,10 +776,13 @@ const PublicationsPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       onClick={() => handlePublicationClick(publication)}
-                      className="bg-white rounded-lg shadow-sm border hover:shadow-lg transition-all duration-200 cursor-pointer group overflow-hidden"
-                      style={{ borderColor: theme.borderLight }}
+                      className="bg-white rounded-lg shadow-lg border hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden"
+                      style={{ 
+                        borderColor: theme.borderLight,
+                        boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
+                      }}
                     >
-                      {/* Publication Header */}
+                      {/* Enhanced Publication Header */}
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
@@ -781,27 +802,27 @@ const PublicationsPage = () => {
                             className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
                             style={{ backgroundColor: theme.primaryLight }}
                           >
-                            <Icon name="newspaper" size="lg" style={{ color: theme.primary }} />
+                            <Newspaper size={24} className="text-[#1976D2]" />
                           </div>
                         </div>
 
-                        {/* SEO Metrics */}
-                        <div className="grid grid-cols-3 gap-2 text-center mb-4 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                        {/* Enhanced SEO Metrics */}
+                        <div className="grid grid-cols-3 gap-2 text-center mb-4 p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                           <div>
-                            <div className="text-lg font-semibold" style={{ color: theme.primary }}>{publication.da || 0}</div>
+                            <div className="text-lg font-bold" style={{ color: theme.primary }}>{publication.da || 0}</div>
                             <div className="text-xs" style={{ color: theme.textSecondary }}>DA</div>
                           </div>
                           <div>
-                            <div className="text-lg font-semibold" style={{ color: theme.success }}>{publication.dr || 0}</div>
+                            <div className="text-lg font-bold" style={{ color: theme.success }}>{publication.dr || 0}</div>
                             <div className="text-xs" style={{ color: theme.textSecondary }}>DR</div>
                           </div>
                           <div>
-                            <div className="text-lg font-semibold" style={{ color: theme.warning }}>{publication.agreement_tat || 0}</div>
+                            <div className="text-lg font-bold" style={{ color: theme.warning }}>{publication.agreement_tat || 0}</div>
                             <div className="text-xs" style={{ color: theme.textSecondary }}>TAT</div>
                           </div>
                         </div>
 
-                        {/* Price and Features */}
+                        {/* Enhanced Price and Features */}
                         <div className="flex items-center justify-between mb-4">
                           <div className="text-xl font-bold" style={{ color: theme.success }}>
                             {formatPrice(publication.publication_price)}
@@ -812,7 +833,7 @@ const PublicationsPage = () => {
                           </div>
                         </div>
 
-                        {/* Features */}
+                        {/* Enhanced Features */}
                         <div className="flex flex-wrap gap-2 mb-4">
                           {publication.sponsored_or_not && (
                             <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
@@ -829,7 +850,7 @@ const PublicationsPage = () => {
                           </span>
                         </div>
 
-                        {/* CTA Button */}
+                        {/* Enhanced CTA Button */}
                         <button
                           className="w-full text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
                           style={{ backgroundColor: theme.primary }}
@@ -846,15 +867,18 @@ const PublicationsPage = () => {
                 </div>
               )}
 
-              {/* List View - Table Format */}
+              {/* Enhanced List View - Table Format */}
               {viewMode === 'list' && (
-                <div className="bg-white rounded-lg shadow-sm border overflow-hidden" style={{ borderColor: theme.borderLight }}>
+                <div className="bg-white rounded-lg shadow-lg border overflow-hidden" style={{ 
+                  borderColor: theme.borderLight,
+                  boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
+                }}>
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead style={{ backgroundColor: theme.backgroundSoft }}>
                         <tr>
                           <th 
-                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
                             onClick={() => handleSort('publication_name')}
                           >
@@ -863,7 +887,7 @@ const PublicationsPage = () => {
                             </div>
                           </th>
                           <th 
-                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
                             onClick={() => handleSort('publication_region')}
                           >
@@ -872,7 +896,7 @@ const PublicationsPage = () => {
                             </div>
                           </th>
                           <th 
-                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
                             onClick={() => handleSort('publication_language')}
                           >
@@ -881,7 +905,7 @@ const PublicationsPage = () => {
                             </div>
                           </th>
                           <th 
-                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
                             onClick={() => handleSort('da')}
                           >
@@ -890,7 +914,7 @@ const PublicationsPage = () => {
                             </div>
                           </th>
                           <th 
-                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
                             onClick={() => handleSort('dr')}
                           >
@@ -899,7 +923,7 @@ const PublicationsPage = () => {
                             </div>
                           </th>
                           <th 
-                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
                             onClick={() => handleSort('publication_price')}
                           >
@@ -908,7 +932,7 @@ const PublicationsPage = () => {
                             </div>
                           </th>
                           <th 
-                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50"
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
                             onClick={() => handleSort('agreement_tat')}
                           >
@@ -938,7 +962,7 @@ const PublicationsPage = () => {
                                   className="w-10 h-10 rounded-lg flex items-center justify-center"
                                   style={{ backgroundColor: theme.primaryLight }}
                                 >
-                                  <Icon name="newspaper" size="sm" style={{ color: theme.primary }} />
+                                  <Newspaper size={20} className="text-[#1976D2]" />
                                 </div>
                                 <div>
                                   <div className="font-semibold" style={{ color: theme.textPrimary }}>
@@ -1020,12 +1044,12 @@ const PublicationsPage = () => {
               )}
             </>
           ) : (
-            <div className="text-center py-20">
+            <div className="text-center py-20 bg-white rounded-lg shadow-lg border" style={{ borderColor: theme.borderLight }}>
               <div
                 className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
                 style={{ backgroundColor: theme.backgroundSoft }}
               >
-                <Globe size={48} style={{ color: theme.textDisabled }} />
+                <Newspaper size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
                 No publications found
