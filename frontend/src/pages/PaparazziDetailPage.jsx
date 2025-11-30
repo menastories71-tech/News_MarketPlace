@@ -200,20 +200,48 @@ const PaparazziDetailPage = () => {
         paparazziName: paparazzi.page_name,
         price: paparazzi.price_reel_with_tag,
         customerInfo: orderFormData,
-        orderDate: new Date().toISOString(),
-        status: 'pending'
+        orderDate: new Date().toISOString()
       };
 
-      // Send order to backend
-      const response = await api.post('/orders', orderData);
+      // Initialize Razorpay for testing (similar to PublicationDetailPage)
+      const options = {
+        key: 'rzp_test_1234567890', // Test key - replace with actual test key
+        amount: Math.round(parseFloat(paparazzi.price_reel_with_tag) * 100), // Amount in paise
+        currency: 'USD',
+        name: 'News Marketplace',
+        description: `Call booking for ${paparazzi.page_name}`,
+        order_id: `order_${Date.now()}`, // Generate unique order ID
+        handler: function (response) {
+          // Payment successful
+          console.log('Payment successful:', response);
+          alert('Call booking request submitted successfully! Our team will contact you soon.');
+          setShowOrderModal(false);
+          setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
+        },
+        prefill: {
+          name: orderFormData.fullName,
+          email: orderFormData.email,
+          contact: orderFormData.phone
+        },
+        notes: {
+          address: orderFormData.message
+        },
+        theme: {
+          color: theme.primary
+        }
+      };
 
-      if (response.data.success) {
-        alert('Call booking request submitted successfully! Our team will contact you soon.');
+      // For testing purposes, simulate payment success
+      setTimeout(() => {
+        alert('Call booking request submitted successfully! Our team will contact you soon. (Test Mode)');
         setShowOrderModal(false);
         setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
-      } else {
-        throw new Error('Failed to submit order');
-      }
+        setIsOrdering(false);
+      }, 2000);
+
+      // In production, uncomment this to use actual Razorpay
+      // const rzp = new window.Razorpay(options);
+      // rzp.open();
 
     } catch (error) {
       console.error('Error placing order:', error);
@@ -1022,6 +1050,21 @@ const PaparazziDetailPage = () => {
                   </div>
                 </div>
 
+                <div style={{
+                  backgroundColor: theme.info + '10',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  marginBottom: '16px'
+                }}>
+                  <p style={{
+                    margin: 0,
+                    fontSize: '12px',
+                    color: theme.textSecondary
+                  }}>
+                    <strong>Test Mode:</strong> This is a demo call booking request. No actual payment will be processed.
+                  </p>
+                </div>
+
               </form>
             </div>
 
@@ -1068,7 +1111,7 @@ const PaparazziDetailPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                {isOrdering ? 'Processing...' : 'Book Call Now'}
+                {isOrdering ? 'Processing...' : 'Pay Now'}
               </button>
             </div>
           </div>

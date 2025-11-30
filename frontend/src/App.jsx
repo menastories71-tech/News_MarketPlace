@@ -108,6 +108,7 @@ import BrandsPeople from './pages/BrandsPeople';
 import MediaPartnerships from './pages/MediaPartnerships';
 import RolePermissionManagement from './components/admin/RolePermissionManagement';
 import OrderManagement from './components/admin/OrderManagement';
+import PowerlistOrderManagement from './components/admin/PowerlistOrderManagement';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -694,6 +695,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <OrderManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/powerlist-orders"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PowerlistOrderManagement />
                   </div>
                 </AdminProtectedRoute>
               }

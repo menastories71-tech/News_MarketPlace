@@ -200,24 +200,52 @@ const PublicationDetailPage = () => {
         publicationName: publication.publication_name,
         price: publication.publication_price,
         customerInfo: orderFormData,
-        orderDate: new Date().toISOString(),
-        status: 'pending'
+        orderDate: new Date().toISOString()
       };
 
-      // Send order to backend
-      const response = await api.post('/orders', orderData);
+      // Initialize Razorpay for testing
+      const options = {
+        key: 'rzp_test_1234567890', // Test key - replace with actual test key
+        amount: Math.round(parseFloat(publication.publication_price) * 100), // Amount in paise
+        currency: 'USD',
+        name: 'News Marketplace',
+        description: `Order for ${publication.publication_name}`,
+        order_id: `order_${Date.now()}`, // Generate unique order ID
+        handler: function (response) {
+          // Payment successful
+          console.log('Payment successful:', response);
+          alert('Order placed successfully! Payment ID: ' + response.razorpay_payment_id);
+          setShowOrderModal(false);
+          setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
+        },
+        prefill: {
+          name: orderFormData.fullName,
+          email: orderFormData.email,
+          contact: orderFormData.phone
+        },
+        notes: {
+          address: orderFormData.message
+        },
+        theme: {
+          color: theme.primary
+        }
+      };
 
-      if (response.data.success) {
-        alert('Call booking request submitted successfully! Our team will contact you soon.');
+      // For testing purposes, simulate payment success
+      setTimeout(() => {
+        alert('Order placed successfully! (Test Mode)');
         setShowOrderModal(false);
         setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
-      } else {
-        throw new Error('Failed to submit order');
-      }
+        setIsOrdering(false);
+      }, 2000);
+
+      // In production, uncomment this to use actual Razorpay
+      // const rzp = new window.Razorpay(options);
+      // rzp.open();
 
     } catch (error) {
       console.error('Error placing order:', error);
-      alert('Error submitting booking request. Please try again.');
+      alert('Error placing order. Please try again.');
     } finally {
       setIsOrdering(false);
     }
@@ -1082,7 +1110,7 @@ const PublicationDetailPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                {isOrdering ? 'Processing...' : 'Book Call Now'}
+                {isOrdering ? 'Processing...' : 'Pay Now'}
               </button>
             </div>
           </div>

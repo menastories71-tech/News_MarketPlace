@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS orders (
     customer_email VARCHAR(255) NOT NULL,
     customer_phone VARCHAR(50),
     customer_message TEXT,
-    status ENUM('pending', 'accepted', 'rejected', 'completed') DEFAULT 'pending',
+    status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'rejected', 'completed')),
     admin_notes TEXT,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
