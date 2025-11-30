@@ -372,7 +372,7 @@ const PublicationsPage = () => {
                             </span>
                             <span className="flex items-center gap-1">
                               <ImageIcon size={10} />
-                              <span>{publication.allowed_images || '3-5'}</span>
+                              <span>{publication.number_of_images || publication.allowed_images || '0'}</span>
                             </span>
                             <div className="text-xs font-bold ml-2" style={{ color: theme.success }}>
                               {formatPrice(publication.publication_price)}
@@ -513,11 +513,11 @@ const PublicationsPage = () => {
                         <div className="flex items-center justify-between text-xs" style={{ color: theme.textSecondary }}>
                           <div className="flex items-center gap-1">
                             <FileText size={12} />
-                            <span>{publication.word_limit || '500-2000'} words</span>
+                            <span>{publication.word_limit || publication.words_limit || '500-2000'} words</span>
                           </div>
                           <div className="flex items-center gap-1">
                             <ImageIcon size={12} />
-                            <span>{publication.allowed_images || '3-5'} images</span>
+                            <span>{publication.number_of_images || publication.allowed_images || '0'} images</span>
                           </div>
                         </div>
 
