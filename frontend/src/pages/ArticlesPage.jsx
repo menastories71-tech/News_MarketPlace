@@ -208,10 +208,10 @@ const ArticlesPage = () => {
     // Apply additional filters
     filtered = filtered.filter(article => {
       if (articleTypeFilter !== 'all') {
-        if (articleTypeFilter === 'manual') {
-          if (article.article_type === 'ai') return false;
-        } else if (articleTypeFilter === 'ai') {
-          if (article.article_type !== 'ai') return false;
+        if (article.article_type === 'ai') {
+          if (article.story_type !== articleTypeFilter) return false;
+        } else {
+          return false; // Hide manual articles when specific story type is selected
         }
       }
 
@@ -287,11 +287,19 @@ const ArticlesPage = () => {
             <div className="flex flex-wrap justify-center gap-4 mt-6">
               <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg border border-[#E0E0E0] shadow-sm">
                 <FileText size={16} className="text-[#1976D2]" />
-                <span className="text-sm font-medium text-[#212121]">Manual Articles</span>
+                <span className="text-sm font-medium text-[#212121]">Profile</span>
               </div>
               <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg border border-[#E0E0E0] shadow-sm">
                 <Newspaper size={16} className="text-[#4CAF50]" />
-                <span className="text-sm font-medium text-[#212121]">AI Generated</span>
+                <span className="text-sm font-medium text-[#212121]">Editorial</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg border border-[#E0E0E0] shadow-sm">
+                <FileText size={16} className="text-[#FF9800]" />
+                <span className="text-sm font-medium text-[#212121]">Advertorial</span>
+              </div>
+              <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-lg border border-[#E0E0E0] shadow-sm">
+                <Newspaper size={16} className="text-[#9C27B0]" />
+                <span className="text-sm font-medium text-[#212121]">Listicle</span>
               </div>
             </div>
 
@@ -422,8 +430,10 @@ const ArticlesPage = () => {
                     className="w-full px-4 py-3 border border-[#E0E0E0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] bg-white"
                   >
                     <option value="all">All Types</option>
-                    <option value="manual">Manual Articles</option>
-                    <option value="ai">AI Generated</option>
+                    <option value="profile">Profile</option>
+                    <option value="editorial">Editorial</option>
+                    <option value="advertorial">Advertorial</option>
+                    <option value="listicle">Listicle</option>
                   </select>
                 </div>
                 {activeTab === 'my' && (
