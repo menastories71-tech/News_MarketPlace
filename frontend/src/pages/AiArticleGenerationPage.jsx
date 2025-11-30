@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
-import { ArrowLeft, RefreshCw, Send, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Send, CheckCircle, XCircle, Download, X, Mail, ExternalLink } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const AiArticleGenerationPage = () => {
   const { id } = useParams();
@@ -16,6 +17,7 @@ const AiArticleGenerationPage = () => {
   const [finalizing, setFinalizing] = useState(false);
   const [additionalPrompt, setAdditionalPrompt] = useState('');
   const [error, setError] = useState('');
+  const [showRateLimitPopup, setShowRateLimitPopup] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -49,10 +51,21 @@ const AiArticleGenerationPage = () => {
       setAdditionalPrompt(''); // Clear the prompt after generation
     } catch (error) {
       console.error('Error generating article:', error);
-      // Check if it's a validation error with a specific message
+
+      // Check if it's a rate limit error
       const errorMessage = error.response?.data?.message ||
-                          error.response?.data?.error ||
-                          'Failed to generate article. Please try again.';
+                           error.response?.data?.error ||
+                           'Failed to generate article. Please try again.';
+
+      // Check for rate limit related keywords
+      if (errorMessage.toLowerCase().includes('rate limit') ||
+          errorMessage.toLowerCase().includes('limit exceeded') ||
+          errorMessage.toLowerCase().includes('too many requests') ||
+          errorMessage.toLowerCase().includes('quota exceeded')) {
+        setShowRateLimitPopup(true);
+        return;
+      }
+
       setError(errorMessage);
     } finally {
       setGenerating(false);
@@ -333,6 +346,105 @@ const AiArticleGenerationPage = () => {
       </div>
 
       <UserFooter />
+
+      {/* Rate Limit Popup */}
+      {showRateLimitPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-lg shadow-xl w-full max-w-sm sm:max-w-md max-h-[95vh] sm:max-h-[90vh] overflow-y-auto mx-2 sm:mx-0"
+          >
+            <div className="p-4 sm:p-6">
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-[#212121] pr-2">Article Generation Limit Reached</h3>
+                <button
+                  onClick={() => setShowRateLimitPopup(false)}
+                  className="text-[#757575] hover:text-[#212121] transition-colors flex-shrink-0"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="space-y-3 sm:space-y-4">
+                <div className="bg-[#FFF3CD] p-3 sm:p-4 rounded-lg">
+                  <p className="text-sm text-[#856404]">
+                    You've reached your daily article generation limit. To continue creating high-quality articles, please use our detailed questionnaire process.
+                  </p>
+                </div>
+
+                <div className="bg-[#E3F2FD] p-3 sm:p-4 rounded-lg">
+                  <h4 className="font-medium text-[#1976D2] mb-2 text-sm sm:text-base">Why Use the Word Questionnaire?</h4>
+                  <ul className="text-xs sm:text-sm text-[#424242] space-y-1">
+                    <li>• Unlimited article generations</li>
+                    <li>• More detailed questions for better content</li>
+                    <li>• Structured format for comprehensive responses</li>
+                    <li>• Higher quality article output</li>
+                    <li>• Priority processing</li>
+                  </ul>
+                </div>
+
+                <div className="bg-[#FFF8E1] p-3 sm:p-4 rounded-lg">
+                  <h4 className="font-medium text-[#FF9800] mb-2 text-sm sm:text-base">Download & Submit</h4>
+                  <p className="text-xs sm:text-sm text-[#BF360C] mb-3">
+                    Download the questionnaire, fill it out completely, and send it to us for premium unlimited article creation.
+                  </p>
+                  <a
+                    href="/NEW Questionnaire_03.2023_v3.docx"
+                    download="Article_Questionnaire.docx"
+                    className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-[#FF9800] text-white rounded-lg hover:bg-[#F57C00] transition-colors text-xs sm:text-sm font-medium"
+                  >
+                    <Download size={14} />
+                    <span className="hidden sm:inline">Download Questionnaire</span>
+                    <span className="sm:hidden">Download</span>
+                  </a>
+                </div>
+
+                <div className="border-t pt-3 sm:pt-4">
+                  <h4 className="font-medium text-[#212121] mb-2 text-sm sm:text-base">Submission Options:</h4>
+                  <div className="space-y-2 text-xs sm:text-sm text-[#757575]">
+                    <div className="flex items-start gap-2">
+                      <Mail size={14} className="text-[#1976D2] mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <span className="font-medium">Email:</span> Send completed questionnaire to{' '}
+                        <strong className="text-xs">article@vaas.solutions</strong>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <ExternalLink size={14} className="text-[#4CAF50] mt-0.5 flex-shrink-0" />
+                      <div className="min-w-0">
+                        <span className="font-medium">Direct Upload:</span>{' '}
+                        <a href="https://vaas.solutions/submit-article" target="_blank" rel="noopener noreferrer" className="text-[#4CAF50] hover:underline break-all text-xs">
+                          vaas.solutions/submit-article
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:justify-end gap-2 sm:gap-3 mt-4 sm:mt-6">
+                <button
+                  onClick={() => setShowRateLimitPopup(false)}
+                  className="px-3 sm:px-4 py-2 bg-[#757575] text-white rounded-lg hover:bg-[#616161] transition-colors text-xs sm:text-sm font-medium"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    setShowRateLimitPopup(false);
+                    navigate('/ai-article-questionnaire');
+                  }}
+                  className="px-3 sm:px-4 py-2 bg-[#1976D2] text-white rounded-lg hover:bg-[#0D47A1] transition-colors text-xs sm:text-sm font-medium"
+                >
+                  Go to Questionnaire
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
