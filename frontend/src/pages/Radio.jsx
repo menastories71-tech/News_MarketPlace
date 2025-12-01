@@ -68,8 +68,8 @@ const RadioPage = () => {
       const response = await api.get('/radios');
       let radiosData = response.data.radios || [];
 
-      // Sort by ID descending to show newest first (assuming higher ID means more recent)
-      radiosData.sort((a, b) => b.id - a.id);
+      // Sort by created_at descending to show newest first
+      radiosData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
       // Client-side search for better results
       if (searchQuery.trim()) {
@@ -104,8 +104,8 @@ const RadioPage = () => {
       return matchesSearch && matchesLanguage && matchesEmirate;
     });
     
-    // Sort filtered results by ID descending to maintain newest-first order
-    filtered.sort((a, b) => b.id - a.id);
+    // Sort filtered results by created_at descending to maintain newest-first order
+    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     
     setFilteredRadios(filtered);
   }, [radios, searchQuery, selectedLanguage, selectedEmirate]);
