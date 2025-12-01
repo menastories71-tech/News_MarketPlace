@@ -110,6 +110,7 @@ import RolePermissionManagement from './components/admin/RolePermissionManagemen
 import OrderManagement from './components/admin/OrderManagement';
 import PaparazziOrderManagement from './components/admin/PaparazziOrderManagement';
 import ThemeOrderManagement from './components/admin/ThemeOrderManagement';
+import PressPackOrderManagement from './components/admin/PressPackOrderManagement';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -716,6 +717,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <ThemeOrderManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/press-pack-orders"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PressPackOrderManagement />
                   </div>
                 </AdminProtectedRoute>
               }
