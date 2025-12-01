@@ -9,7 +9,7 @@ import AuthModal from '../components/auth/AuthModal';
 import {
   ArrowLeft, Globe, MapPin, Users, Star, ExternalLink,
   Instagram, Youtube, Twitter, Facebook, Hash, DollarSign,
-  MessageCircle, Calendar, Eye, Heart, Share
+  Calendar, Eye, Heart, Share
 } from 'lucide-react';
 
 const ThemeDetailPage = () => {
@@ -20,13 +20,6 @@ const ThemeDetailPage = () => {
   const [relatedThemes, setRelatedThemes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
-  const [showContactModal, setShowContactModal] = useState(false);
-  const [contactFormData, setContactFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-  const [isContacting, setIsContacting] = useState(false);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [orderFormData, setOrderFormData] = useState({
     fullName: '',
@@ -40,6 +33,14 @@ const ThemeDetailPage = () => {
     if (id) {
       fetchThemeDetails();
     }
+
+    // Cleanup function to prevent ResizeObserver errors
+    return () => {
+      // Clear any pending state updates
+      setTheme(null);
+      setRelatedThemes([]);
+      setLoading(false);
+    };
   }, [id]);
 
   const fetchThemeDetails = async () => {
@@ -124,33 +125,6 @@ const ThemeDetailPage = () => {
     setShowAuth(false);
   };
 
-  const handleContactClick = () => {
-    if (!isAuthenticated) {
-      setShowAuth(true);
-      return;
-    }
-    setShowContactModal(true);
-  };
-
-  const handleContactSubmit = async (e) => {
-    e.preventDefault();
-    setIsContacting(true);
-
-    try {
-      // Here you would typically send a contact/inquiry request
-      // For now, just simulate success
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      alert('Your inquiry has been sent successfully! The theme owner will contact you soon.');
-      setShowContactModal(false);
-      setContactFormData({ name: '', email: '', message: '' });
-    } catch (error) {
-      console.error('Error sending contact:', error);
-      alert('Failed to send inquiry. Please try again.');
-    } finally {
-      setIsContacting(false);
-    }
-  };
 
   const handlePlaceOrder = () => {
     if (!isAuthenticated) {
@@ -177,7 +151,7 @@ const ThemeDetailPage = () => {
       // Submit order to backend
       const response = await api.post('/theme-orders', orderData);
 
-      if (response.data.success) {
+      if (response.data.order) {
         alert('Theme collaboration request submitted successfully! Our team will contact you soon.');
         setShowOrderModal(false);
         setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
@@ -187,7 +161,7 @@ const ThemeDetailPage = () => {
 
     } catch (error) {
       console.error('Error placing order:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Error submitting collaboration request. Please try again.';
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Error submitting collaboration request. Please try again.';
       alert(errorMessage);
     } finally {
       setIsOrdering(false);
@@ -485,25 +459,6 @@ const ThemeDetailPage = () => {
                 </button>
               </div>
 
-              {/* Contact Card */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="text-lg font-semibold mb-4" style={{ color: themeColors.textPrimary }}>
-                  Have Questions?
-                </h3>
-                <p className="text-sm text-[#757575] mb-6">
-                  Get in touch with this theme owner to discuss collaboration opportunities and pricing.
-                </p>
-                <button
-                  onClick={handleContactClick}
-                  className="w-full text-white font-medium py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
-                  style={{ backgroundColor: themeColors.secondary }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = themeColors.secondaryDark}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = themeColors.secondary}
-                >
-                  <MessageCircle size={16} />
-                  {isAuthenticated ? 'Send Inquiry' : 'Sign In to Contact'}
-                </button>
-              </div>
 
               {/* Theme Stats */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
@@ -617,174 +572,6 @@ const ThemeDetailPage = () => {
         />
       )}
 
-      {/* Contact Modal */}
-      {showContactModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10000,
-          padding: '20px'
-        }} onClick={() => setShowContactModal(false)}>
-          <div style={{
-            backgroundColor: themeColors.background,
-            borderRadius: '12px',
-            padding: '24px',
-            maxWidth: '500px',
-            width: '100%',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: themeColors.textPrimary }}>
-                Contact Theme Owner
-              </h2>
-              <button
-                onClick={() => setShowContactModal(false)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: themeColors.textSecondary
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            <form onSubmit={handleContactSubmit}>
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: themeColors.textPrimary,
-                    marginBottom: '6px'
-                  }}>
-                    Your Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={contactFormData.name}
-                    onChange={(e) => setContactFormData({ ...contactFormData, name: e.target.value })}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: `1px solid ${themeColors.borderLight}`,
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      backgroundColor: themeColors.background
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: themeColors.textPrimary,
-                    marginBottom: '6px'
-                  }}>
-                    Your Email *
-                  </label>
-                  <input
-                    type="email"
-                    value={contactFormData.email}
-                    onChange={(e) => setContactFormData({ ...contactFormData, email: e.target.value })}
-                    required
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: `1px solid ${themeColors.borderLight}`,
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      backgroundColor: themeColors.background
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{
-                    display: 'block',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: themeColors.textPrimary,
-                    marginBottom: '6px'
-                  }}>
-                    Message *
-                  </label>
-                  <textarea
-                    value={contactFormData.message}
-                    onChange={(e) => setContactFormData({ ...contactFormData, message: e.target.value })}
-                    required
-                    rows={4}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: `1px solid ${themeColors.borderLight}`,
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      boxSizing: 'border-box',
-                      backgroundColor: themeColors.background,
-                      resize: 'vertical'
-                    }}
-                    placeholder="Tell us about your collaboration idea..."
-                  />
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowContactModal(false)}
-                  style={{
-                    padding: '12px 24px',
-                    backgroundColor: themeColors.backgroundSoft,
-                    color: themeColors.textPrimary,
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                  disabled={isContacting}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  style={{
-                    padding: '12px 24px',
-                    backgroundColor: themeColors.primary,
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    fontSize: '14px'
-                  }}
-                  disabled={isContacting}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = themeColors.primaryDark}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = themeColors.primary}
-                >
-                  {isContacting ? 'Sending...' : 'Send Inquiry'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
       {/* Order Modal */}
       {showOrderModal && (

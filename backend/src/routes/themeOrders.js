@@ -4,7 +4,7 @@ const themeOrderController = require('../controllers/themeOrderController');
 const { verifyToken, verifyAdminToken, requireAdminPanelAccess } = require('../middleware/auth');
 
 // User routes (authenticated users)
-router.post('/', verifyToken, themeOrderController.create);
+router.post('/', verifyToken, themeOrderController.createValidation, themeOrderController.create);
 router.get('/my-orders', verifyToken, themeOrderController.getUserOrders);
 
 // Admin routes
