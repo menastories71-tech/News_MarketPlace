@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Search, Filter, Home, MapPin, DollarSign, Bed, Bath, Square, Plus, Clock, CheckCircle, ImageIcon, Grid, List, ArrowUpDown, ArrowUp, ArrowDown, BarChart3 } from 'lucide-react';
+import { Search, Filter, Home, MapPin, DollarSign, Bed, Bath, Square, Plus, Clock, CheckCircle, ImageIcon, Grid, List, ArrowUpDown, ArrowUp, ArrowDown, BarChart3, Eye } from 'lucide-react';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import { useAuth } from '../context/AuthContext';
