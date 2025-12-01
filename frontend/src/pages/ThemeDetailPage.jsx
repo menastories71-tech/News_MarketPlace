@@ -139,29 +139,62 @@ const ThemeDetailPage = () => {
     setIsOrdering(true);
 
     try {
+      // Validate required fields
+      if (!orderFormData.fullName.trim() || !orderFormData.email.trim() || !orderFormData.phone.trim()) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
       // Create order data for API
       const orderData = {
-        themeId: theme.id,
+        themeId: parseInt(theme.id),
         themeName: theme.page_name,
         price: theme.price_reel_without_tagging_collaboration,
-        customerInfo: orderFormData,
+        customerInfo: {
+          fullName: orderFormData.fullName.trim(),
+          email: orderFormData.email.trim(),
+          phone: orderFormData.phone.trim(),
+          message: orderFormData.message.trim() || ''
+        },
         orderDate: new Date().toISOString()
       };
+
+      console.log('Submitting order:', orderData);
 
       // Submit order to backend
       const response = await api.post('/theme-orders', orderData);
 
-      if (response.data.order) {
+      console.log('Order response:', response.data);
+
+      if (response.data && (response.data.order || response.data.message)) {
         alert('Theme collaboration request submitted successfully! Our team will contact you soon.');
         setShowOrderModal(false);
         setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
       } else {
-        throw new Error(response.data.message || 'Failed to submit collaboration request');
+        throw new Error('Unexpected response format');
       }
 
     } catch (error) {
       console.error('Error placing order:', error);
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || error.message || 'Error submitting collaboration request. Please try again.';
+      
+      let errorMessage = 'Error submitting collaboration request. Please try again.';
+      
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        if (error.response.data?.error) {
+          errorMessage = error.response.data.error;
+        } else if (error.response.data?.message) {
+          errorMessage = error.response.data.message;
+        } else if (error.response.data?.details) {
+          const details = error.response.data.details;
+          if (Array.isArray(details) && details.length > 0) {
+            errorMessage = details.map(d => d.msg).join(', ');
+          }
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       alert(errorMessage);
     } finally {
       setIsOrdering(false);

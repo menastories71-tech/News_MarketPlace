@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, Op } = require('sequelize');
 const sequelize = require('../config/databaseSequelize');
 
 const ThemeOrder = sequelize.define('ThemeOrder', {
@@ -68,21 +68,34 @@ const ThemeOrder = sequelize.define('ThemeOrder', {
 
 // Static methods
 ThemeOrder.findAllWithPagination = async function(filters = {}, limit = 10, offset = 0) {
-  const whereClause = {};
+  try {
+    const whereClause = {};
 
-  if (filters.status) whereClause.status = filters.status;
-  if (filters.theme_id) whereClause.theme_id = filters.theme_id;
-  if (filters.submitted_by) whereClause.submitted_by = filters.submitted_by;
+    // Handle basic filters
+    if (filters.status) whereClause.status = filters.status;
+    if (filters.theme_id) whereClause.theme_id = filters.theme_id;
+    if (filters.submitted_by) whereClause.submitted_by = filters.submitted_by;
 
-  const { count, rows } = await this.findAndCountAll({
-    where: whereClause,
-    limit: limit,
-    offset: offset,
-    order: [['created_at', 'DESC']],
-    include: []
-  });
+    // Handle search filters
+    if (filters[Op.or]) {
+      whereClause[Op.or] = filters[Op.or];
+    }
 
-  return { count, rows };
+    console.log('Query filters:', whereClause);
+
+    const { count, rows } = await this.findAndCountAll({
+      where: whereClause,
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['created_at', 'DESC']],
+      include: []
+    });
+
+    return { count, rows };
+  } catch (error) {
+    console.error('Error in findAllWithPagination:', error);
+    throw error;
+  }
 };
 
 ThemeOrder.getTotalCount = async function(filters = {}) {

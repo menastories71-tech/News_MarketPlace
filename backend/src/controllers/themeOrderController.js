@@ -1,12 +1,13 @@
 const ThemeOrder = require('../models/ThemeOrder');
 const { body, validationResult } = require('express-validator');
+const { Op } = require('sequelize');
 
 class ThemeOrderController {
   // Validation rules
   createValidation = [
     body('themeId').isInt().withMessage('Valid theme ID is required'),
     body('themeName').trim().isLength({ min: 1 }).withMessage('Theme name is required'),
-    body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a positive number'),
+    body('price').optional().isNumeric().withMessage('Price must be a number'),
     body('customerInfo').isObject().withMessage('Customer information is required'),
     body('customerInfo.fullName').trim().isLength({ min: 1 }).withMessage('Full name is required'),
     body('customerInfo.email').isEmail().withMessage('Valid email is required'),
@@ -22,8 +23,11 @@ class ThemeOrderController {
   // Create a new theme order
   async create(req, res) {
     try {
+      console.log('Creating theme order with data:', req.body);
+      
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('Validation errors:', errors.array());
         return res.status(400).json({
           error: 'Validation failed',
           details: errors.array()
@@ -33,14 +37,17 @@ class ThemeOrderController {
       const orderData = {
         theme_id: req.body.themeId,
         theme_name: req.body.themeName,
-        price: req.body.price,
+        price: req.body.price ? parseFloat(req.body.price) : null,
         customer_info: req.body.customerInfo,
         order_date: req.body.orderDate || new Date(),
-        submitted_by: req.user?.userId,
+        submitted_by: req.user?.userId || null,
         status: 'pending'
       };
 
+      console.log('Order data prepared:', orderData);
+
       const order = await ThemeOrder.create(orderData);
+      console.log('Order created successfully:', order.id);
 
       res.status(201).json({
         message: 'Theme order created successfully',
@@ -48,7 +55,12 @@ class ThemeOrderController {
       });
     } catch (error) {
       console.error('Create theme order error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('Error stack:', error.stack);
+      res.status(500).json({ 
+        error: 'Internal server error',
+        message: error.message,
+        details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      });
     }
   }
 
@@ -60,7 +72,8 @@ class ThemeOrderController {
         limit = 10,
         status,
         theme_id,
-        submitted_by
+        submitted_by,
+        search
       } = req.query;
 
       const filters = {};
@@ -68,8 +81,18 @@ class ThemeOrderController {
       if (theme_id) filters.theme_id = theme_id;
       if (submitted_by) filters.submitted_by = submitted_by;
 
-      const offset = (page - 1) * limit;
-      const { count, rows } = await ThemeOrder.findAllWithPagination(filters, limit, offset);
+      // Add search functionality
+      if (search && search.trim()) {
+        const searchTerm = `%${search.trim()}%`;
+        filters[Op.or] = [
+          { theme_name: { [Op.iLike]: searchTerm } },
+          { 'customer_info.fullName': { [Op.iLike]: searchTerm } },
+          { 'customer_info.email': { [Op.iLike]: searchTerm } }
+        ];
+      }
+
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+      const { count, rows } = await ThemeOrder.findAllWithPagination(filters, parseInt(limit), offset);
 
       res.json({
         orders: rows.map(order => order.toJSON()),
@@ -77,12 +100,15 @@ class ThemeOrderController {
           page: parseInt(page),
           limit: parseInt(limit),
           total: count,
-          pages: Math.ceil(count / limit)
+          pages: Math.ceil(count / parseInt(limit))
         }
       });
     } catch (error) {
       console.error('Get theme orders error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ 
+        error: 'Internal server error',
+        message: error.message
+      });
     }
   }
 
