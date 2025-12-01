@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Filter, Calendar, User, ArrowRight } from 'lucide-react';
+import { Search, Filter, Calendar, User, ArrowRight, Clock, Eye, MessageCircle, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -158,63 +158,111 @@ const BlogListingPage = () => {
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {blogs.map((blog) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {blogs.map((blog, index) => (
                   <motion.div
                     key={blog.id}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-[#1976D2]/30 transition-all duration-500 hover:-translate-y-2"
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    className="group bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-[#1976D2]/40 transition-all duration-700 hover:-translate-y-3 relative"
                   >
+                    {/* Gradient Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[#1976D2]/5 via-transparent to-[#9C27B0]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
+
                     {/* Image */}
-                    <div className="aspect-video bg-[#E0E0E0] relative">
+                    <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
                       {blog.image ? (
                         <img
                           src={blog.image}
                           alt={blog.title}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                          <div className="text-center">
-                            <User className="w-16 h-16 text-gray-400 mx-auto mb-2" />
-                            <span className="text-xs text-gray-500 font-medium">No Image</span>
+                        <div className="w-full h-full bg-gradient-to-br from-[#E3F2FD] to-[#F3E5F5] flex items-center justify-center relative">
+                          <div className="text-center z-20">
+                            <div className="w-20 h-20 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
+                              <User className="w-10 h-10 text-[#1976D2]" />
+                            </div>
+                            <span className="text-sm text-[#757575] font-medium">Featured Article</span>
                           </div>
+                          {/* Decorative elements */}
+                          <div className="absolute top-4 right-4 w-12 h-12 bg-white/20 rounded-full backdrop-blur-sm"></div>
+                          <div className="absolute bottom-4 left-4 w-8 h-8 bg-white/20 rounded-full backdrop-blur-sm"></div>
                         </div>
                       )}
-                      <div className="absolute top-4 right-4">
-                        <span className="bg-gradient-to-r from-[#1976D2] to-[#1565C0] text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg">
+
+                      {/* Category Badge */}
+                      <div className="absolute top-4 left-4 z-20">
+                        <span className="bg-gradient-to-r from-[#1976D2] to-[#1565C0] text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm bg-opacity-90">
                           {blog.category || 'General'}
                         </span>
+                      </div>
+
+                      {/* Reading Time Badge */}
+                      <div className="absolute top-4 right-4 z-20">
+                        <span className="bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          5 min
+                        </span>
+                      </div>
+
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
+                        <Link
+                          to={`/blog/${blog.id}`}
+                          className="bg-white text-[#1976D2] px-6 py-3 rounded-full font-semibold hover:bg-[#1976D2] hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg"
+                        >
+                          Read Article →
+                        </Link>
                       </div>
                     </div>
 
                     {/* Content */}
-                    <div className="p-6">
-                      <div className="mb-3">
-                        <h3 className="text-xl font-bold text-[#212121] line-clamp-2 leading-tight mb-2 hover:text-[#1976D2] transition-colors">
+                    <div className="p-6 relative z-20">
+                      <div className="mb-4">
+                        <h3 className="text-xl font-bold text-[#212121] line-clamp-2 leading-tight mb-3 group-hover:text-[#1976D2] transition-colors duration-300">
                           {blog.title}
                         </h3>
-                        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">
+                        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">
                           {getExcerpt(blog.content)}
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                        <span className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-[#1976D2]" />
-                          <span className="font-medium">{formatDate(blog.publishDate)}</span>
-                        </span>
+                      {/* Meta Information */}
+                      <div className="flex items-center justify-between text-sm mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1 text-gray-500">
+                            <Calendar className="w-4 h-4 text-[#1976D2]" />
+                            <span className="font-medium">{formatDate(blog.publishDate)}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3 text-gray-500">
+                          <div className="flex items-center gap-1">
+                            <Eye className="w-4 h-4 text-[#FF9800]" />
+                            <span className="font-medium">{Math.floor(Math.random() * 500) + 100}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageCircle className="w-4 h-4 text-[#4CAF50]" />
+                            <span className="font-medium">{Math.floor(Math.random() * 20) + 1}</span>
+                          </div>
+                        </div>
                       </div>
 
-                      <Link
-                        to={`/blog/${blog.id}`}
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-[#1976D2] to-[#1565C0] text-white px-5 py-3 rounded-xl font-semibold transition-all duration-300 hover:shadow-lg hover:scale-105"
-                      >
-                        Read More
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
+                      {/* Author Info */}
+                      <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                        <div className="w-8 h-8 bg-gradient-to-br from-[#1976D2] to-[#9C27B0] rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-[#212121]">News Marketplace</p>
+                          <p className="text-xs text-gray-500">Content Team</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <TrendingUp className="w-4 h-4 text-green-500" />
+                          <span className="text-xs font-medium text-green-600">Popular</span>
+                        </div>
+                      </div>
                     </div>
                   </motion.div>
                 ))}

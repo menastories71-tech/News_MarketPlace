@@ -314,6 +314,7 @@ const GuideFlipbook = ({ pdfUrl, title, description }) => {
   const [error, setError] = useState(null);
   const [scale, setScale] = useState(0.8);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [loadedPages, setLoadedPages] = useState(new Set([0])); // Track loaded pages
   const flipbookRef = useRef(null);
 
   // Zoom functions
@@ -399,6 +400,14 @@ const GuideFlipbook = ({ pdfUrl, title, description }) => {
     setNumPages(numPages);
     setLoading(false);
     setError(null);
+
+    // Initialize with first few pages loaded
+    const initialPages = new Set();
+    const pagesToLoad = Math.min(5, numPages); // Load first 5 pages initially
+    for (let i = 0; i < pagesToLoad; i++) {
+      initialPages.add(i);
+    }
+    setLoadedPages(initialPages);
   };
 
   const onDocumentLoadError = (error) => {
@@ -408,30 +417,41 @@ const GuideFlipbook = ({ pdfUrl, title, description }) => {
   };
 
   const nextPage = useCallback(() => {
-    if (flipbookRef.current?.pageFlip) {
-      try {
-        flipbookRef.current.pageFlip().flipNext();
-      } catch (error) {
-        console.error('Error flipping next:', error);
-        setCurrentPage(prev => Math.min(prev + 1, flipbookPages - 1));
+    const nextPageNum = currentPage + 1;
+    if (nextPageNum < flipbookPages) {
+      // Load the next page if not already loaded
+      if (!loadedPages.has(nextPageNum)) {
+        setLoadedPages(prev => new Set([...prev, nextPageNum]));
       }
-    } else {
-      setCurrentPage(prev => Math.min(prev + 1, flipbookPages - 1));
+
+      if (flipbookRef.current?.pageFlip) {
+        try {
+          flipbookRef.current.pageFlip().flipNext();
+        } catch (error) {
+          console.error('Error flipping next:', error);
+          setCurrentPage(nextPageNum);
+        }
+      } else {
+        setCurrentPage(nextPageNum);
+      }
     }
-  }, [flipbookPages]);
+  }, [currentPage, flipbookPages, loadedPages]);
 
   const prevPage = useCallback(() => {
-    if (flipbookRef.current?.pageFlip) {
-      try {
-        flipbookRef.current.pageFlip().flipPrev();
-      } catch (error) {
-        console.error('Error flipping prev:', error);
-        setCurrentPage(prev => Math.max(prev - 1, 0));
+    const prevPageNum = currentPage - 1;
+    if (prevPageNum >= 0) {
+      if (flipbookRef.current?.pageFlip) {
+        try {
+          flipbookRef.current.pageFlip().flipPrev();
+        } catch (error) {
+          console.error('Error flipping prev:', error);
+          setCurrentPage(prevPageNum);
+        }
+      } else {
+        setCurrentPage(prevPageNum);
       }
-    } else {
-      setCurrentPage(prev => Math.max(prev - 1, 0));
     }
-  }, []);
+  }, [currentPage]);
 
   const goToPage = useCallback((pageNumber) => {
     const validPage = Math.max(0, Math.min(pageNumber, flipbookPages - 1));
@@ -445,7 +465,14 @@ const GuideFlipbook = ({ pdfUrl, title, description }) => {
     } else {
       setCurrentPage(validPage);
     }
-  }, [flipbookPages]);
+
+    // Load adjacent pages when navigating
+    const pagesToLoad = new Set(loadedPages);
+    for (let i = Math.max(0, validPage - 2); i <= Math.min(numPages - 1, validPage + 2); i++) {
+      pagesToLoad.add(i);
+    }
+    setLoadedPages(pagesToLoad);
+  }, [flipbookPages, loadedPages, numPages]);
 
   if (error) {
     return (
@@ -494,7 +521,16 @@ const GuideFlipbook = ({ pdfUrl, title, description }) => {
           usePortrait={false}
           startZIndex={1}
           autoSize={true}
-          onFlip={(e) => setCurrentPage(e.data)}
+          onFlip={(e) => {
+            setCurrentPage(e.data);
+            // Load adjacent pages when flipping
+            const newPage = e.data;
+            const pagesToLoad = new Set(loadedPages);
+            for (let i = Math.max(0, newPage - 1); i <= Math.min(numPages - 1, newPage + 1); i++) {
+              pagesToLoad.add(i);
+            }
+            setLoadedPages(pagesToLoad);
+          }}
           className="flipbook-container"
         >
           {/* Title page */}
@@ -512,9 +548,9 @@ const GuideFlipbook = ({ pdfUrl, title, description }) => {
             </div>
           </div>
 
-          {/* PDF pages */}
-          {Array.from(new Array(numPages), (el, index) => (
-            <div key={`page-${index + 1}`} className="page">
+          {/* PDF pages - only render loaded pages */}
+          {Array.from(loadedPages).sort((a, b) => a - b).map((pageIndex) => (
+            <div key={`page-${pageIndex + 1}`} className="page">
               <div className="page-content">
                 <div className="single-page-wrapper">
                   <Document
@@ -524,16 +560,41 @@ const GuideFlipbook = ({ pdfUrl, title, description }) => {
                     loading=""
                   >
                     <MemoizedPDFPage
-                      pageNumber={index + 1}
+                      pageNumber={pageIndex + 1}
                       scale={responsiveScale}
                       onLoadSuccess={() => {}}
-                      onLoadError={(error) => console.error(`Page ${index + 1} load error:`, error)}
+                      onLoadError={(error) => console.error(`Page ${pageIndex + 1} load error:`, error)}
                     />
                   </Document>
                 </div>
               </div>
             </div>
           ))}
+
+          {/* Placeholder pages for unloaded pages */}
+          {numPages && Array.from({ length: numPages }, (_, index) => {
+            if (!loadedPages.has(index)) {
+              return (
+                <div key={`placeholder-${index + 1}`} className="page">
+                  <div className="page-content">
+                    <div className="single-page-wrapper" style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      background: '#f8f9fa',
+                      border: '2px dashed #dee2e6'
+                    }}>
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1976D2] mx-auto mb-2"></div>
+                        <p className="text-sm text-gray-600">Loading page {index + 1}...</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          }).filter(Boolean)}
         </HTMLFlipBook>
       )}
 
