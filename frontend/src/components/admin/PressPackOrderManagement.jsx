@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
@@ -175,63 +175,35 @@ const PressPackOrderManagement = () => {
     fetchData();
   }, []);
 
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
-        page: currentPage.toString(),
-        limit: pageSize.toString()
+        page: currentPage,
+        limit: pageSize,
+        ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
+        ...(statusFilter && { status: statusFilter })
       });
 
-      if (debouncedSearchTerm && debouncedSearchTerm.trim()) {
-        params.append('search', debouncedSearchTerm.trim());
-      }
-
-      if (statusFilter) {
-        params.append('status', statusFilter);
-      }
-
-      console.log('Fetching orders with params:', params.toString());
-
       const response = await api.get(`/press-pack-orders?${params}`);
-      console.log('Orders response:', response.data);
-
       const data = response.data;
-
-      if (data.success === false) {
-        throw new Error(data.message || 'Failed to fetch orders');
-      }
 
       setOrders(data.orders || []);
       setTotalCount(data.pagination?.total || 0);
       setTotalPages(data.pagination?.pages || 1);
     } catch (error) {
       console.error('Error fetching press pack orders:', error);
-
       if (error.response?.status === 401) {
-        // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
         return;
       }
-
-      // Set empty state on error
-      setOrders([]);
-      setTotalCount(0);
-      setTotalPages(1);
-
-      // Show user-friendly error message
-      const errorMessage = error.response?.data?.message || error.message || 'Failed to load orders';
-      console.error('Fetch orders error:', errorMessage);
-
-      // You might want to show a toast notification instead of alert
-      // For now, we'll just log the error and show empty state
+      alert('Failed to load press pack orders. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearchTerm, statusFilter]);
+  };
 
-  // Add formatDate helper function
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     try {
@@ -247,23 +219,20 @@ const PressPackOrderManagement = () => {
     }
   };
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearchTerm, statusFilter]);
 
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page on search
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data when filters change
+  // Fetch data when dependencies change
   useEffect(() => {
     fetchOrders();
-  }, [fetchOrders]);
+  }, [currentPage, pageSize, statusFilter, debouncedSearchTerm]);
 
 
   const handleAcceptOrder = async (orderId) => {
@@ -274,6 +243,11 @@ const PressPackOrderManagement = () => {
       fetchOrders();
     } catch (error) {
       console.error('Error accepting press pack order:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('adminAccessToken');
+        window.location.href = '/admin/login';
+        return;
+      }
       alert('Error accepting press pack order. Please try again.');
     }
   };
@@ -287,6 +261,11 @@ const PressPackOrderManagement = () => {
       fetchOrders();
     } catch (error) {
       console.error('Error rejecting press pack order:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('adminAccessToken');
+        window.location.href = '/admin/login';
+        return;
+      }
       alert('Error rejecting press pack order. Please try again.');
     }
   };
@@ -299,6 +278,11 @@ const PressPackOrderManagement = () => {
       fetchOrders();
     } catch (error) {
       console.error('Error completing press pack order:', error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('adminAccessToken');
+        window.location.href = '/admin/login';
+        return;
+      }
       alert('Error completing press pack order. Please try again.');
     }
   };
