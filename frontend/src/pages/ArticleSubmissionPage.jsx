@@ -49,7 +49,8 @@ const ArticleSubmissionPage = () => {
 
   const [files, setFiles] = useState({
     image1: null,
-    image2: null
+    image2: null,
+    document: null
   });
 
   const [publications, setPublications] = useState([]);
@@ -61,6 +62,7 @@ const ArticleSubmissionPage = () => {
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', 'error'
   const [generatedSlug, setGeneratedSlug] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -133,6 +135,19 @@ const ArticleSubmissionPage = () => {
     const file = fileList[0];
 
     if (file) {
+      // Validate file size for image1 (10MB limit)
+      if (name === 'image1') {
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          setErrors(prev => ({
+            ...prev,
+            [name]: 'Image size must not exceed 10 MB'
+          }));
+          setFiles(prev => ({ ...prev, [name]: null }));
+          return;
+        }
+      }
+
       // Validate image dimensions for landscape
       if (name === 'image1' || name === 'image2') {
         const img = new Image();
@@ -177,7 +192,7 @@ const ArticleSubmissionPage = () => {
 
     // Required fields
     const requiredFields = [
-      'publication_id', 'title', 'article_text', 'website_link'
+      'publication_id', 'title', 'article_text'
     ];
 
     requiredFields.forEach(field => {
@@ -263,6 +278,7 @@ const ArticleSubmissionPage = () => {
       // Add files
       if (files.image1) submitData.append('image1', files.image1);
       if (files.image2) submitData.append('image2', files.image2);
+      if (files.document) submitData.append('document', files.document);
 
       submitData.append('recaptcha_token', recaptchaToken);
 
@@ -323,6 +339,10 @@ const ArticleSubmissionPage = () => {
     return null;
   }
 
+  const filteredPublications = publications.filter(pub =>
+    pub.publication_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
       <UserHeader />
@@ -365,6 +385,16 @@ const ArticleSubmissionPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Publication Selection */}
             <div>
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Search publications..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
+                />
+              </div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Publication <span style={{ color: theme.danger }}>*</span>
                 <Icon name="information-circle" size="sm" className="ml-1 inline" title="Select the publication you want to submit to" />
@@ -376,7 +406,7 @@ const ArticleSubmissionPage = () => {
                 style={{ borderColor: errors.publication_id ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
               >
                 <option value="">Select a publication</option>
-                {publications.map(pub => (
+                {filteredPublications.map(pub => (
                   <option key={pub.id} value={pub.id}>
                     {pub.publication_name} (Word limit: {pub.word_limit || 500})
                   </option>
@@ -424,7 +454,7 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Subtitle
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Optional subtitle for your article" />
+                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
               </label>
               <input
                 type="text"
@@ -441,7 +471,7 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 By Line
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Author attribution" />
+                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
               </label>
               <input
                 type="text"
@@ -458,7 +488,7 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Tentative Publish Date
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Suggested publication date" />
+                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
               </label>
               <input
                 type="date"
@@ -501,6 +531,7 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Image 1 <span style={{ color: theme.danger }}>*</span>
+                <Icon name="information-circle" size="sm" className="ml-1 inline" title="only landscape mode - portrait mode not allowed. Logos, thumbnail, icons and text in image not allowed. Restrict the size limit to 10 MB" />
               </label>
               <input
                 type="file"
@@ -511,7 +542,7 @@ const ArticleSubmissionPage = () => {
                 style={{ borderColor: errors.image1 ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
               />
               <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
-                Must be landscape orientation (width greater than height), high resolution recommended
+                Must be landscape orientation (width greater than height), high resolution recommended. Size limit: 10 MB. No logos, thumbnails, icons, or text in image.
               </div>
               {errors.image1 && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.image1}</div>}
             </div>
@@ -520,7 +551,7 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Image 2
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Optional second image" />
+                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
               </label>
               <input
                 type="file"
@@ -539,7 +570,8 @@ const ArticleSubmissionPage = () => {
             {/* Website Link */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                Website Link <span style={{ color: theme.danger }}>*</span>
+                Website Link
+                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Optional website link" />
               </label>
               <input
                 type="url"
@@ -585,6 +617,25 @@ const ArticleSubmissionPage = () => {
                 placeholder="https://facebook.com/username"
               />
               {errors.facebook_link && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.facebook_link}</div>}
+            </div>
+
+            {/* Upload Document */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                Upload Document
+              </label>
+              <input
+                type="file"
+                name="document"
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx"
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                style={{ borderColor: errors.document ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
+              />
+              <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
+                Optional: Upload a PDF or Word document
+              </div>
+              {errors.document && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.document}</div>}
             </div>
 
             {/* Terms Checkbox */}
