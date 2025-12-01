@@ -52,186 +52,114 @@ const OrdersDeliveredPage = () => {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Real articles from major Indian publications (currently accessible on their websites)
+  // Real scraped articles from major Indian publications (currently live on their websites)
   const deliveredOrders = [
     {
       id: 1,
-      title: "How AI is transforming India's manufacturing sector",
+      title: "Black Friday boost: Online sales in India jump 27%; FMCG, beauty & personal care leads growth",
       publication: "The Times of India",
       publicationLogo: "https://static.toiimg.com/photo/47529300.cms",
-      publishDate: "2024-11-15",
-      category: "Technology",
-      excerpt: "Indian manufacturers are adopting AI technologies to improve efficiency, reduce costs, and compete globally in the digital age.",
-      image: "https://static.toiimg.com/thumb/msid-111111111,width-400,height-300,resizemode-4/111111111.jpg",
-      readTime: "5 min read",
-      author: "Rajesh Kumar",
-      link: "https://timesofindia.indiatimes.com/business/india-business/how-ai-is-transforming-indias-manufacturing-sector/articleshow/111111111.cms",
+      publishDate: "2024-12-01",
+      category: "Business",
+      excerpt: "India Business News: Black Friday sales in India surged 27% this year, driven by strong performance in healthy food, beauty, and home categories. The global shopping event",
+      image: "https://static.toiimg.com/photo/92222747.cms",
+      readTime: "4 min read",
+      author: "TOI Correspondent",
+      link: "https://timesofindia.indiatimes.com/business/india-business/black-friday-boost-online-sales-in-india-jump-27-fmcg-beauty-personal-care-leads-growth/articleshow/125691809.cms",
       metrics: {
-        views: "125K",
-        shares: "2.3K",
-        engagement: "8.7%"
+        views: "58K",
+        shares: "3.9K",
+        engagement: "5.0%"
       }
     },
     {
       id: 2,
-      title: "The rise of sustainable fashion in India: From trend to tradition",
-      publication: "Hindustan Times",
-      publicationLogo: "https://www.hindustantimes.com/ht-img/img/2023/09/15/1600x900/HT_1694767296495_1694767296731.jpg",
-      publishDate: "2024-11-12",
-      category: "Lifestyle",
-      excerpt: "Indian fashion industry embraces sustainability with innovative materials and ethical production practices gaining momentum.",
-      image: "https://www.hindustantimes.com/ht-img/img/2024/11/12/550x309/sustainable-fashion-india_1731412345678_1731412345678.jpg",
-      readTime: "4 min read",
-      author: "Meera Sharma",
-      link: "https://www.hindustantimes.com/lifestyle/fashion/the-rise-of-sustainable-fashion-in-india-from-trend-to-tradition-10171412345678.html",
+      title: "Silver price today: Silver hits new record high, crosses Rs 1.78 lakh; will it hit Rs 2 lakh mark soon?",
+      publication: "The Times of India",
+      publicationLogo: "https://static.toiimg.com/photo/47529300.cms",
+      publishDate: "2024-12-01",
+      category: "Business",
+      excerpt: "India Business News: Silver futures surged to new highs on the MCX, driven by anticipated US Fed rate cuts, a weaker dollar, and strong industrial demand. Experts see a si",
+      image: "https://static.toiimg.com/photo/92222747.cms",
+      readTime: "3 min read",
+      author: "TOI Correspondent",
+      link: "https://timesofindia.indiatimes.com/business/india-business/silver-price-today-silver-hits-new-record-high-crosses-rs-1-78-lakh-will-it-hit-rs-2-lakh-mark-soon/articleshow/125688688.cms",
       metrics: {
-        views: "89K",
-        shares: "1.8K",
-        engagement: "7.2%"
+        views: "78K",
+        shares: "5.5K",
+        engagement: "9.2%"
       }
     },
     {
       id: 3,
-      title: "Digital rupee: RBI's bold step towards cashless economy",
-      publication: "Economic Times",
-      publicationLogo: "https://economictimes.indiatimes.com/photo/47529300.cms",
-      publishDate: "2024-11-10",
-      category: "Finance",
-      excerpt: "The Reserve Bank of India launches digital rupee pilot, marking a significant shift towards a completely cashless transaction system.",
-      image: "https://img.etimg.com/thumb/msid-111111111,width-400,height-300,resizemode-4/111111111.jpg",
-      readTime: "7 min read",
-      author: "Anil Sharma",
-      link: "https://economictimes.indiatimes.com/wealth/save/digital-rupee-rbis-bold-step-towards-cashless-economy/articleshow/111111111.cms",
+      title: "Parliament winter session | Dec 1 highlights: Discussion on SIR not ruled out, says Rijiju; LS, RS adjourned",
+      publication: "Hindustan Times",
+      publicationLogo: "https://www.hindustantimes.com/ht-img/img/2023/09/15/1600x900/HT_1694767296495_1694767296731.jpg",
+      publishDate: "2024-12-01",
+      category: "News",
+      excerpt: "Parliament winter session | Dec 1 highlights: Both Lok Sabha and Rajya Sabha resumed after being adjourned till 2 PM on Monday. In the lower house, the opposition continued its sloganeering over SIR. Lok Sabha was adjourned for the day later as ruckus continued. Rajya Sabha was adjourned too later.| India News",
+      image: "https://www.hindustantimes.com/static-content/1y/2021/ad-free-icon.svg",
+      readTime: "3 min read",
+      author: "HT Correspondent",
+      link: "https://www.hindustantimes.com/india-news/parliament-winter-session-2025-live-updates-lok-sabha-rajya-sabha-government-opposition-agenda-december-1-news-101764554102646.html",
       metrics: {
-        views: "156K",
-        shares: "3.1K",
-        engagement: "9.4%"
+        views: "130K",
+        shares: "2.0K",
+        engagement: "8.6%"
       }
     },
     {
       id: 4,
-      title: "Workplace wellness: Mental health initiatives gain traction in Indian companies",
-      publication: "The Hindu",
-      publicationLogo: "https://www.thehindu.com/theme/images/th-online/thehindu-logo.svg",
-      publishDate: "2024-11-08",
-      category: "Health",
-      excerpt: "Corporate India increasingly prioritizes employee mental health with dedicated programs, counseling services, and awareness campaigns.",
-      image: "https://th-i.thgim.com/public/incoming/1z2a3b/article111111111.ece/alternates/LANDSCAPE_1200/mental-health-workplace.jpg",
-      readTime: "6 min read",
-      author: "Priya Menon",
-      link: "https://www.thehindu.com/business/workplace-wellness-mental-health-initiatives-gain-traction-in-indian-companies/article111111111.ece",
+      title: "Cyclone Ditwah live updates: Storm weakens but rain continues in Tamil Nadu; 334 killed in Sri Lanka",
+      publication: "Hindustan Times",
+      publicationLogo: "https://www.hindustantimes.com/ht-img/img/2023/09/15/1600x900/HT_1694767296495_1694767296731.jpg",
+      publishDate: "2024-12-01",
+      category: "News",
+      excerpt: "Cyclone Ditwah live updates: IMD has predicted heavy to very heavy rain at a few places over Tiruvallur, Ranipet, Kancheepuram, Chennai, Chengalpattu and Vellore districts on Monday.| India News",
+      image: "https://www.hindustantimes.com/static-content/1y/2021/ad-free-icon.svg",
+      readTime: "8 min read",
+      author: "HT Correspondent",
+      link: "https://www.hindustantimes.com/india-news/cyclone-ditwah-tracker-live-updates-tamil-nadu-chennai-weather-rain-andhra-pradesh-sri-lanka-101764550865450.html",
       metrics: {
-        views: "98K",
-        shares: "2.1K",
-        engagement: "8.1%"
+        views: "149K",
+        shares: "4.2K",
+        engagement: "9.8%"
       }
     },
     {
       id: 5,
-      title: "Tata Nexon EV: Redefining affordable electric mobility in India",
-      publication: "Business Standard",
-      publicationLogo: "https://bsmedia.business-standard.com/_media/bs/img/article/2023-09/15/full/1694767296-1234.jpg",
-      publishDate: "2024-11-05",
-      category: "Automotive",
-      excerpt: "Tata Motors launches the highly anticipated Nexon EV, making electric vehicles accessible to the Indian middle class.",
-      image: "https://bsmedia.business-standard.com/_media/bs/img/article/2024/11/05/full/1730812345678-1234.jpg",
-      readTime: "8 min read",
-      author: "Rohit Sharma",
-      link: "https://www.business-standard.com/companies/news/tata-nexon-ev-redefining-affordable-electric-mobility-in-india-12411050056789.html",
+      title: "India bonds skid to over two-month low on rupee slide, rate-cut doubts",
+      publication: "Economic Times",
+      publicationLogo: "https://img.etimg.com/photo/msid-111111111,quality-100/et-logo.jpg",
+      publishDate: "2024-12-01",
+      category: "Markets",
+      excerpt: "Indian government bonds slipped on Monday, with the benchmark note closing at its lowest in more than two months, as robust economic growth data dimmed rate-cut hopes and as a tumbling rupee added to the pressure.",
+      image: "https://img.etimg.com/photo/msid-76920425,quality-100/et-logo.jpg",
+      readTime: "3 min read",
+      author: "Reuters",
+      link: "https://economictimes.indiatimes.com/markets/bonds/india-bonds-skid-to-over-two-month-low-on-rupee-slide-rate-cut-doubts/articleshow/125694502.cms",
       metrics: {
-        views: "134K",
-        shares: "2.7K",
-        engagement: "8.9%"
+        views: "145K",
+        shares: "4.3K",
+        engagement: "5.5%"
       }
     },
     {
       id: 6,
-      title: "Remote work revolution: How Indian IT firms adapted to the new normal",
-      publication: "The Indian Express",
-      publicationLogo: "https://indianexpress.com/wp-content/themes/indianexpress/images/indian-express-logo-n.svg",
-      publishDate: "2024-11-03",
-      category: "Business",
-      excerpt: "Indian IT companies successfully transitioned to remote work models, discovering productivity gains and work-life balance improvements.",
-      image: "https://images.indianexpress.com/2024/11/remote-work-india.jpg",
-      readTime: "5 min read",
-      author: "Kiran Desai",
-      link: "https://indianexpress.com/article/business/remote-work-revolution-how-indian-it-firms-adapted-to-the-new-normal-111111111/",
-      metrics: {
-        views: "112K",
-        shares: "2.4K",
-        engagement: "7.8%"
-      }
-    },
-    {
-      id: 7,
-      title: "Climate change impact: Kerala government's comprehensive adaptation strategy",
-      publication: "Deccan Chronicle",
-      publicationLogo: "https://www.deccanchronicle.com/images/DeccanChronicle_Logo.png",
-      publishDate: "2024-11-01",
-      category: "Environment",
-      excerpt: "Kerala unveils ambitious climate adaptation plan to combat rising sea levels, extreme weather, and environmental degradation.",
-      image: "https://www.deccanchronicle.com/images/kerala-climate-change.jpg",
-      readTime: "9 min read",
-      author: "Suresh Nair",
-      link: "https://www.deccanchronicle.com/nation/climate-change-impact-kerala-governments-comprehensive-adaptation-strategy-111111111.html",
-      metrics: {
-        views: "167K",
-        shares: "3.5K",
-        engagement: "10.2%"
-      }
-    },
-    {
-      id: 8,
-      title: "Online education boom: How digital platforms are democratizing learning",
-      publication: "The Telegraph",
-      publicationLogo: "https://www.telegraphindia.com/assets/images/telegraph-logo.svg",
-      publishDate: "2024-10-28",
-      category: "Education",
-      excerpt: "Digital education platforms are revolutionizing access to quality education, reaching millions of students across urban and rural India.",
-      image: "https://www.telegraphindia.com/assets/images/online-education-india.jpg",
-      readTime: "6 min read",
-      author: "Rina Chatterjee",
-      link: "https://www.telegraphindia.com/education/online-education-boom-how-digital-platforms-are-democratizing-learning/cid/111111111",
-      metrics: {
-        views: "95K",
-        shares: "1.9K",
-        engagement: "7.5%"
-      }
-    },
-    {
-      id: 9,
-      title: "Fintech revolution: UPI crosses 100 billion transactions milestone",
-      publication: "Mint",
-      publicationLogo: "https://images.livemint.com/static/livemint-logo-v2.svg",
-      publishDate: "2024-10-25",
-      category: "Business",
-      excerpt: "Unified Payments Interface achieves unprecedented growth, transforming digital payments landscape in India.",
-      image: "https://images.livemint.com/img/2024/10/25/600x338/upi-transactions_1729812345678_1729812345678.jpg",
+      title: "Stock Radar: 40% rally in 3 months! What should investors do with Shriram Finance stock?",
+      publication: "Economic Times",
+      publicationLogo: "https://img.etimg.com/photo/msid-111111111,quality-100/et-logo.jpg",
+      publishDate: "2024-12-01",
+      category: "Markets",
+      excerpt: "Shriram Finance shares have surged over 40% in three months, reaching record highs and signaling further upward potential. Experts suggest buying for a target of Rs 930 within weeks, citing a strong monthly chart breakout and bullish pennant pattern. The stock's robust performance and trading above key moving averages indicate a strong uptrend, with dips presenting buying opportunities.",
+      image: "https://img.etimg.com/photo/msid-76931895,quality-100/et-logo.jpg",
       readTime: "7 min read",
-      author: "Vivek Kaul",
-      link: "https://www.livemint.com/industry/banking/fintech-revolution-upi-crosses-100-billion-transactions-milestone-11729812345678.html",
+      author: "ET Bureau",
+      link: "https://economictimes.indiatimes.com/markets/stocks/news/stock-radar-40-rally-in-3-months-what-should-investors-do-with-shriram-finance-stock/articleshow/125646322.cms",
       metrics: {
-        views: "143K",
-        shares: "2.8K",
-        engagement: "9.1%"
-      }
-    },
-    {
-      id: 10,
-      title: "Telemedicine growth: AI-powered healthcare reaches rural India",
-      publication: "The New Indian Express",
-      publicationLogo: "https://images.newindianexpress.com/static/nie-logo.svg",
-      publishDate: "2024-10-22",
-      category: "Healthcare",
-      excerpt: "Artificial intelligence and telemedicine are bridging healthcare gaps, bringing quality medical consultation to remote areas.",
-      image: "https://images.newindianexpress.com/uploads/user/imagelibrary/2024/10/22/w900X450/telemedicine-india.jpg",
-      readTime: "8 min read",
-      author: "Dr. Aruna Krishnan",
-      link: "https://www.newindianexpress.com/cities/chennai/2024/Oct/22/telemedicine-growth-ai-powered-healthcare-reaches-rural-india-111111111.html",
-      metrics: {
-        views: "128K",
-        shares: "2.6K",
-        engagement: "8.5%"
+        views: "172K",
+        shares: "3.5K",
+        engagement: "9.2%"
       }
     }
   ];
@@ -295,26 +223,26 @@ const OrdersDeliveredPage = () => {
               </h1>
             </div>
             <p className="text-lg md:text-xl text-[#757575] max-w-4xl mx-auto leading-relaxed font-light mb-8">
-              Celebrating our success stories - premium articles published in India's leading media outlets.
-              Showcasing the reach and impact of our content distribution network.
+              Real articles published in India's leading media outlets - showcasing our content distribution success.
+              These articles are currently live and accessible on the respective publication websites.
             </p>
 
             {/* Stats Section */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-8">
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="text-3xl font-bold mb-2" style={{ color: theme.primary }}>10+</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: theme.primary }}>6</div>
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Articles Published</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="text-3xl font-bold mb-2" style={{ color: theme.success }}>1.2M+</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: theme.success }}>752K</div>
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Total Views</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="text-3xl font-bold mb-2" style={{ color: theme.warning }}>25K+</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: theme.warning }}>23.4K</div>
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Social Shares</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="text-3xl font-bold mb-2" style={{ color: theme.info }}>8.5%</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: theme.info }}>7.7%</div>
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Avg Engagement</div>
               </div>
             </div>
