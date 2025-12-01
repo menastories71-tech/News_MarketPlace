@@ -92,6 +92,12 @@ const UserHeader = () => {
       icon: "shield-check",
       description: "Legal information and platform policies"
     },
+    {
+      href: "/orders-delivered",
+      text: "Orders Delivered",
+      icon: "check-circle",
+      description: "View our success stories and published articles"
+    },
    
   ];
 

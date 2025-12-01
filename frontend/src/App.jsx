@@ -95,6 +95,7 @@ import PublishedWorkManagement from './components/admin/PublishedWorkManagement'
 import ArticlesPage from './pages/ArticlesPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import ArticleSubmissionPage from './pages/ArticleSubmissionPage';
+import OrdersDeliveredPage from './pages/OrdersDeliveredPage';
 import AiArticleQuestionnairePage from './pages/AiArticleQuestionnairePage';
 import AiArticleGenerationPage from './pages/AiArticleGenerationPage';
 import ExhibitionFormPage from './pages/ExhibitionFormPage';
@@ -334,6 +335,7 @@ function App() {
             <Route path="/published-works/:id" element={<PublishedWorkDetailPage />} />
             <Route path="/articles" element={<ArticlesPage />} />
             <Route path="/articles/:slug" element={<ArticleDetailPage />} />
+            <Route path="/orders-delivered" element={<OrdersDeliveredPage />} />
             <Route path="/careers" element={<CareersPage />} />
             <Route path="/careers/:id" element={<CareerDetailPage />} />
             <Route path="/radio" element={<Radio />} />

@@ -378,17 +378,6 @@ export default function Sidebar({
               </a>
             </li>
 
-            <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/published-works"
-                style={navItemBase}
-                onMouseEnter={e => e.currentTarget.style.background = '#E8F5E8'}
-                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-              >
-                <span style={navIconCircle('#e8f5e8')}><Icon name="folder" size="sm" style={{ color: '#4CAF50' }} /></span>
-                <span>Published Works Management</span>
-              </a>
-            </li>
 
             <li style={{ marginBottom: 10 }}>
               <a
@@ -509,7 +498,6 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/paparazzi-orders" style={{ color: '#212121', textDecoration: 'none' }}>Paparazzi Order Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/theme-orders" style={{ color: '#212121', textDecoration: 'none' }}>Theme Order Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/press-pack-orders" style={{ color: '#212121', textDecoration: 'none' }}>Press Pack Order Management</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/published-works" style={{ color: '#212121', textDecoration: 'none' }}>Published Works Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/radios" style={{ color: '#212121', textDecoration: 'none' }}>Radio Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/real-estates" style={{ color: '#212121', textDecoration: 'none' }}>Real Estate Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/reporters" style={{ color: '#212121', textDecoration: 'none' }}>Reporter Management</a></li>
