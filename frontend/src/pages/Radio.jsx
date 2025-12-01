@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Radio, Search, Filter, Globe, MapPin, User, Grid, List } from 'lucide-react';
+import { Radio, Search, Filter, Globe, MapPin, User, Grid, List, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -39,6 +39,8 @@ const RadioPage = () => {
   const [selectedEmirate, setSelectedEmirate] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -55,6 +57,10 @@ const RadioPage = () => {
   useEffect(() => {
     filterRadios();
   }, [radios, searchQuery, selectedLanguage, selectedEmirate]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredRadios.length]);
 
   const fetchRadios = async () => {
     try {
@@ -100,6 +106,24 @@ const RadioPage = () => {
   const languages = ['all', ...new Set(radios.map(radio => radio.radio_language).filter(Boolean))];
   const emirates = ['all', ...new Set(radios.map(radio => radio.emirate_state).filter(Boolean))];
 
+  // Pagination logic
+  const paginatedRadios = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredRadios.slice(startIndex, endIndex);
+  }, [filteredRadios, currentPage, itemsPerPage]);
+
+  const totalPages = Math.ceil(filteredRadios.length / itemsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const resetPagination = () => {
+    setCurrentPage(1);
+  };
+
   const handleCardClick = (radioId) => {
     navigate(`/radio/${radioId}`);
   };
@@ -107,6 +131,7 @@ const RadioPage = () => {
   const clearAllFilters = () => {
     setSelectedLanguage('all');
     setSelectedEmirate('all');
+    resetPagination();
   };
 
   return (
@@ -270,6 +295,11 @@ const RadioPage = () => {
 
                 <span className="text-sm font-medium text-[#212121]">
                   {filteredRadios.length} radio stations found
+                  {totalPages > 1 && (
+                    <span className="ml-2 text-[#757575]">
+                      (Page {currentPage} of {totalPages})
+                    </span>
+                  )}
                   {searchQuery && (
                     <span className="ml-2 text-[#757575]">
                       for "{searchQuery}"
@@ -300,7 +330,7 @@ const RadioPage = () => {
             <>
               {/* Enhanced Card View */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredRadios.map((radio) => (
+                {paginatedRadios.map((radio) => (
                   <motion.div
                     key={radio.id}
                     initial={{ opacity: 0, y: 20 }}
@@ -346,6 +376,59 @@ const RadioPage = () => {
                 ))}
               </div>
 
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="mt-8 flex justify-center">
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                      className="px-4 py-2 rounded-lg border border-[#E0E0E0] bg-white text-[#212121] hover:bg-[#F5F5F5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    >
+                      <ChevronLeft size={16} />
+                      Previous
+                    </button>
+
+                    {/* Page Numbers */}
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`px-4 py-2 rounded-lg border transition-colors ${
+                            currentPage === pageNum
+                              ? 'bg-[#1976D2] text-white border-[#1976D2]'
+                              : 'border-[#E0E0E0] bg-white text-[#212121] hover:bg-[#F5F5F5]'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                      className="px-4 py-2 rounded-lg border border-[#E0E0E0] bg-white text-[#212121] hover:bg-[#F5F5F5] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    >
+                      Next
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {!loading && !error && filteredRadios.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-lg shadow-lg border" style={{ borderColor: theme.borderLight }}>
                   <div className="w-24 h-24 rounded-full bg-[#F5F5F5] flex items-center justify-center mx-auto mb-6">
@@ -361,6 +444,7 @@ const RadioPage = () => {
                     onClick={() => {
                       setSearchQuery('');
                       clearAllFilters();
+                      resetPagination();
                     }}
                     className="mt-6 bg-[#1976D2] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#0D47A1] transition-colors"
                   >
