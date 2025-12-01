@@ -37,6 +37,7 @@ console.log('Admin Article Submissions Routes loaded:', typeof adminArticleSubmi
 const aiGeneratedArticlesRoutes = require('./src/routes/aiGeneratedArticles');
 const ordersRoutes = require('./src/routes/orders');
 const paparazziOrdersRoutes = require('./src/routes/paparazziOrders');
+const themeOrdersRoutes = require('./src/routes/themeOrders');
 const rolePermissionsRoutes = require('./src/routes/rolePermissions');
 const eventsRoutes = require('./src/routes/events');
 const eventApplicationsRoutes = require('./src/routes/eventApplications');
@@ -168,6 +169,7 @@ app.use('/api/article-submissions', articleSubmissionsRoutes);
 app.use('/api/ai-generated-articles', aiGeneratedArticlesRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/paparazzi-orders', paparazziOrdersRoutes);
+app.use('/api/theme-orders', themeOrdersRoutes);
 app.use('/api/admin/role-permissions', rolePermissionsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/event-applications', eventApplicationsRoutes);

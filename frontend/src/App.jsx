@@ -109,6 +109,7 @@ import MediaPartnerships from './pages/MediaPartnerships';
 import RolePermissionManagement from './components/admin/RolePermissionManagement';
 import OrderManagement from './components/admin/OrderManagement';
 import PaparazziOrderManagement from './components/admin/PaparazziOrderManagement';
+import ThemeOrderManagement from './components/admin/ThemeOrderManagement';
 import Icon from './components/common/Icon';
 
 // Protected Route Component
@@ -705,6 +706,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <PaparazziOrderManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/theme-orders"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <ThemeOrderManagement />
                   </div>
                 </AdminProtectedRoute>
               }
