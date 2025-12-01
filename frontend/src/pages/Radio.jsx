@@ -39,7 +39,6 @@ const RadioPage = () => {
   const [selectedEmirate, setSelectedEmirate] = useState('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -268,29 +267,6 @@ const RadioPage = () => {
                   </button>
                 )}
 
-                {/* View Toggle */}
-                <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
-                  <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'grid'
-                        ? 'bg-white shadow-sm text-[#1976D2]'
-                        : 'text-[#757575] hover:text-[#212121]'
-                    }`}
-                  >
-                    <Grid size={16} />
-                  </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'list'
-                        ? 'bg-white shadow-sm text-[#1976D2]'
-                        : 'text-[#757575] hover:text-[#212121]'
-                    }`}
-                  >
-                    <List size={16} />
-                  </button>
-                </div>
 
                 <span className="text-sm font-medium text-[#212121]">
                   {filteredRadios.length} radio stations found
@@ -322,140 +298,53 @@ const RadioPage = () => {
             </div>
           ) : (
             <>
-              {/* Enhanced Grid View */}
-              {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredRadios.map((radio) => (
-                    <motion.div
-                      key={radio.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4 }}
-                      className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => handleCardClick(radio.id)}
-                    >
-                      <div className="p-6">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="bg-[#1976D2] rounded-full p-3">
-                            <Radio className="w-6 h-6 text-white" />
-                          </div>
-                          <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
-                            {radio.frequency}
-                          </span>
+              {/* Enhanced Card View */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredRadios.map((radio) => (
+                  <motion.div
+                    key={radio.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    whileHover={{ scale: 1.02 }}
+                    className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    onClick={() => handleCardClick(radio.id)}
+                  >
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="bg-[#1976D2] rounded-full p-3">
+                          <Radio className="w-6 h-6 text-white" />
                         </div>
-                        <h3 className="text-xl font-semibold text-[#212121] mb-2 line-clamp-2">
-                          {radio.radio_name}
-                        </h3>
-                        <div className="space-y-2 text-sm text-[#757575]">
-                          <div className="flex items-center gap-2">
-                            <Globe className="w-4 h-4" />
-                            <span>{radio.radio_language}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4" />
-                            <span>{radio.emirate_state}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4" />
-                            <span>{radio.radio_popular_rj}</span>
-                          </div>
+                        <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
+                          {radio.frequency}
+                        </span>
+                      </div>
+                      <h3 className="text-xl font-semibold text-[#212121] mb-3">
+                        {radio.radio_name}
+                      </h3>
+                      <div className="space-y-3 text-sm text-[#757575]">
+                        <div className="flex items-center gap-2">
+                          <Globe className="w-4 h-4 text-[#1976D2]" />
+                          <span className="font-medium">Language:</span> {radio.radio_language}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-[#1976D2]" />
+                          <span className="font-medium">Emirate:</span> {radio.emirate_state}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-[#1976D2]" />
+                          <span className="font-medium">Popular RJ:</span> {radio.radio_popular_rj}
                         </div>
                       </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-
-              {/* Enhanced List View - Table Format */}
-              {viewMode === 'list' && (
-                <div className="bg-white rounded-lg shadow-lg border overflow-hidden" style={{
-                  borderColor: theme.borderLight,
-                  boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
-                }}>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead style={{ backgroundColor: theme.backgroundSoft }}>
-                        <tr>
-                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Radio Station
-                          </th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Frequency
-                          </th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Language
-                          </th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Emirate
-                          </th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Popular RJ
-                          </th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Action
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredRadios.map((radio, index) => (
-                          <tr
-                            key={radio.id}
-                            className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
-                            style={{ borderColor: theme.borderLight }}
-                            onClick={() => handleCardClick(radio.id)}
-                          >
-                            <td className="px-6 py-4">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className="w-10 h-10 rounded-lg flex items-center justify-center"
-                                  style={{ backgroundColor: theme.primaryLight }}
-                                >
-                                  <Radio size={20} style={{ color: theme.primary }} />
-                                </div>
-                                <div>
-                                  <div className="font-semibold" style={{ color: theme.textPrimary }}>
-                                    {radio.radio_name}
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-sm font-medium" style={{ color: theme.primary }}>
-                                {radio.frequency}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {radio.radio_language}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {radio.emirate_state}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {radio.radio_popular_rj}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <button
-                                className="px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors"
-                                style={{ backgroundColor: theme.primary }}
-                                onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
-                                onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
-                              >
-                                View Details
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
+                      <div className="mt-4">
+                        <button className="w-full bg-[#1976D2] text-white py-2 rounded-lg hover:bg-[#1565C0] transition-colors font-medium">
+                          View Details
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
 
               {!loading && !error && filteredRadios.length === 0 && (
                 <div className="text-center py-20 bg-white rounded-lg shadow-lg border" style={{ borderColor: theme.borderLight }}>
