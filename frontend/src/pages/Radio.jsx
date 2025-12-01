@@ -68,6 +68,9 @@ const RadioPage = () => {
       const response = await api.get('/radios');
       let radiosData = response.data.radios || [];
 
+      // Sort by created_at descending to show newest first
+      radiosData.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
       // Client-side search for better results
       if (searchQuery.trim()) {
         const searchLower = searchQuery.toLowerCase().trim();
