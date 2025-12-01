@@ -41,11 +41,11 @@ const HowToGuides = () => {
   const [completedSteps, setCompletedSteps] = useState(new Set());
 
   const categories = [
-    { id: 'all', name: 'All Guides', count: 18 },
-    { id: 'platform', name: 'Platform Usage', count: 6 },
-    { id: 'content', name: 'Content Creation', count: 5 },
-    { id: 'marketing', name: 'Marketing', count: 4 },
-    { id: 'advanced', name: 'Advanced Topics', count: 3 }
+    { id: 'all', name: 'All Guides', count: 3 },
+    { id: 'platform', name: 'Platform Usage', count: 1 },
+    { id: 'content', name: 'Content Creation', count: 1 },
+    { id: 'marketing', name: 'Marketing', count: 1 },
+    { id: 'advanced', name: 'Advanced Topics', count: 0 }
   ];
 
   const guides = [
