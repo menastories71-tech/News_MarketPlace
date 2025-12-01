@@ -13,11 +13,11 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
 // Configure PDF.js worker
-try {
-  pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-} catch (error) {
-  console.warn('Failed to configure PDF worker:', error);
-  pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
+if (typeof window !== 'undefined') {
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url,
+  ).toString();
 }
 
 // Memoized PDF Page Component
@@ -663,7 +663,6 @@ const HowToGuides = () => {
       steps: 7,
       difficulty: 'Beginner',
       lastUpdated: '2 days ago',
-      pdfUrl: '/guides/getting-started.pdf',
       content: [
         { step: 1, title: 'Create Your Account', description: 'Sign up with your email and verify your account.' },
         { step: 2, title: 'Complete Your Profile', description: 'Add your professional information and preferences.' },
@@ -686,7 +685,7 @@ const HowToGuides = () => {
       steps: 10,
       difficulty: 'Intermediate',
       lastUpdated: '1 week ago',
-      pdfUrl: '/guides/writing-articles.pdf',
+      pdfUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
       content: [
         { step: 1, title: 'Choose Your Topic', description: 'Select a newsworthy topic that interests your audience.' },
         { step: 2, title: 'Research Thoroughly', description: 'Gather information from reliable sources and verify facts.' },
