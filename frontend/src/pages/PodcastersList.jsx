@@ -90,47 +90,86 @@ const PodcastersList = () => {
   const fetchPodcasters = async () => {
     try {
       setLoading(true);
-      const params = {
-        page: 1,
-        limit: 50, // Get more for grid display
-      };
+      setError(null);
+      
+      const params = new URLSearchParams({
+        page: '1',
+        limit: '50'
+      });
 
       // Enhanced search across multiple fields
       if (searchQuery.trim()) {
-        params.search = searchQuery.trim();
-        params.podcast_name = searchQuery.trim();
+        params.append('search', searchQuery.trim());
       }
 
-      // Only add category filter if it's a valid industry (not 'all')
-      if (selectedCategory !== 'all' && selectedCategory) {
-        // Check if the selected category is a valid industry from our categories list
-        const validCategory = categories.find(cat => cat.id === selectedCategory);
-        if (validCategory && validCategory.id !== 'all') {
-          params.podcast_focus_industry = selectedCategory;
-        }
+      // Only add category filter if it's not 'all'
+      if (selectedCategory && selectedCategory !== 'all') {
+        // Use the category as industry filter
+        params.append('industry', selectedCategory);
       }
 
-      const response = await api.get('/podcasters/approved', { params });
-      let podcastersData = response.data.podcasters || [];
+      console.log('Fetching podcasters with params:', params.toString());
 
-      // Client-side search for better results (only if we have search query)
-      if (searchQuery.trim()) {
-        const searchLower = searchQuery.toLowerCase().trim();
-        podcastersData = podcastersData.filter(podcaster => {
-          return (
-            podcaster.podcast_name?.toLowerCase().includes(searchLower) ||
-            podcaster.podcast_host?.toLowerCase().includes(searchLower) ||
-            podcaster.podcast_focus_industry?.toLowerCase().includes(searchLower) ||
-            podcaster.podcast_region?.toLowerCase().includes(searchLower)
+      const response = await api.get(`/podcasters/approved?${params.toString()}`);
+      
+      if (response.data && response.data.podcasters) {
+        let podcastersData = response.data.podcasters;
+
+        // Client-side filtering as backup
+        if (selectedCategory && selectedCategory !== 'all') {
+          podcastersData = podcastersData.filter(podcaster => 
+            podcaster.podcast_focus_industry === selectedCategory ||
+            podcaster.podcast_region === selectedCategory
           );
-        });
-      }
+        }
 
-      setPodcasters(podcastersData);
-      setError(null);
+        // Client-side search for better results
+        if (searchQuery.trim()) {
+          const searchLower = searchQuery.toLowerCase().trim();
+          podcastersData = podcastersData.filter(podcaster => {
+            return (
+              podcaster.podcast_name?.toLowerCase().includes(searchLower) ||
+              podcaster.podcast_host?.toLowerCase().includes(searchLower) ||
+              podcaster.podcast_focus_industry?.toLowerCase().includes(searchLower) ||
+              podcaster.podcast_region?.toLowerCase().includes(searchLower) ||
+              podcaster.podcast_target_audience?.toLowerCase().includes(searchLower)
+            );
+          });
+        }
+
+        setPodcasters(podcastersData);
+      } else {
+        setPodcasters([]);
+      }
     } catch (err) {
       console.error('Error fetching podcasters:', err);
-      setError(`Failed to load podcasters: ${err.response?.data?.message || err.message || 'Unknown error'}`);
+      
+      // More detailed error handling
+      let errorMessage = 'Failed to load podcasters';
+      
+      if (err.response) {
+        // Server responded with error status
+        const status = err.response.status;
+        const message = err.response.data?.message || err.response.data?.error;
+        
+        if (status === 500) {
+          errorMessage = 'Server error occurred. Please try again later.';
+        } else if (status === 404) {
+          errorMessage = 'Podcasters endpoint not found.';
+        } else if (message) {
+          errorMessage = message;
+        } else {
+          errorMessage = `Server error (${status}). Please try again.`;
+        }
+      } else if (err.request) {
+        // Network error
+        errorMessage = 'Network error. Please check your connection and try again.';
+      } else {
+        // Other error
+        errorMessage = err.message || 'An unexpected error occurred.';
+      }
+      
+      setError(errorMessage);
       setPodcasters([]); // Clear podcasters on error
     } finally {
       setLoading(false);
@@ -149,37 +188,75 @@ const PodcastersList = () => {
     }
   };
 
-  // Extract unique categories from podcasters
+  // Extract unique categories from podcasters - with error handling
   const categories = React.useMemo(() => {
-    const industries = [...new Set(podcasters.map(p => p.podcast_focus_industry).filter(Boolean))];
-    const regions = [...new Set(podcasters.map(p => p.podcast_region).filter(Boolean))];
+    try {
+      if (!Array.isArray(podcasters) || podcasters.length === 0) {
+        return [{ id: 'all', name: 'All Podcasters', count: 0 }];
+      }
 
-    const cats = [
-      { id: 'all', name: 'All Podcasters', count: podcasters.length },
-    ];
+      const industries = [...new Set(
+        podcasters
+          .map(p => p.podcast_focus_industry)
+          .filter(industry => industry && typeof industry === 'string' && industry.trim() !== '')
+      )].sort();
 
-    industries.forEach(industry => {
-      const count = podcasters.filter(p => p.podcast_focus_industry === industry).length;
-      cats.push({ id: industry, name: industry, count });
-    });
+      const cats = [
+        { id: 'all', name: 'All Podcasters', count: podcasters.length },
+      ];
 
-    return cats;
+      industries.forEach(industry => {
+        const count = podcasters.filter(p => 
+          p.podcast_focus_industry === industry
+        ).length;
+        if (count > 0) {
+          cats.push({ 
+            id: industry, 
+            name: industry, 
+            count 
+          });
+        }
+      });
+
+      return cats;
+    } catch (error) {
+      console.warn('Error processing categories:', error);
+      return [{ id: 'all', name: 'All Podcasters', count: 0 }];
+    }
   }, [podcasters]);
 
   const clearAllFilters = () => {
     setSelectedCategory('all');
+    setSearchQuery('');
   };
 
-  const filteredPodcasters = podcasters.filter(podcaster => {
-    const matchesCategory = selectedCategory === 'all' ||
-      podcaster.podcast_focus_industry === selectedCategory ||
-      podcaster.podcast_region === selectedCategory;
-    const matchesSearch = !searchQuery ||
-      podcaster.podcast_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      podcaster.podcast_host?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      podcaster.podcast_focus_industry?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  const filteredPodcasters = useMemo(() => {
+    try {
+      if (!Array.isArray(podcasters)) {
+        return [];
+      }
+
+      return podcasters.filter(podcaster => {
+        if (!podcaster) return false;
+        
+        const matchesCategory = selectedCategory === 'all' ||
+          podcaster.podcast_focus_industry === selectedCategory ||
+          podcaster.podcast_region === selectedCategory;
+          
+        const matchesSearch = !searchQuery ||
+          podcaster.podcast_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          podcaster.podcast_host?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          podcaster.podcast_focus_industry?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          podcaster.podcast_region?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          podcaster.podcast_target_audience?.toLowerCase().includes(searchQuery.toLowerCase());
+          
+        return matchesCategory && matchesSearch;
+      });
+    } catch (error) {
+      console.warn('Error filtering podcasters:', error);
+      return [];
+    }
+  }, [podcasters, selectedCategory, searchQuery]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -272,8 +349,8 @@ const PodcastersList = () => {
           )}
 
           {/* Categories - only show for approved tab */}
-          {(activeTab === 'approved' || !isAuthenticated) && (
-            <div className="flex flex-wrap gap-3">
+          {(activeTab === 'approved' || !isAuthenticated) && categories.length > 1 && (
+            <div className="flex flex-wrap gap-3 mb-4">
               {categories.map((category) => (
                 <button
                   key={category.id}
@@ -287,6 +364,14 @@ const PodcastersList = () => {
                   {category.name} ({category.count})
                 </button>
               ))}
+              {(selectedCategory !== 'all' || searchQuery) && (
+                <button
+                  onClick={clearAllFilters}
+                  className="px-4 py-2 rounded-lg font-medium transition-colors bg-[#FF9800] text-white hover:bg-[#F57C00]"
+                >
+                  Clear Filters
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -305,7 +390,29 @@ const PodcastersList = () => {
                 </div>
               ) : error ? (
                 <div className="text-center py-12">
-                  <p className="text-[#757575] text-lg">{error}</p>
+                  <div className="mb-4">
+                    <Mic className="w-16 h-16 text-[#F44336] mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#212121] mb-2">Error Loading Podcasters</h3>
+                  <p className="text-[#757575] text-lg mb-6">{error}</p>
+                  <div className="flex gap-4 justify-center">
+                    <button
+                      onClick={() => {
+                        setSelectedCategory('all');
+                        setSearchQuery('');
+                        fetchPodcasters();
+                      }}
+                      className="bg-[#1976D2] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0D47A1] transition-colors"
+                    >
+                      Try Again
+                    </button>
+                    <button
+                      onClick={clearAllFilters}
+                      className="bg-[#F5F5F5] text-[#212121] px-6 py-3 rounded-lg font-semibold hover:bg-[#E0E0E0] transition-colors"
+                    >
+                      Clear Filters
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -412,7 +519,25 @@ const PodcastersList = () => {
                 </div>
               )}
 
-              {!loading && !error && filteredPodcasters.length === 0 && (
+              {!loading && !error && filteredPodcasters.length === 0 && podcasters.length > 0 && (
+                <div className="text-center py-12">
+                  <div className="mb-4">
+                    <Mic className="w-16 h-16 text-[#BDBDBD] mx-auto" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-[#212121] mb-2">No Podcasters Found</h3>
+                  <p className="text-[#757575] text-lg mb-6">
+                    No podcasters match your current filters. Try adjusting your search or category selection.
+                  </p>
+                  <button
+                    onClick={clearAllFilters}
+                    className="bg-[#1976D2] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#0D47A1] transition-colors"
+                  >
+                    Clear All Filters
+                  </button>
+                </div>
+              )}
+
+              {!loading && !error && filteredPodcasters.length === 0 && podcasters.length === 0 && (
                 <div className="text-center py-12">
                   <div className="mb-4">
                     <Mic className="w-16 h-16 text-[#BDBDBD] mx-auto" />
