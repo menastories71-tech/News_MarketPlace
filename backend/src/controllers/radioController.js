@@ -55,10 +55,13 @@ class RadioController {
     try {
       const {
         page = 1,
-        limit = 10,
+        limit, // No default limit - if not specified, fetch all
         group_id,
         radio_name
       } = req.query;
+
+      // If no limit specified, fetch all records (for client-side pagination)
+      const actualLimit = limit ? parseInt(limit) : null;
 
       const filters = {};
       if (group_id) filters.group_id = parseInt(group_id);
@@ -74,8 +77,8 @@ class RadioController {
         searchParamCount++;
       }
 
-      const offset = (page - 1) * limit;
-      const radios = await Radio.findAll(filters, searchSql, searchValues, limit, offset);
+      const offset = actualLimit ? (page - 1) * actualLimit : null;
+      const radios = await Radio.findAll(filters, searchSql, searchValues, actualLimit, offset);
 
       // Get total count for pagination
       let countSql = 'SELECT COUNT(*) as total FROM radios WHERE 1=1';
@@ -100,8 +103,8 @@ class RadioController {
       res.json({
         radios: radios.map(radio => radio.toJSON()),
         pagination: {
-          page: parseInt(page),
-          limit: parseInt(limit),
+          page: actualLimit ? parseInt(page) : 1,
+          limit: actualLimit || total,
           total: total
         }
       });
