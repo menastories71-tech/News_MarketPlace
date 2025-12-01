@@ -86,34 +86,71 @@ PaparazziOrder.prototype.update = async function(updateData) {
 };
 
 // Static methods
-PaparazziOrder.findAll = async function(filters = {}, limit = null, offset = 0) {
-    const whereClause = {};
+PaparazziOrder.findAll = async function(filters = {}, searchSql = '', searchValues = [], limit = null, offset = 0) {
+  const whereClause = {};
 
-    if (filters.status) {
-        whereClause.status = filters.status;
-    }
+  if (filters.status) {
+    whereClause.status = filters.status;
+  }
 
-    const options = {
-        where: whereClause,
-        order: [['created_at', 'DESC']]
-    };
+  const options = {
+    where: whereClause,
+    order: [['created_at', 'DESC']]
+  };
 
-    if (limit) {
-        options.limit = limit;
-        options.offset = offset;
-    }
+  if (limit) {
+    options.limit = limit;
+    options.offset = offset;
+  }
 
-    return await this.findAndCountAll(options);
+  // If we have search SQL, we need to use raw query
+  if (searchSql) {
+    const baseSql = `
+      SELECT *, COUNT(*) OVER() as total_count
+      FROM paparazzi_orders p
+      WHERE 1=1 ${searchSql}
+      ${filters.status ? `AND status = '${filters.status}'` : ''}
+      ORDER BY created_at DESC
+    `;
+
+    const limitSql = limit ? ` LIMIT ${limit} OFFSET ${offset}` : '';
+    const finalSql = baseSql + limitSql;
+
+    const result = await this.sequelize.query(finalSql, {
+      bind: searchValues,
+      type: this.sequelize.QueryTypes.SELECT
+    });
+
+    const total = result.length > 0 ? parseInt(result[0].total_count) : 0;
+    return { rows: result, count: total };
+  }
+
+  return await this.findAndCountAll(options);
 };
 
-PaparazziOrder.getCount = async function(filters = {}) {
-    const whereClause = {};
+PaparazziOrder.getCount = async function(filters = {}, searchSql = '', searchValues = []) {
+  if (searchSql) {
+    const baseSql = `
+      SELECT COUNT(*) as count
+      FROM paparazzi_orders p
+      WHERE 1=1 ${searchSql}
+      ${filters.status ? `AND status = '${filters.status}'` : ''}
+    `;
 
-    if (filters.status) {
-        whereClause.status = filters.status;
-    }
+    const result = await this.sequelize.query(baseSql, {
+      bind: searchValues,
+      type: this.sequelize.QueryTypes.SELECT
+    });
 
-    return await this.count({ where: whereClause });
+    return parseInt(result[0].count);
+  }
+
+  const whereClause = {};
+  if (filters.status) {
+    whereClause.status = filters.status;
+  }
+
+  return await this.count({ where: whereClause });
 };
 
 PaparazziOrder.prototype.toJSON = function() {

@@ -119,14 +119,25 @@ const create = async (req, res) => {
 // Get all paparazzi orders (admin only)
 const getAll = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status } = req.query;
+    const { page = 1, limit = 10, status, search } = req.query;
 
     const filters = {};
     if (status) filters.status = status;
 
+    // Add search filters
+    let searchSql = '';
+    const searchValues = [];
+    let searchParamCount = Object.keys(filters).length + 1;
+
+    if (search) {
+      searchSql += ` AND (paparazzi_name ILIKE $${searchParamCount} OR customer_name ILIKE $${searchParamCount + 1} OR customer_email ILIKE $${searchParamCount + 2})`;
+      searchValues.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      searchParamCount += 3;
+    }
+
     const offset = (page - 1) * limit;
-    const result = await PaparazziOrder.findAll(filters, limit, offset);
-    const total = await PaparazziOrder.getCount(filters);
+    const result = await PaparazziOrder.findAll(filters, limit, offset, searchSql, searchValues);
+    const total = await PaparazziOrder.getCount(filters, searchSql, searchValues);
     const pages = Math.ceil(total / limit);
 
     res.json({
