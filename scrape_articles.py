@@ -51,9 +51,53 @@ class ArticleScraper:
                     meta_desc = article_soup.find('meta', {'name': 'description'})
                     excerpt = meta_desc['content'] if meta_desc else title[:150] + "..."
 
-                    # Get image
-                    img_elem = article_soup.find('img', {'alt': True})
-                    image = img_elem['src'] if img_elem else f"https://static.toiimg.com/photo/{random.randint(100000, 999999)}.cms"
+                    # Get image - look for article hero image or main image
+                    img_elem = None
+
+                    # Try different selectors for article images
+                    selectors = [
+                        'img[data-src]',
+                        'img[src*="photo"]',
+                        'img[alt*="article"]',
+                        '.article-image img',
+                        '.hero-image img',
+                        'figure img',
+                        'img[alt]'
+                    ]
+
+                    for selector in selectors:
+                        if 'img[' in selector:
+                            # CSS selector with attributes
+                            attr_name = selector.split('[')[1].split(']')[0].split('=')[0]
+                            attr_value = selector.split('=')[1].strip('"]') if '=' in selector else None
+
+                            if attr_value:
+                                img_elem = article_soup.find('img', {attr_name: lambda x: x and attr_value in x})
+                            else:
+                                img_elem = article_soup.find('img', {attr_name: True})
+                        else:
+                            # CSS class selector
+                            container = article_soup.select_one(selector)
+                            if container:
+                                img_elem = container if container.name == 'img' else container.find('img')
+
+                        if img_elem:
+                            break
+
+                    if img_elem:
+                        # Try data-src first, then src
+                        image = (img_elem.get('data-src') or
+                                img_elem.get('src', ''))
+
+                        # Make sure it's a full URL
+                        if image and not image.startswith('http'):
+                            image = urljoin(base_url, image)
+
+                        # Skip if it's an icon or logo
+                        if image and any(skip in image.lower() for skip in ['icon', 'logo', 'svg', 'ad-free']):
+                            image = f"https://static.toiimg.com/photo/{random.randint(100000, 999999)}.cms"
+                    else:
+                        image = f"https://static.toiimg.com/photo/{random.randint(100000, 999999)}.cms"
 
                     # Get author
                     author_elem = article_soup.find('a', {'class': 'auth_detail'})
@@ -118,8 +162,53 @@ class ArticleScraper:
                     meta_desc = article_soup.find('meta', {'name': 'description'})
                     excerpt = meta_desc['content'] if meta_desc else title[:150] + "..."
 
-                    img_elem = article_soup.find('img', {'data-src': True}) or article_soup.find('img')
-                    image = img_elem.get('data-src') or img_elem.get('src') if img_elem else f"https://www.hindustantimes.com/ht-img/img/2024/12/01/550x309/default_{random.randint(100000, 999999)}.jpg"
+                    # Get image - look for article hero image or main image
+                    img_elem = None
+
+                    # Try different selectors for article images
+                    selectors = [
+                        'img[data-src]',
+                        'img[src*="ht-img"]',
+                        'img[alt*="article"]',
+                        '.article-image img',
+                        '.hero-image img',
+                        'figure img',
+                        'img[alt]'
+                    ]
+
+                    for selector in selectors:
+                        if 'img[' in selector:
+                            # CSS selector with attributes
+                            attr_name = selector.split('[')[1].split(']')[0].split('=')[0]
+                            attr_value = selector.split('=')[1].strip('"]') if '=' in selector else None
+
+                            if attr_value:
+                                img_elem = article_soup.find('img', {attr_name: lambda x: x and attr_value in x})
+                            else:
+                                img_elem = article_soup.find('img', {attr_name: True})
+                        else:
+                            # CSS class selector
+                            container = article_soup.select_one(selector)
+                            if container:
+                                img_elem = container if container.name == 'img' else container.find('img')
+
+                        if img_elem:
+                            break
+
+                    if img_elem:
+                        # Try data-src first, then src
+                        image = (img_elem.get('data-src') or
+                                img_elem.get('src', ''))
+
+                        # Make sure it's a full URL
+                        if image and not image.startswith('http'):
+                            image = urljoin(base_url, image)
+
+                        # Skip if it's an icon or logo
+                        if image and any(skip in image.lower() for skip in ['icon', 'logo', 'svg', 'ad-free']):
+                            image = f"https://www.hindustantimes.com/ht-img/img/2024/12/01/550x309/default_{random.randint(100000, 999999)}.jpg"
+                    else:
+                        image = f"https://www.hindustantimes.com/ht-img/img/2024/12/01/550x309/default_{random.randint(100000, 999999)}.jpg"
 
                     author_elem = article_soup.find('span', {'class': 'author-name'})
                     author = author_elem.text.strip() if author_elem else "HT Correspondent"
@@ -182,8 +271,53 @@ class ArticleScraper:
                     meta_desc = article_soup.find('meta', {'name': 'description'})
                     excerpt = meta_desc['content'] if meta_desc else title[:150] + "..."
 
-                    img_elem = article_soup.find('img', {'alt': True})
-                    image = img_elem['src'] if img_elem else f"https://img.etimg.com/thumb/msid-{random.randint(100000, 999999)},width-400,height-300,resizemode-4/{random.randint(100000, 999999)}.jpg"
+                    # Get image - look for article hero image or main image
+                    img_elem = None
+
+                    # Try different selectors for article images
+                    selectors = [
+                        'img[data-src]',
+                        'img[src*="etimg"]',
+                        'img[alt*="article"]',
+                        '.article-image img',
+                        '.hero-image img',
+                        'figure img',
+                        'img[alt]'
+                    ]
+
+                    for selector in selectors:
+                        if 'img[' in selector:
+                            # CSS selector with attributes
+                            attr_name = selector.split('[')[1].split(']')[0].split('=')[0]
+                            attr_value = selector.split('=')[1].strip('"]') if '=' in selector else None
+
+                            if attr_value:
+                                img_elem = article_soup.find('img', {attr_name: lambda x: x and attr_value in x})
+                            else:
+                                img_elem = article_soup.find('img', {attr_name: True})
+                        else:
+                            # CSS class selector
+                            container = article_soup.select_one(selector)
+                            if container:
+                                img_elem = container if container.name == 'img' else container.find('img')
+
+                        if img_elem:
+                            break
+
+                    if img_elem:
+                        # Try data-src first, then src
+                        image = (img_elem.get('data-src') or
+                                img_elem.get('src', ''))
+
+                        # Make sure it's a full URL
+                        if image and not image.startswith('http'):
+                            image = urljoin(base_url, image)
+
+                        # Skip if it's an icon or logo
+                        if image and any(skip in image.lower() for skip in ['icon', 'logo', 'svg', 'ad-free']):
+                            image = f"https://img.etimg.com/thumb/msid-{random.randint(100000, 999999)},width-400,height-300,resizemode-4/{random.randint(100000, 999999)}.jpg"
+                    else:
+                        image = f"https://img.etimg.com/thumb/msid-{random.randint(100000, 999999)},width-400,height-300,resizemode-4/{random.randint(100000, 999999)}.jpg"
 
                     author_elem = article_soup.find('span', {'class': 'ag'})
                     author = author_elem.text.strip() if author_elem else "ET Bureau"

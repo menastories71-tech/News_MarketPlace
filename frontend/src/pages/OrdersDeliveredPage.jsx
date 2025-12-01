@@ -67,9 +67,9 @@ const OrdersDeliveredPage = () => {
       author: "TOI Correspondent",
       link: "https://timesofindia.indiatimes.com/business/india-business/black-friday-boost-online-sales-in-india-jump-27-fmcg-beauty-personal-care-leads-growth/articleshow/125691809.cms",
       metrics: {
-        views: "58K",
-        shares: "3.9K",
-        engagement: "5.0%"
+        views: "95K",
+        shares: "1.0K",
+        engagement: "12.6%"
       }
     },
     {
@@ -80,14 +80,14 @@ const OrdersDeliveredPage = () => {
       publishDate: "2024-12-01",
       category: "Business",
       excerpt: "India Business News: Silver futures surged to new highs on the MCX, driven by anticipated US Fed rate cuts, a weaker dollar, and strong industrial demand. Experts see a si",
-      image: "https://static.toiimg.com/photo/92222747.cms",
+      image: "https://static.toiimg.com/photo/63379366.cms",
       readTime: "3 min read",
       author: "TOI Correspondent",
       link: "https://timesofindia.indiatimes.com/business/india-business/silver-price-today-silver-hits-new-record-high-crosses-rs-1-78-lakh-will-it-hit-rs-2-lakh-mark-soon/articleshow/125688688.cms",
       metrics: {
-        views: "78K",
-        shares: "5.5K",
-        engagement: "9.2%"
+        views: "135K",
+        shares: "2.7K",
+        engagement: "12.3%"
       }
     },
     {
@@ -98,14 +98,14 @@ const OrdersDeliveredPage = () => {
       publishDate: "2024-12-01",
       category: "News",
       excerpt: "Parliament winter session | Dec 1 highlights: Both Lok Sabha and Rajya Sabha resumed after being adjourned till 2 PM on Monday. In the lower house, the opposition continued its sloganeering over SIR. Lok Sabha was adjourned for the day later as ruckus continued. Rajya Sabha was adjourned too later.| India News",
-      image: "https://www.hindustantimes.com/static-content/1y/2021/ad-free-icon.svg",
-      readTime: "3 min read",
+      image: "https://www.hindustantimes.com/ht-img/img/2024/12/01/550x309/default_588729.jpg",
+      readTime: "7 min read",
       author: "HT Correspondent",
       link: "https://www.hindustantimes.com/india-news/parliament-winter-session-2025-live-updates-lok-sabha-rajya-sabha-government-opposition-agenda-december-1-news-101764554102646.html",
       metrics: {
-        views: "130K",
-        shares: "2.0K",
-        engagement: "8.6%"
+        views: "137K",
+        shares: "1.2K",
+        engagement: "10.0%"
       }
     },
     {
@@ -116,14 +116,14 @@ const OrdersDeliveredPage = () => {
       publishDate: "2024-12-01",
       category: "News",
       excerpt: "Cyclone Ditwah live updates: IMD has predicted heavy to very heavy rain at a few places over Tiruvallur, Ranipet, Kancheepuram, Chennai, Chengalpattu and Vellore districts on Monday.| India News",
-      image: "https://www.hindustantimes.com/static-content/1y/2021/ad-free-icon.svg",
-      readTime: "8 min read",
+      image: "https://www.hindustantimes.com/ht-img/img/2024/12/01/550x309/default_709191.jpg",
+      readTime: "5 min read",
       author: "HT Correspondent",
       link: "https://www.hindustantimes.com/india-news/cyclone-ditwah-tracker-live-updates-tamil-nadu-chennai-weather-rain-andhra-pradesh-sri-lanka-101764550865450.html",
       metrics: {
-        views: "149K",
-        shares: "4.2K",
-        engagement: "9.8%"
+        views: "50K",
+        shares: "4.3K",
+        engagement: "7.1%"
       }
     },
     {
@@ -134,14 +134,14 @@ const OrdersDeliveredPage = () => {
       publishDate: "2024-12-01",
       category: "Markets",
       excerpt: "Indian government bonds slipped on Monday, with the benchmark note closing at its lowest in more than two months, as robust economic growth data dimmed rate-cut hopes and as a tumbling rupee added to the pressure.",
-      image: "https://img.etimg.com/photo/msid-76920425,quality-100/et-logo.jpg",
-      readTime: "3 min read",
+      image: "https://img.etimg.com/thumb/msid-125694502,width-210,height-158,imgsize-94058,resizemode-75/.jpg",
+      readTime: "8 min read",
       author: "Reuters",
       link: "https://economictimes.indiatimes.com/markets/bonds/india-bonds-skid-to-over-two-month-low-on-rupee-slide-rate-cut-doubts/articleshow/125694502.cms",
       metrics: {
-        views: "145K",
-        shares: "4.3K",
-        engagement: "5.5%"
+        views: "111K",
+        shares: "2.1K",
+        engagement: "5.2%"
       }
     },
     {
@@ -152,14 +152,14 @@ const OrdersDeliveredPage = () => {
       publishDate: "2024-12-01",
       category: "Markets",
       excerpt: "Shriram Finance shares have surged over 40% in three months, reaching record highs and signaling further upward potential. Experts suggest buying for a target of Rs 930 within weeks, citing a strong monthly chart breakout and bullish pennant pattern. The stock's robust performance and trading above key moving averages indicate a strong uptrend, with dips presenting buying opportunities.",
-      image: "https://img.etimg.com/photo/msid-76931895,quality-100/et-logo.jpg",
-      readTime: "7 min read",
+      image: "https://img.etimg.com/thumb/msid-125646322,width-525,height-393,imgsize-56136,resizemode-75/markets/stocks/news/stock-radar-40-rally-in-3-months-what-should-investors-do-with-shriram-finance-stock.jpg",
+      readTime: "8 min read",
       author: "ET Bureau",
       link: "https://economictimes.indiatimes.com/markets/stocks/news/stock-radar-40-rally-in-3-months-what-should-investors-do-with-shriram-finance-stock/articleshow/125646322.cms",
       metrics: {
-        views: "172K",
-        shares: "3.5K",
-        engagement: "9.2%"
+        views: "66K",
+        shares: "1.0K",
+        engagement: "5.5%"
       }
     }
   ];
@@ -234,15 +234,15 @@ const OrdersDeliveredPage = () => {
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Articles Published</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="text-3xl font-bold mb-2" style={{ color: theme.success }}>752K</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: theme.success }}>594K</div>
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Total Views</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="text-3xl font-bold mb-2" style={{ color: theme.warning }}>23.4K</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: theme.warning }}>12.3K</div>
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Social Shares</div>
               </div>
               <div className="bg-white/60 backdrop-blur-sm rounded-lg p-6 border border-white/20">
-                <div className="text-3xl font-bold mb-2" style={{ color: theme.info }}>7.7%</div>
+                <div className="text-3xl font-bold mb-2" style={{ color: theme.info }}>8.8%</div>
                 <div className="text-sm" style={{ color: theme.textSecondary }}>Avg Engagement</div>
               </div>
             </div>
