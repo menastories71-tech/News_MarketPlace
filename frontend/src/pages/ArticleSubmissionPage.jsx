@@ -63,6 +63,7 @@ const ArticleSubmissionPage = () => {
   const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', 'error'
   const [generatedSlug, setGeneratedSlug] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -181,6 +182,7 @@ const ArticleSubmissionPage = () => {
     setSelectedPublication(pub);
     setFormData(prev => ({ ...prev, publication_id: publicationId }));
     setWordLimit(pub?.word_limit || 500);
+    setSearchTerm(pub ? pub.publication_name : '');
 
     if (errors.publication_id) {
       setErrors(prev => ({ ...prev, publication_id: '' }));
@@ -385,33 +387,45 @@ const ArticleSubmissionPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Publication Selection */}
             <div>
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Search publications..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
-                />
-              </div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Publication <span style={{ color: theme.danger }}>*</span>
                 <Icon name="information-circle" size="sm" className="ml-1 inline" title="Select the publication you want to submit to" />
               </label>
-              <select
-                value={formData.publication_id}
-                onChange={(e) => handlePublicationSelect(e.target.value)}
-                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                style={{ borderColor: errors.publication_id ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
-              >
-                <option value="">Select a publication</option>
-                {filteredPublications.map(pub => (
-                  <option key={pub.id} value={pub.id}>
-                    {pub.publication_name} (Word limit: {pub.word_limit || 500})
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search and select a publication..."
+                  value={selectedPublication ? selectedPublication.publication_name : searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    if (selectedPublication) {
+                      setSelectedPublication(null);
+                      setFormData(prev => ({ ...prev, publication_id: '' }));
+                    }
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                  style={{ borderColor: errors.publication_id ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
+                />
+                {showDropdown && !selectedPublication && filteredPublications.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {filteredPublications.map(pub => (
+                      <div
+                        key={pub.id}
+                        className="px-4 py-3 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          handlePublicationSelect(pub.id.toString());
+                          setShowDropdown(false);
+                        }}
+                      >
+                        <div className="font-medium">{pub.publication_name}</div>
+                        <div className="text-sm text-gray-500">Word limit: {pub.word_limit || 500}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               {errors.publication_id && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.publication_id}</div>}
             </div>
 
@@ -454,7 +468,9 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Subtitle
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
+                <span title="Not guaranteed">
+                  <Icon name="information-circle" size="sm" className="ml-1 inline" />
+                </span>
               </label>
               <input
                 type="text"
@@ -471,7 +487,9 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 By Line
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
+                <span title="Not guaranteed">
+                  <Icon name="information-circle" size="sm" className="ml-1 inline" />
+                </span>
               </label>
               <input
                 type="text"
@@ -488,7 +506,9 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Tentative Publish Date
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
+                <span title="Not guaranteed">
+                  <Icon name="information-circle" size="sm" className="ml-1 inline" />
+                </span>
               </label>
               <input
                 type="date"
@@ -531,7 +551,9 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Image 1 <span style={{ color: theme.danger }}>*</span>
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="only landscape mode - portrait mode not allowed. Logos, thumbnail, icons and text in image not allowed. Restrict the size limit to 10 MB" />
+                <span title="only landscape mode - portrait mode not allowed. Logos, thumbnail, icons and text in image not allowed. Restrict the size limit to 10 MB">
+                  <Icon name="information-circle" size="sm" className="ml-1 inline" />
+                </span>
               </label>
               <input
                 type="file"
@@ -551,7 +573,9 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Image 2
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
+                <span title="Not guaranteed">
+                  <Icon name="information-circle" size="sm" className="ml-1 inline" />
+                </span>
               </label>
               <input
                 type="file"
@@ -571,7 +595,9 @@ const ArticleSubmissionPage = () => {
             <div>
               <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                 Website Link
-                <Icon name="information-circle" size="sm" className="ml-1 inline" title="Optional website link" />
+                <span title="Optional website link">
+                  <Icon name="information-circle" size="sm" className="ml-1 inline" />
+                </span>
               </label>
               <input
                 type="url"

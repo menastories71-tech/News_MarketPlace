@@ -30,13 +30,20 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit for images and documents
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    const allowedImageTypes = file.mimetype.startsWith('image/');
+    const allowedDocumentTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ].includes(file.mimetype);
+
+    if (allowedImageTypes || allowedDocumentTypes) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'), false);
+      cb(new Error('Only image files and PDF/Word documents are allowed'), false);
     }
   }
 });
@@ -73,7 +80,8 @@ class ArticleSubmissionController {
     body('facebook_link').optional().isURL().withMessage('Invalid Facebook URL format'),
     body('terms_agreed').optional().isBoolean().withMessage('Terms agreed must be boolean'),
     body('delete_image1').optional().isBoolean().withMessage('Delete image1 must be boolean'),
-    body('delete_image2').optional().isBoolean().withMessage('Delete image2 must be boolean')
+    body('delete_image2').optional().isBoolean().withMessage('Delete image2 must be boolean'),
+    body('delete_document').optional().isBoolean().withMessage('Delete document must be boolean')
   ];
 
   // Create a new article submission (user or admin)
@@ -136,9 +144,10 @@ class ArticleSubmissionController {
         });
       }
 
-      // Handle image uploads to S3
+      // Handle file uploads to S3
       let image1 = null;
       let image2 = null;
+      let document = null;
 
       if (req.files && req.files.image1 && req.files.image1[0]) {
         const file = req.files.image1[0];
@@ -168,6 +177,19 @@ class ArticleSubmissionController {
         }
       }
 
+      if (req.files && req.files.document && req.files.document[0]) {
+        const file = req.files.document[0];
+        const s3Key = s3Service.generateKey('article-submissions', 'document', file.originalname);
+        const contentType = s3Service.getContentType(file.originalname);
+
+        try {
+          document = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+        } catch (uploadError) {
+          console.error('Failed to upload document to S3:', uploadError);
+          throw new Error('Failed to upload document');
+        }
+      }
+
       const submissionData = {
         user_id: userId,
         publication_id,
@@ -178,6 +200,7 @@ class ArticleSubmissionController {
         article_text,
         image1,
         image2,
+        document,
         website_link,
         instagram_link,
         facebook_link,
@@ -314,8 +337,48 @@ class ArticleSubmissionController {
 
       const updateData = { ...req.body };
 
-      // Handle image uploads and deletions
-      const { delete_image1, delete_image2 } = req.body;
+      // Handle file uploads and deletions
+      const { delete_image1, delete_image2, delete_document } = req.body;
+
+      // Handle document
+      if (req.files && req.files.document && req.files.document[0]) {
+        // New document uploaded - delete old one if exists
+        if (submission.document) {
+          try {
+            const s3Key = s3Service.extractKeyFromUrl(submission.document);
+            if (s3Key) {
+              await s3Service.deleteFile(s3Key);
+            }
+          } catch (deleteError) {
+            console.error('Failed to delete old document from S3:', deleteError);
+            // Continue with the update even if old document deletion fails
+          }
+        }
+        const file = req.files.document[0];
+        const s3Key = s3Service.generateKey('article-submissions', 'document', file.originalname);
+        const contentType = s3Service.getContentType(file.originalname);
+
+        try {
+          updateData.document = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+        } catch (uploadError) {
+          console.error('Failed to upload new document to S3:', uploadError);
+          throw new Error('Failed to upload document');
+        }
+      } else if (delete_document === 'true' || delete_document === true) {
+        // Explicitly delete document
+        if (submission.document) {
+          try {
+            const s3Key = s3Service.extractKeyFromUrl(submission.document);
+            if (s3Key) {
+              await s3Service.deleteFile(s3Key);
+            }
+          } catch (deleteError) {
+            console.error('Failed to delete document from S3:', deleteError);
+            // Continue with the update even if deletion fails
+          }
+        }
+        updateData.document = null;
+      }
 
       // Handle image1
       if (req.files && req.files.image1 && req.files.image1[0]) {
@@ -400,6 +463,7 @@ class ArticleSubmissionController {
       // Remove delete flags from update data
       delete updateData.delete_image1;
       delete updateData.delete_image2;
+      delete updateData.delete_document;
 
       // Validate word count if article_text is being updated
       if (updateData.article_text) {
@@ -447,12 +511,15 @@ class ArticleSubmissionController {
         return res.status(404).json({ error: 'Article submission not found' });
       }
 
-      // Delete associated images from S3
+      // Delete associated files from S3
       if (submission.image1) {
         await deleteImageFile(submission.image1);
       }
       if (submission.image2) {
         await deleteImageFile(submission.image2);
+      }
+      if (submission.document) {
+        await deleteImageFile(submission.document);
       }
 
       await submission.delete();
@@ -872,6 +939,128 @@ class ArticleSubmissionController {
     // This would need to be implemented in the model
     // For now, return approximate count
     return 10; // TODO: Implement proper count
+  }
+
+  // Create a manual article (admin only)
+  async createManualArticle(req, res) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: errors.array()
+        });
+      }
+
+      const {
+        user_id,
+        publication_id,
+        title,
+        sub_title,
+        by_line,
+        tentative_publish_date,
+        article_text,
+        website_link,
+        instagram_link,
+        facebook_link
+      } = req.body;
+
+      // Get publication to check word limit
+      const publication = await Publication.findById(publication_id);
+      if (!publication) {
+        return res.status(404).json({ error: 'Publication not found' });
+      }
+
+      // Validate title: <= 12 words, no special characters
+      const titleWords = title.trim().split(/\s+/);
+      if (titleWords.length > 12) {
+        return res.status(400).json({ error: 'Title must be 12 words or less' });
+      }
+      const specialCharsRegex = /[^a-zA-Z0-9\s]/;
+      if (specialCharsRegex.test(title)) {
+        return res.status(400).json({ error: 'Title cannot contain special characters' });
+      }
+
+      // Validate article text word count <= publication word_limit
+      const articleWords = article_text.trim().split(/\s+/).length;
+      if (articleWords > publication.word_limit) {
+        return res.status(400).json({
+          error: `Article text exceeds word limit of ${publication.word_limit} words`
+        });
+      }
+
+      // Handle file uploads to S3
+      let image1 = null;
+      let image2 = null;
+      let document = null;
+
+      if (req.files && req.files.image1 && req.files.image1[0]) {
+        const file = req.files.image1[0];
+        const s3Key = s3Service.generateKey('articles', 'image1', file.originalname);
+        const contentType = s3Service.getContentType(file.originalname);
+
+        try {
+          image1 = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+        } catch (uploadError) {
+          console.error('Failed to upload image1 to S3:', uploadError);
+          throw new Error('Failed to upload image1');
+        }
+      }
+
+      if (req.files && req.files.image2 && req.files.image2[0]) {
+        const file = req.files.image2[0];
+        const s3Key = s3Service.generateKey('articles', 'image2', file.originalname);
+        const contentType = s3Service.getContentType(file.originalname);
+
+        try {
+          image2 = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+        } catch (uploadError) {
+          console.error('Failed to upload image2 to S3:', uploadError);
+          throw new Error('Failed to upload image2');
+        }
+      }
+
+      if (req.files && req.files.document && req.files.document[0]) {
+        const file = req.files.document[0];
+        const s3Key = s3Service.generateKey('articles', 'document', file.originalname);
+        const contentType = s3Service.getContentType(file.originalname);
+
+        try {
+          document = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+        } catch (uploadError) {
+          console.error('Failed to upload document to S3:', uploadError);
+          throw new Error('Failed to upload document');
+        }
+      }
+
+      const articleData = {
+        user_id,
+        publication_id,
+        title,
+        sub_title,
+        by_line,
+        tentative_publish_date,
+        article_text,
+        image1,
+        image2,
+        document,
+        website_link,
+        instagram_link,
+        facebook_link,
+        terms_agreed: true, // Manual articles are approved
+        status: 'approved' // Directly approved
+      };
+
+      const article = await ArticleSubmission.create(articleData);
+
+      res.status(201).json({
+        message: 'Manual article created successfully',
+        article: article.toJSON()
+      });
+    } catch (error) {
+      console.error('Create manual article error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
 
   // Helper method to get approved count

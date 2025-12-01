@@ -11,13 +11,20 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit for images and documents
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    const allowedImageTypes = file.mimetype.startsWith('image/');
+    const allowedDocumentTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ].includes(file.mimetype);
+
+    if (allowedImageTypes || allowedDocumentTypes) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'), false);
+      cb(new Error('Only image files and PDF/Word documents are allowed'), false);
     }
   }
 });
@@ -34,7 +41,8 @@ router.post('/',
   verifyToken,
   upload.fields([
     { name: 'image1', maxCount: 1 },
-    { name: 'image2', maxCount: 1 }
+    { name: 'image2', maxCount: 1 },
+    { name: 'document', maxCount: 1 }
   ]),
   articleSubmissionController.createValidation,
   articleSubmissionController.createSubmission

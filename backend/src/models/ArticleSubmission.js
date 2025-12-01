@@ -47,6 +47,7 @@ class ArticleSubmission {
     this.article_text = data.article_text;
     this.image1 = data.image1;
     this.image2 = data.image2;
+    this.document = data.document;
     this.website_link = data.website_link;
     this.instagram_link = data.instagram_link;
     this.facebook_link = data.facebook_link;
@@ -68,6 +69,7 @@ class ArticleSubmission {
       article_text,
       image1,
       image2,
+      document,
       website_link,
       instagram_link,
       facebook_link,
@@ -80,14 +82,14 @@ class ArticleSubmission {
     const sql = `
       INSERT INTO article_submissions (
         user_id, publication_id, title, slug, sub_title, by_line, tentative_publish_date,
-        article_text, image1, image2, website_link, instagram_link, facebook_link, terms_agreed
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+        article_text, image1, image2, document, website_link, instagram_link, facebook_link, terms_agreed
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *
     `;
 
     const values = [
       user_id, publication_id, title, slug, sub_title, by_line, tentative_publish_date,
-      article_text, image1, image2, website_link, instagram_link, facebook_link, terms_agreed || false
+      article_text, image1, image2, document, website_link, instagram_link, facebook_link, terms_agreed || false
     ];
 
     const result = await query(sql, values);
@@ -315,6 +317,7 @@ class ArticleSubmission {
       article_text: this.article_text,
       image1: this.image1,
       image2: this.image2,
+      document: this.document,
       website_link: this.website_link,
       instagram_link: this.instagram_link,
       facebook_link: this.facebook_link,

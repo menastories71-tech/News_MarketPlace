@@ -7,31 +7,26 @@ const fs = require('fs');
 
 console.log('Admin Article Submissions routes file loaded - FULL VERSION');
 
-// Configure multer for image uploads (same as in controller)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../uploads/article-submissions');
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, 'article-submission-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
+// Configure multer for file uploads (using memory storage for S3)
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit for images and documents
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    const allowedImageTypes = file.mimetype.startsWith('image/');
+    const allowedDocumentTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ].includes(file.mimetype);
+
+    if (allowedImageTypes || allowedDocumentTypes) {
       cb(null, true);
     } else {
-      cb(new Error('Only image files are allowed'), false);
+      cb(new Error('Only image files and PDF/Word documents are allowed'), false);
     }
   }
 });
@@ -70,7 +65,8 @@ router.put('/:id',
   requireAdminPermission('manage_publications'),
   upload.fields([
     { name: 'image1', maxCount: 1 },
-    { name: 'image2', maxCount: 1 }
+    { name: 'image2', maxCount: 1 },
+    { name: 'document', maxCount: 1 }
   ]),
   articleSubmissionController.updateValidation,
   articleSubmissionController.updateSubmission
@@ -95,6 +91,20 @@ router.put('/:id/reject',
   requireAdminPanelAccess,
   requireAdminPermission('approve_publications'),
   articleSubmissionController.rejectSubmission
+);
+
+// Create manual article (admin only)
+router.post('/manual',
+  verifyAdminToken,
+  requireAdminPanelAccess,
+  requireAdminPermission('manage_publications'),
+  upload.fields([
+    { name: 'image1', maxCount: 1 },
+    { name: 'image2', maxCount: 1 },
+    { name: 'document', maxCount: 1 }
+  ]),
+  articleSubmissionController.createValidation,
+  articleSubmissionController.createManualArticle
 );
 
 module.exports = router;
