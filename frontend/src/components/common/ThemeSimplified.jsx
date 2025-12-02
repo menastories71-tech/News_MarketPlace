@@ -25,11 +25,7 @@ const ThemeSimplified = () => {
             {themeTitle}
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Explore our collection of themes for your publications.<br />
-            Content find the perfect design for your needs.<br />
-            Customize your media presence with professional themes.<br />
-            Enhance your brand identity through visual storytelling.<br />
-            Access diverse templates for various content types.
+            Explore our collection of themes for your publications and content. Find the perfect design for your needs. Customize your media presence with professional themes. Enhance your brand identity through visual storytelling. Access diverse templates for various content types.
           </p>
           <div className="mt-8 md:mt-10 flex justify-center space-x-4 md:space-x-6">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>

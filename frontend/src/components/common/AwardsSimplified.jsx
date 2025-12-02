@@ -25,11 +25,7 @@ const AwardsSimplified = () => {
             {awardsTitle}
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Celebrating our achievements and recognition in digital.<br />
-            Publishing and media innovation worldwide.<br />
-            Honoring excellence in journalism and content creation.<br />
-            Connecting with industry leaders and visionaries.<br />
-            Showcasing our commitment to quality and innovation.
+            Celebrating our achievements and recognition in digital publishing and media innovation worldwide. Honoring excellence in journalism and content creation. Connecting with industry leaders and visionaries. Showcasing our commitment to quality and innovation.
           </p>
           <div className="mt-8 md:mt-10 flex justify-center space-x-4 md:space-x-6">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>

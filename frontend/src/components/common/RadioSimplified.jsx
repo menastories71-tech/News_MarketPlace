@@ -25,11 +25,7 @@ const RadioSimplified = () => {
             {radioTitle}
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Explore our radio programs and connect with broadcasting.<br />
-            Network access live shows, interviews, and discussions.<br />
-            Discover diverse content and entertainment options.<br />
-            Connect with hosts and participate in live broadcasts.<br />
-            Enhance your media presence through our radio network.
+            Explore our radio programs and connect with broadcasting network. Access live shows, interviews, and discussions. Discover diverse content and entertainment options. Connect with hosts and participate in live broadcasts. Enhance your media presence through our radio network.
           </p>
           <div className="mt-8 md:mt-10 flex justify-center space-x-4 md:space-x-6">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>

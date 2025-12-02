@@ -25,11 +25,7 @@ const PaparazziSimplified = () => {
             {paparazziTitle}
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Connect with professional paparazzi across social media platforms.<br />
-            Find the perfect photographer for your content needs.<br />
-            Access high-quality visual content and photography services.<br />
-            Connect with influencers and content creators worldwide.<br />
-            Enhance your brand with professional media coverage.
+            Connect with professional paparazzi across social media platforms. Find the perfect photographer for your content needs. Access high-quality visual content and photography services. Connect with influencers and content creators worldwide. Enhance your brand with professional media coverage.
           </p>
           <div className="mt-8 md:mt-10 flex justify-center space-x-4 md:space-x-6">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>

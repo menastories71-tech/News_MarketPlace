@@ -25,11 +25,7 @@ const PowerListSimplified = () => {
             {powerListTitle}
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Celebrating the most influential organizations and leaders.<br />
-            Shaping the media and publishing landscape worldwide.<br />
-            Recognizing excellence in digital publishing innovation.<br />
-            Connecting with industry leaders and visionaries.<br />
-            Showcasing achievements in media and journalism.
+            Celebrating the most influential organizations and leaders shaping the media and publishing landscape worldwide. Recognizing excellence in digital publishing innovation. Connecting with industry leaders and visionaries. Showcasing achievements in media and journalism.
           </p>
           <div className="mt-8 md:mt-10 flex justify-center space-x-4 md:space-x-6">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>
