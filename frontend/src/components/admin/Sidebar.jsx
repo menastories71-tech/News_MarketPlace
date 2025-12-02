@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Icon from '../common/Icon';
 
 export default function Sidebar({
@@ -42,6 +42,8 @@ export default function Sidebar({
   const statTile = { flex: 1, background: '#FAFAFA', padding: 12, borderRadius: 10, textAlign: 'center', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.6)' };
   const navItemBase = { display: 'flex', alignItems: 'center', gap: 12, color: '#212121', textDecoration: 'none', padding: '10px 12px', borderRadius: 10, transition: 'background 140ms, transform 140ms', cursor: 'pointer' };
   const navIconCircle = (bg) => ({ width: 36, height: 36, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center' });
+
+  const [powerlistDropdownOpen, setPowerlistDropdownOpen] = useState(false);
 
   // compute desktop fixed styles so sidebar sticks to viewport left (matches screenshot)
   const desktopFixedStyles = {
@@ -295,15 +297,44 @@ export default function Sidebar({
             </li>
 
             <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/power-lists"
+              <div
                 style={navItemBase}
+                onClick={() => setPowerlistDropdownOpen(!powerlistDropdownOpen)}
                 onMouseEnter={e => e.currentTarget.style.background = '#FFF8E1'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={navIconCircle('#fff8e1')}><Icon name="star" size="sm" style={{ color: '#FF9800' }} /></span>
-                <span>Power Lists</span>
-              </a>
+                <span>Powerlist</span>
+                <span style={{ marginLeft: 'auto', transform: powerlistDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <Icon name="chevron-down" size="sm" style={{ color: '#FF9800' }} />
+                </span>
+              </div>
+              {powerlistDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/power-lists"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FFF8E1'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fff8e1')}><Icon name="shopping-cart" size="sm" style={{ color: '#FF9800' }} /></span>
+                      <span>Add to Cart</span>
+                    </a>
+                  </li>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/powerlist-management"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FFF8E1'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fff8e1')}><Icon name="cog" size="sm" style={{ color: '#FF9800' }} /></span>
+                      <span>Powerlist Management</span>
+                    </a>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li style={{ marginBottom: 10 }}>
@@ -491,7 +522,15 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/groups" style={{ color: '#212121', textDecoration: 'none' }}>Group Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/paparazzi" style={{ color: '#212121', textDecoration: 'none' }}>Paparazzi Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/podcasters" style={{ color: '#212121', textDecoration: 'none' }}>Podcaster Management</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/power-lists" style={{ color: '#212121', textDecoration: 'none' }}>Power Lists</a></li>
+            <li style={{ marginBottom: 12 }}>
+              <div onClick={() => setPowerlistDropdownOpen(!powerlistDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Powerlist</div>
+              {powerlistDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/power-lists" style={{ color: '#212121', textDecoration: 'none' }}>Add to Cart</a></li>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/powerlist-management" style={{ color: '#212121', textDecoration: 'none' }}>Powerlist Management</a></li>
+                </ul>
+              )}
+            </li>
             <li style={{ marginBottom: 12 }}><a href="/admin/press-packs" style={{ color: '#212121', textDecoration: 'none' }}>Press Pack Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/publications" style={{ color: '#212121', textDecoration: 'none' }}>Publications</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/orders" style={{ color: '#212121', textDecoration: 'none' }}>Order Management</a></li>
