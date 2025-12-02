@@ -12,7 +12,7 @@ const AwardsSimplified = () => {
   const viewAwardsText = useTranslatedText('View Awards');
 
   return (
-    <section className="py-8 bg-[#E3F2FD] relative overflow-hidden">
+    <section className="py-4 bg-[#E3F2FD] relative overflow-hidden">
       {/* Background Decorative Elements */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-[#1976D2]/10 rounded-full blur-2xl"></div>
       <div className="absolute bottom-20 right-10 w-40 h-40 bg-[#FFFFFF]/20 rounded-full blur-2xl"></div>
@@ -20,7 +20,7 @@ const AwardsSimplified = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Hero Section */}
-        <div className="text-center mb-20">
+        <div className="text-center mb-8 md:mb-12 lg:mb-16">
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-[#212121] mb-6 md:mb-8 leading-tight tracking-tight">
             {awardsTitle}
           </h1>
@@ -35,7 +35,7 @@ const AwardsSimplified = () => {
         </div>
 
         {/* Different Card with Button */}
-        <div className="text-center mb-24">
+        <div className="text-center mb-12">
           <div className="bg-[#FFFFFF] rounded-3xl p-8 md:p-12 lg:p-16 shadow-2xl border border-[#E0E0E0] relative overflow-hidden max-w-2xl mx-auto">
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#E3F2FD]/40 to-transparent"></div>
             <div className="relative z-10">
