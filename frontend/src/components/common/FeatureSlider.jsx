@@ -95,7 +95,7 @@ const FeatureSlider = () => {
   }, []);
 
   return (
-    <section className="relative overflow-hidden">
+    <section className="pb-4 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
@@ -105,7 +105,6 @@ const FeatureSlider = () => {
 
       {/* Decorative Elements */}
       <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-[#E3F2FD] to-[#E0F2F1] rounded-full opacity-20 blur-xl"></div>
-      <div className="absolute bottom-10 right-10 w-32 h-32 bg-gradient-to-br from-[#E3F2FD] to-[#9C27B0] rounded-full opacity-20 blur-xl"></div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="relative">
