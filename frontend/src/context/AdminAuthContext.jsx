@@ -25,19 +25,39 @@ export const AdminAuthProvider = ({ children }) => {
           const response = await api.get('/admin/auth/profile');
           setAdmin(response.data.admin);
           setIsAuthenticated(true);
+          console.log('Admin authentication successful:', response.data.admin);
         } catch (error) {
           console.error('Admin auth check failed:', error);
+          
+          // Clear invalid token
           localStorage.removeItem('adminAccessToken');
           setAdmin(null);
           setIsAuthenticated(false);
-          // If token is invalid, redirect to login
+          
+          // Provide user feedback for authentication failure
+          if (error.response?.status === 401) {
+            console.log('Admin token expired or invalid');
+          } else if (error.response?.status === 403) {
+            console.log('Admin access forbidden - insufficient permissions');
+          } else {
+            console.log('Admin authentication error:', error.response?.data?.error || error.message);
+          }
+          
+          // If token is invalid, redirect to login for admin pages
           if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+            console.log('Redirecting to admin login due to authentication failure');
             window.location.href = '/admin/login';
           }
         }
       } else {
-        // No token, redirect to login if on admin pages
+        // No token found
+        console.log('No admin access token found');
+        setAdmin(null);
+        setIsAuthenticated(false);
+        
+        // Redirect to login if on admin pages
         if (window.location.pathname.startsWith('/admin') && window.location.pathname !== '/admin/login') {
+          console.log('Redirecting to admin login - no token');
           window.location.href = '/admin/login';
         }
       }
@@ -50,17 +70,32 @@ export const AdminAuthProvider = ({ children }) => {
   // Login admin
   const login = async (email, password) => {
     try {
+      console.log('Attempting admin login for:', email);
       const response = await api.post('/admin/auth/login', { email, password });
       const { tokens, admin: adminData } = response.data;
       const { accessToken } = tokens;
 
+      // Store token
       localStorage.setItem('adminAccessToken', accessToken);
       setAdmin(adminData);
       setIsAuthenticated(true);
 
+      console.log('Admin login successful:', adminData);
       return response.data;
     } catch (error) {
-      throw error.response?.data?.error || 'Login failed';
+      console.error('Admin login failed:', error);
+      
+      // Clear any existing token on failed login
+      localStorage.removeItem('adminAccessToken');
+      setAdmin(null);
+      setIsAuthenticated(false);
+      
+      // Extract meaningful error message
+      const errorMessage = error.response?.data?.error || 
+                          error.message || 
+                          'Login failed. Please check your credentials.';
+      
+      throw new Error(errorMessage);
     }
   };
 

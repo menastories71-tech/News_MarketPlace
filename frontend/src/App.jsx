@@ -502,6 +502,16 @@ function App() {
               }
             />
             <Route
+              path="/admin/powerlist-management"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PowerlistManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
               path="/admin/awards"
               element={
                 <AdminProtectedRoute>

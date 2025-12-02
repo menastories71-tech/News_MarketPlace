@@ -35,6 +35,8 @@ const publishedWorksRoutes = require('./src/routes/publishedWorks');
 const articleSubmissionsRoutes = require('./src/routes/articleSubmissions');
 const adminArticleSubmissionsRoutes = require('./src/routes/adminArticleSubmissions');
 console.log('Admin Article Submissions Routes loaded:', typeof adminArticleSubmissionsRoutes);
+const adminPowerlistManagementRoutes = require('./src/routes/adminPowerlistManagement');
+console.log('Admin Powerlist Management Routes loaded:', typeof adminPowerlistManagementRoutes);
 const aiGeneratedArticlesRoutes = require('./src/routes/aiGeneratedArticles');
 const ordersRoutes = require('./src/routes/orders');
 const paparazziOrdersRoutes = require('./src/routes/paparazziOrders');
@@ -146,6 +148,8 @@ app.get('/test-admin-routes', (req, res) => {
 
 console.log('Mounting admin article submissions at /api/admin/article-submissions');
 app.use('/api/admin/article-submissions', adminArticleSubmissionsRoutes);
+console.log('Mounting admin powerlist management at /api/admin/powerlist-management');
+app.use('/api/admin/powerlist-management', adminPowerlistManagementRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/publications', publicationRoutes);

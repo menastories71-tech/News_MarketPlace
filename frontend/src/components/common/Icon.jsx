@@ -351,6 +351,30 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         </svg>
       );
 
+    case 'chevron-down':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M6 9l6 6 6-6" />
+        </svg>
+      );
+
+    case 'shopping-cart':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+        </svg>
+      );
+
+    case 'cog':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      );
+
     case 'arrow-right':
       return (
         <svg {...common} className={className} style={style} {...rest}>
