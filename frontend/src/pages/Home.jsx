@@ -6,9 +6,15 @@ import UserHeader from '../components/common/UserHeader';
 import FloatingLines from '../components/common/FloatingLines';
 import FeatureSlider from '../components/common/FeatureSlider';
 import Articles from '../components/common/Articles';
-import About from '../components/common/About';
-import PowerList from '../components/common/PowerList';
-import Awards from '../components/common/Awards';
+import AboutSimplified from '../components/common/AboutSimplified';
+import PublicationsSimplified from '../components/common/PublicationsSimplified';
+import PaparazziSimplified from '../components/common/PaparazziSimplified';
+import EventsSimplified from '../components/common/EventsSimplified';
+import RadioSimplified from '../components/common/RadioSimplified';
+import ThemeSimplified from '../components/common/ThemeSimplified';
+import RealEstateSimplified from '../components/common/RealEstateSimplified';
+import PowerListSimplified from '../components/common/PowerListSimplified';
+import AwardsSimplified from '../components/common/AwardsSimplified';
 import FAQ from './FAQ';
 import UserFooter from '../components/common/UserFooter';
 import AuthModal from '../components/auth/AuthModal';
@@ -88,13 +94,31 @@ const Home = () => {
         {/* <Articles /> */}
 
         {/* About Section */}
-        <About />
+        <AboutSimplified />
+
+        {/* Publications Section */}
+        <PublicationsSimplified />
+
+        {/* Paparazzi Section */}
+        <PaparazziSimplified />
+
+        {/* Events Section */}
+        <EventsSimplified />
+
+        {/* Radio Section */}
+        <RadioSimplified />
+
+        {/* Theme Section */}
+        <ThemeSimplified />
+
+        {/* Real Estate Section */}
+        <RealEstateSimplified />
 
         {/* Power List Section */}
-        <PowerList />
+        <PowerListSimplified />
 
         {/* Awards Section */}
-        <Awards />
+        <AwardsSimplified />
 
         {/* FAQ Section */}
         <FAQ />

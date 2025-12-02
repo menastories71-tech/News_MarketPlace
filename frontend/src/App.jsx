@@ -49,6 +49,13 @@ import RadioDetails from './pages/RadioDetails';
 import Paparazzi from './pages/Paparazzi';
 import PaparazziDetailPage from './pages/PaparazziDetailPage';
 import PaparazziSubmissionPage from './pages/PaparazziSubmissionPage';
+import PublicationsPageSimplified from './pages/PublicationsPageSimplified';
+import PaparazziSimplified from './pages/PaparazziSimplified';
+import EventsSimplified from './pages/EventsSimplified';
+import RadioSimplified from './pages/RadioSimplified';
+import ThemeSimplified from './pages/ThemeSimplified';
+import RealEstateSimplified from './pages/RealEstateSimplified';
+import PowerListSimplified from './pages/PowerListSimplified';
 import UserProfile from './pages/UserProfile';
 import AgencyRegistrationPage from './pages/AgencyRegistrationPage';
 import ReporterRegistrationPage from './pages/ReporterRegistrationPage';
@@ -338,6 +345,13 @@ function App() {
             <Route path="/radio/:id" element={<RadioDetails />} />
             <Route path="/paparazzi" element={<Paparazzi />} />
             <Route path="/paparazzi/:id" element={<PaparazziDetailPage />} />
+            <Route path="/publications-simplified" element={<PublicationsPageSimplified />} />
+            <Route path="/paparazzi-simplified" element={<PaparazziSimplified />} />
+            <Route path="/events-simplified" element={<EventsSimplified />} />
+            <Route path="/radio-simplified" element={<RadioSimplified />} />
+            <Route path="/theme-simplified" element={<ThemeSimplified />} />
+            <Route path="/real-estate-simplified" element={<RealEstateSimplified />} />
+            <Route path="/power-list-simplified" element={<PowerListSimplified />} />
             <Route
               path="/paparazzi/submit"
               element={
