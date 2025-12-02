@@ -454,7 +454,7 @@ const UserHeader = () => {
 
         {/* Article Submission Popup */}
         {showArticleSubmissionPopup && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={() => setShowArticleSubmissionPopup(false)}>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4" onClick={() => setShowArticleSubmissionPopup(false)}>
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
