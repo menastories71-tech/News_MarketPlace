@@ -82,7 +82,7 @@ const Home = () => {
         <UserHeader onShowAuth={handleShowAuth} />
         <TopHeader />
         <Ticker />
-<FeatureSlider />
+        <FeatureSlider />
 
         {/* Articles Section */}
         {/* <Articles /> */}

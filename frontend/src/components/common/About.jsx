@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from './Icon';
 import CosmicButton from './CosmicButton';
 import useTranslatedText from '../../hooks/useTranslatedText';
 
 const About = () => {
+  const navigate = useNavigate();
   // Translated texts
   const aboutText = useTranslatedText('About');
   const newsMarketPlaceText = useTranslatedText('News MarketPlace');
@@ -144,10 +146,10 @@ const About = () => {
                 {ourMissionDesc}
               </p>
               <div className="flex flex-col sm:flex-row gap-5 md:gap-7">
-                <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl hover:transform hover:translate-y-1 transition-all duration-500 text-sm md:text-base">
+                <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl hover:transform hover:translate-y-1 transition-all duration-500 text-sm md:text-base" onClick={() => navigate('/about')}>
                   {learnMoreButton}
                 </CosmicButton>
-                <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl hover:transform hover:translate-y-1 transition-all duration-500 text-sm md:text-base">
+                <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl hover:transform hover:translate-y-1 transition-all duration-500 text-sm md:text-base" onClick={() => navigate('/contact')}>
                   {joinCommunityButton}
                 </CosmicButton>
               </div>

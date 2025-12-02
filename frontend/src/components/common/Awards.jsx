@@ -218,10 +218,7 @@ const Awards = () => {
               {nominateDesc}
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center">
-              <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                {submitNominationText}
-              </CosmicButton>
-              <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+              <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl transition-shadow duration-300" onClick={() => navigate('/awards')}>
                 {viewPastWinnersText}
               </CosmicButton>
             </div>

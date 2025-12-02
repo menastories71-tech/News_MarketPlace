@@ -275,11 +275,8 @@ const PowerList = () => {
                 <h3 className="text-2xl font-bold text-[#212121] mb-6">{applyNowText}</h3>
                 <p className="text-[#757575] mb-8 text-lg">{applyNowDesc}</p>
                 <div className="flex flex-col gap-4">
-                  <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+                  <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl transition-shadow duration-300" onClick={() => navigate('/power-lists')}>
                     {applyForPowerListText}
-                  </CosmicButton>
-                  <CosmicButton variant="small" textColor="#000000" className="shadow-lg hover:shadow-xl transition-shadow duration-300">
-                    {nominateSomeoneText}
                   </CosmicButton>
                 </div>
               </div>
