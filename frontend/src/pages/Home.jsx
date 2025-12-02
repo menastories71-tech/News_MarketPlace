@@ -82,22 +82,7 @@ const Home = () => {
         <UserHeader onShowAuth={handleShowAuth} />
         <TopHeader />
         <Ticker />
-
-        {/* Hero Section */}
-        <div style={{ width: '100%', height: '600px', position: 'relative' }}>
-          <FloatingLines
-            enabledWaves={['top', 'middle', 'bottom']}
-            lineCount={[10, 15, 20]}
-            lineDistance={[8, 6, 4]}
-            bendRadius={5.0}
-            bendStrength={-0.5}
-            interactive={true}
-            parallax={true}
-          />
-          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}>
-            <FeatureSlider />
-          </div>
-        </div>
+<FeatureSlider />
 
         {/* Articles Section */}
         {/* <Articles /> */}
