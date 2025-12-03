@@ -106,7 +106,6 @@ const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) =
     setLoading(true);
 
     try {
-      // First try without image to avoid S3 issues
       const submissionData = new FormData();
 
       // Add all form fields to FormData (excluding image first)
@@ -116,16 +115,9 @@ const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) =
         }
       });
 
-      // Add image only if provided and S3 is configured
+      // Add image if provided
       if (formData.image instanceof File) {
-        // Check if we have S3 configuration (this is a simple check)
-        const hasS3Config = process.env.REACT_APP_AWS_S3_BUCKET_NAME || process.env.AWS_S3_BUCKET_NAME;
-        
-        if (hasS3Config) {
-          submissionData.append('image', formData.image);
-        } else {
-          console.warn('S3 not configured, skipping image upload');
-        }
+        submissionData.append('image', formData.image);
       }
 
       if (nomination) {
@@ -147,41 +139,6 @@ const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) =
     } catch (error) {
       console.error('Error saving powerlist nomination:', error);
       
-      // Try again without image if the first attempt failed (might be S3 issue)
-      if (error.response?.status === 500 && formData.image instanceof File) {
-        try {
-          console.log('Retrying without image due to potential S3 configuration issue...');
-          
-          const simpleData = new FormData();
-          Object.keys(formData).forEach(key => {
-            if (key !== 'image' && formData[key] !== null && formData[key] !== '') {
-              simpleData.append(key, formData[key]);
-            }
-          });
-
-          if (nomination) {
-            await api.put(`/powerlist-nominations/${nomination.id}`, simpleData, {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            });
-          } else {
-            await api.post('/powerlist-nominations', simpleData, {
-              headers: {
-                'Content-Type': 'multipart/form-data'
-              }
-            });
-          }
-
-          onSave();
-          onClose();
-          alert('Saved successfully! (Note: Image upload skipped due to configuration)');
-          return;
-        } catch (retryError) {
-          console.error('Retry also failed:', retryError);
-        }
-      }
-
       const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error saving powerlist nomination. Please try again.';
       alert(errorMessage);
     } finally {

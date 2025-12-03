@@ -4,6 +4,9 @@ const { verifyRecaptcha } = require('../services/recaptchaService');
 const emailService = require('../services/emailService');
 const { rateLimiter } = require('../middleware/rateLimit');
 const s3Service = require('../services/s3Service');
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
 
 class PowerlistNominationController {
   // Validation rules for create
@@ -69,17 +72,27 @@ class PowerlistNominationController {
         status: req.body.status || 'pending'
       };
 
-      // Handle image upload to S3 if file is provided
+      // Handle image upload
       if (req.file) {
-        const s3Key = s3Service.generateKey('powerlist-nominations', 'image', req.file.originalname);
-        const contentType = s3Service.getContentType(req.file.originalname);
-
         try {
-          const s3Url = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
-          nominationData.image = s3Url;
-          console.log('Successfully uploaded powerlist nomination image to S3:', s3Url);
+          let imageUrl;
+          
+          // Try S3 first if configured
+          if (process.env.AWS_S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+            const s3Key = s3Service.generateKey('powerlist-nominations', 'image', req.file.originalname);
+            const contentType = s3Service.getContentType(req.file.originalname);
+            
+            imageUrl = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
+            console.log('Successfully uploaded to S3:', imageUrl);
+          } else {
+            // Fallback to local storage
+            console.log('S3 not configured, using local storage');
+            imageUrl = await this.uploadImageLocally(req.file);
+          }
+          
+          nominationData.image = imageUrl;
         } catch (uploadError) {
-          console.error('Failed to upload powerlist nomination image to S3:', uploadError);
+          console.error('Failed to upload image:', uploadError);
           throw new Error('Failed to upload image');
         }
       }
@@ -92,7 +105,41 @@ class PowerlistNominationController {
       });
     } catch (error) {
       console.error('Create powerlist nomination error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  }
+
+  // Local image upload helper
+  async uploadImageLocally(file) {
+    try {
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(__dirname, '../../uploads/powerlist-nominations');
+      await fs.promises.mkdir(uploadsDir, { recursive: true });
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomSuffix = Math.round(Math.random() * 1E9);
+      const extension = path.extname(file.originalname);
+      const filename = `image-${timestamp}-${randomSuffix}${extension}`;
+      const filepath = path.join(uploadsDir, filename);
+
+      // Optimize image before saving
+      const optimizedBuffer = await sharp(file.buffer)
+        .resize(800, 600, { withoutEnlargement: true })
+        .jpeg({ quality: 80 })
+        .toBuffer();
+
+      // Save file
+      await fs.promises.writeFile(filepath, optimizedBuffer);
+
+      // Return local URL
+      const localUrl = `/uploads/powerlist-nominations/${filename}`;
+      console.log('Successfully saved image locally:', localUrl);
+      
+      return localUrl;
+    } catch (error) {
+      console.error('Local image upload error:', error);
+      throw new Error('Failed to save image locally');
     }
   }
 
@@ -269,29 +316,40 @@ class PowerlistNominationController {
 
       const updateData = { ...req.body };
 
-      // Handle image upload to S3
+      // Handle image upload
       if (req.file) {
-        const s3Key = s3Service.generateKey('powerlist-nominations', 'image', req.file.originalname);
-        const contentType = s3Service.getContentType(req.file.originalname);
-
         try {
-          const s3Url = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
-          updateData.image = s3Url;
+          let imageUrl;
+          
+          // Try S3 first if configured
+          if (process.env.AWS_S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+            const s3Key = s3Service.generateKey('powerlist-nominations', 'image', req.file.originalname);
+            const contentType = s3Service.getContentType(req.file.originalname);
+            
+            imageUrl = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
+            console.log('Successfully uploaded to S3:', imageUrl);
 
-          // Delete old image from S3 if it exists
-          if (nomination.image) {
-            try {
-              const oldS3Key = s3Service.extractKeyFromUrl(nomination.image);
-              if (oldS3Key) {
-                await s3Service.deleteFile(oldS3Key);
+            // Delete old image from S3 if it exists
+            if (nomination.image) {
+              try {
+                const oldS3Key = s3Service.extractKeyFromUrl(nomination.image);
+                if (oldS3Key) {
+                  await s3Service.deleteFile(oldS3Key);
+                }
+              } catch (deleteError) {
+                console.error('Failed to delete old powerlist nomination image from S3:', deleteError);
+                // Continue with the update even if old image deletion fails
               }
-            } catch (deleteError) {
-              console.error('Failed to delete old powerlist nomination image from S3:', deleteError);
-              // Continue with the update even if old image deletion fails
             }
+          } else {
+            // Fallback to local storage
+            console.log('S3 not configured, using local storage');
+            imageUrl = await this.uploadImageLocally(req.file);
           }
+          
+          updateData.image = imageUrl;
         } catch (uploadError) {
-          console.error('Failed to upload new powerlist nomination image to S3:', uploadError);
+          console.error('Failed to upload image:', uploadError);
           throw new Error('Failed to upload image');
         }
       }
@@ -303,7 +361,7 @@ class PowerlistNominationController {
       });
     } catch (error) {
       console.error('Update powerlist nomination error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: error.message || 'Internal server error' });
     }
   }
 
