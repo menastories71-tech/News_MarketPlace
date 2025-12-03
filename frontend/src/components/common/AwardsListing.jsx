@@ -81,6 +81,10 @@ const AwardsListing = ({ award, index, onAwardClick, onApplyClick }) => {
             style={{ backgroundColor: theme.primary }}
             onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
             onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAwardClick(award);
+            }}
           >
             <Eye size={16} />
             View Details
