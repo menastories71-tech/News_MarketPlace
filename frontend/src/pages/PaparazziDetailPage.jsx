@@ -414,6 +414,9 @@ const PaparazziDetailPage = () => {
                       src={paparazzi.profile_dp_logo || "/logo.png"}
                       alt="Profile"
                       className="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                      onError={(e) => {
+                        e.target.src = "/logo.png";
+                      }}
                     />
                   </div>
                 </div>
@@ -487,6 +490,9 @@ const PaparazziDetailPage = () => {
                     src={paparazzi.profile_dp_logo || "/logo.png"}
                     alt="Profile"
                     className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                    onError={(e) => {
+                      e.target.src = "/logo.png";
+                    }}
                   />
                 </div>
               </div>

@@ -365,6 +365,9 @@ const PaparazziPage = () => {
                             src={p.profile_dp_logo || "/logo.png"}
                             alt="Profile"
                             className="w-12 h-12 rounded-full object-cover border-2 border-[#E0E0E0]"
+                            onError={(e) => {
+                              e.target.src = "/logo.png";
+                            }}
                           />
                           <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
                             Instagram
@@ -498,6 +501,9 @@ const PaparazziPage = () => {
                                 src={p.profile_dp_logo || "/logo.png"}
                                 alt="Profile"
                                 className="w-10 h-10 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.target.src = "/logo.png";
+                                }}
                               />
                             </td>
                             <td className="px-6 py-4">
