@@ -349,17 +349,11 @@ const RadioPage = () => {
                   >
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
-                        {radio.image_url ? (
-                          <img 
-                            src={radio.image_url} 
-                            alt={radio.radio_name}
-                            className="w-12 h-12 rounded-full object-cover"
-                          />
-                        ) : (
-                          <div className="bg-[#1976D2] rounded-full p-3">
-                            <Radio className="w-6 h-6 text-white" />
-                          </div>
-                        )}
+                        <img
+                          src={radio.image_url || "/logo.png"}
+                          alt={radio.radio_name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
                         <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
                           {radio.frequency}
                         </span>

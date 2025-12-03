@@ -102,17 +102,11 @@ const RadioDetails = () => {
             className="text-center"
           >
             <div className="flex justify-center mb-6">
-              {radio.image_url ? (
-                <img 
-                  src={radio.image_url} 
-                  alt={radio.radio_name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-                />
-              ) : (
-                <div className="bg-[#1976D2] rounded-full p-6">
-                  <Radio className="w-16 h-16 text-white" />
-                </div>
-              )}
+              <img
+                src={radio.image_url || "/logo.png"}
+                alt={radio.radio_name}
+                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+              />
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#212121] mb-4">
               {radio.radio_name}
