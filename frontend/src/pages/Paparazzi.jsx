@@ -361,9 +361,17 @@ const PaparazziPage = () => {
                     >
                       <div className="p-6">
                         <div className="flex items-center justify-between mb-4">
-                          <div className="bg-[#1976D2] rounded-full p-3">
-                            <Camera className="w-6 h-6 text-white" />
-                          </div>
+                          {p.profile_dp_logo ? (
+                            <img
+                              src={p.profile_dp_logo}
+                              alt="Profile"
+                              className="w-12 h-12 rounded-full object-cover border-2 border-[#E0E0E0]"
+                            />
+                          ) : (
+                            <div className="bg-[#1976D2] rounded-full p-3">
+                              <Camera className="w-6 h-6 text-white" />
+                            </div>
+                          )}
                           <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
                             Instagram
                           </span>
@@ -400,15 +408,6 @@ const PaparazziPage = () => {
                             </div>
                           )}
                         </div>
-                        {p.profile_dp_logo && (
-                          <div className="mt-4 flex justify-center">
-                            <img
-                              src={p.profile_dp_logo}
-                              alt="Profile"
-                              className="w-16 h-16 rounded-full object-cover border-2 border-[#E0E0E0]"
-                            />
-                          </div>
-                        )}
                       </div>
                     </motion.div>
                   ))}

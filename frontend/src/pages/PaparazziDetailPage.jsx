@@ -10,7 +10,7 @@ import {
   ArrowLeft, Camera, Globe, Star, ExternalLink, Shield,
   Link as LinkIcon, FileText, CheckCircle, DollarSign, Clock,
   BarChart3, Target, Award, TrendingUp, MapPin, Calendar,
-  Users, Zap, Eye, Heart, Share, Instagram, Youtube, Twitter
+  Users, Zap, Eye, Heart, Share, Instagram, Youtube, Twitter, Filter
 } from 'lucide-react';
 
 // Updated theme colors matching the color palette from PDF
