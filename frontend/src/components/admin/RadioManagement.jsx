@@ -17,8 +17,13 @@ const RadioFormModal = ({ isOpen, onClose, radio, groups, onSave }) => {
     radio_instagram: '',
     emirate_state: '',
     radio_popular_rj: '',
-    remarks: ''
+    remarks: '',
+    image_url: '',
+    description: ''
   });
+
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   // Generate sequential radio SN when component mounts for new radios
   useEffect(() => {
@@ -59,6 +64,42 @@ const RadioFormModal = ({ isOpen, onClose, radio, groups, onSave }) => {
 
   const [loading, setLoading] = useState(false);
 
+  // Image handling functions
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      // Check file size (500KB limit)
+      if (file.size > 500 * 1024) {
+        alert('File size exceeds 500KB limit');
+        e.target.value = '';
+        return;
+      }
+
+      // Check file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        alert('Only image files (jpeg, jpg, png, gif, webp) are allowed');
+        e.target.value = '';
+        return;
+      }
+
+      setSelectedImage(file);
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image_url: '' }));
+  };
+
   useEffect(() => {
     if (radio) {
       setFormData({
@@ -72,8 +113,15 @@ const RadioFormModal = ({ isOpen, onClose, radio, groups, onSave }) => {
         radio_instagram: radio.radio_instagram || '',
         emirate_state: radio.emirate_state || '',
         radio_popular_rj: radio.radio_popular_rj || '',
-        remarks: radio.remarks || ''
+        remarks: radio.remarks || '',
+        image_url: radio.image_url || '',
+        description: radio.description || ''
       });
+      
+      // Set image preview for existing radio
+      if (radio.image_url) {
+        setImagePreview(radio.image_url);
+      }
     } else {
       setFormData({
         sn: '',
@@ -86,8 +134,12 @@ const RadioFormModal = ({ isOpen, onClose, radio, groups, onSave }) => {
         radio_instagram: '',
         emirate_state: '',
         radio_popular_rj: '',
-        remarks: ''
+        remarks: '',
+        image_url: '',
+        description: ''
       });
+      setSelectedImage(null);
+      setImagePreview(null);
     }
   }, [radio, isOpen]);
 
@@ -96,16 +148,41 @@ const RadioFormModal = ({ isOpen, onClose, radio, groups, onSave }) => {
     setLoading(true);
 
     try {
-      // Prepare data for submission
-      const submitData = {
-        ...formData,
-        group_id: formData.group_id && formData.group_id !== '' ? parseInt(formData.group_id) : null
+      // Create FormData for multipart upload
+      const submitData = new FormData();
+      
+      // Add text fields
+      submitData.append('sn', formData.sn);
+      submitData.append('radio_name', formData.radio_name);
+      submitData.append('frequency', formData.frequency);
+      submitData.append('radio_language', formData.radio_language);
+      submitData.append('radio_website', formData.radio_website);
+      submitData.append('radio_linkedin', formData.radio_linkedin);
+      submitData.append('radio_instagram', formData.radio_instagram);
+      submitData.append('emirate_state', formData.emirate_state);
+      submitData.append('radio_popular_rj', formData.radio_popular_rj);
+      submitData.append('remarks', formData.remarks);
+      submitData.append('description', formData.description);
+      
+      if (formData.group_id && formData.group_id !== '') {
+        submitData.append('group_id', parseInt(formData.group_id));
+      }
+
+      // Add image file if selected
+      if (selectedImage) {
+        submitData.append('image', selectedImage);
+      }
+
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       };
 
       if (radio) {
-        await api.put(`/radios/admin/${radio.id}`, submitData);
+        await api.put(`/radios/admin/${radio.id}`, submitData, config);
       } else {
-        await api.post('/radios/admin', submitData);
+        await api.post('/radios/admin', submitData, config);
       }
 
       onSave();
@@ -320,6 +397,76 @@ const RadioFormModal = ({ isOpen, onClose, radio, groups, onSave }) => {
             </div>
           </div>
 
+          {/* Image Upload Section */}
+          <div style={{ marginTop: '16px', padding: '20px', border: '2px dashed #e0e0e0', borderRadius: '8px', backgroundColor: '#fafafa' }}>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', fontWeight: '600', color: '#212121' }}>Radio Image</h3>
+            
+            {/* Image Preview */}
+            {imagePreview && (
+              <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  style={{ 
+                    maxWidth: '200px', 
+                    maxHeight: '200px', 
+                    borderRadius: '8px', 
+                    border: '1px solid #e0e0e0',
+                    objectFit: 'cover'
+                  }} 
+                />
+                <div style={{ marginTop: '8px' }}>
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    style={{
+                      padding: '4px 12px',
+                      backgroundColor: '#f44336',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Remove Image
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* File Upload */}
+            {!imagePreview && (
+              <div style={{ textAlign: 'center' }}>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={handleImageChange}
+                  style={{ display: 'none' }}
+                  id="image-upload"
+                />
+                <label
+                  htmlFor="image-upload"
+                  style={{
+                    display: 'inline-block',
+                    padding: '12px 24px',
+                    backgroundColor: '#1976D2',
+                    color: '#fff',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: '500'
+                  }}
+                >
+                  Choose Image
+                </label>
+                <div style={{ marginTop: '8px', fontSize: '12px', color: '#757575' }}>
+                  Max size: 500KB | Formats: JPEG, PNG, GIF, WebP
+                </div>
+              </div>
+            )}
+          </div>
+
           <div style={{ marginTop: '16px' }}>
             <div style={formGroupStyle}>
               <label style={labelStyle}>Remarks</label>
@@ -329,6 +476,20 @@ const RadioFormModal = ({ isOpen, onClose, radio, groups, onSave }) => {
                 style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
                 placeholder="Additional remarks"
               />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
+                placeholder="Radio station description (optional)"
+                maxLength={1000}
+              />
+              <div style={{ fontSize: '12px', color: '#757575', marginTop: '4px' }}>
+                {formData.description.length}/1000 characters
+              </div>
             </div>
           </div>
 

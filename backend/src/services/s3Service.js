@@ -2,6 +2,7 @@ const { S3Client, PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/cl
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
+const multer = require('multer');
 
 class S3Service {
   constructor() {
@@ -221,6 +222,102 @@ class S3Service {
 
     return contentTypes[ext] || 'application/octet-stream';
   }
+
+  /**
+   * Upload a radio station image to S3
+   * @param {Buffer} fileBuffer - File buffer
+   * @param {string} originalFilename - Original filename
+   * @param {string} folder - Folder name (e.g., 'radios')
+   * @returns {Promise<string>} - S3 URL of uploaded file
+   */
+  async uploadRadioImage(fileBuffer, originalFilename, folder = 'radios') {
+    try {
+      const key = this.generateKey(folder, 'image', originalFilename);
+      const contentType = this.getContentType(originalFilename);
+      return await this.uploadFile(fileBuffer, key, contentType, originalFilename);
+    } catch (error) {
+      console.error('Radio image upload error:', error);
+      throw new Error(`Failed to upload radio image to S3: ${error.message}`);
+    }
+  }
+
+  /**
+   * Delete a radio station image from S3
+   * @param {string} imageUrl - S3 URL of the image to delete
+   * @returns {Promise<boolean>} - Success status
+   */
+  async deleteRadioImage(imageUrl) {
+    try {
+      const key = this.extractKeyFromUrl(imageUrl);
+      if (!key) {
+        throw new Error('Invalid image URL provided');
+      }
+      return await this.deleteFile(key);
+    } catch (error) {
+      console.error('Radio image delete error:', error);
+      throw new Error(`Failed to delete radio image from S3: ${error.message}`);
+    }
+  }
+
+  /**
+   * Validate radio image file
+   * @param {Object} file - File object from multer
+   * @returns {Object} - Validation result
+   */
+  validateRadioImageFile(file) {
+    try {
+      // Check if file exists
+      if (!file) {
+        return { valid: false, error: 'No file provided' };
+      }
+
+      // Check file size (limit to 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        return { valid: false, error: 'File size exceeds 5MB limit' };
+      }
+
+      // Check file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.mimetype)) {
+        return { valid: false, error: 'Only JPEG, PNG, and GIF images are allowed' };
+      }
+
+      // Check file extension
+      const ext = path.extname(file.originalname).toLowerCase();
+      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+      if (!allowedExtensions.includes(ext)) {
+        return { valid: false, error: 'Only JPEG, PNG, and GIF images are allowed' };
+      }
+
+      return { valid: true };
+    } catch (error) {
+      console.error('Radio image validation error:', error);
+      return { valid: false, error: 'File validation failed' };
+    }
+  }
 }
 
-module.exports = new S3Service();
+// Configure multer for file uploads
+const storage = multer.memoryStorage();
+
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only JPEG, PNG, and GIF images are allowed'));
+    }
+  }
+});
+
+module.exports = {
+  s3Service: new S3Service(),
+  upload: upload,
+  S3Service
+};

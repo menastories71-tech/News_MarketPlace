@@ -102,9 +102,17 @@ const RadioDetails = () => {
             className="text-center"
           >
             <div className="flex justify-center mb-6">
-              <div className="bg-[#1976D2] rounded-full p-6">
-                <Radio className="w-16 h-16 text-white" />
-              </div>
+              {radio.image_url ? (
+                <img 
+                  src={radio.image_url} 
+                  alt={radio.radio_name}
+                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                />
+              ) : (
+                <div className="bg-[#1976D2] rounded-full p-6">
+                  <Radio className="w-16 h-16 text-white" />
+                </div>
+              )}
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#212121] mb-4">
               {radio.radio_name}
@@ -262,6 +270,22 @@ const RadioDetails = () => {
               </div>
             </motion.div>
           </div>
+
+          {/* Description */}
+          {radio.description && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="mt-8 bg-[#E3F2FD] rounded-lg p-6 border border-[#1976D2]"
+            >
+              <h2 className="text-2xl font-semibold text-[#212121] mb-4 flex items-center gap-2">
+                <Radio className="w-6 h-6 text-[#1976D2]" />
+                Radio Description
+              </h2>
+              <p className="text-[#212121] leading-relaxed text-lg">{radio.description}</p>
+            </motion.div>
+          )}
 
           {/* Remarks */}
           {radio.remarks && (

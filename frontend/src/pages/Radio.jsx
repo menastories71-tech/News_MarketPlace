@@ -349,9 +349,17 @@ const RadioPage = () => {
                   >
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <div className="bg-[#1976D2] rounded-full p-3">
-                          <Radio className="w-6 h-6 text-white" />
-                        </div>
+                        {radio.image_url ? (
+                          <img 
+                            src={radio.image_url} 
+                            alt={radio.radio_name}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="bg-[#1976D2] rounded-full p-3">
+                            <Radio className="w-6 h-6 text-white" />
+                          </div>
+                        )}
                         <span className="text-sm font-medium text-[#1976D2] bg-[#E3F2FD] px-3 py-1 rounded-full">
                           {radio.frequency}
                         </span>
@@ -372,6 +380,11 @@ const RadioPage = () => {
                           <User className="w-4 h-4 text-[#1976D2]" />
                           <span className="font-medium">Popular RJ:</span> {radio.radio_popular_rj}
                         </div>
+                        {radio.description && (
+                          <div className="mt-3 p-2 bg-[#FAFAFA] rounded text-xs">
+                            <span className="font-medium">Description:</span> {radio.description.substring(0, 100)}{radio.description.length > 100 ? '...' : ''}
+                          </div>
+                        )}
                       </div>
                       <div className="mt-4">
                         <button className="w-full bg-[#1976D2] text-white py-2 rounded-lg hover:bg-[#1565C0] transition-colors font-medium">

@@ -14,6 +14,8 @@ class Radio {
     this.emirate_state = data.emirate_state;
     this.radio_popular_rj = data.radio_popular_rj;
     this.remarks = data.remarks;
+    this.image_url = data.image_url;
+    this.description = data.description;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
   }
@@ -31,7 +33,9 @@ class Radio {
       radio_instagram,
       emirate_state,
       radio_popular_rj,
-      remarks
+      remarks,
+      image_url,
+      description
     } = radioData;
 
     // If no sn provided or it's a duplicate, generate a unique one
@@ -51,12 +55,12 @@ class Radio {
     }
 
     const sql = `
-      INSERT INTO radios (sn, group_id, radio_name, frequency, radio_language, radio_website, radio_linkedin, radio_instagram, emirate_state, radio_popular_rj, remarks)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      INSERT INTO radios (sn, group_id, radio_name, frequency, radio_language, radio_website, radio_linkedin, radio_instagram, emirate_state, radio_popular_rj, remarks, image_url, description)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
       RETURNING *
     `;
 
-    const values = [uniqueSn, group_id, radio_name, frequency, radio_language, radio_website, radio_linkedin, radio_instagram, emirate_state, radio_popular_rj, remarks];
+    const values = [uniqueSn, group_id, radio_name, frequency, radio_language, radio_website, radio_linkedin, radio_instagram, emirate_state, radio_popular_rj, remarks, image_url, description];
     const result = await query(sql, values);
     return new Radio(result.rows[0]);
   }
@@ -166,6 +170,8 @@ class Radio {
       emirate_state: this.emirate_state,
       radio_popular_rj: this.radio_popular_rj,
       remarks: this.remarks,
+      image_url: this.image_url,
+      description: this.description,
       created_at: this.created_at,
       updated_at: this.updated_at
     };

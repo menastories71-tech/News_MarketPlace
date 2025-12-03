@@ -1,4 +1,5 @@
 const Radio = require('../models/Radio');
+const { s3Service: S3Service } = require('../services/s3Service');
 const { body, validationResult } = require('express-validator');
 
 class RadioController {
@@ -13,6 +14,8 @@ class RadioController {
     body('radio_website').optional({ checkFalsy: true }).isURL().withMessage('Valid radio website URL is required'),
     body('radio_linkedin').optional({ checkFalsy: true }).isURL().withMessage('Valid LinkedIn URL is required'),
     body('radio_instagram').optional({ checkFalsy: true }).isURL().withMessage('Valid Instagram URL is required'),
+    body('image_url').optional({ checkFalsy: true }).isURL().withMessage('Valid image URL is required'),
+    body('description').optional().isLength({ max: 1000 }).withMessage('Description cannot exceed 1000 characters'),
   ];
 
   updateValidation = [
@@ -25,6 +28,8 @@ class RadioController {
     body('radio_website').optional({ checkFalsy: true }).isURL().withMessage('Valid radio website URL is required'),
     body('radio_linkedin').optional({ checkFalsy: true }).isURL().withMessage('Valid LinkedIn URL is required'),
     body('radio_instagram').optional({ checkFalsy: true }).isURL().withMessage('Valid Instagram URL is required'),
+    body('image_url').optional({ checkFalsy: true }).isURL().withMessage('Valid image URL is required'),
+    body('description').optional().isLength({ max: 1000 }).withMessage('Description cannot exceed 1000 characters'),
   ];
 
   // Create a new radio
@@ -39,6 +44,18 @@ class RadioController {
       }
 
       const radioData = req.body;
+
+      // Handle image upload
+      if (req.file) {
+        try {
+          const imageUrl = await S3Service.uploadRadioImage(req.file.buffer, req.file.originalname, 'radios');
+          radioData.image_url = imageUrl;
+        } catch (uploadError) {
+          console.error('Image upload error:', uploadError);
+          return res.status(400).json({ error: 'Failed to upload image' });
+        }
+      }
+
       const radio = await Radio.create(radioData);
       res.status(201).json({
         message: 'Radio created successfully',
@@ -149,7 +166,29 @@ class RadioController {
         return res.status(404).json({ error: 'Radio not found' });
       }
 
-      const updatedRadio = await radio.update(req.body);
+      const updateData = { ...req.body };
+
+      // Handle image upload
+      if (req.file) {
+        try {
+          // Delete old image if exists
+          if (radio.image_url) {
+            try {
+              await S3Service.deleteRadioImage(radio.image_url);
+            } catch (deleteError) {
+              console.warn('Failed to delete old image:', deleteError);
+            }
+          }
+
+          const imageUrl = await S3Service.uploadRadioImage(req.file.buffer, req.file.originalname, 'radios');
+          updateData.image_url = imageUrl;
+        } catch (uploadError) {
+          console.error('Image upload error:', uploadError);
+          return res.status(400).json({ error: 'Failed to upload image' });
+        }
+      }
+
+      const updatedRadio = await radio.update(updateData);
       res.json({
         message: 'Radio updated successfully',
         radio: updatedRadio.toJSON()
@@ -170,11 +209,46 @@ class RadioController {
         return res.status(404).json({ error: 'Radio not found' });
       }
 
+      // Delete associated image if exists
+      if (radio.image_url) {
+        try {
+          await S3Service.deleteRadioImage(radio.image_url);
+        } catch (deleteError) {
+          console.warn('Failed to delete image:', deleteError);
+        }
+      }
+
       await radio.delete();
       res.json({ message: 'Radio deleted successfully' });
     } catch (error) {
       console.error('Delete radio error:', error);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Upload image separately
+  async uploadImage(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No image file provided' });
+      }
+
+      // Validate file
+      const validation = S3Service.validateRadioImageFile(req.file);
+      if (!validation.valid) {
+        return res.status(400).json({ error: validation.error });
+      }
+
+      // Upload to S3
+      const imageUrl = await S3Service.uploadRadioImage(req.file.buffer, req.file.originalname, 'radios');
+      
+      res.json({
+        message: 'Image uploaded successfully',
+        imageUrl: imageUrl
+      });
+    } catch (error) {
+      console.error('Image upload error:', error);
+      res.status(500).json({ error: 'Failed to upload image' });
     }
   }
 
