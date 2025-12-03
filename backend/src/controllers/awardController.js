@@ -1,4 +1,4 @@
-const Award = require('../models/Award');
+const AwardCreation = require('../models/AwardCreation');
 const { body, validationResult } = require('express-validator');
 
 class AwardController {
@@ -41,52 +41,47 @@ class AwardController {
     }
   }
 
-  // Get all awards with filtering and pagination (public)
+  // Get all awards with filtering and pagination (public) - using AwardCreation model
   async getAll(req, res) {
     try {
       const {
         page = 1,
-        limit = 10,
-        award_month,
-        organiser,
+        limit = 20,
+        tentative_month,
+        company_focused_individual_focused,
         award_name,
-        award_focus
+        award_organiser_name,
+        url,
+        industry,
+        regional_focused,
+        award_country,
+        award_city
       } = req.query;
 
       const filters = {};
-      if (award_month) filters.award_month = award_month;
-      if (organiser) filters.organiser = organiser;
+
+      if (tentative_month) filters.tentative_month = tentative_month;
+      if (company_focused_individual_focused) filters.company_focused_individual_focused = company_focused_individual_focused;
+      if (award_organiser_name) filters.award_organiser_name = award_organiser_name;
+      if (url) filters.url = url;
+      if (industry) filters.industry = industry;
+      if (regional_focused !== undefined && regional_focused !== '') filters.regional_focused = regional_focused;
+      if (award_country) filters.award_country = award_country;
+      if (award_city) filters.award_city = award_city;
 
       // Add search filters
-      let searchSql = '';
-      const searchValues = [];
-      let searchParamCount = Object.keys(filters).length + 1;
-
       if (award_name) {
-        searchSql += ` AND award_name ILIKE $${searchParamCount}`;
-        searchValues.push(`%${award_name}%`);
-        searchParamCount++;
-      }
-
-      if (award_focus) {
-        searchSql += ` AND award_focus ILIKE $${searchParamCount}`;
-        searchValues.push(`%${award_focus}%`);
-        searchParamCount++;
+        filters.award_name = award_name;
       }
 
       const offset = (page - 1) * limit;
-      const awards = await Award.findAll(filters, searchSql, searchValues, limit, offset);
-
-      // Get total count for pagination
-      const totalCount = await Award.getTotalCount(filters, searchSql, searchValues);
+      const awards = await AwardCreation.findAllFiltered(filters, 'createdAt', 'desc', limit, offset);
 
       res.json({
         awards: awards.map(award => award.toJSON()),
         pagination: {
           page: parseInt(page),
-          limit: parseInt(limit),
-          total: totalCount,
-          pages: Math.ceil(totalCount / limit)
+          limit: parseInt(limit)
         }
       });
     } catch (error) {
@@ -95,11 +90,11 @@ class AwardController {
     }
   }
 
-  // Get award by ID (public)
+  // Get award by ID (public) - using AwardCreation model
   async getById(req, res) {
     try {
       const { id } = req.params;
-      const award = await Award.findById(id);
+      const award = await AwardCreation.findById(id);
 
       if (!award) {
         return res.status(404).json({ error: 'Award not found' });

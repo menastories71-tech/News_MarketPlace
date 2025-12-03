@@ -48,6 +48,12 @@ const AwardsPage = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [monthFilter, setMonthFilter] = useState('');
   const [focusFilter, setFocusFilter] = useState('');
+  const [organiserFilter, setOrganiserFilter] = useState('');
+  const [urlFilter, setUrlFilter] = useState('');
+  const [industryFilter, setIndustryFilter] = useState('');
+  const [regionalFilter, setRegionalFilter] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
+  const [cityFilter, setCityFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -77,27 +83,20 @@ const AwardsPage = () => {
 
       // Enhanced search across multiple fields
       if (searchTerm.trim()) {
-        params.append('search', searchTerm.trim());
         params.append('award_name', searchTerm.trim());
       }
 
-      if (monthFilter) params.append('award_month', monthFilter);
-      if (focusFilter) params.append('award_focus', focusFilter);
+      if (monthFilter) params.append('tentative_month', monthFilter);
+      if (focusFilter) params.append('company_focused_individual_focused', focusFilter);
+      if (organiserFilter) params.append('award_organiser_name', organiserFilter);
+      if (urlFilter) params.append('url', urlFilter);
+      if (industryFilter) params.append('industry', industryFilter);
+      if (regionalFilter) params.append('regional_focused', regionalFilter);
+      if (countryFilter) params.append('award_country', countryFilter);
+      if (cityFilter) params.append('award_city', cityFilter);
 
       const response = await api.get(`/awards?${params.toString()}`);
-      let awardsData = response.data.awards || [];
-
-      // Client-side search for better results
-      if (searchTerm.trim()) {
-        const searchLower = searchTerm.toLowerCase().trim();
-        awardsData = awardsData.filter(award => {
-          return (
-            award.award_name?.toLowerCase().includes(searchLower) ||
-            award.award_organiser?.toLowerCase().includes(searchLower) ||
-            award.award_focus?.toLowerCase().includes(searchLower)
-          );
-        });
-      }
+      const awardsData = response.data.awards || [];
 
       setAwards(awardsData);
       setTotalPages(response.data.pagination?.pages || 1);
@@ -121,7 +120,7 @@ const AwardsPage = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, monthFilter, focusFilter]);
+  }, [searchTerm, monthFilter, focusFilter, organiserFilter, urlFilter, industryFilter, regionalFilter, countryFilter, cityFilter]);
 
   const handleShowAuth = () => {
     setShowAuth(true);
@@ -153,13 +152,33 @@ const AwardsPage = () => {
   };
 
   const getUniqueMonths = () => {
-    const months = awards.map(a => a.award_month).filter(Boolean);
+    const months = awards.map(a => a.tentative_month).filter(Boolean);
     return [...new Set(months)].sort();
   };
 
   const getUniqueFocuses = () => {
-    const focuses = awards.map(a => a.award_focus).filter(Boolean);
+    const focuses = awards.map(a => a.company_focused_individual_focused).filter(Boolean);
     return [...new Set(focuses)].sort();
+  };
+
+  const getUniqueOrganisers = () => {
+    const organisers = awards.map(a => a.award_organiser_name).filter(Boolean);
+    return [...new Set(organisers)].sort();
+  };
+
+  const getUniqueIndustries = () => {
+    const industries = awards.map(a => a.industry).filter(Boolean);
+    return [...new Set(industries)].sort();
+  };
+
+  const getUniqueCountries = () => {
+    const countries = awards.map(a => a.award_country).filter(Boolean);
+    return [...new Set(countries)].sort();
+  };
+
+  const getUniqueCities = () => {
+    const cities = awards.map(a => a.award_city).filter(Boolean);
+    return [...new Set(cities)].sort();
   };
 
   const handleAwardClick = (award) => {
@@ -173,6 +192,12 @@ const AwardsPage = () => {
   const clearAllFilters = () => {
     setMonthFilter('');
     setFocusFilter('');
+    setOrganiserFilter('');
+    setUrlFilter('');
+    setIndustryFilter('');
+    setRegionalFilter('');
+    setCountryFilter('');
+    setCityFilter('');
   };
 
   if (loading && awards.length === 0) {
@@ -257,7 +282,7 @@ const AwardsPage = () => {
                 {/* Month Filter */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Award Month
+                    Month
                   </label>
                   <select
                     value={monthFilter}
@@ -272,9 +297,9 @@ const AwardsPage = () => {
                 </div>
 
                 {/* Focus Filter */}
-                <div>
+                <div className="mb-4">
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Award Focus
+                    Focus
                   </label>
                   <select
                     value={focusFilter}
@@ -286,6 +311,104 @@ const AwardsPage = () => {
                       <option key={focus} value={focus}>{focus}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Organiser Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Organiser
+                  </label>
+                  <select
+                    value={organiserFilter}
+                    onChange={(e) => setOrganiserFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Organisers</option>
+                    {getUniqueOrganisers().map(organiser => (
+                      <option key={organiser} value={organiser}>{organiser}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Industry Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Industry
+                  </label>
+                  <select
+                    value={industryFilter}
+                    onChange={(e) => setIndustryFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Industries</option>
+                    {getUniqueIndustries().map(industry => (
+                      <option key={industry} value={industry}>{industry}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Country Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Country
+                  </label>
+                  <select
+                    value={countryFilter}
+                    onChange={(e) => setCountryFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Countries</option>
+                    {getUniqueCountries().map(country => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* City Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    City
+                  </label>
+                  <select
+                    value={cityFilter}
+                    onChange={(e) => setCityFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All Cities</option>
+                    {getUniqueCities().map(city => (
+                      <option key={city} value={city}>{city}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Regional Filter */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    Regional
+                  </label>
+                  <select
+                    value={regionalFilter}
+                    onChange={(e) => setRegionalFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  >
+                    <option value="">All</option>
+                    <option value="true">Regional</option>
+                    <option value="false">Global</option>
+                  </select>
+                </div>
+
+                {/* URL Filter */}
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                    URL
+                  </label>
+                  <input
+                    type="text"
+                    value={urlFilter}
+                    onChange={(e) => setUrlFilter(e.target.value)}
+                    placeholder="Filter by URL"
+                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                  />
                 </div>
               </div>
 

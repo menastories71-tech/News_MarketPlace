@@ -43,11 +43,11 @@ const AwardsListing = ({ award, index, onAwardClick, onApplyClick }) => {
             </h3>
             <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
               <Calendar size={14} className="mr-2" />
-              <span>{award.award_month || 'Month TBA'}</span>
+              <span>{award.tentative_month || 'Month TBA'}</span>
             </div>
             <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
               <Building size={14} className="mr-2" />
-              <span>{award.organiser || 'Organiser TBA'}</span>
+              <span>{award.award_organiser_name || 'Organiser TBA'}</span>
             </div>
           </div>
           <div
@@ -62,7 +62,7 @@ const AwardsListing = ({ award, index, onAwardClick, onApplyClick }) => {
         <div className="grid grid-cols-2 gap-2 text-center mb-4 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
           <div>
             <div className="text-sm font-medium" style={{ color: theme.primary }}>
-              {award.award_focus || 'General'}
+              {award.company_focused_individual_focused || 'General'}
             </div>
             <div className="text-xs" style={{ color: theme.textSecondary }}>Focus</div>
           </div>

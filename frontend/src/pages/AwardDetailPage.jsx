@@ -191,15 +191,15 @@ const AwardDetailPage = () => {
                     <div className="flex flex-wrap items-center gap-6 text-sm text-[#757575]">
                       <div className="flex items-center gap-2">
                         <Building size={16} />
-                        <span>{award.organiser || 'Organiser TBA'}</span>
+                        <span>{award.award_organiser_name || 'Organiser TBA'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar size={16} />
-                        <span>{award.award_month || 'Month TBA'}</span>
+                        <span>{award.tentative_month || 'Month TBA'}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Target size={16} />
-                        <span>{award.award_focus || 'General Focus'}</span>
+                        <span>{award.company_focused_individual_focused || 'General Focus'}</span>
                       </div>
                     </div>
                   </div>
@@ -313,15 +313,15 @@ const AwardDetailPage = () => {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#757575]">Organiser</span>
-                    <span className="text-[#212121]">{award.organiser || 'TBA'}</span>
+                    <span className="text-[#212121]">{award.award_organiser_name || 'TBA'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#757575]">Month</span>
-                    <span className="text-[#212121]">{award.award_month || 'TBA'}</span>
+                    <span className="text-[#212121]">{award.tentative_month || 'TBA'}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-[#757575]">Focus</span>
-                    <span className="text-[#212121]">{award.award_focus || 'General'}</span>
+                    <span className="text-[#212121]">{award.company_focused_individual_focused || 'General'}</span>
                   </div>
                 </div>
               </div>
