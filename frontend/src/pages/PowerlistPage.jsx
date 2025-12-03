@@ -552,7 +552,7 @@ const PowerlistPage = () => {
             <>
               {/* Enhanced Grid View with Image Backgrounds */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedPowerlists.map((nomination, index) => (
                     <motion.div
                       key={nomination.id}
@@ -560,14 +560,35 @@ const PowerlistPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       onClick={() => handlePowerlistClick(nomination)}
-                      className="bg-white rounded-xl shadow-lg border hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden"
+                      className="bg-white rounded-2xl shadow-lg border hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden relative"
                       style={{
                         borderColor: theme.borderLight,
                         boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
                       }}
                     >
-                      {/* Card Header with Image Background */}
-                      <div className="relative h-40 overflow-hidden">
+                      {/* Heart Icon */}
+                      <div className="absolute top-4 right-4 z-10">
+                        <div className="w-10 h-10 bg-black/20 backdrop-blur-sm rounded-full flex items-center justify-center group-hover:bg-black/30 transition-colors">
+                          <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.682l-1.318-1.364a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <div className="absolute top-4 left-4 z-10">
+                        <div className="flex gap-2">
+                          <span className="px-3 py-1 bg-green-500 text-white text-xs font-medium rounded-full">
+                            Top Creator
+                          </span>
+                          <span className="px-3 py-1 bg-blue-500 text-white text-xs font-medium rounded-full">
+                            Responds Fast
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Profile Image */}
+                      <div className="relative h-64 overflow-hidden">
                         {nomination.image ? (
                           <img
                             src={nomination.image}
@@ -576,96 +597,72 @@ const PowerlistPage = () => {
                           />
                         ) : (
                           <div 
-                            className="w-full h-full flex items-center justify-center"
-                            style={{
-                              background: `linear-gradient(135deg, ${theme.primaryLight}, ${theme.secondaryLight})`
-                            }}
+                            className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500"
                           >
-                            <Building size={48} style={{ color: theme.primary }} />
+                            <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
+                              <User size={48} className="text-white" />
+                            </div>
                           </div>
                         )}
-                        
-                        {/* Status Badge */}
-                        <div className="absolute top-3 right-3">
-                          <StatusBadge status={nomination.status} />
-                        </div>
 
-                        {/* Power List Name Badge */}
-                        <div className="absolute bottom-3 left-3">
-                          <span 
-                            className="px-2 py-1 rounded-full text-xs font-medium text-white"
-                            style={{ backgroundColor: theme.primary }}
-                          >
-                            {nomination.power_list_name}
-                          </span>
+                        {/* Engagement Stats */}
+                        <div className="absolute bottom-4 left-4 flex gap-2">
+                          <div className="bg-black/60 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
+                            <Eye size={12} className="text-white" />
+                            <span className="text-white text-xs font-medium">
+                              {Math.floor(Math.random() * 100) + 10}k
+                            </span>
+                          </div>
+                          <div className="bg-black/60 backdrop-blur-sm rounded-lg px-2 py-1 flex items-center gap-1">
+                            <Users size={12} className="text-white" />
+                            <span className="text-white text-xs font-medium">UGC</span>
+                          </div>
                         </div>
                       </div>
 
                       {/* Card Content */}
-                      <div className="p-6">
-                        {/* Publication Name */}
-                        <h3 className="text-lg font-semibold mb-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
-                          {nomination.publication_name}
-                        </h3>
-
-                        {/* Company/Individual Type */}
-                        <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
-                          <Users size={14} className="mr-2" />
-                          <span>{nomination.company_or_individual}</span>
-                        </div>
-
-                        {/* Industry and Location */}
-                        <div className="space-y-2 mb-4">
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs" style={{ color: theme.textSecondary }}>Industry</span>
-                            <span className="text-sm font-medium" style={{ color: theme.primary }}>
-                              {nomination.industry || 'General'}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs" style={{ color: theme.textSecondary }}>Location</span>
-                            <span className="text-sm font-medium" style={{ color: theme.info }}>
-                              {nomination.location_region || 'Global'}
-                            </span>
+                      <div className="p-5">
+                        {/* Name and Rating */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div>
+                            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+                              {nomination.publication_name}
+                            </h3>
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className="flex items-center">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star 
+                                    key={i} 
+                                    size={14} 
+                                    className={`${i < 5 ? 'text-yellow-400 fill-current' : 'text-gray-300'}`} 
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-sm font-medium text-gray-900 ml-1">5.0</span>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Tentative Month */}
-                        {nomination.tentative_month && (
-                          <div className="flex items-center text-sm mb-4 p-2 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
-                            <Calendar size={14} className="mr-2" style={{ color: theme.warning }} />
-                            <span style={{ color: theme.textSecondary }}>Expected: {nomination.tentative_month}</span>
-                          </div>
-                        )}
+                        {/* Description */}
+                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                          {nomination.power_list_name} • {nomination.company_or_individual}
+                        </p>
 
-                        {/* Website Link */}
-                        {nomination.website_url && (
-                          <div className="mb-4">
-                            <a
-                              href={nomination.website_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 text-sm hover:underline"
-                              style={{ color: theme.primary }}
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Globe size={14} />
-                              Visit Website
-                            </a>
-                          </div>
-                        )}
+                        {/* Location */}
+                        <div className="flex items-center text-sm text-gray-500 mb-4">
+                          <MapPin size={14} className="mr-2" />
+                          <span>{nomination.location_region || 'Global'}</span>
+                        </div>
 
-                        {/* CTA Button */}
-                        <button
-                          className="w-full text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
-                          style={{ backgroundColor: theme.primary }}
-                          onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
-                          onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
-                        >
-                          <Eye size={16} />
-                          View Details
-                          <ExternalLink size={14} />
-                        </button>
+                        {/* Pricing */}
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-gray-900">
+                            ${Math.floor(Math.random() * 400) + 100}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {nomination.industry || 'General'}
+                          </div>
+                        </div>
                       </div>
                     </motion.div>
                   ))}
