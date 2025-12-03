@@ -42,37 +42,29 @@ class AdminAwardCreationController {
         award_name
       } = req.query;
 
-      const filters = {};
-      if (industry) filters.industry = industry;
-      if (regional_focused) filters.regional_focused = regional_focused;
-      if (award_country) filters.award_country = award_country;
+      const whereClause = {};
+      if (industry) whereClause.industry = industry;
+      if (regional_focused) whereClause.regional_focused = regional_focused;
+      if (award_country) whereClause.award_country = award_country;
+      if (award_name) whereClause.award_name = { [require('sequelize').Op.iLike]: `%${award_name}%` };
 
-      // Add search filters
-      let searchSql = '';
-      const searchValues = [];
-      let searchParamCount = Object.keys(filters).length + 1;
+      const offset = (page - 1) * parseInt(limit);
+      const limitNum = parseInt(limit);
 
-      if (award_name) {
-        searchSql += ` AND award_name ILIKE $${searchParamCount}`;
-        searchValues.push(`%${award_name}%`);
-        searchParamCount++;
-      }
-
-      const offset = (page - 1) * limit;
-      const awardCreations = await AwardCreation.findAll(limit, offset);
-
-      // For simplicity, get total count by getting all and counting
-      // In production, you'd want a separate count method
-      const allAwardCreations = await AwardCreation.findAll();
-      const totalCount = allAwardCreations.length;
+      const { count, rows } = await AwardCreation.findAndCountAll({
+        where: whereClause,
+        limit: limitNum,
+        offset: offset,
+        order: [['createdAt', 'DESC']]
+      });
 
       res.json({
-        awardCreations: awardCreations.map(ac => ac.toJSON()),
+        awardCreations: rows.map(ac => ac.toJSON()),
         pagination: {
           page: parseInt(page),
-          limit: parseInt(limit),
-          total: totalCount,
-          pages: Math.ceil(totalCount / limit)
+          limit: limitNum,
+          total: count,
+          pages: Math.ceil(count / limitNum)
         }
       });
     } catch (error) {
@@ -85,7 +77,7 @@ class AdminAwardCreationController {
   async getAwardCreationById(req, res) {
     try {
       const { id } = req.params;
-      const awardCreation = await AwardCreation.findById(id);
+      const awardCreation = await AwardCreation.findByPk(id);
 
       if (!awardCreation) {
         return res.status(404).json({ error: 'Award creation not found' });
@@ -141,7 +133,7 @@ class AdminAwardCreationController {
       }
 
       const { id } = req.params;
-      const awardCreation = await AwardCreation.findById(id);
+      const awardCreation = await AwardCreation.findByPk(id);
 
       if (!awardCreation) {
         return res.status(404).json({ error: 'Award creation not found' });
@@ -166,13 +158,13 @@ class AdminAwardCreationController {
       }
 
       const { id } = req.params;
-      const awardCreation = await AwardCreation.findById(id);
+      const awardCreation = await AwardCreation.findByPk(id);
 
       if (!awardCreation) {
         return res.status(404).json({ error: 'Award creation not found' });
       }
 
-      await awardCreation.delete();
+      await awardCreation.destroy();
       res.json({ message: 'Award creation deleted successfully' });
     } catch (error) {
       console.error('Delete award creation error:', error);
