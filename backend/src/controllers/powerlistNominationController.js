@@ -81,12 +81,12 @@ class PowerlistNominationController {
       if (req.file) {
         try {
           let imageUrl;
-          
+
           // Try S3 first if configured
           if (process.env.AWS_S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
             const s3Key = s3Service.generateKey('powerlist-nominations', 'image', req.file.originalname);
             const contentType = s3Service.getContentType(req.file.originalname);
-            
+
             imageUrl = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
             console.log('Successfully uploaded to S3:', imageUrl);
           } else {
@@ -94,11 +94,12 @@ class PowerlistNominationController {
             console.log('S3 not configured, using local storage');
             imageUrl = await this.uploadImageLocally(req.file);
           }
-          
+
           nominationData.image = imageUrl;
         } catch (uploadError) {
           console.error('Failed to upload image:', uploadError);
-          throw new Error('Failed to upload image');
+          const errorMessage = uploadError.message || 'Failed to upload image';
+          throw new Error(`Image upload failed: ${errorMessage}`);
         }
       }
 
@@ -117,6 +118,11 @@ class PowerlistNominationController {
   // Local image upload helper
   async uploadImageLocally(file) {
     try {
+      // Check file size before processing
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('Image file is too large. Maximum size is 10MB.');
+      }
+
       // Create uploads directory if it doesn't exist
       const uploadsDir = path.join(__dirname, '../../uploads/powerlist-nominations');
       await fs.promises.mkdir(uploadsDir, { recursive: true });
@@ -130,21 +136,36 @@ class PowerlistNominationController {
 
       // Optimize image before saving
       const optimizedBuffer = await sharp(file.buffer)
-        .resize(800, 600, { withoutEnlargement: true })
-        .jpeg({ quality: 80 })
+        .resize(800, 600, { withoutEnlargement: true, fit: 'inside' })
+        .jpeg({ quality: 70, progressive: true })
         .toBuffer();
 
-      // Save file
-      await fs.promises.writeFile(filepath, optimizedBuffer);
+      // Check optimized size
+      if (optimizedBuffer.length > 2 * 1024 * 1024) {
+        // If still too large, compress more aggressively
+        const extraCompressedBuffer = await sharp(file.buffer)
+          .resize(600, 400, { withoutEnlargement: true, fit: 'inside' })
+          .jpeg({ quality: 60, progressive: true })
+          .toBuffer();
+
+        if (extraCompressedBuffer.length <= 2 * 1024 * 1024) {
+          await fs.promises.writeFile(filepath, extraCompressedBuffer);
+        } else {
+          throw new Error('Unable to compress image to acceptable size. Please use a smaller image.');
+        }
+      } else {
+        // Save file
+        await fs.promises.writeFile(filepath, optimizedBuffer);
+      }
 
       // Return local URL
       const localUrl = `/uploads/powerlist-nominations/${filename}`;
       console.log('Successfully saved image locally:', localUrl);
-      
+
       return localUrl;
     } catch (error) {
       console.error('Local image upload error:', error);
-      throw new Error('Failed to save image locally');
+      throw new Error(`Failed to save image locally: ${error.message}`);
     }
   }
 
@@ -325,12 +346,12 @@ class PowerlistNominationController {
       if (req.file) {
         try {
           let imageUrl;
-          
+
           // Try S3 first if configured
           if (process.env.AWS_S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
             const s3Key = s3Service.generateKey('powerlist-nominations', 'image', req.file.originalname);
             const contentType = s3Service.getContentType(req.file.originalname);
-            
+
             imageUrl = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
             console.log('Successfully uploaded to S3:', imageUrl);
 
@@ -351,11 +372,12 @@ class PowerlistNominationController {
             console.log('S3 not configured, using local storage');
             imageUrl = await this.uploadImageLocally(req.file);
           }
-          
+
           updateData.image = imageUrl;
         } catch (uploadError) {
           console.error('Failed to upload image:', uploadError);
-          throw new Error('Failed to upload image');
+          const errorMessage = uploadError.message || 'Failed to upload image';
+          throw new Error(`Image upload failed: ${errorMessage}`);
         }
       }
 
