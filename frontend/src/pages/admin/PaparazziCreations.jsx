@@ -4,29 +4,6 @@ import Icon from '../../components/common/Icon';
 import Sidebar from '../../components/admin/Sidebar';
 import api from '../../services/api';
 
-// Brand colors from Color palette
-const theme = {
-  primary: '#1976D2',
-  primaryDark: '#0D47A1',
-  primaryLight: '#E3F2FD',
-  secondary: '#00796B',
-  secondaryDark: '#004D40',
-  secondaryLight: '#E0F2F1',
-  success: '#4CAF50',
-  warning: '#FF9800',
-  danger: '#F44336',
-  info: '#9C27B0',
-  textPrimary: '#212121',
-  textSecondary: '#757575',
-  textDisabled: '#BDBDBD',
-  background: '#FFFFFF',
-  backgroundAlt: '#FAFAFA',
-  backgroundSoft: '#F5F5F5',
-  borderLight: '#E0E0E0',
-  borderMedium: '#BDBDBD',
-  borderDark: '#757575'
-};
-
 // Paparazzi Creations Form Modal Component
 const PaparazziCreationsFormModal = ({ isOpen, onClose, record, onSave }) => {
   const [formData, setFormData] = useState({
@@ -254,7 +231,29 @@ const PaparazziCreationsFormModal = ({ isOpen, onClose, record, onSave }) => {
   );
 };
 
-// Main Paparazzi Creations Page Component
+// Brand colors from Color palette
+const theme = {
+  primary: '#1976D2',
+  primaryDark: '#0D47A1',
+  primaryLight: '#E3F2FD',
+  secondary: '#00796B',
+  secondaryDark: '#004D40',
+  secondaryLight: '#E0F2F1',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  danger: '#F44336',
+  info: '#9C27B0',
+  textPrimary: '#212121',
+  textSecondary: '#757575',
+  textDisabled: '#BDBDBD',
+  background: '#FFFFFF',
+  backgroundAlt: '#FAFAFA',
+  backgroundSoft: '#F5F5F5',
+  borderLight: '#E0E0E0',
+  borderMedium: '#BDBDBD',
+  borderDark: '#757575'
+};
+
 const PaparazziCreationsPage = () => {
   const { admin, logout, hasRole } = useAdminAuth();
 
@@ -347,6 +346,10 @@ const PaparazziCreationsPage = () => {
     return undefined;
   }, [sidebarOpen, isMobile]);
 
+  useEffect(() => {
+    fetchRecords();
+  }, [currentPage, pageSize]);
+
   const fetchRecords = async () => {
     try {
       const params = new URLSearchParams();
@@ -404,8 +407,7 @@ const PaparazziCreationsPage = () => {
 
   const totalPages = Math.ceil(totalRecords / pageSize);
 
-
-  if (loading && records.length === 0) {
+  if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.backgroundSoft, color: theme.text, paddingBottom: '3rem' }}>
         {/* Header */}
