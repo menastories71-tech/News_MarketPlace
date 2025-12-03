@@ -1,139 +1,141 @@
-
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import api from '../../services/api';
 
-// Powerlist Form Modal Component
-const PowerlistFormModal = ({ isOpen, onClose, powerlist, onSave }) => {
+// Powerlist Nomination Form Modal Component
+const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    whatsapp: '',
-    calling_number: '',
-    telegram_username: '',
-    direct_number: '',
-    gender: '',
-    date_of_birth: '',
-    dual_passport: false,
-    passport_nationality_one: '',
-    passport_nationality_two: '',
-    uae_permanent_residence: false,
-    other_permanent_residency: false,
-    other_residency_mention: '',
-    current_company: '',
-    position: '',
-    linkedin_url: '',
-    instagram_url: '',
-    facebook_url: '',
-    personal_website: '',
-    company_website: '',
-    company_industry: '',
-    filling_on_behalf: false,
-    behalf_name: '',
-    behalf_position: '',
-    behalf_relation: '',
-    behalf_gender: '',
-    behalf_email: '',
-    behalf_contact_number: '',
-    agree_terms: true,
-    message: '',
-    status: 'pending'
+    publication_name: '',
+    website_url: '',
+    power_list_name: '',
+    industry: '',
+    company_or_individual: '',
+    tentative_month: '',
+    location_region: '',
+    last_power_list_url: '',
+    image: null,
+    status: 'pending',
+    is_active: true
   });
 
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null);
+
+  // Industry options
+  const industryOptions = [
+    'Technology', 'Healthcare', 'Finance', 'Education', 'Media & Entertainment',
+    'Retail & E-commerce', 'Manufacturing', 'Real Estate', 'Legal', 'Consulting',
+    'Non-profit', 'Government', 'Energy', 'Transportation', 'Food & Beverage',
+    'Fashion', 'Sports', 'Travel & Tourism', 'Agriculture', 'Other'
+  ];
+
+  // Company or Individual options
+  const companyOrIndividualOptions = [
+    'Company',
+    'Individual',
+    'Organization',
+    'Institution',
+    'Other'
+  ];
+
+  // Tentative Month options
+  const monthOptions = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  // Status options
+  const statusOptions = [
+    { value: 'pending', label: 'Pending', color: '#FF9800' },
+    { value: 'approved', label: 'Approved', color: '#4CAF50' },
+    { value: 'rejected', label: 'Rejected', color: '#F44336' }
+  ];
 
   useEffect(() => {
-    if (powerlist) {
+    if (nomination) {
       setFormData({
-        name: powerlist.name || '',
-        email: powerlist.email || '',
-        whatsapp: powerlist.whatsapp || '',
-        calling_number: powerlist.calling_number || '',
-        telegram_username: powerlist.telegram_username || '',
-        direct_number: powerlist.direct_number || '',
-        gender: powerlist.gender || '',
-        date_of_birth: powerlist.date_of_birth || '',
-        dual_passport: powerlist.dual_passport || false,
-        passport_nationality_one: powerlist.passport_nationality_one || '',
-        passport_nationality_two: powerlist.passport_nationality_two || '',
-        uae_permanent_residence: powerlist.uae_permanent_residence || false,
-        other_permanent_residency: powerlist.other_permanent_residency || false,
-        other_residency_mention: powerlist.other_residency_mention || '',
-        current_company: powerlist.current_company || '',
-        position: powerlist.position || '',
-        linkedin_url: powerlist.linkedin_url || '',
-        instagram_url: powerlist.instagram_url || '',
-        facebook_url: powerlist.facebook_url || '',
-        personal_website: powerlist.personal_website || '',
-        company_website: powerlist.company_website || '',
-        company_industry: powerlist.company_industry || '',
-        filling_on_behalf: powerlist.filling_on_behalf || false,
-        behalf_name: powerlist.behalf_name || '',
-        behalf_position: powerlist.behalf_position || '',
-        behalf_relation: powerlist.behalf_relation || '',
-        behalf_gender: powerlist.behalf_gender || '',
-        behalf_email: powerlist.behalf_email || '',
-        behalf_contact_number: powerlist.behalf_contact_number || '',
-        agree_terms: powerlist.agree_terms !== false,
-        message: powerlist.message || '',
-        status: powerlist.status || 'pending'
+        publication_name: nomination.publication_name || '',
+        website_url: nomination.website_url || '',
+        power_list_name: nomination.power_list_name || '',
+        industry: nomination.industry || '',
+        company_or_individual: nomination.company_or_individual || '',
+        tentative_month: nomination.tentative_month || '',
+        location_region: nomination.location_region || '',
+        last_power_list_url: nomination.last_power_list_url || '',
+        image: nomination.image || null,
+        status: nomination.status || 'pending',
+        is_active: nomination.is_active !== undefined ? nomination.is_active : true
       });
+      setImagePreview(nomination.image || null);
     } else {
       setFormData({
-        name: '',
-        email: '',
-        whatsapp: '',
-        calling_number: '',
-        telegram_username: '',
-        direct_number: '',
-        gender: '',
-        date_of_birth: '',
-        dual_passport: false,
-        passport_nationality_one: '',
-        passport_nationality_two: '',
-        uae_permanent_residence: false,
-        other_permanent_residency: false,
-        other_residency_mention: '',
-        current_company: '',
-        position: '',
-        linkedin_url: '',
-        instagram_url: '',
-        facebook_url: '',
-        personal_website: '',
-        company_website: '',
-        company_industry: '',
-        filling_on_behalf: false,
-        behalf_name: '',
-        behalf_position: '',
-        behalf_relation: '',
-        behalf_gender: '',
-        behalf_email: '',
-        behalf_contact_number: '',
-        agree_terms: true,
-        message: '',
-        status: 'pending'
+        publication_name: '',
+        website_url: '',
+        power_list_name: '',
+        industry: '',
+        company_or_individual: '',
+        tentative_month: '',
+        location_region: '',
+        last_power_list_url: '',
+        image: null,
+        status: 'pending',
+        is_active: true
       });
+      setImagePreview(null);
     }
-  }, [powerlist, isOpen]);
+  }, [nomination, isOpen]);
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, image: file });
+      
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      if (powerlist) {
-        await api.put(`/powerlist/${powerlist.id}`, formData);
+      const submissionData = new FormData();
+
+      // Add all form fields to FormData
+      Object.keys(formData).forEach(key => {
+        if (key === 'image' && formData[key] instanceof File) {
+          submissionData.append('image', formData[key]);
+        } else if (formData[key] !== null && formData[key] !== '') {
+          submissionData.append(key, formData[key]);
+        }
+      });
+
+      if (nomination) {
+        await api.put(`/powerlist-nominations/${nomination.id}`, submissionData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
       } else {
-        await api.post('/powerlist', formData);
+        await api.post('/powerlist-nominations', submissionData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
       }
 
       onSave();
       onClose();
     } catch (error) {
-      console.error('Error saving powerlist:', error);
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error saving powerlist entry. Please try again.';
+      console.error('Error saving powerlist nomination:', error);
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Error saving powerlist nomination. Please try again.';
       alert(errorMessage);
     } finally {
       setLoading(false);
@@ -160,7 +162,7 @@ const PowerlistFormModal = ({ isOpen, onClose, powerlist, onSave }) => {
     background: '#fff',
     borderRadius: '12px',
     padding: '24px',
-    maxWidth: '800px',
+    maxWidth: '900px',
     width: '100%',
     maxHeight: '90vh',
     overflowY: 'auto',
@@ -188,8 +190,15 @@ const PowerlistFormModal = ({ isOpen, onClose, powerlist, onSave }) => {
     boxSizing: 'border-box'
   };
 
-  const checkboxStyle = {
-    marginRight: '8px'
+  const selectStyle = {
+    ...inputStyle,
+    backgroundColor: '#fff'
+  };
+
+  const textareaStyle = {
+    ...inputStyle,
+    minHeight: '80px',
+    resize: 'vertical'
   };
 
   const buttonStyle = {
@@ -206,7 +215,7 @@ const PowerlistFormModal = ({ isOpen, onClose, powerlist, onSave }) => {
       <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
-            {powerlist ? 'Edit Powerlist Entry' : 'Create Powerlist Entry'}
+            {nomination ? 'Edit Powerlist Nomination' : 'Create Powerlist Nomination'}
           </h2>
           <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
             ×
@@ -214,347 +223,160 @@ const PowerlistFormModal = ({ isOpen, onClose, powerlist, onSave }) => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '16px' }}>
+            {/* Required Fields */}
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Name *</label>
+              <label style={labelStyle}>Publication Name *</label>
               <input
                 type="text"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={formData.publication_name}
+                onChange={(e) => setFormData({ ...formData, publication_name: e.target.value })}
                 style={inputStyle}
                 required
+                placeholder="Enter publication name"
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Email *</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                style={inputStyle}
-                required
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>WhatsApp</label>
-              <input
-                type="tel"
-                value={formData.whatsapp}
-                onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Calling Number</label>
-              <input
-                type="tel"
-                value={formData.calling_number}
-                onChange={(e) => setFormData({ ...formData, calling_number: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Telegram Username</label>
+              <label style={labelStyle}>Power List Name *</label>
               <input
                 type="text"
-                value={formData.telegram_username}
-                onChange={(e) => setFormData({ ...formData, telegram_username: e.target.value })}
+                value={formData.power_list_name}
+                onChange={(e) => setFormData({ ...formData, power_list_name: e.target.value })}
                 style={inputStyle}
+                required
+                placeholder="Enter power list name"
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Direct Number</label>
-              <input
-                type="tel"
-                value={formData.direct_number}
-                onChange={(e) => setFormData({ ...formData, direct_number: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Gender</label>
+              <label style={labelStyle}>Industry *</label>
               <select
-                value={formData.gender}
-                onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                style={inputStyle}
+                value={formData.industry}
+                onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                style={selectStyle}
+                required
               >
-                <option value="">Select Gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
+                <option value="">Select Industry</option>
+                {industryOptions.map(industry => (
+                  <option key={industry} value={industry}>{industry}</option>
+                ))}
               </select>
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Date of Birth</label>
+              <label style={labelStyle}>Company or Individual *</label>
+              <select
+                value={formData.company_or_individual}
+                onChange={(e) => setFormData({ ...formData, company_or_individual: e.target.value })}
+                style={selectStyle}
+                required
+              >
+                <option value="">Select Type</option>
+                {companyOrIndividualOptions.map(type => (
+                  <option key={type} value={type}>{type}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Optional Fields */}
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Website URL</label>
               <input
-                type="date"
-                value={formData.date_of_birth}
-                onChange={(e) => setFormData({ ...formData, date_of_birth: e.target.value })}
+                type="url"
+                value={formData.website_url}
+                onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
                 style={inputStyle}
+                placeholder="https://example.com"
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Current Company</label>
+              <label style={labelStyle}>Tentative Month</label>
+              <select
+                value={formData.tentative_month}
+                onChange={(e) => setFormData({ ...formData, tentative_month: e.target.value })}
+                style={selectStyle}
+              >
+                <option value="">Select Month</option>
+                {monthOptions.map(month => (
+                  <option key={month} value={month}>{month}</option>
+                ))}
+              </select>
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Location Region</label>
               <input
                 type="text"
-                value={formData.current_company}
-                onChange={(e) => setFormData({ ...formData, current_company: e.target.value })}
+                value={formData.location_region}
+                onChange={(e) => setFormData({ ...formData, location_region: e.target.value })}
                 style={inputStyle}
+                placeholder="Enter location or region"
               />
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Position</label>
+              <label style={labelStyle}>Last Power List URL</label>
               <input
-                type="text"
-                value={formData.position}
-                onChange={(e) => setFormData({ ...formData, position: e.target.value })}
+                type="url"
+                value={formData.last_power_list_url}
+                onChange={(e) => setFormData({ ...formData, last_power_list_url: e.target.value })}
                 style={inputStyle}
+                placeholder="https://example.com/powerlist"
               />
             </div>
 
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Company Industry</label>
-              <input
-                type="text"
-                value={formData.company_industry}
-                onChange={(e) => setFormData({ ...formData, company_industry: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
+            {/* Status Field */}
             <div style={formGroupStyle}>
               <label style={labelStyle}>Status</label>
               <select
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                style={inputStyle}
+                style={selectStyle}
               >
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="rejected">Rejected</option>
+                {statusOptions.map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
               </select>
             </div>
 
+            {/* Active Status */}
             <div style={formGroupStyle}>
-              <label style={labelStyle}>
+              <label style={labelStyle}>Is Active</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input
                   type="checkbox"
-                  checked={formData.dual_passport}
-                  onChange={(e) => setFormData({ ...formData, dual_passport: e.target.checked })}
-                  style={checkboxStyle}
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                  style={{ transform: 'scale(1.2)' }}
                 />
-                Dual Passport
-              </label>
+                <span style={{ fontSize: '14px', color: '#212121' }}>
+                  Active (visible in listings)
+                </span>
+              </div>
             </div>
+          </div>
 
-            {formData.dual_passport && (
-              <>
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Passport Nationality One</label>
-                  <input
-                    type="text"
-                    value={formData.passport_nationality_one}
-                    onChange={(e) => setFormData({ ...formData, passport_nationality_one: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Passport Nationality Two</label>
-                  <input
-                    type="text"
-                    value={formData.passport_nationality_two}
-                    onChange={(e) => setFormData({ ...formData, passport_nationality_two: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-              </>
-            )}
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>
-                <input
-                  type="checkbox"
-                  checked={formData.uae_permanent_residence}
-                  onChange={(e) => setFormData({ ...formData, uae_permanent_residence: e.target.checked })}
-                  style={checkboxStyle}
+          {/* Image Upload */}
+          <div style={formGroupStyle}>
+            <label style={labelStyle}>Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={{ ...inputStyle, padding: '8px' }}
+            />
+            {imagePreview && (
+              <div style={{ marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e0e0e0' }}
                 />
-                UAE Permanent Residence
-              </label>
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>
-                <input
-                  type="checkbox"
-                  checked={formData.other_permanent_residency}
-                  onChange={(e) => setFormData({ ...formData, other_permanent_residency: e.target.checked })}
-                  style={checkboxStyle}
-                />
-                Other Permanent Residency
-              </label>
-            </div>
-
-            {formData.other_permanent_residency && (
-              <div style={formGroupStyle}>
-                <label style={labelStyle}>Other Residency Mention</label>
-                <input
-                  type="text"
-                  value={formData.other_residency_mention}
-                  onChange={(e) => setFormData({ ...formData, other_residency_mention: e.target.value })}
-                  style={inputStyle}
-                />
+                <span style={{ fontSize: '12px', color: '#666' }}>Image preview</span>
               </div>
             )}
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>LinkedIn URL</label>
-              <input
-                type="url"
-                value={formData.linkedin_url}
-                onChange={(e) => setFormData({ ...formData, linkedin_url: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Instagram URL</label>
-              <input
-                type="url"
-                value={formData.instagram_url}
-                onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Facebook URL</label>
-              <input
-                type="url"
-                value={formData.facebook_url}
-                onChange={(e) => setFormData({ ...formData, facebook_url: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Personal Website</label>
-              <input
-                type="url"
-                value={formData.personal_website}
-                onChange={(e) => setFormData({ ...formData, personal_website: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Company Website</label>
-              <input
-                type="url"
-                value={formData.company_website}
-                onChange={(e) => setFormData({ ...formData, company_website: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>
-                <input
-                  type="checkbox"
-                  checked={formData.filling_on_behalf}
-                  onChange={(e) => setFormData({ ...formData, filling_on_behalf: e.target.checked })}
-                  style={checkboxStyle}
-                />
-                Filling on Behalf
-              </label>
-            </div>
-
-            {formData.filling_on_behalf && (
-              <>
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Behalf Name</label>
-                  <input
-                    type="text"
-                    value={formData.behalf_name}
-                    onChange={(e) => setFormData({ ...formData, behalf_name: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Behalf Position</label>
-                  <input
-                    type="text"
-                    value={formData.behalf_position}
-                    onChange={(e) => setFormData({ ...formData, behalf_position: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Behalf Relation</label>
-                  <input
-                    type="text"
-                    value={formData.behalf_relation}
-                    onChange={(e) => setFormData({ ...formData, behalf_relation: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Behalf Gender</label>
-                  <select
-                    value={formData.behalf_gender}
-                    onChange={(e) => setFormData({ ...formData, behalf_gender: e.target.value })}
-                    style={inputStyle}
-                  >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Behalf Email</label>
-                  <input
-                    type="email"
-                    value={formData.behalf_email}
-                    onChange={(e) => setFormData({ ...formData, behalf_email: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-
-                <div style={formGroupStyle}>
-                  <label style={labelStyle}>Behalf Contact Number</label>
-                  <input
-                    type="tel"
-                    value={formData.behalf_contact_number}
-                    onChange={(e) => setFormData({ ...formData, behalf_contact_number: e.target.value })}
-                    style={inputStyle}
-                  />
-                </div>
-              </>
-            )}
-
-            <div style={{ ...formGroupStyle, gridColumn: '1 / -1' }}>
-              <label style={labelStyle}>Message</label>
-              <textarea
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }}
-                placeholder="Additional message or notes..."
-              />
-            </div>
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px', gap: '12px' }}>
@@ -571,7 +393,7 @@ const PowerlistFormModal = ({ isOpen, onClose, powerlist, onSave }) => {
               style={{ ...buttonStyle, backgroundColor: '#1976D2', color: '#fff' }}
               disabled={loading}
             >
-              {loading ? 'Saving...' : (powerlist ? 'Update Entry' : 'Create Entry')}
+              {loading ? 'Saving...' : (nomination ? 'Update Nomination' : 'Create Nomination')}
             </button>
           </div>
         </form>
@@ -614,14 +436,14 @@ const theme = {
 const PowerlistManagement = () => {
   const { admin, logout, hasRole, hasAnyRole } = useAdminAuth();
 
-  // Check if user has permission to manage powerlists
+  // Check if user has permission to manage powerlist nominations
   if (!hasAnyRole(['super_admin', 'content_manager'])) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: theme.backgroundSoft }}>
         <div style={{ textAlign: 'center' }}>
           <Icon name="shield-exclamation" size="lg" style={{ color: theme.danger, marginBottom: '16px' }} />
           <h2 style={{ color: theme.textPrimary, marginBottom: '8px' }}>Access Denied</h2>
-          <p style={{ color: theme.textSecondary }}>You don't have permission to access powerlist management.</p>
+          <p style={{ color: theme.textSecondary }}>You don't have permission to access powerlist nomination management.</p>
           <p style={{ color: theme.textSecondary, fontSize: '14px', marginTop: '8px' }}>
             Required roles: Super Admin or Content Manager
           </p>
@@ -630,24 +452,27 @@ const PowerlistManagement = () => {
     );
   }
 
-  const [powerlists, setPowerlists] = useState([]);
+  const [nominations, setNominations] = useState([]);
+  const [totalNominations, setTotalNominations] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
-  const [editingPowerlist, setEditingPowerlist] = useState(null);
-  const [selectedPowerlists, setSelectedPowerlists] = useState([]);
+  const [editingNomination, setEditingNomination] = useState(null);
+  const [selectedNominations, setSelectedNominations] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
   const [sortField, setSortField] = useState('created_at');
   const [sortDirection, setSortDirection] = useState('desc');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [industryFilter, setIndustryFilter] = useState('');
-  const [genderFilter, setGenderFilter] = useState('');
+  const [filters, setFilters] = useState({
+    status: '',
+    industry: '',
+    company_or_individual: '',
+    location_region: '',
+    is_active: ''
+  });
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -745,7 +570,7 @@ const PowerlistManagement = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await fetchPowerlists();
+        await fetchNominations();
       } catch (error) {
         console.error('Error fetching data:', error);
         // If unauthorized, the API interceptor will handle redirect
@@ -753,65 +578,53 @@ const PowerlistManagement = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentPage, pageSize, debouncedSearchTerm, sortField, sortDirection, filters]);
 
-  const fetchPowerlists = useCallback(async () => {
+  const fetchNominations = useCallback(async () => {
+    setLoading(true);
     try {
       const params = new URLSearchParams({
-        page: currentPage,
-        limit: pageSize,
-        ...(debouncedSearchTerm && { name: debouncedSearchTerm, email: debouncedSearchTerm, current_company: debouncedSearchTerm }),
-        ...(statusFilter && { status: statusFilter }),
-        ...(industryFilter && { company_industry: industryFilter }),
-        ...(genderFilter && { gender: genderFilter })
+        page: currentPage.toString(),
+        limit: pageSize.toString(),
+        ...(debouncedSearchTerm && { publication_name: debouncedSearchTerm, power_list_name: debouncedSearchTerm }),
+        ...(filters.status && { status: filters.status }),
+        ...(filters.industry && { industry: filters.industry }),
+        ...(filters.company_or_individual && { company_or_individual: filters.company_or_individual }),
+        ...(filters.location_region && { location_region: filters.location_region }),
+        ...(filters.is_active !== '' && { is_active: filters.is_active })
       });
 
-      const response = await api.get(`/powerlist?${params}`);
-      const data = response.data;
+      const response = await api.get(`/powerlist-nominations?${params}`);
 
-      setPowerlists(data.powerlists || []);
-      setTotalCount(data.pagination?.total || 0);
-      setTotalPages(data.pagination?.pages || 1);
+      if (response.data.nominations && response.data.pagination) {
+        setNominations(response.data.nominations);
+        setTotalNominations(response.data.pagination.total);
+      } else if (Array.isArray(response.data.nominations)) {
+        setNominations(response.data.nominations);
+        setTotalNominations(response.data.nominations.length);
+      } else if (Array.isArray(response.data)) {
+        setNominations(response.data);
+        setTotalNominations(response.data.length);
+      } else {
+        setNominations([]);
+        setTotalNominations(0);
+      }
     } catch (error) {
-      console.error('Error fetching powerlists:', error);
+      console.error('Error fetching nominations:', error);
       if (error.response?.status === 401) {
-        // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
         return;
       }
-      alert('Failed to load powerlists. Please try again.');
+      alert('Failed to load nominations. Please try again.');
+      setNominations([]);
+      setTotalNominations(0);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearchTerm, statusFilter, industryFilter, genderFilter]);
+  }, [currentPage, pageSize, debouncedSearchTerm, filters]);
 
-  // Reset to first page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearchTerm, statusFilter, industryFilter, genderFilter]);
-
-  // Sorting logic (client-side sorting of current page results)
-  const sortedPowerlists = useMemo(() => {
-    return [...powerlists].sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      if (sortField === 'created_at' || sortField === 'updated_at' || sortField === 'date_of_birth') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else {
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
-      }
-
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  }, [powerlists, sortField, sortDirection]);
+  const totalPages = Math.ceil(totalNominations / pageSize);
 
   const getStatusStyle = (status) => {
     const statusOption = statusOptions.find(opt => opt.value === status);
@@ -829,7 +642,6 @@ const PowerlistManagement = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return '—';
     return new Date(dateString).toLocaleString();
   };
 
@@ -848,32 +660,32 @@ const PowerlistManagement = () => {
   };
 
   // CRUD operations
-  const handleCreatePowerlist = () => {
-    setEditingPowerlist(null);
+  const handleCreateNomination = () => {
+    setEditingNomination(null);
     setShowFormModal(true);
   };
 
-  const handleEditPowerlist = (powerlist) => {
-    setEditingPowerlist(powerlist);
+  const handleEditNomination = (nomination) => {
+    setEditingNomination(nomination);
     setShowFormModal(true);
   };
 
-  const handleDeletePowerlist = async (powerlistId) => {
-    if (!window.confirm('Are you sure you want to delete this powerlist entry?')) return;
+  const handleDeleteNomination = async (nominationId) => {
+    if (!window.confirm('Are you sure you want to delete this nomination?')) return;
 
     try {
-      await api.delete(`/powerlist/${powerlistId}`);
-      fetchPowerlists();
+      await api.delete(`/powerlist-nominations/${nominationId}`);
+      fetchNominations();
     } catch (error) {
-      console.error('Error deleting powerlist:', error);
-      alert('Error deleting powerlist entry. Please try again.');
+      console.error('Error deleting nomination:', error);
+      alert('Error deleting nomination. Please try again.');
     }
   };
 
-  const handleStatusChange = async (powerlistId, newStatus) => {
+  const handleStatusChange = async (nominationId, newStatus) => {
     try {
-      await api.put(`/powerlist/${powerlistId}`, { status: newStatus });
-      fetchPowerlists();
+      await api.put(`/powerlist-nominations/${nominationId}/status`, { status: newStatus });
+      fetchNominations();
     } catch (error) {
       console.error('Error updating status:', error);
       alert('Error updating status. Please try again.');
@@ -881,51 +693,51 @@ const PowerlistManagement = () => {
   };
 
   const handleFormSave = () => {
-    fetchPowerlists();
+    fetchNominations();
   };
 
   // Bulk operations
-  const handleSelectPowerlist = (powerlistId) => {
-    setSelectedPowerlists(prev =>
-      prev.includes(powerlistId)
-        ? prev.filter(id => id !== powerlistId)
-        : [...prev, powerlistId]
+  const handleSelectNomination = (nominationId) => {
+    setSelectedNominations(prev =>
+      prev.includes(nominationId)
+        ? prev.filter(id => id !== nominationId)
+        : [...prev, nominationId]
     );
   };
 
   const handleSelectAll = () => {
-    if (selectedPowerlists.length === powerlists.length) {
-      setSelectedPowerlists([]);
+    if (selectedNominations.length === nominations.length && nominations.length > 0) {
+      setSelectedNominations([]);
     } else {
-      setSelectedPowerlists(powerlists.map(p => p.id));
+      setSelectedNominations(nominations.map(n => n.id));
     }
   };
 
   const handleBulkDelete = async () => {
-    if (!window.confirm(`Are you sure you want to delete ${selectedPowerlists.length} powerlist entries?`)) return;
+    if (!window.confirm(`Are you sure you want to delete ${selectedNominations.length} nominations?`)) return;
 
     try {
-      for (const powerlistId of selectedPowerlists) {
-        await api.delete(`/powerlist/${powerlistId}`);
+      for (const nominationId of selectedNominations) {
+        await api.delete(`/powerlist-nominations/${nominationId}`);
       }
-      setSelectedPowerlists([]);
-      fetchPowerlists();
+      setSelectedNominations([]);
+      fetchNominations();
     } catch (error) {
       console.error('Error bulk deleting:', error);
-      alert('Error deleting powerlist entries. Please try again.');
+      alert('Error deleting nominations. Please try again.');
     }
   };
 
   const handleBulkStatusChange = async (newStatus) => {
     try {
-      for (const powerlistId of selectedPowerlists) {
-        await api.put(`/powerlist/${powerlistId}`, { status: newStatus });
+      for (const nominationId of selectedNominations) {
+        await api.put(`/powerlist-nominations/${nominationId}/status`, { status: newStatus });
       }
-      setSelectedPowerlists([]);
-      fetchPowerlists();
+      setSelectedNominations([]);
+      fetchNominations();
     } catch (error) {
       console.error('Error bulk updating status:', error);
-      alert('Error updating powerlist entries. Please try again.');
+      alert('Error updating nominations. Please try again.');
     }
   };
 
@@ -936,11 +748,6 @@ const PowerlistManagement = () => {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
-
-  // Fetch data when filters change
-  useEffect(() => {
-    fetchPowerlists();
-  }, [fetchPowerlists]);
 
   if (loading) {
     return (
@@ -1140,31 +947,31 @@ const PowerlistManagement = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
                   <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e6f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name="users" size="sm" style={{ color: '#1976D2' }} />
+                    <Icon name="trophy" size="sm" style={{ color: '#1976D2' }} />
                   </div>
-                  <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>Powerlist Management</h1>
+                  <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>Powerlist Nomination Management</h1>
                 </div>
-                <p style={{ marginTop: 8, color: '#757575' }}>Manage powerlist entries and applications</p>
+                <p style={{ marginTop: 8, color: '#757575' }}>Manage powerlist nominations and their approval status</p>
               </div>
 
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
                 <button
-                  onClick={handleCreatePowerlist}
+                  onClick={handleCreateNomination}
                   style={{ ...btnPrimary, fontSize: '14px', padding: '12px 20px' }}
                   disabled={!hasAnyRole(['super_admin', 'content_manager'])}
                 >
                   <Icon name="plus" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                  Add Entry
+                  Add Nomination
                 </button>
               </div>
             </div>
 
             {/* Bulk Actions Bar */}
-            {selectedPowerlists.length > 0 && (
+            {selectedNominations.length > 0 && (
               <div style={{ backgroundColor: '#fff', borderRadius: '12px', padding: '16px', marginBottom: '24px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', border: '1px solid #e0e0e0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                   <div style={{ fontSize: '14px', color: '#212121' }}>
-                    {selectedPowerlists.length} powerlist entr{selectedPowerlists.length !== 1 ? 'ies' : 'y'} selected
+                    {selectedNominations.length} nomination{selectedNominations.length !== 1 ? 's' : ''} selected
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                     <select
@@ -1192,7 +999,7 @@ const PowerlistManagement = () => {
               </div>
             )}
 
-            {/* Search and Filters Bar */}
+            {/* Search Bar */}
             <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', marginBottom: '16px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)' }}>
               <div style={{ display: 'flex', gap: '16px', alignItems: 'center', flexWrap: 'wrap' }}>
                 <div style={{ position: 'relative', flex: 1, minWidth: '300px' }}>
@@ -1202,7 +1009,7 @@ const PowerlistManagement = () => {
                   </svg>
                   <input
                     type="text"
-                    placeholder="Search by name, email, or company..."
+                    placeholder="Search nominations by publication name, power list name..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     style={{
@@ -1245,72 +1052,39 @@ const PowerlistManagement = () => {
                     </button>
                   )}
                 </div>
-
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  style={{ padding: '12px', border: '2px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', minWidth: '120px' }}
-                >
-                  <option value="">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="approved">Approved</option>
-                  <option value="rejected">Rejected</option>
-                </select>
-
-                <select
-                  value={industryFilter}
-                  onChange={(e) => setIndustryFilter(e.target.value)}
-                  style={{ padding: '12px', border: '2px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', minWidth: '120px' }}
-                >
-                  <option value="">All Industries</option>
-                  <option value="Technology">Technology</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Healthcare">Healthcare</option>
-                  <option value="Media">Media</option>
-                  <option value="Education">Education</option>
-                  <option value="Other">Other</option>
-                </select>
-
-                <select
-                  value={genderFilter}
-                  onChange={(e) => setGenderFilter(e.target.value)}
-                  style={{ padding: '12px', border: '2px solid #e0e0e0', borderRadius: '8px', fontSize: '14px', minWidth: '120px' }}
-                >
-                  <option value="">All Genders</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
               </div>
 
               {/* Search Results Summary */}
               <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
                 <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                  {debouncedSearchTerm || statusFilter || industryFilter || genderFilter ? (
+                  {debouncedSearchTerm ? (
                     <>
-                      <span style={{ color: theme.primary, fontWeight: '600' }}>Filtered:</span> Found <strong>{totalCount}</strong> entries
+                      <span style={{ color: theme.primary, fontWeight: '600' }}>Search:</span> Found <strong>{totalNominations}</strong> nominations matching "{debouncedSearchTerm}"
                     </>
                   ) : (
                     <>
-                      Showing <strong>{powerlists.length}</strong> of <strong>{totalCount}</strong> entries
+                      Showing <strong>{nominations.length}</strong> of <strong>{totalNominations}</strong> nominations
+                      {currentPage > 1 && (
+                        <span> (Page {currentPage} of {totalPages})</span>
+                      )}
                     </>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Powerlists Table */}
+            {/* Nominations Table */}
             <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', overflow: 'hidden' }}>
               {/* Table Controls */}
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
-                      {selectedPowerlists.length > 0 ? `${selectedPowerlists.length} selected` : 'Select entries'}
+                      {selectedNominations.length > 0 ? `${selectedNominations.length} selected` : 'Select nominations'}
                     </span>
-                    {selectedPowerlists.length > 0 && (
+                    {selectedNominations.length > 0 && (
                       <button
-                        onClick={() => setSelectedPowerlists([])}
+                        onClick={() => setSelectedNominations([])}
                         style={{
                           padding: '4px 8px',
                           backgroundColor: '#e5e7eb',
@@ -1347,19 +1121,14 @@ const PowerlistManagement = () => {
                     </select>
                     <button
                       onClick={() => {
-                        // Export current page results as CSV
-                        const headers = ['Name', 'Email', 'Company', 'Position', 'Industry', 'Gender', 'Status', 'Created At'];
+                        const headers = ['Publication Name', 'Power List Name', 'Industry', 'Status'];
                         const csvData = [
                           headers.join(','),
-                          ...powerlists.map(powerlist => [
-                            `"${powerlist.name}"`,
-                            `"${powerlist.email}"`,
-                            `"${powerlist.current_company || ''}"`,
-                            `"${powerlist.position || ''}"`,
-                            `"${powerlist.company_industry || ''}"`,
-                            `"${powerlist.gender || ''}"`,
-                            powerlist.status,
-                            `"${formatDate(powerlist.created_at)}"`
+                          ...nominations.map(nomination => [
+                            `"${nomination.publication_name}"`,
+                            `"${nomination.power_list_name}"`,
+                            `"${nomination.industry}"`,
+                            nomination.status
                           ].join(','))
                         ].join('\n');
 
@@ -1367,7 +1136,7 @@ const PowerlistManagement = () => {
                         const link = document.createElement('a');
                         const url = URL.createObjectURL(blob);
                         link.setAttribute('href', url);
-                        link.setAttribute('download', `powerlist_export_${new Date().toISOString().split('T')[0]}.csv`);
+                        link.setAttribute('download', `powerlist_nominations_export_${new Date().toISOString().split('T')[0]}.csv`);
                         link.style.visibility = 'hidden';
                         document.body.appendChild(link);
                         link.click();
@@ -1390,26 +1159,38 @@ const PowerlistManagement = () => {
                 </div>
               </div>
 
-              <div style={{ overflowX: 'auto', maxHeight: powerlists.length > 50 ? '600px' : 'auto', overflowY: powerlists.length > 50 ? 'auto' : 'visible' }}>
+              <div style={{ overflowX: 'auto', maxHeight: nominations.length > 50 ? '600px' : 'auto', overflowY: nominations.length > 50 ? 'auto' : 'visible' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', width: '50px' }}>
                         <input
                           type="checkbox"
-                          checked={powerlists.length > 0 && selectedPowerlists.length === powerlists.length}
+                          checked={nominations.length > 0 && selectedNominations.length === nominations.length}
                           onChange={handleSelectAll}
                           style={{ transform: 'scale(1.2)', cursor: 'pointer' }}
                         />
                       </th>
                       <th
                         style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                        onClick={() => handleSort('name')}
+                        onClick={() => handleSort('publication_name')}
                       >
-                        Name {getSortIcon('name')}
+                        Publication {getSortIcon('publication_name')}
+                      </th>
+                      <th
+                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
+                        onClick={() => handleSort('power_list_name')}
+                      >
+                        Power List {getSortIcon('power_list_name')}
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Contact & Company
+                        Industry
+                      </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Company/Individual
+                      </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Location
                       </th>
                       <th
                         style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
@@ -1423,19 +1204,19 @@ const PowerlistManagement = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {powerlists.map((powerlist, index) => (
-                      <tr key={powerlist.id} style={{
+                    {nominations.map((nomination, index) => (
+                      <tr key={nomination.id} style={{
                         borderBottom: '1px solid #f1f5f9',
-                        backgroundColor: selectedPowerlists.includes(powerlist.id) ? '#e0f2fe' : (index % 2 === 0 ? '#ffffff' : '#fafbfc'),
+                        backgroundColor: selectedNominations.includes(nomination.id) ? '#e0f2fe' : (index % 2 === 0 ? '#ffffff' : '#fafbfc'),
                         transition: 'all 0.2s'
                       }}
                       onMouseEnter={(e) => {
-                        if (!selectedPowerlists.includes(powerlist.id)) {
+                        if (!selectedNominations.includes(nomination.id)) {
                           e.target.closest('tr').style.backgroundColor = '#f1f5f9';
                         }
                       }}
                       onMouseLeave={(e) => {
-                        if (!selectedPowerlists.includes(powerlist.id)) {
+                        if (!selectedNominations.includes(nomination.id)) {
                           e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
                         }
                       }}
@@ -1443,8 +1224,8 @@ const PowerlistManagement = () => {
                         <td style={{ padding: '16px' }}>
                           <input
                             type="checkbox"
-                            checked={selectedPowerlists.includes(powerlist.id)}
-                            onChange={() => handleSelectPowerlist(powerlist.id)}
+                            checked={selectedNominations.includes(nomination.id)}
+                            onChange={() => handleSelectNomination(nomination.id)}
                             style={{ transform: 'scale(1.1)', cursor: 'pointer' }}
                           />
                         </td>
@@ -1454,59 +1235,77 @@ const PowerlistManagement = () => {
                               width: '40px',
                               height: '40px',
                               borderRadius: '50%',
-                              backgroundColor: '#f3f4f6',
+                              backgroundColor: nomination.image ? 'transparent' : '#f3f4f6',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
                               flexShrink: 0,
-                              border: '2px solid #e5e7eb'
+                              border: '2px solid #e5e7eb',
+                              overflow: 'hidden'
                             }}>
-                              <span style={{ fontSize: '16px', color: theme.textSecondary, fontWeight: '600' }}>
-                                {powerlist.name.charAt(0).toUpperCase()}
-                              </span>
+                              {nomination.image ? (
+                                <img
+                                  src={nomination.image}
+                                  alt={nomination.publication_name}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: '16px', color: theme.textSecondary, fontWeight: '600' }}>
+                                  {nomination.publication_name.charAt(0).toUpperCase()}
+                                </span>
+                              )}
                             </div>
                             <div>
                               <div style={{ fontWeight: '600', fontSize: '14px', color: theme.textPrimary, marginBottom: '4px' }}>
-                                {powerlist.name}
+                                {nomination.publication_name}
                               </div>
-                              <div style={{ fontSize: '12px', color: theme.primary, fontWeight: '500' }}>
-                                {powerlist.gender && `${powerlist.gender.charAt(0).toUpperCase() + powerlist.gender.slice(1)} • `}
-                                {powerlist.date_of_birth && `Born ${new Date(powerlist.date_of_birth).getFullYear()}`}
-                              </div>
+                              {nomination.website_url && (
+                                <a
+                                  href={nomination.website_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ color: theme.primary, textDecoration: 'none', fontSize: '12px' }}
+                                >
+                                  🌐 Website
+                                </a>
+                              )}
                             </div>
                           </div>
                         </td>
                         <td style={{ padding: '16px' }}>
-                          <div>
-                            <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500', marginBottom: '4px' }}>
-                              📧 {powerlist.email}
-                            </div>
-                            {powerlist.current_company && (
-                              <div style={{ fontSize: '13px', color: theme.textSecondary, marginBottom: '4px' }}>
-                                🏢 {powerlist.current_company}
-                              </div>
-                            )}
-                            {powerlist.position && (
-                              <div style={{ fontSize: '13px', color: theme.textSecondary, marginBottom: '4px' }}>
-                                💼 {powerlist.position}
-                              </div>
-                            )}
-                            {powerlist.company_industry && (
-                              <div style={{ fontSize: '12px', color: theme.info, fontWeight: '500' }}>
-                                Industry: {powerlist.company_industry}
-                              </div>
-                            )}
+                          <div style={{ fontSize: '14px', color: theme.textPrimary, fontWeight: '500' }}>
+                            {nomination.power_list_name}
                           </div>
                         </td>
                         <td style={{ padding: '16px' }}>
-                          <span style={getStatusStyle(powerlist.status)}>
-                            {statusOptions.find(opt => opt.value === powerlist.status)?.label || powerlist.status}
+                          <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500' }}>
+                            {nomination.industry}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500' }}>
+                            {nomination.company_or_individual}
+                          </div>
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500' }}>
+                            {nomination.location_region || '-'}
+                          </div>
+                          {nomination.tentative_month && (
+                            <div style={{ fontSize: '11px', color: theme.textSecondary }}>
+                              {nomination.tentative_month}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: '16px' }}>
+                          <span style={getStatusStyle(nomination.status)}>
+                            {statusOptions.find(opt => opt.value === nomination.status)?.label || nomination.status}
                           </span>
                         </td>
                         <td style={{ padding: '16px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                             <button
-                              onClick={() => handleEditPowerlist(powerlist)}
+                              onClick={() => handleEditNomination(nomination)}
                               style={{
                                 padding: '6px 10px',
                                 backgroundColor: theme.primary,
@@ -1525,10 +1324,10 @@ const PowerlistManagement = () => {
                               Edit
                             </button>
                             <button
-                              onClick={() => handleStatusChange(powerlist.id, powerlist.status === 'approved' ? 'pending' : 'approved')}
+                              onClick={() => handleStatusChange(nomination.id, nomination.status === 'approved' ? 'pending' : 'approved')}
                               style={{
                                 padding: '6px 10px',
-                                backgroundColor: powerlist.status === 'approved' ? '#ff9800' : '#4caf50',
+                                backgroundColor: nomination.status === 'approved' ? '#ff9800' : '#4caf50',
                                 color: '#fff',
                                 border: 'none',
                                 borderRadius: '4px',
@@ -1538,13 +1337,13 @@ const PowerlistManagement = () => {
                                 transition: 'background-color 0.2s'
                               }}
                               disabled={!hasAnyRole(['super_admin', 'content_manager'])}
-                              onMouseEnter={(e) => e.target.style.backgroundColor = powerlist.status === 'approved' ? '#f57c00' : '#388e3c'}
-                              onMouseLeave={(e) => e.target.style.backgroundColor = powerlist.status === 'approved' ? '#ff9800' : '#4caf50'}
+                              onMouseEnter={(e) => e.target.style.backgroundColor = nomination.status === 'approved' ? '#f57c00' : '#388e3c'}
+                              onMouseLeave={(e) => e.target.style.backgroundColor = nomination.status === 'approved' ? '#ff9800' : '#4caf50'}
                             >
-                              {powerlist.status === 'approved' ? 'Deactivate' : 'Approve'}
+                              {nomination.status === 'approved' ? 'Deactivate' : 'Approve'}
                             </button>
                             <button
-                              onClick={() => handleDeletePowerlist(powerlist.id)}
+                              onClick={() => handleDeleteNomination(nomination.id)}
                               style={{
                                 padding: '6px 10px',
                                 backgroundColor: '#dc2626',
@@ -1556,7 +1355,7 @@ const PowerlistManagement = () => {
                                 fontWeight: '600',
                                 transition: 'background-color 0.2s'
                               }}
-                              disabled={!hasRole('super_admin')}
+                              disabled={!hasAnyRole(['super_admin'])}
                               onMouseEnter={(e) => e.target.style.backgroundColor = '#b91c1c'}
                               onMouseLeave={(e) => e.target.style.backgroundColor = '#dc2626'}
                             >
@@ -1574,9 +1373,24 @@ const PowerlistManagement = () => {
               {totalPages > 1 && (
                 <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    Page {currentPage} of {totalPages} ({totalCount} total entries)
+                    Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalNominations)} of {totalNominations} nominations
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      style={{
+                        padding: '6px 10px',
+                        backgroundColor: currentPage === 1 ? '#e5e7eb' : theme.primary,
+                        color: currentPage === 1 ? theme.textSecondary : '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      First
+                    </button>
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
@@ -1592,6 +1406,40 @@ const PowerlistManagement = () => {
                     >
                       ← Previous
                     </button>
+
+                    {/* Page numbers */}
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      let pageNum;
+                      if (totalPages <= 5) {
+                        pageNum = i + 1;
+                      } else if (currentPage <= 3) {
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        pageNum = totalPages - 4 + i;
+                      } else {
+                        pageNum = currentPage - 2 + i;
+                      }
+
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => setCurrentPage(pageNum)}
+                          style={{
+                            padding: '8px 12px',
+                            backgroundColor: currentPage === pageNum ? theme.primaryDark : '#f8fafc',
+                            color: currentPage === pageNum ? '#fff' : theme.textPrimary,
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '6px',
+                            fontSize: '14px',
+                            cursor: 'pointer',
+                            fontWeight: currentPage === pageNum ? '600' : '500'
+                          }}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
@@ -1607,57 +1455,72 @@ const PowerlistManagement = () => {
                     >
                       Next →
                     </button>
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      style={{
+                        padding: '6px 10px',
+                        backgroundColor: currentPage === totalPages ? '#e5e7eb' : theme.primary,
+                        color: currentPage === totalPages ? theme.textSecondary : '#fff',
+                        border: 'none',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      Last
+                    </button>
                   </div>
                 </div>
               )}
 
-              {powerlists.length === 0 && (
+              {nominations.length === 0 && !loading && (
                 <div style={{ padding: '80px', textAlign: 'center', color: theme.textSecondary }}>
                   <div style={{ fontSize: '64px', marginBottom: '16px' }}>
-                    {debouncedSearchTerm || statusFilter || industryFilter || genderFilter ? '🔍' : '📭'}
+                    {debouncedSearchTerm ? '🔍' : '📭'}
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>
-                    {debouncedSearchTerm || statusFilter || industryFilter || genderFilter ? 'No entries found' : 'No powerlist entries available'}
+                    {debouncedSearchTerm ? 'No nominations found' : 'No nominations available'}
                   </div>
                   <div style={{ fontSize: '16px', marginBottom: '16px' }}>
-                    {debouncedSearchTerm || statusFilter || industryFilter || genderFilter ? (
+                    {debouncedSearchTerm ? (
                       <>
-                        No entries match your search criteria.
+                        No nominations match your search for "<strong>{debouncedSearchTerm}</strong>".
                         <br />
-                        Try different keywords or adjust your filters.
+                        Try different keywords or check your filters.
                       </>
                     ) : (
-                      'Create your first powerlist entry to get started.'
+                      'Create your first nomination to get started.'
                     )}
                   </div>
 
-                  <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      setStatusFilter('');
-                      setIndustryFilter('');
-                      setGenderFilter('');
-                    }}
-                    style={{
-                      padding: '12px 24px',
-                      backgroundColor: theme.primary,
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '16px',
-                      cursor: 'pointer',
-                      fontWeight: '600',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      margin: '0 auto'
-                    }}
-                  >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-                    </svg>
-                    Clear Filters
-                  </button>
+                  {debouncedSearchTerm && (
+                    <button
+                      onClick={() => {
+                        setSearchTerm('');
+                        setDebouncedSearchTerm('');
+                      }}
+                      style={{
+                        padding: '12px 24px',
+                        backgroundColor: theme.primary,
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '16px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        margin: '0 auto'
+                      }}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                      </svg>
+                      Clear Search
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -1665,11 +1528,11 @@ const PowerlistManagement = () => {
         </div>
       </div>
 
-      {/* Powerlist Form Modal */}
-      <PowerlistFormModal
+      {/* Powerlist Nomination Form Modal */}
+      <PowerlistNominationFormModal
         isOpen={showFormModal}
         onClose={() => setShowFormModal(false)}
-        powerlist={editingPowerlist}
+        nomination={editingNomination}
         onSave={handleFormSave}
       />
     </div>
