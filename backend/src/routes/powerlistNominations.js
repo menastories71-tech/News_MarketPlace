@@ -39,6 +39,9 @@ router.post('/submit', verifyToken, powerlistNominationController.submitValidati
 // User route for viewing approved powerlist nominations
 router.get('/public', powerlistNominationController.getPublic);
 
+// User route for viewing approved powerlist nomination by ID
+router.get('/public/:id', powerlistNominationController.getPublicById);
+
 // Create a new powerlist nomination (admin only)
 router.post('/', verifyAdminToken, requireAdminPanelAccess, upload.single('image'), powerlistNominationController.createValidation, powerlistNominationController.create);
 

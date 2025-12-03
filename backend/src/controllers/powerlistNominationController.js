@@ -510,6 +510,29 @@ class PowerlistNominationController {
     }
   }
 
+  // Get public approved powerlist nomination by ID
+  async getPublicById(req, res) {
+    try {
+      const { id } = req.params;
+
+      const nomination = await PowerlistNomination.findById(id);
+
+      if (!nomination) {
+        return res.status(404).json({ error: 'Powerlist nomination not found' });
+      }
+
+      // Check if nomination is approved and active
+      if (nomination.status !== 'approved' || !nomination.is_active) {
+        return res.status(404).json({ error: 'Powerlist nomination not found' });
+      }
+
+      res.json({ nomination: nomination.toJSON() });
+    } catch (error) {
+      console.error('Get public powerlist nomination by ID error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Update powerlist nomination status (admin only)
   async updateStatus(req, res) {
     try {
