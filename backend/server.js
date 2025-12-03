@@ -41,6 +41,10 @@ const adminPublicationManagementRoutes = require('./src/routes/adminPublicationM
 console.log('Admin Publication Management Routes loaded:', typeof adminPublicationManagementRoutes);
 const adminPaparazziCreationsRoutes = require('./src/routes/adminPaparazziCreations');
 console.log('Admin Paparazzi Creations Routes loaded:', typeof adminPaparazziCreationsRoutes);
+const adminEventCreationRoutes = require('./src/routes/adminEventCreation');
+console.log('Admin Event Creation Routes loaded:', typeof adminEventCreationRoutes);
+const adminAwardCreationRoutes = require('./src/routes/adminAwardCreation');
+console.log('Admin Award Creation Routes loaded:', typeof adminAwardCreationRoutes);
 const aiGeneratedArticlesRoutes = require('./src/routes/aiGeneratedArticles');
 const ordersRoutes = require('./src/routes/orders');
 const paparazziOrdersRoutes = require('./src/routes/paparazziOrders');
@@ -158,6 +162,10 @@ console.log('Mounting admin publication management at /api/admin/publication-man
 app.use('/api/admin/publication-management', adminPublicationManagementRoutes);
 console.log('Mounting admin paparazzi creations at /api/admin/paparazzi-creations');
 app.use('/api/admin/paparazzi-creations', adminPaparazziCreationsRoutes);
+console.log('Mounting admin event creations at /api/admin/event-creations');
+app.use('/api/admin/event-creations', adminEventCreationRoutes);
+console.log('Mounting admin award creations at /api/admin/award-creations');
+app.use('/api/admin/award-creations', adminAwardCreationRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/publications', publicationRoutes);

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Use the same migration runner logic but run only our specific migration
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { Pool } = require('pg');
 
 const migrationPool = new Pool({
@@ -31,7 +31,11 @@ const migrationQuery = async (text, params) => {
 
 async function runSpecificMigration() {
   try {
-    const filename = '055_add_radio_image_description.sql';
+    const filename = process.argv[2];
+    if (!filename) {
+      console.error('Usage: node run_single_migration.js <migration_filename>');
+      process.exit(1);
+    }
     const migrationsPath = path.join(__dirname, 'database/migrations');
     const filePath = path.join(migrationsPath, filename);
 
@@ -43,23 +47,17 @@ async function runSpecificMigration() {
     const sql = fs.readFileSync(filePath, 'utf8');
     console.log(`Running migration: ${filename}`);
 
-    // Split by semicolon and execute each statement
-    const statements = sql.split(';').filter(stmt => stmt.trim());
-
-    for (const statement of statements) {
-      if (statement.trim()) {
-        try {
-          await migrationQuery(statement.trim());
-          console.log('✅ Statement executed successfully');
-        } catch (error) {
-          // If it's an "already exists" error, continue
-          if (error.code === '42710' || error.code === '42P07') {
-            console.log(`⚠️  Skipping duplicate: ${error.message.split('"')[1] || 'unknown'}`);
-            continue;
-          }
-          console.error('❌ Statement failed:', error.message);
-          throw error;
-        }
+    // Execute the whole SQL as one query
+    try {
+      await migrationQuery(sql);
+      console.log('✅ Migration executed successfully');
+    } catch (error) {
+      // If it's an "already exists" error, continue
+      if (error.code === '42710' || error.code === '42P07') {
+        console.log(`⚠️  Skipping duplicate: ${error.message.split('"')[1] || 'unknown'}`);
+      } else {
+        console.error('❌ Migration failed:', error.message);
+        throw error;
       }
     }
 

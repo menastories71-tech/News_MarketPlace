@@ -25,6 +25,8 @@ export default function Sidebar({
   const [powerlistDropdownOpen, setPowerlistDropdownOpen] = useState(false);
   const [publicationDropdownOpen, setPublicationDropdownOpen] = useState(false);
   const [paparazziDropdownOpen, setPaparazziDropdownOpen] = useState(false);
+  const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
+  const [awardsDropdownOpen, setAwardsDropdownOpen] = useState(false);
 
   // compute desktop fixed styles so sidebar sticks to viewport left (matches screenshot)
   const desktopFixedStyles = {
@@ -170,15 +172,44 @@ export default function Sidebar({
             </li>
 
             <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/awards"
+              <div
                 style={navItemBase}
+                onClick={() => setAwardsDropdownOpen(!awardsDropdownOpen)}
                 onMouseEnter={e => e.currentTarget.style.background = '#FFF9C4'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={navIconCircle('#fff9c4')}><Icon name="trophy" size="sm" style={{ color: '#FF9800' }} /></span>
                 <span>Awards</span>
-              </a>
+                <span style={{ marginLeft: 'auto', transform: awardsDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <Icon name="chevron-down" size="sm" style={{ color: '#FF9800' }} />
+                </span>
+              </div>
+              {awardsDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/awards"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FFF9C4'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fff9c4')}><Icon name="trophy" size="sm" style={{ color: '#FF9800' }} /></span>
+                      <span>All Awards</span>
+                    </a>
+                  </li>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/award-creation"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FFF9C4'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fff9c4')}><Icon name="cog" size="sm" style={{ color: '#FF9800' }} /></span>
+                      <span>Award Creation</span>
+                    </a>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li style={{ marginBottom: 10 }}>
@@ -230,15 +261,44 @@ export default function Sidebar({
             </li>
 
             <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/events"
+              <div
                 style={navItemBase}
+                onClick={() => setEventDropdownOpen(!eventDropdownOpen)}
                 onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={navIconCircle('#fff3e0')}><Icon name="calendar" size="sm" style={{ color: '#FF9800' }} /></span>
-                <span>Event Management</span>
-              </a>
+                <span>Event</span>
+                <span style={{ marginLeft: 'auto', transform: eventDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <Icon name="chevron-down" size="sm" style={{ color: '#FF9800' }} />
+                </span>
+              </div>
+              {eventDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/events"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fff3e0')}><Icon name="calendar" size="sm" style={{ color: '#FF9800' }} /></span>
+                      <span>Events</span>
+                    </a>
+                  </li>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/event-creation"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fff3e0')}><Icon name="cog" size="sm" style={{ color: '#FF9800' }} /></span>
+                      <span>Event Creation</span>
+                    </a>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li style={{ marginBottom: 10 }}>
@@ -553,12 +613,28 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/ai-articles" style={{ color: '#212121', textDecoration: 'none' }}>AI Articles</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/article-submissions" style={{ color: '#212121', textDecoration: 'none' }}>Article Submissions</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/award-submissions" style={{ color: '#212121', textDecoration: 'none' }}>Award Submissions</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/awards" style={{ color: '#212121', textDecoration: 'none' }}>Awards</a></li>
+            <li style={{ marginBottom: 12 }}>
+              <div onClick={() => setAwardsDropdownOpen(!awardsDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Awards</div>
+              {awardsDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/awards" style={{ color: '#212121', textDecoration: 'none' }}>All Awards</a></li>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/award-creation" style={{ color: '#212121', textDecoration: 'none' }}>Award Creation</a></li>
+                </ul>
+              )}
+            </li>
             <li style={{ marginBottom: 12 }}><a href="/admin/blogs" style={{ color: '#212121', textDecoration: 'none' }}>Blog Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/careers" style={{ color: '#212121', textDecoration: 'none' }}>Career Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/contacts" style={{ color: '#212121', textDecoration: 'none' }}>Contact Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/event-enquiries" style={{ color: '#212121', textDecoration: 'none' }}>Event Enquiries</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/events" style={{ color: '#212121', textDecoration: 'none' }}>Event Management</a></li>
+            <li style={{ marginBottom: 12 }}>
+              <div onClick={() => setEventDropdownOpen(!eventDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Event</div>
+              {eventDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/events" style={{ color: '#212121', textDecoration: 'none' }}>Events</a></li>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/event-creation" style={{ color: '#212121', textDecoration: 'none' }}>Event Creation</a></li>
+                </ul>
+              )}
+            </li>
             <li style={{ marginBottom: 12 }}><a href="/admin/groups" style={{ color: '#212121', textDecoration: 'none' }}>Group Management</a></li>
             <li style={{ marginBottom: 12 }}>
               <div onClick={() => setPaparazziDropdownOpen(!paparazziDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Paparazzi Management</div>
