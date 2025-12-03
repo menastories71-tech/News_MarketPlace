@@ -11,13 +11,17 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Admin Event Creation test route working!' });
 });
 
-// Get all event creations (public for GET)
+// Get all event creations
 router.get('/',
+  verifyAdminToken,
+  requireAdminPanelAccess,
   adminEventCreationController.getAllEventCreations
 );
 
-// Get event creation by ID (public for GET)
+// Get event creation by ID
 router.get('/:id',
+  verifyAdminToken,
+  requireAdminPanelAccess,
   adminEventCreationController.getEventCreationById
 );
 

@@ -8,11 +8,15 @@ const {
 
 // Get all award creations
 router.get('/',
+  verifyAdminToken,
+  requireAdminPanelAccess,
   adminAwardCreationController.getAllAwardCreations
 );
 
 // Get award creation by ID
 router.get('/:id',
+  verifyAdminToken,
+  requireAdminPanelAccess,
   adminAwardCreationController.getAwardCreationById
 );
 

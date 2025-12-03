@@ -445,6 +445,12 @@ const theme = {
 const EventCreationPage = () => {
   const { admin, logout, hasRole } = useAdminAuth();
 
+  // Redirect to login if not authenticated
+  if (!admin) {
+    window.location.href = '/admin/login';
+    return null;
+  }
+
   // Check if user has permission to manage event creations
   if (!hasRole('super_admin')) {
     return (
