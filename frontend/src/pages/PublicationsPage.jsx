@@ -7,12 +7,13 @@ import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
-import { 
-  Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock, 
-  TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle, 
+import PublicationSubmissionForm from '../components/user/PublicationSubmissionForm';
+import {
+  Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock,
+  TrendingUp, Globe, BookOpen, Award, Target, Zap, CheckCircle,
   ExternalLink, MapPin, Calendar, DollarSign, BarChart3, Users,
-  Link as LinkIcon, Image as ImageIcon, FileText, Shield, 
-  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Newspaper
+  Link as LinkIcon, Image as ImageIcon, FileText, Shield,
+  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Newspaper, Plus
 } from 'lucide-react';
 
 // Enhanced theme colors inspired by VideoTutorials
@@ -51,6 +52,7 @@ const PublicationsPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAuth, setShowAuth] = useState(false);
+  const [showSubmissionForm, setShowSubmissionForm] = useState(false);
   
   // View mode and layout state
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
@@ -58,19 +60,14 @@ const PublicationsPage = () => {
   const [isMobile, setIsMobile] = useState(false);
   
   // Filter states
-  const [groupFilter, setGroupFilter] = useState('');
   const [regionFilter, setRegionFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
-  const [industryFilter, setIndustryFilter] = useState('');
+  const [focusFilter, setFocusFilter] = useState('');
   const [priceRange, setPriceRange] = useState([0, 2000]);
   const [daRange, setDaRange] = useState([0, 100]);
   const [drRange, setDrRange] = useState([0, 100]);
   const [tatFilter, setTatFilter] = useState([]);
-  const [sponsoredFilter, setSponsoredFilter] = useState('');
-  const [liveFilter, setLiveFilter] = useState('');
   const [dofollowFilter, setDofollowFilter] = useState('');
-  const [wordsLimitRange, setWordsLimitRange] = useState([0, 10000]);
-  const [imagesRange, setImagesRange] = useState([0, 50]);
   
   // Sorting state
   const [sortField, setSortField] = useState('publication_name');
@@ -98,7 +95,7 @@ const PublicationsPage = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, groupFilter, regionFilter]);
+  }, [searchTerm, regionFilter, languageFilter]);
 
   const fetchPublications = async () => {
     try {
@@ -111,14 +108,13 @@ const PublicationsPage = () => {
 
       // Enhanced search across multiple fields
       if (searchTerm.trim()) {
-        params.append('search', searchTerm.trim());
         params.append('publication_name', searchTerm.trim());
       }
       
-      if (groupFilter) params.append('group_name', groupFilter);
       if (regionFilter) params.append('region', regionFilter);
+      if (languageFilter) params.append('language', languageFilter);
 
-      const response = await api.get(`/publications?${params.toString()}`);
+      const response = await api.get(`/admin/publication-management?${params.toString()}`);
       let pubs = response.data.publications || [];
 
       // Filter for approved, active publications
@@ -134,10 +130,9 @@ const PublicationsPage = () => {
         pubs = pubs.filter(pub => {
           return (
             pub.publication_name?.toLowerCase().includes(searchLower) ||
-            pub.publication_region?.toLowerCase().includes(searchLower) ||
-            pub.publication_language?.toLowerCase().includes(searchLower) ||
-            pub.publication_primary_industry?.toLowerCase().includes(searchLower) ||
-            pub.group_name?.toLowerCase().includes(searchLower)
+            pub.region?.toLowerCase().includes(searchLower) ||
+            pub.language?.toLowerCase().includes(searchLower) ||
+            pub.publication_primary_focus?.toLowerCase().includes(searchLower)
           );
         });
       }
@@ -169,50 +164,46 @@ const PublicationsPage = () => {
     let filtered = [...publications];
 
     // Apply filters
-    if (groupFilter) {
-      filtered = filtered.filter(pub => pub.group_name === groupFilter);
-    }
-    
     if (regionFilter) {
-      filtered = filtered.filter(pub => 
-        pub.publication_region?.toLowerCase().includes(regionFilter.toLowerCase())
+      filtered = filtered.filter(pub =>
+        pub.region?.toLowerCase().includes(regionFilter.toLowerCase())
       );
     }
-    
+
     if (languageFilter) {
-      filtered = filtered.filter(pub => 
-        pub.publication_language?.toLowerCase().includes(languageFilter.toLowerCase())
+      filtered = filtered.filter(pub =>
+        pub.language?.toLowerCase().includes(languageFilter.toLowerCase())
       );
     }
-    
-    if (industryFilter) {
-      filtered = filtered.filter(pub => 
-        pub.publication_primary_industry?.toLowerCase().includes(industryFilter.toLowerCase())
+
+    if (focusFilter) {
+      filtered = filtered.filter(pub =>
+        pub.publication_primary_focus?.toLowerCase().includes(focusFilter.toLowerCase())
       );
     }
-    
+
     // Price range filter
     filtered = filtered.filter(pub => {
-      const price = parseFloat(pub.publication_price) || 0;
+      const price = parseFloat(pub.price_usd) || 0;
       return price >= priceRange[0] && price <= priceRange[1];
     });
-    
+
     // DA range filter
     filtered = filtered.filter(pub => {
       const da = parseInt(pub.da) || 0;
       return da >= daRange[0] && da <= daRange[1];
     });
-    
+
     // DR range filter
     filtered = filtered.filter(pub => {
       const dr = parseInt(pub.dr) || 0;
       return dr >= drRange[0] && dr <= drRange[1];
     });
-    
+
     // TAT filter
     if (tatFilter.length > 0) {
       filtered = filtered.filter(pub => {
-        const days = pub.agreement_tat;
+        const days = pub.committed_tat;
         return tatFilter.some(tat => {
           switch (tat) {
             case '1 Day': return days === 1;
@@ -224,42 +215,17 @@ const PublicationsPage = () => {
         });
       });
     }
-    
-    // Boolean filters
-    if (sponsoredFilter) {
-      filtered = filtered.filter(pub => 
-        pub.sponsored_or_not === (sponsoredFilter === 'true')
-      );
-    }
-    
-    if (liveFilter) {
-      filtered = filtered.filter(pub => 
-        pub.live_on_platform === (liveFilter === 'true')
-      );
-    }
-    
+
+    // Do-follow filter
     if (dofollowFilter) {
-      filtered = filtered.filter(pub => 
-        pub.do_follow_link === (dofollowFilter === 'true')
+      filtered = filtered.filter(pub =>
+        pub.do_follow === (dofollowFilter === 'true')
       );
     }
-    
-    // Words limit filter
-    filtered = filtered.filter(pub => {
-      const words = parseInt(pub.words_limit) || 0;
-      return words >= wordsLimitRange[0] && words <= wordsLimitRange[1];
-    });
-    
-    // Images filter
-    filtered = filtered.filter(pub => {
-      const images = parseInt(pub.number_of_images) || 0;
-      return images >= imagesRange[0] && images <= imagesRange[1];
-    });
 
     return filtered;
-  }, [publications, groupFilter, regionFilter, languageFilter, industryFilter, 
-      priceRange, daRange, drRange, tatFilter, sponsoredFilter, liveFilter, 
-      dofollowFilter, wordsLimitRange, imagesRange]);
+  }, [publications, regionFilter, languageFilter, focusFilter,
+      priceRange, daRange, drRange, tatFilter, dofollowFilter]);
 
   // Sorting logic
   const sortedPublications = useMemo(() => {
@@ -267,7 +233,7 @@ const PublicationsPage = () => {
       let aValue = a[sortField];
       let bValue = b[sortField];
 
-      if (sortField === 'publication_price' || sortField === 'da' || sortField === 'dr') {
+      if (sortField === 'price_usd' || sortField === 'da' || sortField === 'dr') {
         aValue = parseFloat(aValue) || 0;
         bValue = parseFloat(bValue) || 0;
       } else if (sortField === 'created_at' || sortField === 'updated_at') {
@@ -301,19 +267,14 @@ const PublicationsPage = () => {
   };
 
   const clearAllFilters = () => {
-    setGroupFilter('');
     setRegionFilter('');
     setLanguageFilter('');
-    setIndustryFilter('');
+    setFocusFilter('');
     setPriceRange([0, 2000]);
     setDaRange([0, 100]);
     setDrRange([0, 100]);
     setTatFilter([]);
-    setSponsoredFilter('');
-    setLiveFilter('');
     setDofollowFilter('');
-    setWordsLimitRange([0, 10000]);
-    setImagesRange([0, 50]);
   };
 
   const toggleTatFilter = (tatOption) => {
@@ -325,13 +286,11 @@ const PublicationsPage = () => {
   };
 
   const hasActiveFilters = () => {
-    return groupFilter || regionFilter || languageFilter || industryFilter ||
+    return regionFilter || languageFilter || focusFilter ||
            priceRange[0] > 0 || priceRange[1] < 2000 ||
            daRange[0] > 0 || daRange[1] < 100 ||
            drRange[0] > 0 || drRange[1] < 100 ||
-           tatFilter.length > 0 || sponsoredFilter || liveFilter || 
-           dofollowFilter || wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
-           imagesRange[0] > 0 || imagesRange[1] < 50;
+           tatFilter.length > 0 || dofollowFilter;
   };
 
   const formatTAT = (days) => {
@@ -373,23 +332,18 @@ const PublicationsPage = () => {
 
   // Get unique values for filter options
   const getUniqueRegions = () => {
-    const regions = publications.map(pub => pub.publication_region).filter(Boolean);
+    const regions = publications.map(pub => pub.region).filter(Boolean);
     return [...new Set(regions)].sort();
   };
 
-  const getUniqueGroupNames = () => {
-    const groupNames = publications.map(pub => pub.group_name).filter(Boolean);
-    return [...new Set(groupNames)].sort();
-  };
-
-  const getUniqueIndustries = () => {
-    const industries = publications.map(pub => pub.publication_primary_industry).filter(Boolean);
-    return [...new Set(industries)].sort();
-  };
-
   const getUniqueLanguages = () => {
-    const languages = publications.map(pub => pub.publication_language).filter(Boolean);
+    const languages = publications.map(pub => pub.language).filter(Boolean);
     return [...new Set(languages)].sort();
+  };
+
+  const getUniqueFocus = () => {
+    const focuses = publications.map(pub => pub.publication_primary_focus).filter(Boolean);
+    return [...new Set(focuses)].sort();
   };
 
   const formatPrice = (price) => {
@@ -460,6 +414,22 @@ const PublicationsPage = () => {
                 )}
               </div>
             </div>
+
+            {/* Add Publication Button */}
+            {isAuthenticated && (
+              <div className="max-w-2xl mx-auto mt-6">
+                <button
+                  onClick={() => setShowSubmissionForm(true)}
+                  className="w-full text-white font-medium py-3 px-6 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: theme.primary }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+                >
+                  <Plus size={20} />
+                  Add Publication
+                </button>
+              </div>
+            )}
           </motion.div>
         </div>
       </section>
@@ -502,23 +472,6 @@ const PublicationsPage = () => {
                 
                 {/* Filters in row-wise layout for mobile */}
                 <div className={`grid gap-4 ${isMobile ? 'grid-cols-1' : 'grid-cols-1'}`}>
-                  {/* Group Filter */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Publication Group
-                    </label>
-                    <select
-                      value={groupFilter}
-                      onChange={(e) => setGroupFilter(e.target.value)}
-                      className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
-                    >
-                      <option value="">All Groups</option>
-                      {getUniqueGroupNames().map(group => (
-                        <option key={group} value={group}>{group}</option>
-                      ))}
-                    </select>
-                  </div>
-
                   {/* Region Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
@@ -553,19 +506,19 @@ const PublicationsPage = () => {
                     </select>
                   </div>
 
-                  {/* Industry Filter */}
+                  {/* Focus Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Industry
+                      Primary Focus
                     </label>
                     <select
-                      value={industryFilter}
-                      onChange={(e) => setIndustryFilter(e.target.value)}
+                      value={focusFilter}
+                      onChange={(e) => setFocusFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Industries</option>
-                      {getUniqueIndustries().map(industry => (
-                        <option key={industry} value={industry}>{industry}</option>
+                      <option value="">All Focus Areas</option>
+                      {getUniqueFocus().map(focus => (
+                        <option key={focus} value={focus}>{focus}</option>
                       ))}
                     </select>
                   </div>
@@ -795,16 +748,16 @@ const PublicationsPage = () => {
                 >
                   <option value="publication_name-asc">Name (A-Z)</option>
                   <option value="publication_name-desc">Name (Z-A)</option>
-                  <option value="publication_price-asc">Price (Low to High)</option>
-                  <option value="publication_price-desc">Price (High to Low)</option>
+                  <option value="price_usd-asc">Price (Low to High)</option>
+                  <option value="price_usd-desc">Price (High to Low)</option>
                   <option value="da-desc">DA (High to Low)</option>
                   <option value="da-asc">DA (Low to High)</option>
                   <option value="dr-desc">DR (High to Low)</option>
                   <option value="dr-asc">DR (Low to High)</option>
-                  <option value="publication_region-asc">Region (A-Z)</option>
-                  <option value="publication_language-asc">Language (A-Z)</option>
-                  <option value="agreement_tat-asc">TAT (Fastest)</option>
-                  <option value="agreement_tat-desc">TAT (Slowest)</option>
+                  <option value="region-asc">Region (A-Z)</option>
+                  <option value="language-asc">Language (A-Z)</option>
+                  <option value="committed_tat-asc">TAT (Fastest)</option>
+                  <option value="committed_tat-desc">TAT (Slowest)</option>
                 </select>
               </div>
             </div>
@@ -838,11 +791,11 @@ const PublicationsPage = () => {
                             </h3>
                             <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
                               <Globe size={14} className="mr-2" />
-                              <span>{publication.publication_region}</span>
+                              <span>{publication.region}</span>
                             </div>
                             <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
                               <BookOpen size={14} className="mr-2" />
-                              <span>{publication.publication_language}</span>
+                              <span>{publication.language}</span>
                             </div>
                           </div>
                           <div 
@@ -864,7 +817,7 @@ const PublicationsPage = () => {
                             <div className="text-xs" style={{ color: theme.textSecondary }}>DR</div>
                           </div>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: theme.warning }}>{publication.agreement_tat || 0}</div>
+                            <div className="text-lg font-bold" style={{ color: theme.warning }}>{publication.committed_tat || 0}</div>
                             <div className="text-xs" style={{ color: theme.textSecondary }}>TAT</div>
                           </div>
                         </div>
@@ -872,7 +825,7 @@ const PublicationsPage = () => {
                         {/* Enhanced Price and Features */}
                         <div className="flex items-center justify-between mb-4">
                           <div className="text-xl font-bold" style={{ color: theme.success }}>
-                            {formatPrice(publication.publication_price)}
+                            {formatPrice(publication.price_usd)}
                           </div>
                           <div className="flex items-center text-sm" style={{ color: theme.warning }}>
                             <Star size={14} className="mr-1" />
@@ -882,18 +835,13 @@ const PublicationsPage = () => {
 
                         {/* Enhanced Features */}
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {publication.sponsored_or_not && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                              Sponsored
-                            </span>
-                          )}
-                          {publication.do_follow_link && (
+                          {publication.do_follow && (
                             <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
                               Do-follow
                             </span>
                           )}
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
-                            {formatTAT(publication.agreement_tat)}
+                            {formatTAT(publication.committed_tat)}
                           </span>
                         </div>
 
@@ -933,22 +881,22 @@ const PublicationsPage = () => {
                               Publication {getSortIcon('publication_name')}
                             </div>
                           </th>
-                          <th 
+                          <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('publication_region')}
+                            onClick={() => handleSort('region')}
                           >
                             <div className="flex items-center gap-2">
-                              Region {getSortIcon('publication_region')}
+                              Region {getSortIcon('region')}
                             </div>
                           </th>
-                          <th 
+                          <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('publication_language')}
+                            onClick={() => handleSort('language')}
                           >
                             <div className="flex items-center gap-2">
-                              Language {getSortIcon('publication_language')}
+                              Language {getSortIcon('language')}
                             </div>
                           </th>
                           <th 
@@ -969,22 +917,22 @@ const PublicationsPage = () => {
                               DR {getSortIcon('dr')}
                             </div>
                           </th>
-                          <th 
+                          <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('publication_price')}
+                            onClick={() => handleSort('price_usd')}
                           >
                             <div className="flex items-center gap-2">
-                              Price {getSortIcon('publication_price')}
+                              Price {getSortIcon('price_usd')}
                             </div>
                           </th>
-                          <th 
+                          <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('agreement_tat')}
+                            onClick={() => handleSort('committed_tat')}
                           >
                             <div className="flex items-center gap-2">
-                              TAT {getSortIcon('agreement_tat')}
+                              TAT {getSortIcon('committed_tat')}
                             </div>
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
@@ -1023,12 +971,12 @@ const PublicationsPage = () => {
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {publication.publication_region}
+                                {publication.region}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {publication.publication_language}
+                                {publication.language}
                               </span>
                             </td>
                             <td className="px-6 py-4">
@@ -1049,22 +997,17 @@ const PublicationsPage = () => {
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-lg font-bold" style={{ color: theme.success }}>
-                                {formatPrice(publication.publication_price)}
+                                {formatPrice(publication.price_usd)}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {formatTAT(publication.agreement_tat)}
+                                {formatTAT(publication.committed_tat)}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex flex-wrap gap-1">
-                                {publication.sponsored_or_not && (
-                                  <span className="px-2 py-1 rounded-full text-xs" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                                    Sponsored
-                                  </span>
-                                )}
-                                {publication.do_follow_link && (
+                                {publication.do_follow && (
                                   <span className="px-2 py-1 rounded-full text-xs" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
                                     Do-follow
                                   </span>
@@ -1123,6 +1066,14 @@ const PublicationsPage = () => {
 
       <UserFooter />
 
+      {/* Publication Submission Form Modal */}
+      {showSubmissionForm && (
+        <PublicationSubmissionForm
+          onClose={() => setShowSubmissionForm(false)}
+          onSuccess={() => setShowSubmissionForm(false)}
+        />
+      )}
+
       {/* Auth Modal */}
       {showAuth && (
         <AuthModal
@@ -1136,3 +1087,4 @@ const PublicationsPage = () => {
 };
 
 export default PublicationsPage;
+   

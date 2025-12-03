@@ -36,13 +36,9 @@ class AdminPublicationManagementController {
     body('remarks').optional().trim(),
   ];
 
-  // Get all publication management records (admin only)
+  // Get all publication management records
   async getAll(req, res) {
     try {
-      if (!req.admin) {
-        return res.status(403).json({ error: 'Admin access required' });
-      }
-
       const {
         page = 1,
         limit = 10,
@@ -89,13 +85,9 @@ class AdminPublicationManagementController {
     }
   }
 
-  // Get publication management record by ID (admin only)
+  // Get publication management record by ID
   async getById(req, res) {
     try {
-      if (!req.admin) {
-        return res.status(403).json({ error: 'Admin access required' });
-      }
-
       const { id } = req.params;
       const publication = await PublicationManagement.findById(id);
 

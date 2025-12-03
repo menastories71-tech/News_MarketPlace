@@ -11,17 +11,13 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Admin Publication Management test route working!' });
 });
 
-// Get all publication management records (admin only)
+// Get all publication management records (public for GET)
 router.get('/',
-  verifyAdminToken,
-  requireAdminPanelAccess,
   adminPublicationManagementController.getAll
 );
 
-// Get publication management record by ID (admin only)
+// Get publication management record by ID (public for GET)
 router.get('/:id',
-  verifyAdminToken,
-  requireAdminPanelAccess,
   adminPublicationManagementController.getById
 );
 

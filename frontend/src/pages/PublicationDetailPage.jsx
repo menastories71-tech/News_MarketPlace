@@ -71,7 +71,7 @@ const PublicationDetailPage = () => {
       setLoading(true);
       console.log('Fetching publication details for ID:', id);
       
-      const response = await api.get(`/publications/${id}`);
+      const response = await api.get(`/admin/publication-management/${id}`);
       console.log('Publication details response:', response.data);
       
       setPublication(response.data.publication || response.data);
@@ -198,7 +198,7 @@ const PublicationDetailPage = () => {
       const orderData = {
         publicationId: publication.id,
         publicationName: publication.publication_name,
-        price: publication.publication_price,
+        price: publication.price_usd,
         customerInfo: orderFormData,
         orderDate: new Date().toISOString()
       };
@@ -323,11 +323,11 @@ const PublicationDetailPage = () => {
                     <div className="flex flex-wrap items-center gap-6 text-sm" style={{ color: theme.textSecondary }}>
                       <div className="flex items-center gap-2">
                         <MapPin size={16} />
-                        <span>{publication.publication_region}</span>
+                        <span>{publication.region}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <BookOpen size={16} />
-                        <span>{publication.publication_language}</span>
+                        <span>{publication.language}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar size={16} />
@@ -338,20 +338,20 @@ const PublicationDetailPage = () => {
                 </div>
 
                 {/* Website Link */}
-                {publication.publication_website && (
+                {publication.publication_url && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
                       Website
                     </h3>
                     <a
-                      href={publication.publication_website}
+                      href={publication.publication_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-colors"
                       style={{ backgroundColor: theme.primary }}
                     >
                       <ExternalLink size={16} />
-                      {publication.publication_website}
+                      {publication.publication_url}
                     </a>
                   </div>
                 )}
@@ -365,9 +365,9 @@ const PublicationDetailPage = () => {
                     <p>
                       {publication.other_remarks || 'This is a premium news publication offering high-quality content distribution and PR services. With a strong focus on delivering exceptional results, we provide comprehensive media solutions for businesses and organizations.'}
                     </p>
-                    {publication.publication_primary_industry && (
+                    {publication.publication_primary_focus && (
                       <p className="mt-4">
-                        <strong>Industry Focus:</strong> {publication.publication_primary_industry}
+                        <strong>Industry Focus:</strong> {publication.publication_primary_focus}
                       </p>
                     )}
                   </div>
@@ -392,7 +392,7 @@ const PublicationDetailPage = () => {
                         </li>
                         <li className="flex items-center gap-2">
                           <LinkIcon size={14} />
-                          <span>Link Building: {publication.do_follow_link ? 'Do-follow' : 'No-follow'}</span>
+                          <span>Link Building: {publication.do_follow ? 'Do-follow' : 'No-follow'}</span>
                         </li>
                       </ul>
                     </div>
@@ -405,7 +405,7 @@ const PublicationDetailPage = () => {
                         </li>
                         <li className="flex items-center gap-2">
                           <Clock size={14} />
-                          <span>TAT: {publication.agreement_tat || 0} days</span>
+                          <span>TAT: {publication.committed_tat || 0} days</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <Shield size={14} />
@@ -478,10 +478,10 @@ const PublicationDetailPage = () => {
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <div className="text-center mb-6">
                   <div className="text-3xl font-bold mb-2" style={{ color: theme.success }}>
-                    {formatPrice(publication.publication_price)}
+                    {formatPrice(publication.price_usd)}
                   </div>
                   <div className="text-sm" style={{ color: theme.textSecondary }}>
-                    {publication.publication_price > 0 ? 'Starting Price' : 'Contact for Pricing'}
+                    {publication.price_usd > 0 ? 'Starting Price' : 'Contact for Pricing'}
                   </div>
                 </div>
 
@@ -489,19 +489,19 @@ const PublicationDetailPage = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm" style={{ color: theme.textSecondary }}>TAT</span>
                     <span className="font-medium" style={{ color: theme.textPrimary }}>
-                      {publication.agreement_tat || 0} days
+                      {publication.committed_tat || 0} days
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm" style={{ color: theme.textSecondary }}>Language</span>
                     <span className="font-medium" style={{ color: theme.textPrimary }}>
-                      {publication.publication_language}
+                      {publication.language}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm" style={{ color: theme.textSecondary }}>Region</span>
                     <span className="font-medium" style={{ color: theme.textPrimary }}>
-                      {publication.publication_region}
+                      {publication.region}
                     </span>
                   </div>
                 </div>
@@ -905,7 +905,7 @@ const PublicationDetailPage = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: theme.textSecondary }}>Total Amount:</span>
                   <span style={{ fontSize: '20px', fontWeight: '700', color: theme.success }}>
-                    {formatPrice(publication.publication_price)}
+                    {formatPrice(publication.price_usd)}
                   </span>
                 </div>
               </div>
