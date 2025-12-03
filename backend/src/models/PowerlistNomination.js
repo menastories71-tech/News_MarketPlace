@@ -140,8 +140,12 @@ class PowerlistNomination {
 
     Object.keys(updateData).forEach(key => {
       if (updateData[key] !== undefined) {
+        let value = updateData[key];
+        if (key === 'is_active') {
+          value = value === 'true' || value === true;
+        }
         fields.push(`${key} = $${paramCount}`);
-        values.push(updateData[key]);
+        values.push(value);
         paramCount++;
       }
     });

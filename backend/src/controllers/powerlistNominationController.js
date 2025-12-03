@@ -35,7 +35,12 @@ class PowerlistNominationController {
     body('last_power_list_url').optional().isURL().withMessage('Valid last power list URL is required'),
     body('image').optional().trim(),
     body('status').optional().isIn(['pending', 'approved', 'rejected']).withMessage('Invalid status'),
-    body('is_active').optional().isBoolean().withMessage('is_active must be a boolean'),
+    body('is_active').optional().custom((value) => {
+      if (value === undefined || value === 'true' || value === 'false' || value === true || value === false) {
+        return true;
+      }
+      throw new Error('is_active must be true or false');
+    }),
   ];
 
   // Validation for user submission
