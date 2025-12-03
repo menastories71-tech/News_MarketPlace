@@ -1334,6 +1334,21 @@ const theme = {
   borderDark: '#757575',     // Border Dark
 };
 
+const btnPrimary = {
+  backgroundColor: theme.primary,
+  color: '#fff',
+  padding: '0.625rem 1rem',
+  borderRadius: '0.5rem',
+  fontWeight: 600,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '0.5rem',
+  cursor: 'pointer',
+  border: 'none',
+  boxShadow: `0 6px 18px rgba(25,118,210,0.14)`
+};
+
 const EventManagement = () => {
   const { admin, logout, hasRole } = useAdminAuth();
 
