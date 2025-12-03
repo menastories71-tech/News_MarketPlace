@@ -67,6 +67,8 @@ const PublicationsPage = () => {
   const [daRange, setDaRange] = useState([0, 100]);
   const [drRange, setDrRange] = useState([0, 100]);
   const [tatFilter, setTatFilter] = useState([]);
+  const [sponsoredFilter, setSponsoredFilter] = useState('');
+  const [liveFilter, setLiveFilter] = useState('');
   const [dofollowFilter, setDofollowFilter] = useState('');
   
   // Sorting state
@@ -216,6 +218,20 @@ const PublicationsPage = () => {
       });
     }
 
+    // Sponsored filter
+    if (sponsoredFilter) {
+      filtered = filtered.filter(pub =>
+        pub.sponsored_or_not === (sponsoredFilter === 'true')
+      );
+    }
+
+    // Live filter
+    if (liveFilter) {
+      filtered = filtered.filter(pub =>
+        pub.live_on_platform === (liveFilter === 'true')
+      );
+    }
+
     // Do-follow filter
     if (dofollowFilter) {
       filtered = filtered.filter(pub =>
@@ -225,7 +241,7 @@ const PublicationsPage = () => {
 
     return filtered;
   }, [publications, regionFilter, languageFilter, focusFilter,
-      priceRange, daRange, drRange, tatFilter, dofollowFilter]);
+      priceRange, daRange, drRange, tatFilter, sponsoredFilter, liveFilter, dofollowFilter]);
 
   // Sorting logic
   const sortedPublications = useMemo(() => {
@@ -274,6 +290,8 @@ const PublicationsPage = () => {
     setDaRange([0, 100]);
     setDrRange([0, 100]);
     setTatFilter([]);
+    setSponsoredFilter('');
+    setLiveFilter('');
     setDofollowFilter('');
   };
 
@@ -290,7 +308,7 @@ const PublicationsPage = () => {
            priceRange[0] > 0 || priceRange[1] < 2000 ||
            daRange[0] > 0 || daRange[1] < 100 ||
            drRange[0] > 0 || drRange[1] < 100 ||
-           tatFilter.length > 0 || dofollowFilter;
+           tatFilter.length > 0 || sponsoredFilter || liveFilter || dofollowFilter;
   };
 
   const formatTAT = (days) => {
@@ -638,24 +656,6 @@ const PublicationsPage = () => {
                   Features
                 </h4>
                 <div className="space-y-3">
-                  <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
-                    <input
-                      type="checkbox"
-                      checked={sponsoredFilter === 'true'}
-                      onChange={(e) => setSponsoredFilter(e.target.checked ? 'true' : '')}
-                      className="rounded accent-[#00796B]"
-                    />
-                    <span className="text-sm" style={{ color: theme.textPrimary }}>Sponsored Only</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
-                    <input
-                      type="checkbox"
-                      checked={liveFilter === 'true'}
-                      onChange={(e) => setLiveFilter(e.target.checked ? 'true' : '')}
-                      className="rounded accent-[#00796B]"
-                    />
-                    <span className="text-sm" style={{ color: theme.textPrimary }}>Live on Platform</span>
-                  </label>
                   <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                     <input
                       type="checkbox"
