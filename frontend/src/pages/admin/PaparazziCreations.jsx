@@ -96,21 +96,23 @@ const PaparazziCreationsFormModal = ({ isOpen, onClose, record, onSave }) => {
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    zIndex: 1000
+    zIndex: 10000,
+    padding: '20px'
   };
 
-  const modalContentStyle = {
-    backgroundColor: '#fff',
+  const contentStyle = {
+    background: '#fff',
     borderRadius: '12px',
     padding: '24px',
-    width: '90%',
-    maxWidth: '500px',
+    maxWidth: '800px',
+    width: '100%',
     maxHeight: '90vh',
-    overflowY: 'auto'
+    overflowY: 'auto',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
   };
 
   const formGroupStyle = {
@@ -119,17 +121,19 @@ const PaparazziCreationsFormModal = ({ isOpen, onClose, record, onSave }) => {
 
   const labelStyle = {
     display: 'block',
-    marginBottom: '4px',
+    fontSize: '14px',
     fontWeight: '600',
-    color: '#374151'
+    color: '#212121',
+    marginBottom: '6px'
   };
 
   const inputStyle = {
     width: '100%',
-    padding: '8px 12px',
+    padding: '10px 12px',
     border: '1px solid #d1d5db',
-    borderRadius: '6px',
-    fontSize: '14px'
+    borderRadius: '8px',
+    fontSize: '14px',
+    boxSizing: 'border-box'
   };
 
   const selectStyle = {
@@ -138,110 +142,110 @@ const PaparazziCreationsFormModal = ({ isOpen, onClose, record, onSave }) => {
 
   const buttonStyle = {
     padding: '10px 20px',
-    border: 'none',
-    borderRadius: '6px',
-    fontSize: '14px',
+    borderRadius: '8px',
     fontWeight: '600',
     cursor: 'pointer',
-    marginRight: '8px'
-  };
-
-  const btnPrimary = {
-    ...buttonStyle,
-    backgroundColor: '#1976D2',
-    color: '#fff'
-  };
-
-  const btnSecondary = {
-    ...buttonStyle,
-    backgroundColor: '#6c757d',
-    color: '#fff'
+    border: 'none',
+    marginRight: '12px'
   };
 
   return (
     <div style={modalStyle} onClick={onClose}>
-      <div style={modalContentStyle} onClick={(e) => e.stopPropagation()}>
-        <h2 style={{ marginTop: 0, marginBottom: '20px', fontSize: '20px', fontWeight: '700' }}>
-          {record ? 'Edit Paparazzi Creation' : 'Add New Paparazzi Creation'}
-        </h2>
+      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
+            {record ? 'Edit Paparazzi Creation Record' : 'Create Paparazzi Creation Record'}
+          </h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
+            ×
+          </button>
+        </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Instagram Page Name *</label>
-            <input
-              type="text"
-              value={formData.instagram_page_name}
-              onChange={(e) => setFormData({ ...formData, instagram_page_name: e.target.value })}
-              style={inputStyle}
-              required
-            />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Instagram Page Name *</label>
+              <input
+                type="text"
+                value={formData.instagram_page_name}
+                onChange={(e) => setFormData({ ...formData, instagram_page_name: e.target.value })}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>No of Followers *</label>
+              <input
+                type="number"
+                min="0"
+                value={formData.no_of_followers}
+                onChange={(e) => setFormData({ ...formData, no_of_followers: e.target.value })}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Region Focused</label>
+              <input
+                type="text"
+                value={formData.region_focused}
+                onChange={(e) => setFormData({ ...formData, region_focused: e.target.value })}
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Category</label>
+              <select
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                style={selectStyle}
+              >
+                <option value="">Select Category</option>
+                <option value="Entertainment and Movies">Entertainment and Movies</option>
+                <option value="Lifestyle">Lifestyle</option>
+                <option value="Local Guide">Local Guide</option>
+              </select>
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Instagram URL</label>
+              <input
+                type="url"
+                value={formData.instagram_url}
+                onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })}
+                style={inputStyle}
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Profile DP Logo (URL)</label>
+              <input
+                type="text"
+                value={formData.profile_dp_logo}
+                onChange={(e) => setFormData({ ...formData, profile_dp_logo: e.target.value })}
+                style={inputStyle}
+              />
+            </div>
           </div>
 
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>No of Followers *</label>
-            <input
-              type="number"
-              value={formData.no_of_followers}
-              onChange={(e) => setFormData({ ...formData, no_of_followers: e.target.value })}
-              style={inputStyle}
-              required
-              min="0"
-            />
-            <small style={{ color: '#6b7280', fontSize: '12px' }}>
-              Note: As of 01st December 2025
-            </small>
-          </div>
-
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Region Focused</label>
-            <input
-              type="text"
-              value={formData.region_focused}
-              onChange={(e) => setFormData({ ...formData, region_focused: e.target.value })}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Category</label>
-            <select
-              value={formData.category}
-              onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-              style={selectStyle}
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px', gap: '12px' }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{ ...buttonStyle, backgroundColor: '#f3f4f6', color: '#374151' }}
+              disabled={loading}
             >
-              <option value="">Select Category</option>
-              <option value="Entertainment and Movies">Entertainment and Movies</option>
-              <option value="Lifestyle">Lifestyle</option>
-              <option value="Local Guide">Local Guide</option>
-            </select>
-          </div>
-
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Instagram URL</label>
-            <input
-              type="url"
-              value={formData.instagram_url}
-              onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={formGroupStyle}>
-            <label style={labelStyle}>Profile DP Logo (URL)</label>
-            <input
-              type="text"
-              value={formData.profile_dp_logo}
-              onChange={(e) => setFormData({ ...formData, profile_dp_logo: e.target.value })}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '24px' }}>
-            <button type="button" onClick={onClose} style={btnSecondary}>
               Cancel
             </button>
-            <button type="submit" disabled={loading} style={btnPrimary}>
-              {loading ? 'Saving...' : (record ? 'Update' : 'Create')}
+            <button
+              type="submit"
+              style={{ ...buttonStyle, backgroundColor: '#1976D2', color: '#fff' }}
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : (record ? 'Update Record' : 'Create Record')}
             </button>
           </div>
         </form>
@@ -771,7 +775,7 @@ const PaparazziCreationsPage = () => {
               {records.length === 0 && (
                 <div style={{ padding: '80px', textAlign: 'center', color: theme.textSecondary }}>
                   <div style={{ fontSize: '64px', marginBottom: '16px' }}>
-                    📸
+                    📭
                   </div>
                   <div style={{ fontSize: '20px', fontWeight: '600', marginBottom: '8px' }}>
                     No records found
