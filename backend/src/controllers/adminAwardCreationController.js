@@ -1,5 +1,9 @@
 const AwardCreation = require('../models/AwardCreation');
 const { body, validationResult } = require('express-validator');
+const { s3Service } = require('../services/s3Service');
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
 
 class AdminAwardCreationController {
   // Validation rules for create
@@ -105,7 +109,37 @@ class AdminAwardCreationController {
         });
       }
 
-      const awardCreation = await AwardCreation.create(req.body);
+      const awardCreationData = { ...req.body };
+
+      // Handle image upload
+      if (req.file) {
+        try {
+          let imageUrl;
+
+          // Try S3 first if configured
+          if (process.env.AWS_S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+            console.log('Using S3 for award creation image upload');
+            const s3Key = s3Service.generateKey('award-creations', 'image', req.file.originalname);
+            const contentType = s3Service.getContentType(req.file.originalname);
+
+            // S3 service handles its own image optimization, so pass raw buffer
+            imageUrl = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
+            console.log('Successfully uploaded award creation image to S3:', imageUrl);
+          } else {
+            // Fallback to local storage with local optimization
+            console.log('S3 not configured, using local storage for award creation image');
+            imageUrl = await this.uploadImageLocally(req.file);
+          }
+
+          awardCreationData.image = imageUrl;
+        } catch (uploadError) {
+          console.error('Failed to upload award creation image:', uploadError);
+          const errorMessage = uploadError.message || 'Failed to upload image';
+          throw new Error(`Image upload failed: ${errorMessage}`);
+        }
+      }
+
+      const awardCreation = await AwardCreation.create(awardCreationData);
 
       res.status(201).json({
         message: 'Award creation created successfully',
@@ -114,6 +148,60 @@ class AdminAwardCreationController {
     } catch (error) {
       console.error('Create award creation error:', error);
       res.status(500).json({ error: error.message || 'Internal server error' });
+    }
+  }
+
+  // Local image upload helper
+  async uploadImageLocally(file) {
+    try {
+      // Check file size before processing
+      if (file.size > 500 * 1024) {
+        throw new Error('Image file is too large. Maximum size is 500KB.');
+      }
+
+      // Create uploads directory if it doesn't exist
+      const uploadsDir = path.join(__dirname, '../../uploads/award-creations');
+      await fs.promises.mkdir(uploadsDir, { recursive: true });
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const randomSuffix = Math.round(Math.random() * 1E9);
+      const extension = path.extname(file.originalname);
+      const filename = `image-${timestamp}-${randomSuffix}${extension}`;
+      const filepath = path.join(uploadsDir, filename);
+
+      // Optimize image before saving
+      const optimizedBuffer = await sharp(file.buffer)
+        .resize(400, 300, { withoutEnlargement: true, fit: 'inside' })
+        .jpeg({ quality: 70, progressive: true })
+        .toBuffer();
+
+      // Check optimized size
+      if (optimizedBuffer.length > 500 * 1024) {
+        // If still too large, compress more aggressively
+        const extraCompressedBuffer = await sharp(file.buffer)
+          .resize(300, 200, { withoutEnlargement: true, fit: 'inside' })
+          .jpeg({ quality: 60, progressive: true })
+          .toBuffer();
+
+        if (extraCompressedBuffer.length <= 500 * 1024) {
+          await fs.promises.writeFile(filepath, extraCompressedBuffer);
+        } else {
+          throw new Error('Unable to compress image to acceptable size. Please use a smaller image.');
+        }
+      } else {
+        // Save file
+        await fs.promises.writeFile(filepath, optimizedBuffer);
+      }
+
+      // Return local URL
+      const localUrl = `/uploads/award-creations/${filename}`;
+      console.log('Successfully saved award creation image locally:', localUrl);
+
+      return localUrl;
+    } catch (error) {
+      console.error('Local award creation image upload error:', error);
+      throw new Error(`Failed to save image locally: ${error.message}`);
     }
   }
 
@@ -139,7 +227,50 @@ class AdminAwardCreationController {
         return res.status(404).json({ error: 'Award creation not found' });
       }
 
-      const updatedAwardCreation = await awardCreation.update(req.body);
+      const updateData = { ...req.body };
+
+      // Handle image upload
+      if (req.file) {
+        try {
+          let imageUrl;
+
+          // Try S3 first if configured
+          if (process.env.AWS_S3_BUCKET_NAME && process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+            console.log('Using S3 for award creation image upload (update)');
+            const s3Key = s3Service.generateKey('award-creations', 'image', req.file.originalname);
+            const contentType = s3Service.getContentType(req.file.originalname);
+
+            // S3 service handles its own image optimization
+            imageUrl = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
+            console.log('Successfully uploaded award creation image to S3:', imageUrl);
+
+            // Delete old image from S3 if it exists
+            if (awardCreation.image) {
+              try {
+                const oldS3Key = s3Service.extractKeyFromUrl(awardCreation.image);
+                if (oldS3Key) {
+                  await s3Service.deleteFile(oldS3Key);
+                }
+              } catch (deleteError) {
+                console.error('Failed to delete old award creation image from S3:', deleteError);
+                // Continue with the update even if old image deletion fails
+              }
+            }
+          } else {
+            // Fallback to local storage with local optimization
+            console.log('S3 not configured, using local storage for award creation image (update)');
+            imageUrl = await this.uploadImageLocally(req.file);
+          }
+
+          updateData.image = imageUrl;
+        } catch (uploadError) {
+          console.error('Failed to upload award creation image:', uploadError);
+          const errorMessage = uploadError.message || 'Failed to upload image';
+          throw new Error(`Image upload failed: ${errorMessage}`);
+        }
+      }
+
+      const updatedAwardCreation = await awardCreation.update(updateData);
       res.json({
         message: 'Award creation updated successfully',
         awardCreation: updatedAwardCreation.toJSON()
