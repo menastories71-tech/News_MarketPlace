@@ -39,6 +39,8 @@ const adminPowerlistManagementRoutes = require('./src/routes/adminPowerlistManag
 console.log('Admin Powerlist Management Routes loaded:', typeof adminPowerlistManagementRoutes);
 const adminPublicationManagementRoutes = require('./src/routes/adminPublicationManagement');
 console.log('Admin Publication Management Routes loaded:', typeof adminPublicationManagementRoutes);
+const adminPaparazziCreationsRoutes = require('./src/routes/adminPaparazziCreations');
+console.log('Admin Paparazzi Creations Routes loaded:', typeof adminPaparazziCreationsRoutes);
 const aiGeneratedArticlesRoutes = require('./src/routes/aiGeneratedArticles');
 const ordersRoutes = require('./src/routes/orders');
 const paparazziOrdersRoutes = require('./src/routes/paparazziOrders');
@@ -154,6 +156,8 @@ console.log('Mounting admin powerlist management at /api/admin/powerlist-managem
 app.use('/api/admin/powerlist-management', adminPowerlistManagementRoutes);
 console.log('Mounting admin publication management at /api/admin/publication-management');
 app.use('/api/admin/publication-management', adminPublicationManagementRoutes);
+console.log('Mounting admin paparazzi creations at /api/admin/paparazzi-creations');
+app.use('/api/admin/paparazzi-creations', adminPaparazziCreationsRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/groups', groupRoutes);
 app.use('/api/publications', publicationRoutes);

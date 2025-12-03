@@ -6,10 +6,10 @@ async function runSpecificMigration() {
   const client = await pool.connect();
   
   try {
-    console.log('Running migration: 055_add_radio_image_description.sql');
+    console.log('Running migration: 056_create_paparazzi_creations_table.sql');
     
     // Read the migration file
-    const migrationPath = path.join(__dirname, 'database/migrations/055_add_radio_image_description.sql');
+    const migrationPath = path.join(__dirname, 'database/migrations/056_create_paparazzi_creations_table.sql');
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
     
     // Split by semicolon and execute each statement

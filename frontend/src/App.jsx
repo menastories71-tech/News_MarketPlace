@@ -113,6 +113,7 @@ import ThemeOrderManagement from './components/admin/ThemeOrderManagement';
 import PressPackOrderManagement from './components/admin/PressPackOrderManagement';
 import PublicationManagementPage from './pages/admin/PublicationManagement';
 import Icon from './components/common/Icon';
+import PaparazziCreations from './pages/admin/PaparazziCreations';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -760,6 +761,17 @@ function App() {
                 </AdminProtectedRoute>
               }
             />
+            <Route
+              path="/admin/paparazzi-creation"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PaparazziCreations />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            
             <Route path="/data/new/cookies/user" element={<UserCookiesData />} />
 
             {/* Catch all route - redirect to admin login if accessing /admin */}

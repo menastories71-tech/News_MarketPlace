@@ -24,6 +24,7 @@ export default function Sidebar({
 
   const [powerlistDropdownOpen, setPowerlistDropdownOpen] = useState(false);
   const [publicationDropdownOpen, setPublicationDropdownOpen] = useState(false);
+  const [paparazziDropdownOpen, setPaparazziDropdownOpen] = useState(false);
 
   // compute desktop fixed styles so sidebar sticks to viewport left (matches screenshot)
   const desktopFixedStyles = {
@@ -253,15 +254,44 @@ export default function Sidebar({
             </li>
 
             <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/paparazzi"
+              <div
                 style={navItemBase}
+                onClick={() => setPaparazziDropdownOpen(!paparazziDropdownOpen)}
                 onMouseEnter={e => e.currentTarget.style.background = '#FCE4EC'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={navIconCircle('#fce4ec')}><Icon name="camera" size="sm" style={{ color: '#E91E63' }} /></span>
                 <span>Paparazzi Management</span>
-              </a>
+                <span style={{ marginLeft: 'auto', transform: paparazziDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <Icon name="chevron-down" size="sm" style={{ color: '#E91E63' }} />
+                </span>
+              </div>
+              {paparazziDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/paparazzi"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FCE4EC'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fce4ec')}><Icon name="shopping-cart" size="sm" style={{ color: '#E91E63' }} /></span>
+                      <span>Add to cart</span>
+                    </a>
+                  </li>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/paparazzi-creation"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FCE4EC'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fce4ec')}><Icon name="cog" size="sm" style={{ color: '#E91E63' }} /></span>
+                      <span>Paparazzi Creation</span>
+                    </a>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li style={{ marginBottom: 10 }}>
@@ -530,7 +560,15 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/event-enquiries" style={{ color: '#212121', textDecoration: 'none' }}>Event Enquiries</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/events" style={{ color: '#212121', textDecoration: 'none' }}>Event Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/groups" style={{ color: '#212121', textDecoration: 'none' }}>Group Management</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/paparazzi" style={{ color: '#212121', textDecoration: 'none' }}>Paparazzi Management</a></li>
+            <li style={{ marginBottom: 12 }}>
+              <div onClick={() => setPaparazziDropdownOpen(!paparazziDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Paparazzi Management</div>
+              {paparazziDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/paparazzi" style={{ color: '#212121', textDecoration: 'none' }}>Add to cart</a></li>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/paparazzi-creation" style={{ color: '#212121', textDecoration: 'none' }}>Paparazzi Creation</a></li>
+                </ul>
+              )}
+            </li>
             <li style={{ marginBottom: 12 }}><a href="/admin/podcasters" style={{ color: '#212121', textDecoration: 'none' }}>Podcaster Management</a></li>
             <li style={{ marginBottom: 12 }}>
               <div onClick={() => setPowerlistDropdownOpen(!powerlistDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Powerlist</div>
