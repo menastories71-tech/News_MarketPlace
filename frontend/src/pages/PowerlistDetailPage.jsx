@@ -11,7 +11,7 @@ import {
   Link as LinkIcon, Image as ImageIcon, FileText, CheckCircle,
   DollarSign, Clock, BarChart3, Target, Award, TrendingUp,
   MapPin, Calendar, Users, Zap, Eye, Heart, Share, User, Building,
-  Mail, Phone, MessageSquare
+  Mail, Phone, MessageSquare, Bookmark, Award as AwardIcon, ExternalLink as ExternalLinkIcon
 } from 'lucide-react';
 
 // Updated theme colors matching the color palette from PDF
@@ -41,33 +41,33 @@ const PowerlistDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated, hasRole, hasAnyRole } = useAuth();
-  const [powerlist, setPowerlist] = useState(null);
+  const [powerlistNomination, setPowerlistNomination] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     if (id) {
-      fetchPowerlistDetails();
+      fetchPowerlistNominationDetails();
     }
   }, [id]);
 
-  const fetchPowerlistDetails = async () => {
+  const fetchPowerlistNominationDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching powerlist details for ID:', id);
+      console.log('Fetching powerlist nomination details for ID:', id);
 
-      const response = await api.get(`/powerlist/public/${id}`);
-      console.log('Powerlist details response:', response.data);
+      const response = await api.get(`/powerlist-nominations/public/${id}`);
+      console.log('Powerlist nomination details response:', response.data);
 
-      setPowerlist(response.data.powerlist || response.data);
+      setPowerlistNomination(response.data.nomination || response.data);
     } catch (error) {
-      console.error('Error fetching powerlist details:', error);
+      console.error('Error fetching powerlist nomination details:', error);
       if (error.response?.status === 401) {
         setShowAuth(true);
       } else {
         // Handle error - maybe navigate back or show error message
-        console.error('Failed to load powerlist details');
+        console.error('Failed to load powerlist nomination details');
         navigate('/power-lists');
       }
     } finally {
@@ -102,17 +102,17 @@ const PowerlistDetailPage = () => {
       setIsSaved(!isSaved);
       console.log('Save toggled:', !isSaved);
 
-      // Here you would typically call an API to save/unsave the powerlist
-      // await api.post(`/powerlist/${id}/save`, { saved: !isSaved });
+      // Here you would typically call an API to save/unsave the powerlist nomination
+      // await api.post(`/powerlist-nominations/${id}/save`, { saved: !isSaved });
     } catch (error) {
-      console.error('Error saving powerlist:', error);
+      console.error('Error saving powerlist nomination:', error);
     }
   };
 
   const handleShare = () => {
     const shareData = {
-      title: powerlist.name,
-      text: `Check out this professional profile: ${powerlist.name}`,
+      title: powerlistNomination?.power_list_name || 'Powerlist Nomination',
+      text: `Check out this powerlist nomination: ${powerlistNomination?.power_list_name}`,
       url: window.location.href
     };
 
@@ -135,6 +135,40 @@ const PowerlistDetailPage = () => {
     }
   };
 
+  // Status badge component
+  const StatusBadge = ({ status }) => {
+    const getStatusStyle = (status) => {
+      switch (status) {
+        case 'approved':
+          return { backgroundColor: theme.success + '20', color: theme.success };
+        case 'pending':
+          return { backgroundColor: theme.warning + '20', color: theme.warning };
+        case 'rejected':
+          return { backgroundColor: theme.danger + '20', color: theme.danger };
+        default:
+          return { backgroundColor: theme.backgroundSoft, color: theme.textSecondary };
+      }
+    };
+
+    const getStatusText = (status) => {
+      switch (status) {
+        case 'approved': return 'Approved';
+        case 'pending': return 'Pending';
+        case 'rejected': return 'Rejected';
+        default: return status;
+      }
+    };
+
+    return (
+      <span 
+        className="px-3 py-1 rounded-full text-sm font-medium"
+        style={getStatusStyle(status)}
+      >
+        {getStatusText(status)}
+      </span>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
@@ -148,7 +182,7 @@ const PowerlistDetailPage = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading profile details...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading nomination details...</p>
           </div>
         </div>
         <UserFooter />
@@ -156,7 +190,7 @@ const PowerlistDetailPage = () => {
     );
   }
 
-  if (!powerlist) {
+  if (!powerlistNomination) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
         <UserHeader onShowAuth={handleShowAuth} />
@@ -166,13 +200,13 @@ const PowerlistDetailPage = () => {
               className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
               style={{ backgroundColor: theme.backgroundSoft }}
             >
-              <User size={48} style={{ color: theme.textDisabled }} />
+              <AwardIcon size={48} style={{ color: theme.textDisabled }} />
             </div>
             <h1 className="text-2xl font-semibold mb-4" style={{ color: theme.textPrimary }}>
-              Profile Not Found
+              Nomination Not Found
             </h1>
             <p className="mb-8" style={{ color: theme.textSecondary }}>
-              The profile you're looking for doesn't exist or has been removed.
+              The powerlist nomination you're looking for doesn't exist or has been removed.
             </p>
             <button
               onClick={() => navigate('/power-lists')}
@@ -180,7 +214,7 @@ const PowerlistDetailPage = () => {
               style={{ backgroundColor: theme.primary }}
             >
               <ArrowLeft size={16} />
-              Back to Powerlist
+              Back to Nominations
             </button>
           </div>
         </div>
@@ -210,201 +244,130 @@ const PowerlistDetailPage = () => {
               className="flex items-center gap-1 hover:opacity-80"
             >
               <ArrowLeft size={16} />
-              Back to Powerlist
+              Back to Nominations
             </button>
             <span>/</span>
-            <span>Profile Details</span>
+            <span>Nomination Details</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm border p-8">
-                {/* Profile Header */}
-                <div className="flex items-start gap-6 mb-8">
-                  <div
-                    className="w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: theme.primaryLight }}
-                  >
-                    <User size={32} style={{ color: theme.primary }} />
-                  </div>
-                  <div className="flex-1">
-                    <h1 className="text-3xl font-bold mb-3" style={{ color: theme.textPrimary }}>
-                      {powerlist.name}
-                    </h1>
-                    <div className="flex flex-wrap items-center gap-6 text-sm" style={{ color: theme.textSecondary }}>
-                      <div className="flex items-center gap-2">
-                        <Building size={16} />
-                        <span>{powerlist.current_company || 'Independent Professional'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Target size={16} />
-                        <span>{powerlist.position || 'Professional'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} />
-                        <span>Joined {formatDate(powerlist.created_at)}</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                    Contact Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
-                      <Mail size={20} style={{ color: theme.primary }} />
-                      <div>
-                        <div className="text-sm font-medium" style={{ color: theme.textPrimary }}>Email</div>
-                        <div className="text-sm" style={{ color: theme.textSecondary }}>{powerlist.email}</div>
-                      </div>
-                    </div>
-                    {powerlist.calling_number && (
-                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
-                        <Phone size={20} style={{ color: theme.success }} />
-                        <div>
-                          <div className="text-sm font-medium" style={{ color: theme.textPrimary }}>Phone</div>
-                          <div className="text-sm" style={{ color: theme.textSecondary }}>{powerlist.calling_number}</div>
-                        </div>
+                {/* Header with Image Background */}
+                <div className="relative mb-8">
+                  {/* Cover Image */}
+                  <div className="h-64 rounded-lg overflow-hidden mb-6">
+                    {powerlistNomination.image ? (
+                      <img
+                        src={powerlistNomination.image}
+                        alt={powerlistNomination.publication_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div 
+                        className="w-full h-full flex items-center justify-center"
+                        style={{
+                          background: `linear-gradient(135deg, ${theme.primaryLight}, ${theme.secondaryLight})`
+                        }}
+                      >
+                        <Building size={64} style={{ color: theme.primary }} />
                       </div>
                     )}
-                    {powerlist.whatsapp && (
-                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
-                        <MessageSquare size={20} style={{ color: theme.info }} />
-                        <div>
-                          <div className="text-sm font-medium" style={{ color: theme.textPrimary }}>WhatsApp</div>
-                          <div className="text-sm" style={{ color: theme.textSecondary }}>{powerlist.whatsapp}</div>
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-4 right-4">
+                      <StatusBadge status={powerlistNomination.status} />
+                    </div>
+                  </div>
+
+                  {/* Publication and Power List Info */}
+                  <div className="flex items-start gap-6">
+                    <div className="flex-1">
+                      <h1 className="text-3xl font-bold mb-3" style={{ color: theme.textPrimary }}>
+                        {powerlistNomination.publication_name}
+                      </h1>
+                      <div className="flex flex-wrap items-center gap-6 text-sm mb-4" style={{ color: theme.textSecondary }}>
+                        <div className="flex items-center gap-2">
+                          <AwardIcon size={16} />
+                          <span className="font-medium">{powerlistNomination.power_list_name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Users size={16} />
+                          <span>{powerlistNomination.company_or_individual}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <MapPin size={16} />
+                          <span>{powerlistNomination.location_region || 'Global'}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Calendar size={16} />
+                          <span>Created {formatDate(powerlistNomination.created_at)}</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Professional Information */}
-                <div className="mb-8">
-                  <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                    Professional Information
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-medium mb-3" style={{ color: theme.textPrimary }}>Basic Details</h4>
-                      <ul className="space-y-2 text-sm" style={{ color: theme.textSecondary }}>
-                        <li className="flex items-center gap-2">
-                          <User size={14} />
-                          <span>Gender: {powerlist.gender || 'Not specified'}</span>
-                        </li>
-                        {powerlist.date_of_birth && (
-                          <li className="flex items-center gap-2">
-                            <Calendar size={14} />
-                            <span>DOB: {formatDate(powerlist.date_of_birth)}</span>
-                          </li>
-                        )}
-                        <li className="flex items-center gap-2">
-                          <Building size={14} />
-                          <span>Industry: {powerlist.company_industry || 'General'}</span>
-                        </li>
-                      </ul>
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-3" style={{ color: theme.textPrimary }}>Location & Citizenship</h4>
-                      <ul className="space-y-2 text-sm" style={{ color: theme.textSecondary }}>
-                        {powerlist.passport_nationality_one && (
-                          <li className="flex items-center gap-2">
-                            <Globe size={14} />
-                            <span>Nationality: {powerlist.passport_nationality_one}</span>
-                          </li>
-                        )}
-                        {powerlist.passport_nationality_two && (
-                          <li className="flex items-center gap-2">
-                            <Globe size={14} />
-                            <span>Dual Passport: {powerlist.passport_nationality_two}</span>
-                          </li>
-                        )}
-                        {powerlist.uae_permanent_residence && (
-                          <li className="flex items-center gap-2">
-                            <CheckCircle size={14} style={{ color: theme.success }} />
-                            <span>UAE Permanent Resident</span>
-                          </li>
-                        )}
-                        {powerlist.other_permanent_residency && (
-                          <li className="flex items-center gap-2">
-                            <CheckCircle size={14} style={{ color: theme.success }} />
-                            <span>Other Residency: {powerlist.other_residency_mention}</span>
-                          </li>
-                        )}
-                      </ul>
                     </div>
                   </div>
                 </div>
 
-                {/* Social Links */}
-                {(powerlist.linkedin_url || powerlist.instagram_url || powerlist.facebook_url || powerlist.personal_website || powerlist.company_website) && (
+                {/* Quick Stats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                    <div className="text-2xl font-bold" style={{ color: theme.primary }}>
+                      {powerlistNomination.industry || 'General'}
+                    </div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>Industry</div>
+                  </div>
+                  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                    <div className="text-2xl font-bold" style={{ color: theme.secondary }}>
+                      {powerlistNomination.company_or_individual}
+                    </div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>Type</div>
+                  </div>
+                  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                    <div className="text-2xl font-bold" style={{ color: theme.info }}>
+                      {powerlistNomination.location_region || 'Global'}
+                    </div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>Region</div>
+                  </div>
+                  <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                    <div className="text-2xl font-bold" style={{ color: theme.success }}>
+                      {powerlistNomination.tentative_month || 'TBD'}
+                    </div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>Timeline</div>
+                  </div>
+                </div>
+
+                {/* Links Section */}
+                {(powerlistNomination.website_url || powerlistNomination.last_power_list_url) && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                      Online Presence
+                      External Links
                     </h3>
                     <div className="flex flex-wrap gap-3">
-                      {powerlist.linkedin_url && (
+                      {powerlistNomination.website_url && (
                         <a
-                          href={powerlist.linkedin_url}
+                          href={powerlistNomination.website_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
-                          style={{ backgroundColor: '#0077B5', color: 'white' }}
+                          style={{ backgroundColor: theme.primary, color: 'white' }}
                         >
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                          </svg>
-                          LinkedIn
+                          <Globe size={16} />
+                          Visit Website
+                          <ExternalLinkIcon size={14} />
                         </a>
                       )}
-                      {powerlist.instagram_url && (
+                      {powerlistNomination.last_power_list_url && (
                         <a
-                          href={powerlist.instagram_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
-                          style={{ backgroundColor: '#E4405F', color: 'white' }}
-                        >
-                          Instagram
-                        </a>
-                      )}
-                      {powerlist.facebook_url && (
-                        <a
-                          href={powerlist.facebook_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
-                          style={{ backgroundColor: '#1877F2', color: 'white' }}
-                        >
-                          Facebook
-                        </a>
-                      )}
-                      {powerlist.personal_website && (
-                        <a
-                          href={powerlist.personal_website}
+                          href={powerlistNomination.last_power_list_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
                           style={{ backgroundColor: theme.secondary, color: 'white' }}
                         >
-                          <Globe size={16} />
-                          Personal Website
-                        </a>
-                      )}
-                      {powerlist.company_website && (
-                        <a
-                          href={powerlist.company_website}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
-                          style={{ backgroundColor: theme.info, color: 'white' }}
-                        >
-                          <Building size={16} />
-                          Company Website
+                          <BookOpen size={16} />
+                          Last Power List
+                          <ExternalLinkIcon size={14} />
                         </a>
                       )}
                     </div>
@@ -412,13 +375,13 @@ const PowerlistDetailPage = () => {
                 )}
 
                 {/* Additional Information */}
-                {powerlist.message && (
+                {powerlistNomination.message && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
                       Additional Information
                     </h3>
                     <div className="p-4 rounded-lg border" style={{ backgroundColor: theme.backgroundSoft }}>
-                      <p style={{ color: theme.textSecondary }}>{powerlist.message}</p>
+                      <p style={{ color: theme.textSecondary }}>{powerlistNomination.message}</p>
                     </div>
                   </div>
                 )}
@@ -428,7 +391,7 @@ const PowerlistDetailPage = () => {
                   <div className="flex items-center gap-2 p-3 rounded-lg" style={{ backgroundColor: theme.success + '10' }}>
                     <CheckCircle size={20} style={{ color: theme.success }} />
                     <span className="text-sm" style={{ color: theme.textSecondary }}>
-                      This professional has agreed to the terms and conditions of the platform.
+                      This nomination has been reviewed and approved by our team.
                     </span>
                   </div>
                 </div>
@@ -437,73 +400,83 @@ const PowerlistDetailPage = () => {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              {/* Profile Summary Card */}
+              {/* Nomination Summary Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Profile Summary
+                  Nomination Summary
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center justify-between">
                     <span style={{ color: theme.textSecondary }}>Status</span>
-                    <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: theme.success + '20', color: theme.success }}>
-                      Approved
-                    </span>
+                    <StatusBadge status={powerlistNomination.status} />
                   </div>
                   <div className="flex items-center justify-between">
                     <span style={{ color: theme.textSecondary }}>Industry</span>
-                    <span style={{ color: theme.textPrimary }}>{powerlist.company_industry || 'General'}</span>
+                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.industry || 'General'}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span style={{ color: theme.textSecondary }}>Company</span>
-                    <span style={{ color: theme.textPrimary }}>{powerlist.current_company || 'Independent'}</span>
+                    <span style={{ color: theme.textSecondary }}>Type</span>
+                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.company_or_individual}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span style={{ color: theme.textSecondary }}>Position</span>
-                    <span style={{ color: theme.textPrimary }}>{powerlist.position || 'Professional'}</span>
+                    <span style={{ color: theme.textSecondary }}>Location</span>
+                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.location_region || 'Global'}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span style={{ color: theme.textSecondary }}>Expected Month</span>
+                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.tentative_month || 'TBD'}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Contact Actions */}
+              {/* Action Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Get In Touch
+                  Quick Actions
                 </h3>
                 <div className="space-y-3">
-                  <a
-                    href={`mailto:${powerlist.email}`}
-                    className="w-full flex items-center justify-center gap-2 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                    style={{ backgroundColor: theme.primary }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
-                    onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
-                  >
-                    <Mail size={16} />
-                    Send Email
-                  </a>
-                  {powerlist.calling_number && (
+                  {powerlistNomination.website_url && (
                     <a
-                      href={`tel:${powerlist.calling_number}`}
-                      className="w-full flex items-center justify-center gap-2 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                      style={{ backgroundColor: theme.success }}
-                      onMouseEnter={(e) => e.target.style.backgroundColor = '#388E3C'}
-                      onMouseLeave={(e) => e.target.style.backgroundColor = theme.success}
-                    >
-                      <Phone size={16} />
-                      Call Now
-                    </a>
-                  )}
-                  {powerlist.whatsapp && (
-                    <a
-                      href={`https://wa.me/${powerlist.whatsapp.replace(/\D/g, '')}`}
+                      href={powerlistNomination.website_url}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="w-full flex items-center justify-center gap-2 text-white font-medium py-3 px-4 rounded-lg transition-colors"
-                      style={{ backgroundColor: '#25D366' }}
+                      style={{ backgroundColor: theme.primary }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                     >
-                      <MessageSquare size={16} />
-                      WhatsApp
+                      <Globe size={16} />
+                      Visit Website
+                      <ExternalLinkIcon size={14} />
                     </a>
                   )}
+                  
+                  {powerlistNomination.last_power_list_url && (
+                    <a
+                      href={powerlistNomination.last_power_list_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                      style={{ backgroundColor: theme.secondary }}
+                      onMouseEnter={(e) => e.target.style.backgroundColor = theme.secondaryDark}
+                      onMouseLeave={(e) => e.target.style.backgroundColor = theme.secondary}
+                    >
+                      <BookOpen size={16} />
+                      View Last List
+                      <ExternalLinkIcon size={14} />
+                    </a>
+                  )}
+
+                  <button
+                    onClick={() => navigate('/power-lists')}
+                    className="w-full flex items-center justify-center gap-2 text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    style={{ backgroundColor: theme.info }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#7B1FA2'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = theme.info}
+                  >
+                    <ArrowLeft size={16} />
+                    Back to Nominations
+                  </button>
                 </div>
               </div>
             </div>

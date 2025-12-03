@@ -10,7 +10,8 @@ import AuthModal from '../components/auth/AuthModal';
 import PowerlistSubmissionForm from '../components/user/PowerlistSubmissionForm';
 import {
   Search, Filter, Eye, Grid, List, ExternalLink, Building, User, UserCheck,
-  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Users, MapPin, Globe
+  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Users, MapPin, Globe, Star,
+  Calendar, Award, Link as LinkIcon, Bookmark
 } from 'lucide-react';
 
 // Enhanced theme colors inspired by VideoTutorials
@@ -55,13 +56,14 @@ const PowerlistPage = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Filter states
+  // Filter states - Updated for powerlist nominations
   const [industryFilter, setIndustryFilter] = useState('');
-  const [genderFilter, setGenderFilter] = useState('');
-  const [regionFilter, setRegionFilter] = useState('');
+  const [companyOrIndividualFilter, setCompanyOrIndividualFilter] = useState('');
+  const [locationRegionFilter, setLocationRegionFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('approved'); // Default to approved
 
   // Sorting state
-  const [sortField, setSortField] = useState('name');
+  const [sortField, setSortField] = useState('publication_name');
   const [sortDirection, setSortDirection] = useState('asc');
 
   // Pagination
@@ -93,24 +95,25 @@ const PowerlistPage = () => {
 
       // Add search parameters
       if (searchTerm.trim()) {
-        params.append('name', searchTerm.trim());
-        params.append('current_company', searchTerm.trim());
+        params.append('publication_name', searchTerm.trim());
+        params.append('power_list_name', searchTerm.trim());
       }
 
       // Add filter parameters
-      if (industryFilter) params.append('company_industry', industryFilter);
-      if (genderFilter) params.append('gender', genderFilter);
-      if (regionFilter) params.append('passport_nationality_one', regionFilter);
+      if (industryFilter) params.append('industry', industryFilter);
+      if (companyOrIndividualFilter) params.append('company_or_individual', companyOrIndividualFilter);
+      if (locationRegionFilter) params.append('location_region', locationRegionFilter);
+      if (statusFilter) params.append('status', statusFilter);
 
-      // Use the public endpoint for approved powerlists
-      const response = await api.get(`/powerlist/public?${params.toString()}`);
+      // Use the powerlist nominations endpoint for approved nominations
+      const response = await api.get(`/powerlist-nominations/public?${params.toString()}`);
 
-      setPowerlists(response.data.powerlists || []);
+      setPowerlists(response.data.nominations || []);
       setTotalCount(response.data.pagination?.total || 0);
       setTotalPages(response.data.pagination?.pages || 1);
       setCurrentPage(response.data.pagination?.page || 1);
     } catch (error) {
-      console.error('Error fetching powerlists:', error);
+      console.error('Error fetching powerlist nominations:', error);
       if (error.response?.status === 401) {
         setShowAuth(true);
       } else {
@@ -130,7 +133,7 @@ const PowerlistPage = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, industryFilter, genderFilter, regionFilter]);
+  }, [searchTerm, industryFilter, companyOrIndividualFilter, locationRegionFilter, statusFilter]);
 
   // Handle page changes
   const handlePageChange = (page) => {
@@ -176,23 +179,29 @@ const PowerlistPage = () => {
 
   const clearAllFilters = () => {
     setIndustryFilter('');
-    setGenderFilter('');
-    setRegionFilter('');
+    setCompanyOrIndividualFilter('');
+    setLocationRegionFilter('');
+    setStatusFilter('approved'); // Reset to default
   };
 
   const hasActiveFilters = () => {
-    return industryFilter || genderFilter || regionFilter;
+    return industryFilter || companyOrIndividualFilter || locationRegionFilter || statusFilter !== 'approved';
   };
 
   // Get unique values for filter options
   const getUniqueIndustries = () => {
-    const industries = powerlists.map(p => p.company_industry).filter(Boolean);
+    const industries = powerlists.map(p => p.industry).filter(Boolean);
     return [...new Set(industries)].sort();
   };
 
   const getUniqueRegions = () => {
-    const regions = powerlists.map(p => p.passport_nationality_one).filter(Boolean);
+    const regions = powerlists.map(p => p.location_region).filter(Boolean);
     return [...new Set(regions)].sort();
+  };
+
+  const getUniqueCompanyOrIndividual = () => {
+    const types = powerlists.map(p => p.company_or_individual).filter(Boolean);
+    return [...new Set(types)].sort();
   };
 
   const handleShowAuth = () => {
@@ -224,6 +233,40 @@ const PowerlistPage = () => {
     navigate(`/power-lists/${powerlist.id}`);
   };
 
+  // Status badge component
+  const StatusBadge = ({ status }) => {
+    const getStatusStyle = (status) => {
+      switch (status) {
+        case 'approved':
+          return { backgroundColor: theme.success + '20', color: theme.success };
+        case 'pending':
+          return { backgroundColor: theme.warning + '20', color: theme.warning };
+        case 'rejected':
+          return { backgroundColor: theme.danger + '20', color: theme.danger };
+        default:
+          return { backgroundColor: theme.backgroundSoft, color: theme.textSecondary };
+      }
+    };
+
+    const getStatusText = (status) => {
+      switch (status) {
+        case 'approved': return 'Approved';
+        case 'pending': return 'Pending';
+        case 'rejected': return 'Rejected';
+        default: return status;
+      }
+    };
+
+    return (
+      <span 
+        className="px-2 py-1 rounded-full text-xs font-medium"
+        style={getStatusStyle(status)}
+      >
+        {getStatusText(status)}
+      </span>
+    );
+  };
+
   if (loading && powerlists.length === 0) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
@@ -237,7 +280,7 @@ const PowerlistPage = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading powerlist...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading powerlist nominations...</p>
           </div>
         </div>
         <UserFooter />
@@ -259,10 +302,10 @@ const PowerlistPage = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Powerlist Directory
+              Powerlist Nominations
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Connect with influential professionals and industry leaders who can amplify your brand and drive meaningful impact.
+              Discover prestigious powerlist nominations from leading publications and organizations across industries.
             </p>
 
             {/* Search Bar */}
@@ -270,7 +313,7 @@ const PowerlistPage = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search professionals by name, company, or industry..."
+                  placeholder="Search publications, powerlist names, or industries..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
@@ -356,80 +399,56 @@ const PowerlistPage = () => {
                     </select>
                   </div>
 
-                  {/* Gender Filter */}
+                  {/* Company/Individual Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Gender
+                      Type
                     </label>
                     <select
-                      value={genderFilter}
-                      onChange={(e) => setGenderFilter(e.target.value)}
+                      value={companyOrIndividualFilter}
+                      onChange={(e) => setCompanyOrIndividualFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Genders</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
+                      <option value="">All Types</option>
+                      {getUniqueCompanyOrIndividual().map(type => (
+                        <option key={type} value={type}>{type}</option>
+                      ))}
                     </select>
                   </div>
 
-                  {/* Region Filter */}
+                  {/* Location Region Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Region
+                      Location
                     </label>
                     <select
-                      value={regionFilter}
-                      onChange={(e) => setRegionFilter(e.target.value)}
+                      value={locationRegionFilter}
+                      onChange={(e) => setLocationRegionFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Regions</option>
+                      <option value="">All Locations</option>
                       {getUniqueRegions().map(region => (
                         <option key={region} value={region}>{region}</option>
                       ))}
                     </select>
                   </div>
-                </div>
-              </div>
 
-              {/* Demographics */}
-              <div className="bg-[#E3F2FD] rounded-lg p-4 border border-[#1976D2]">
-                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
-                  <Users size={16} className="text-[#1976D2]" />
-                  Demographics
-                </h4>
-
-                {/* Gender Filter */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Gender
-                  </label>
-                  <select
-                    value={genderFilter}
-                    onChange={(e) => setGenderFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
-                  >
-                    <option value="">All Genders</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
-
-                {/* Region Filter */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Region
-                  </label>
-                  <select
-                    value={regionFilter}
-                    onChange={(e) => setRegionFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
-                  >
-                    <option value="">All Regions</option>
-                    {getUniqueRegions().map(region => (
-                      <option key={region} value={region}>{region}</option>
-                    ))}
-                  </select>
+                  {/* Status Filter */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                      Status
+                    </label>
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
+                    >
+                      <option value="">All Status</option>
+                      <option value="approved">Approved</option>
+                      <option value="pending">Pending</option>
+                      <option value="rejected">Rejected</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -490,7 +509,7 @@ const PowerlistPage = () => {
                 </div>
 
                 <span className="text-sm font-medium text-[#212121]">
-                  {totalCount} professionals found
+                  {totalCount} nominations found
                   {searchTerm && (
                     <span className="ml-2 text-[#757575]">
                       for "{searchTerm}"
@@ -511,16 +530,18 @@ const PowerlistPage = () => {
                   }}
                   className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="current_company-asc">Company (A-Z)</option>
-                  <option value="current_company-desc">Company (Z-A)</option>
-                  <option value="company_industry-asc">Industry (A-Z)</option>
-                  <option value="company_industry-desc">Industry (Z-A)</option>
-                  <option value="gender-asc">Gender (A-Z)</option>
-                  <option value="gender-desc">Gender (Z-A)</option>
-                  <option value="passport_nationality_one-asc">Location (A-Z)</option>
-                  <option value="passport_nationality_one-desc">Location (Z-A)</option>
+                  <option value="publication_name-asc">Publication (A-Z)</option>
+                  <option value="publication_name-desc">Publication (Z-A)</option>
+                  <option value="power_list_name-asc">Power List (A-Z)</option>
+                  <option value="power_list_name-desc">Power List (Z-A)</option>
+                  <option value="industry-asc">Industry (A-Z)</option>
+                  <option value="industry-desc">Industry (Z-A)</option>
+                  <option value="company_or_individual-asc">Type (A-Z)</option>
+                  <option value="company_or_individual-desc">Type (Z-A)</option>
+                  <option value="location_region-asc">Location (A-Z)</option>
+                  <option value="location_region-desc">Location (Z-A)</option>
+                  <option value="status-asc">Status (A-Z)</option>
+                  <option value="status-desc">Status (Z-A)</option>
                 </select>
               </div>
             </div>
@@ -529,71 +550,112 @@ const PowerlistPage = () => {
           {/* Powerlists Display */}
           {sortedPowerlists.length > 0 ? (
             <>
-              {/* Enhanced Grid View */}
+              {/* Enhanced Grid View with Image Backgrounds */}
               {viewMode === 'grid' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                  {sortedPowerlists.map((powerlist, index) => (
+                  {sortedPowerlists.map((nomination, index) => (
                     <motion.div
-                      key={powerlist.id}
+                      key={nomination.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
-                      onClick={() => handlePowerlistClick(powerlist)}
-                      className="bg-white rounded-lg shadow-lg border hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden"
+                      onClick={() => handlePowerlistClick(nomination)}
+                      className="bg-white rounded-xl shadow-lg border hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden"
                       style={{
                         borderColor: theme.borderLight,
                         boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
                       }}
                     >
-                      {/* Enhanced Powerlist Header */}
-                      <div className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
-                              {powerlist.name}
-                            </h3>
-                            <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
-                              <Building size={14} className="mr-2" />
-                              <span>{powerlist.current_company || 'Independent'}</span>
-                            </div>
-                            <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
-                              <User size={14} className="mr-2" />
-                              <span>{powerlist.position || 'Professional'}</span>
-                            </div>
-                          </div>
-                          <div
-                            className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: theme.primaryLight }}
+                      {/* Card Header with Image Background */}
+                      <div className="relative h-40 overflow-hidden">
+                        {nomination.image ? (
+                          <img
+                            src={nomination.image}
+                            alt={nomination.publication_name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <div 
+                            className="w-full h-full flex items-center justify-center"
+                            style={{
+                              background: `linear-gradient(135deg, ${theme.primaryLight}, ${theme.secondaryLight})`
+                            }}
                           >
-                            <UserCheck size={24} style={{ color: theme.primary }} />
+                            <Building size={48} style={{ color: theme.primary }} />
+                          </div>
+                        )}
+                        
+                        {/* Status Badge */}
+                        <div className="absolute top-3 right-3">
+                          <StatusBadge status={nomination.status} />
+                        </div>
+
+                        {/* Power List Name Badge */}
+                        <div className="absolute bottom-3 left-3">
+                          <span 
+                            className="px-2 py-1 rounded-full text-xs font-medium text-white"
+                            style={{ backgroundColor: theme.primary }}
+                          >
+                            {nomination.power_list_name}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="p-6">
+                        {/* Publication Name */}
+                        <h3 className="text-lg font-semibold mb-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
+                          {nomination.publication_name}
+                        </h3>
+
+                        {/* Company/Individual Type */}
+                        <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
+                          <Users size={14} className="mr-2" />
+                          <span>{nomination.company_or_individual}</span>
+                        </div>
+
+                        {/* Industry and Location */}
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs" style={{ color: theme.textSecondary }}>Industry</span>
+                            <span className="text-sm font-medium" style={{ color: theme.primary }}>
+                              {nomination.industry || 'General'}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs" style={{ color: theme.textSecondary }}>Location</span>
+                            <span className="text-sm font-medium" style={{ color: theme.info }}>
+                              {nomination.location_region || 'Global'}
+                            </span>
                           </div>
                         </div>
 
-                        {/* Enhanced Industry and Demographics */}
-                        <div className="grid grid-cols-2 gap-2 text-center mb-4 p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
-                          <div>
-                            <div className="text-sm font-medium" style={{ color: theme.primary }}>
-                              {powerlist.company_industry || 'General'}
-                            </div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Industry</div>
+                        {/* Tentative Month */}
+                        {nomination.tentative_month && (
+                          <div className="flex items-center text-sm mb-4 p-2 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                            <Calendar size={14} className="mr-2" style={{ color: theme.warning }} />
+                            <span style={{ color: theme.textSecondary }}>Expected: {nomination.tentative_month}</span>
                           </div>
-                          <div>
-                            <div className="text-sm font-medium" style={{ color: theme.success }}>
-                              {powerlist.gender || 'Not specified'}
-                            </div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Gender</div>
-                          </div>
-                        </div>
+                        )}
 
-                        {/* Location Info */}
-                        <div className="text-center mb-4 p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
-                          <div className="text-sm font-medium" style={{ color: theme.info }}>
-                            {powerlist.passport_nationality_one || 'Global'}
+                        {/* Website Link */}
+                        {nomination.website_url && (
+                          <div className="mb-4">
+                            <a
+                              href={nomination.website_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-2 text-sm hover:underline"
+                              style={{ color: theme.primary }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Globe size={14} />
+                              Visit Website
+                            </a>
                           </div>
-                          <div className="text-xs" style={{ color: theme.textSecondary }}>Location</div>
-                        </div>
+                        )}
 
-                        {/* Enhanced CTA Button */}
+                        {/* CTA Button */}
                         <button
                           className="w-full text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
                           style={{ backgroundColor: theme.primary }}
@@ -601,7 +663,7 @@ const PowerlistPage = () => {
                           onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                         >
                           <Eye size={16} />
-                          View Profile
+                          View Details
                           <ExternalLink size={14} />
                         </button>
                       </div>
@@ -610,7 +672,7 @@ const PowerlistPage = () => {
                 </div>
               )}
 
-              {/* Enhanced List View - Table Format */}
+              {/* Enhanced List View */}
               {viewMode === 'list' && (
                 <div className="bg-white rounded-lg shadow-lg border overflow-hidden" style={{
                   borderColor: theme.borderLight,
@@ -623,46 +685,55 @@ const PowerlistPage = () => {
                           <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('name')}
+                            onClick={() => handleSort('publication_name')}
                           >
                             <div className="flex items-center gap-2">
-                              Professional {getSortIcon('name')}
+                              Publication {getSortIcon('publication_name')}
                             </div>
                           </th>
                           <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('current_company')}
+                            onClick={() => handleSort('power_list_name')}
                           >
                             <div className="flex items-center gap-2">
-                              Company {getSortIcon('current_company')}
+                              Power List {getSortIcon('power_list_name')}
                             </div>
                           </th>
                           <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('company_industry')}
+                            onClick={() => handleSort('industry')}
                           >
                             <div className="flex items-center gap-2">
-                              Industry {getSortIcon('company_industry')}
+                              Industry {getSortIcon('industry')}
                             </div>
                           </th>
                           <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('gender')}
+                            onClick={() => handleSort('company_or_individual')}
                           >
                             <div className="flex items-center gap-2">
-                              Gender {getSortIcon('gender')}
+                              Type {getSortIcon('company_or_individual')}
                             </div>
                           </th>
                           <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('passport_nationality_one')}
+                            onClick={() => handleSort('location_region')}
                           >
                             <div className="flex items-center gap-2">
-                              Location {getSortIcon('passport_nationality_one')}
+                              Location {getSortIcon('location_region')}
+                            </div>
+                          </th>
+                          <th
+                            className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
+                            style={{ color: theme.textPrimary }}
+                            onClick={() => handleSort('status')}
+                          >
+                            <div className="flex items-center gap-2">
+                              Status {getSortIcon('status')}
                             </div>
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
@@ -671,12 +742,12 @@ const PowerlistPage = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {sortedPowerlists.map((powerlist, index) => (
+                        {sortedPowerlists.map((nomination, index) => (
                           <tr
-                            key={powerlist.id}
+                            key={nomination.id}
                             className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
                             style={{ borderColor: theme.borderLight }}
-                            onClick={() => handlePowerlistClick(powerlist)}
+                            onClick={() => handlePowerlistClick(nomination)}
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
@@ -684,37 +755,42 @@ const PowerlistPage = () => {
                                   className="w-10 h-10 rounded-lg flex items-center justify-center"
                                   style={{ backgroundColor: theme.primaryLight }}
                                 >
-                                  <UserCheck size={20} style={{ color: theme.primary }} />
+                                  <Building size={20} style={{ color: theme.primary }} />
                                 </div>
                                 <div>
                                   <div className="font-semibold" style={{ color: theme.textPrimary }}>
-                                    {powerlist.name}
+                                    {nomination.publication_name}
                                   </div>
-                                  <div className="text-sm" style={{ color: theme.textSecondary }}>
-                                    {powerlist.position}
-                                  </div>
+                                  {nomination.tentative_month && (
+                                    <div className="text-xs" style={{ color: theme.textSecondary }}>
+                                      Expected: {nomination.tentative_month}
+                                    </div>
+                                  )}
                                 </div>
                               </div>
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {powerlist.current_company || 'Independent'}
+                                {nomination.power_list_name}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {powerlist.company_industry || 'General'}
+                                {nomination.industry || 'General'}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {powerlist.gender || 'Not specified'}
+                                {nomination.company_or_individual}
                               </span>
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {powerlist.passport_nationality_one || 'Global'}
+                                {nomination.location_region || 'Global'}
                               </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <StatusBadge status={nomination.status} />
                             </td>
                             <td className="px-6 py-4">
                               <button
@@ -741,13 +817,13 @@ const PowerlistPage = () => {
                 className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
                 style={{ backgroundColor: theme.backgroundSoft }}
               >
-                <User size={48} style={{ color: theme.textDisabled }} />
+                <Award size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                No professionals found
+                No nominations found
               </h3>
               <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                We couldn't find any professionals matching your search criteria.
+                We couldn't find any powerlist nominations matching your search criteria.
               </p>
               <button
                 onClick={() => {
