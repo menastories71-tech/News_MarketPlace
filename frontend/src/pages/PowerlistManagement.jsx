@@ -8,19 +8,11 @@ import api from '../services/api';
 const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) => {
   const [formData, setFormData] = useState({
     publication_name: '',
-    website_url: '',
     power_list_name: '',
-    industry: '',
-    company_or_individual: '',
-    tentative_month: '',
-    location_region: '',
-    last_power_list_url: '',
-    image: ''
+    industry: ''
   });
 
   const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState('');
 
   // Industry options
   const industryOptions = [
@@ -30,52 +22,23 @@ const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) =
     'Fashion', 'Sports', 'Travel & Tourism', 'Agriculture', 'Other'
   ];
 
-  // Company/Individual options
-  const companyIndividualOptions = [
-    'Company',
-    'Individual'
-  ];
 
   useEffect(() => {
     if (nomination) {
       setFormData({
         publication_name: nomination.publication_name || '',
-        website_url: nomination.website_url || '',
         power_list_name: nomination.power_list_name || '',
-        industry: nomination.industry || '',
-        company_or_individual: nomination.company_or_individual || '',
-        tentative_month: nomination.tentative_month || '',
-        location_region: nomination.location_region || '',
-        last_power_list_url: nomination.last_power_list_url || '',
-        image: nomination.image || ''
+        industry: nomination.industry || ''
       });
-      setImagePreview(nomination.image || '');
     } else {
       setFormData({
         publication_name: '',
-        website_url: '',
         power_list_name: '',
-        industry: '',
-        company_or_individual: '',
-        tentative_month: '',
-        location_region: '',
-        last_power_list_url: '',
-        image: ''
+        industry: ''
       });
-      setImagePreview('');
-      setImageFile(null);
     }
   }, [nomination, isOpen]);
 
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      const reader = new FileReader();
-      reader.onload = (e) => setImagePreview(e.target.result);
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,17 +47,10 @@ const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) =
     try {
       const submissionData = new FormData();
 
-      // Add all form fields to FormData
-      Object.keys(formData).forEach(key => {
-        if (formData[key] !== null && formData[key] !== undefined && formData[key] !== '') {
-          submissionData.append(key, formData[key]);
-        }
-      });
-
-      // Add image file if selected
-      if (imageFile) {
-        submissionData.append('image', imageFile);
-      }
+      // Add the three form fields to FormData
+      if (formData.publication_name) submissionData.append('publication_name', formData.publication_name);
+      if (formData.power_list_name) submissionData.append('power_list_name', formData.power_list_name);
+      if (formData.industry) submissionData.append('industry', formData.industry);
 
       if (nomination) {
         await api.put(`/powerlist-nominations/${nomination.id}`, submissionData, {
@@ -209,16 +165,6 @@ const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) =
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Website URL</label>
-              <input
-                type="url"
-                value={formData.website_url}
-                onChange={(e) => setFormData({ ...formData, website_url: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
               <label style={labelStyle}>Power List Name *</label>
               <input
                 type="text"
@@ -242,72 +188,6 @@ const PowerlistNominationFormModal = ({ isOpen, onClose, nomination, onSave }) =
                   <option key={industry} value={industry}>{industry}</option>
                 ))}
               </select>
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Company or Individual *</label>
-              <select
-                value={formData.company_or_individual}
-                onChange={(e) => setFormData({ ...formData, company_or_individual: e.target.value })}
-                style={selectStyle}
-                required
-              >
-                <option value="">Select Type</option>
-                {companyIndividualOptions.map(option => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Tentative Month</label>
-              <input
-                type="text"
-                value={formData.tentative_month}
-                onChange={(e) => setFormData({ ...formData, tentative_month: e.target.value })}
-                style={inputStyle}
-                placeholder="e.g., January 2024"
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Location Region</label>
-              <input
-                type="text"
-                value={formData.location_region}
-                onChange={(e) => setFormData({ ...formData, location_region: e.target.value })}
-                style={inputStyle}
-                placeholder="e.g., North America, Europe"
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Last Power List URL</label>
-              <input
-                type="url"
-                value={formData.last_power_list_url}
-                onChange={(e) => setFormData({ ...formData, last_power_list_url: e.target.value })}
-                style={inputStyle}
-              />
-            </div>
-
-            <div style={formGroupStyle}>
-              <label style={labelStyle}>Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={{ ...inputStyle, padding: '8px' }}
-              />
-              {imagePreview && (
-                <div style={{ marginTop: '8px' }}>
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: '8px' }}
-                  />
-                </div>
-              )}
             </div>
           </div>
 
@@ -1036,17 +916,13 @@ const PowerlistManagement = () => {
                     </select>
                     <button
                       onClick={() => {
-                        const headers = ['Publication Name', 'Website URL', 'Power List Name', 'Industry', 'Type', 'Month', 'Location', 'Status'];
+                        const headers = ['Publication Name', 'Power List Name', 'Industry', 'Status'];
                         const csvData = [
                           headers.join(','),
                           ...nominations.map(nomination => [
                             `"${nomination.publication_name}"`,
-                            `"${nomination.website_url || ''}"`,
                             `"${nomination.power_list_name}"`,
                             `"${nomination.industry}"`,
-                            `"${nomination.company_or_individual}"`,
-                            `"${nomination.tentative_month || ''}"`,
-                            `"${nomination.location_region || ''}"`,
                             nomination.status
                           ].join(','))
                         ].join('\n');
@@ -1103,10 +979,7 @@ const PowerlistManagement = () => {
                         Power List {getSortIcon('power_list_name')}
                       </th>
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Industry & Type
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Details
+                        Industry
                       </th>
                       <th
                         style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
@@ -1194,37 +1067,8 @@ const PowerlistManagement = () => {
                           </div>
                         </td>
                         <td style={{ padding: '16px' }}>
-                          <div>
-                            <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500', marginBottom: '4px' }}>
-                              {nomination.industry}
-                            </div>
-                            <div style={{ fontSize: '12px', color: theme.textSecondary }}>
-                              {nomination.company_or_individual}
-                            </div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '16px' }}>
-                          <div>
-                            {nomination.tentative_month && (
-                              <div style={{ fontSize: '12px', color: theme.textPrimary, marginBottom: '2px' }}>
-                                📅 {nomination.tentative_month}
-                              </div>
-                            )}
-                            {nomination.location_region && (
-                              <div style={{ fontSize: '12px', color: theme.textPrimary, marginBottom: '2px' }}>
-                                📍 {nomination.location_region}
-                              </div>
-                            )}
-                            {nomination.last_power_list_url && (
-                              <a
-                                href={nomination.last_power_list_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ color: theme.primary, textDecoration: 'none', fontSize: '12px' }}
-                              >
-                                🔗 Last List
-                              </a>
-                            )}
+                          <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500' }}>
+                            {nomination.industry}
                           </div>
                         </td>
                         <td style={{ padding: '16px' }}>
