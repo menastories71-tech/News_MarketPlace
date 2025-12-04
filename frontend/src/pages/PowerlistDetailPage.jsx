@@ -45,6 +45,13 @@ const PowerlistDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [nominationForm, setNominationForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    additional_message: ''
+  });
+  const [submittingNomination, setSubmittingNomination] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -133,6 +140,41 @@ const PowerlistDetailPage = () => {
         alert('Link copied to clipboard!');
       });
     }
+  };
+
+  const handleNominationSubmit = async (e) => {
+    e.preventDefault();
+    setSubmittingNomination(true);
+
+    try {
+      const submissionData = {
+        powerlist_nomination_id: parseInt(id),
+        ...nominationForm
+      };
+
+      await api.post('/powerlist-nomination-submissions', submissionData);
+
+      alert('Nomination submitted successfully! You will receive a confirmation email.');
+      setNominationForm({
+        full_name: '',
+        email: '',
+        phone: '',
+        additional_message: ''
+      });
+    } catch (error) {
+      console.error('Error submitting nomination:', error);
+      alert('Failed to submit nomination. Please try again.');
+    } finally {
+      setSubmittingNomination(false);
+    }
+  };
+
+  const handleNominationFormChange = (e) => {
+    const { name, value } = e.target;
+    setNominationForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
 
@@ -376,7 +418,7 @@ const PowerlistDetailPage = () => {
               </div>
 
               {/* Action Card */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
+              <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
                   Quick Actions
                 </h3>
@@ -396,7 +438,7 @@ const PowerlistDetailPage = () => {
                       <ExternalLinkIcon size={14} />
                     </a>
                   )}
-                  
+
                   {powerlistNomination.last_power_list_url && (
                     <a
                       href={powerlistNomination.last_power_list_url}
@@ -424,6 +466,80 @@ const PowerlistDetailPage = () => {
                     Back to Nominations
                   </button>
                 </div>
+              </div>
+
+              {/* Nomination Form */}
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
+                  Submit Nomination
+                </h3>
+                <form onSubmit={handleNominationSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="full_name"
+                      value={nominationForm.full_name}
+                      onChange={handleNominationFormChange}
+                      required
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                      style={{ borderColor: theme.borderLight, focusRingColor: theme.primary }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={nominationForm.email}
+                      onChange={handleNominationFormChange}
+                      required
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                      style={{ borderColor: theme.borderLight, focusRingColor: theme.primary }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      value={nominationForm.phone}
+                      onChange={handleNominationFormChange}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                      style={{ borderColor: theme.borderLight, focusRingColor: theme.primary }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
+                      Additional Message
+                    </label>
+                    <textarea
+                      name="additional_message"
+                      value={nominationForm.additional_message}
+                      onChange={handleNominationFormChange}
+                      rows={3}
+                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                      style={{ borderColor: theme.borderLight, focusRingColor: theme.primary }}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={submittingNomination}
+                    className="w-full text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50"
+                    style={{ backgroundColor: theme.primary }}
+                  >
+                    {submittingNomination ? 'Submitting...' : 'Submit Nomination'}
+                  </button>
+                </form>
+                <p className="text-xs mt-3" style={{ color: theme.textSecondary }}>
+                  We do not ensure or authorize to add this in publication.
+                </p>
               </div>
             </div>
           </div>

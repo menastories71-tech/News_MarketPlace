@@ -403,6 +403,17 @@ export default function Sidebar({
                       <span>Powerlist Management</span>
                     </a>
                   </li>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/powerlist-orders"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#FFF8E1'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#fff8e1')}><Icon name="document-text" size="sm" style={{ color: '#FF9800' }} /></span>
+                      <span>Orders</span>
+                    </a>
+                  </li>
                 </ul>
               )}
             </li>

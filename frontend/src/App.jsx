@@ -112,6 +112,7 @@ import PaparazziOrderManagement from './components/admin/PaparazziOrderManagemen
 import ThemeOrderManagement from './components/admin/ThemeOrderManagement';
 import PressPackOrderManagement from './components/admin/PressPackOrderManagement';
 import PublicationManagementPage from './pages/admin/PublicationManagement';
+import PowerlistOrders from './pages/admin/PowerlistOrders';
 import Icon from './components/common/Icon';
 import PaparazziCreations from './pages/admin/PaparazziCreations';
 import EventCreationPage from './pages/admin/EventCreation';
@@ -519,6 +520,16 @@ function App() {
                 <AdminProtectedRoute>
                   <div className="min-h-screen bg-gray-50">
                     <PowerlistManagement />
+                  </div>
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/powerlist-orders"
+              element={
+                <AdminProtectedRoute>
+                  <div className="min-h-screen bg-gray-50">
+                    <PowerlistOrders />
                   </div>
                 </AdminProtectedRoute>
               }
