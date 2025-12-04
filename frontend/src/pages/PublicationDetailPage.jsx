@@ -1068,7 +1068,7 @@ const PublicationDetailPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                {isOrdering ? 'Processing...' : 'Book Call Now'}
+                {isOrdering ? 'Processing...' : 'Checkout'}
               </button>
             </div>
           </div>
