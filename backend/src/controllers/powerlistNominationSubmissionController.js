@@ -54,7 +54,7 @@ class PowerlistNominationSubmissionController {
         await emailService.sendCustomEmail(
           submission.email,
           'Nomination Submission Confirmation - News Marketplace',
-          this.constructor.generateSubmissionConfirmationEmailTemplate(
+          PowerlistNominationSubmissionController.generateSubmissionConfirmationEmailTemplate(
             submission.full_name,
             nomination.publication_name,
             nomination.power_list_name
@@ -65,7 +65,7 @@ class PowerlistNominationSubmissionController {
         await emailService.sendCustomEmail(
           process.env.ADMIN_EMAIL || 'menastories71@gmail.com',
           'New Powerlist Nomination Submission - News Marketplace',
-          this.constructor.generateAdminNotificationEmailTemplate(
+          PowerlistNominationSubmissionController.generateAdminNotificationEmailTemplate(
             submission,
             nomination
           )
@@ -187,7 +187,7 @@ class PowerlistNominationSubmissionController {
           await emailService.sendCustomEmail(
             submission.email,
             `Nomination ${updateData.status.charAt(0).toUpperCase() + updateData.status.slice(1)} - News Marketplace`,
-            this.constructor.generateStatusUpdateEmailTemplate(
+            PowerlistNominationSubmissionController.generateStatusUpdateEmailTemplate(
               submission.full_name,
               nomination.publication_name,
               nomination.power_list_name,
@@ -199,7 +199,7 @@ class PowerlistNominationSubmissionController {
           await emailService.sendCustomEmail(
             process.env.ADMIN_EMAIL || 'menastories71@gmail.com',
             `Nomination Status Updated - ${updateData.status.charAt(0).toUpperCase() + updateData.status.slice(1)}`,
-            this.constructor.generateAdminStatusUpdateEmailTemplate(
+            PowerlistNominationSubmissionController.generateAdminStatusUpdateEmailTemplate(
               submission,
               nomination,
               updateData.status
@@ -278,7 +278,7 @@ class PowerlistNominationSubmissionController {
           await emailService.sendCustomEmail(
             submission.email,
             `Nomination ${status.charAt(0).toUpperCase() + status.slice(1)} - News Marketplace`,
-            this.constructor.generateStatusUpdateEmailTemplate(
+            PowerlistNominationSubmissionController.generateStatusUpdateEmailTemplate(
               submission.full_name,
               nomination.publication_name,
               nomination.power_list_name,
@@ -290,7 +290,7 @@ class PowerlistNominationSubmissionController {
           await emailService.sendCustomEmail(
             process.env.ADMIN_EMAIL || 'menastories71@gmail.com',
             `Nomination Status Updated - ${status.charAt(0).toUpperCase() + status.slice(1)}`,
-            this.constructor.generateAdminStatusUpdateEmailTemplate(
+            PowerlistNominationSubmissionController.generateAdminStatusUpdateEmailTemplate(
               submission,
               nomination,
               status
