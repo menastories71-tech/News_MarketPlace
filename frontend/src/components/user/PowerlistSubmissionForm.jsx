@@ -449,16 +449,20 @@ const PowerlistSubmissionForm = ({ onClose, onSuccess }) => {
               boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
               textAlign: 'center'
             }}>
-              <Icon
-                name={popupType === 'success' ? 'check-circle' : 'exclamation-triangle'}
-                size="3x"
-                style={{ color: popupType === 'success' ? theme.success : theme.danger, marginBottom: '16px' }}
-              />
-              <div style={{ fontWeight: '600', color: popupType === 'success' ? theme.success : theme.danger, marginBottom: '8px' }}>
-                {popupType === 'success' ? 'Success!' : 'Error!'}
-              </div>
-              <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                {popupMessage}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+                <Icon
+                  name={popupType === 'success' ? 'check-circle' : 'exclamation-triangle'}
+                  size="3x"
+                  style={{ color: popupType === 'success' ? theme.success : theme.danger }}
+                />
+                <div>
+                  <div style={{ fontWeight: '600', color: popupType === 'success' ? theme.success : theme.danger, marginBottom: '8px' }}>
+                    {popupType === 'success' ? 'Success!' : 'Error!'}
+                  </div>
+                  <div style={{ fontSize: '14px', color: theme.textSecondary }}>
+                    {popupMessage}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
