@@ -413,7 +413,7 @@ const PowerlistOrders = () => {
                         <td style={{ padding: '16px' }}>
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <button
-                              onClick={() => handleStatusChange(submission.id, submission.status === 'approved' ? 'pending' : 'approved')}
+                              onClick={() => handleStatusChange(submission.id, submission.status === 'approved' ? 'rejected' : 'approved')}
                               style={{
                                 padding: '6px 10px',
                                 backgroundColor: submission.status === 'approved' ? '#ff9800' : '#4caf50',

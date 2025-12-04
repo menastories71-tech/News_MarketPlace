@@ -171,10 +171,12 @@ class PowerlistNominationSubmissionController {
 
       const updatedSubmission = await submission.update(updateData);
 
-      // Send email if status changed
+      // Send emails if status changed
       if (updateData.status && updateData.status !== oldStatus) {
         try {
           const nomination = await PowerlistNomination.findById(submission.powerlist_nomination_id);
+
+          // Email to user
           await emailService.sendCustomEmail(
             submission.email,
             `Nomination ${updateData.status.charAt(0).toUpperCase() + updateData.status.slice(1)}`,
@@ -185,8 +187,19 @@ class PowerlistNominationSubmissionController {
               updateData.status
             )
           );
+
+          // Email to admin
+          await emailService.sendCustomEmail(
+            'menastories71@gmail.com',
+            `Nomination Status Updated - ${updateData.status.charAt(0).toUpperCase() + updateData.status.slice(1)}`,
+            this.constructor.generateAdminStatusUpdateEmailTemplate(
+              submission,
+              nomination,
+              updateData.status
+            )
+          );
         } catch (emailError) {
-          console.error('Failed to send status update email:', emailError);
+          console.error('Failed to send status update emails:', emailError);
         }
       }
 
@@ -245,10 +258,12 @@ class PowerlistNominationSubmissionController {
       const oldStatus = submission.status;
       const updatedSubmission = await submission.update({ status });
 
-      // Send email if status changed
+      // Send emails if status changed
       if (status !== oldStatus) {
         try {
           const nomination = await PowerlistNomination.findById(submission.powerlist_nomination_id);
+
+          // Email to user
           await emailService.sendCustomEmail(
             submission.email,
             `Nomination ${status.charAt(0).toUpperCase() + status.slice(1)}`,
@@ -259,8 +274,19 @@ class PowerlistNominationSubmissionController {
               status
             )
           );
+
+          // Email to admin
+          await emailService.sendCustomEmail(
+            'menastories71@gmail.com',
+            `Nomination Status Updated - ${status.charAt(0).toUpperCase() + status.slice(1)}`,
+            this.constructor.generateAdminStatusUpdateEmailTemplate(
+              submission,
+              nomination,
+              status
+            )
+          );
         } catch (emailError) {
-          console.error('Failed to send status update email:', emailError);
+          console.error('Failed to send status update emails:', emailError);
         }
       }
 
@@ -303,6 +329,25 @@ class PowerlistNominationSubmissionController {
         <p><strong>Phone:</strong> ${submission.phone || 'Not provided'}</p>
         <p><strong>Additional Message:</strong> ${submission.additional_message || 'None'}</p>
         <p>Please review this nomination in the admin panel.</p>
+        <hr>
+        <p style="font-size: 12px; color: #666;">&copy; 2024 News Marketplace. All rights reserved.</p>
+      </div>
+    `;
+  }
+
+  static generateAdminStatusUpdateEmailTemplate(submission, nomination, status) {
+    const statusText = status.charAt(0).toUpperCase() + status.slice(1);
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #FF9800;">Nomination Status Updated</h1>
+        <h2>Nomination ${statusText}</h2>
+        <p><strong>Publication:</strong> ${nomination.publication_name}</p>
+        <p><strong>Power List:</strong> ${nomination.power_list_name}</p>
+        <p><strong>Full Name:</strong> ${submission.full_name}</p>
+        <p><strong>Email:</strong> ${submission.email}</p>
+        <p><strong>Phone:</strong> ${submission.phone || 'Not provided'}</p>
+        <p><strong>Additional Message:</strong> ${submission.additional_message || 'None'}</p>
+        <p>The nomination status has been updated to <strong>${statusText.toLowerCase()}</strong>.</p>
         <hr>
         <p style="font-size: 12px; color: #666;">&copy; 2024 News Marketplace. All rights reserved.</p>
       </div>
