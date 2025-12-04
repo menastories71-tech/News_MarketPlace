@@ -25,10 +25,30 @@ const theme = {
   borderLight: '#E0E0E0',    // Border Light
   borderMedium: '#BDBDBD',   // Border Medium
   borderDark: '#757575',     // Border Dark
+  roleColors: {
+    'super_admin': { bg: '#E3F2FD', color: '#1976D2' },
+    'content_manager': { bg: '#E8F5E8', color: '#4CAF50' },
+    'editor': { bg: '#FFF3E0', color: '#FF9800' },
+    'registered_user': { bg: '#F3E5F5', color: '#9C27B0' },
+    'agency': { bg: '#E0F2FE', color: '#0369a1' },
+    'other': { bg: '#F5F5F5', color: '#757575' }
+  }
 };
 
 const PowerlistOrders = () => {
-  const { admin, logout, hasRole, hasAnyRole, getRoleLevel } = useAdminAuth();
+  const { admin, logout, hasRole, hasAnyRole, getRoleLevel, loading: authLoading } = useAdminAuth();
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: theme.backgroundSoft }}>
+        <div style={{ textAlign: 'center' }}>
+          <Icon name="arrow-path" size="lg" style={{ color: theme.primary, marginBottom: '16px' }} />
+          <p style={{ color: theme.textSecondary }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Check if user has permission
   if (!hasAnyRole(['super_admin', 'content_manager'])) {
