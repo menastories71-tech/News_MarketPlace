@@ -229,17 +229,6 @@ const RadioDetails = () => {
                   </div>
                 )}
 
-                {/* Remarks */}
-                {radio.remarks && (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-3 text-[#212121]">
-                      Additional Information
-                    </h3>
-                    <div className="p-4 rounded-lg border bg-[#FAFAFA]">
-                      <p className="text-[#757575]">{radio.remarks}</p>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -276,19 +265,6 @@ const RadioDetails = () => {
                   Quick Actions
                 </h3>
                 <div className="space-y-3">
-                  {radio.radio_website && (
-                    <a
-                      href={radio.radio_website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 text-white font-medium py-3 px-4 rounded-lg transition-colors bg-[#1976D2] hover:bg-[#0D47A1]"
-                    >
-                      <Radio size={16} />
-                      Listen Live
-                      <ExternalLink size={14} />
-                    </a>
-                  )}
-
                   <button
                     onClick={() => {
                       if (navigator.share) {
@@ -328,3 +304,4 @@ const RadioDetails = () => {
 };
 
 export default RadioDetails;
+                
