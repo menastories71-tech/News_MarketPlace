@@ -755,7 +755,7 @@ const RealEstateList = () => {
                 <>
                   {/* Enhanced Grid View */}
                   {viewMode === 'grid' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                       {filteredRealEstates.map((realEstate, index) => (
                         <motion.div
                           key={realEstate.id}
@@ -778,9 +778,11 @@ const RealEstateList = () => {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-[#F5F5F5]">
-                                  <Home className="w-16 h-16 text-[#757575]" />
-                                </div>
+                                <img
+                                  src="/logo.png"
+                                  alt="Logo"
+                                  className="w-full h-full object-cover"
+                                />
                               )}
                               <div className="absolute top-3 right-3">
                                 <div className="bg-[#4CAF50] text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
@@ -1076,7 +1078,7 @@ const RealEstateList = () => {
                   <p className="text-lg" style={{ color: theme.textSecondary }}>Loading your listings...</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                   {userSubmissions.map((realEstate, index) => (
                     <motion.div
                       key={realEstate.id}
@@ -1098,9 +1100,11 @@ const RealEstateList = () => {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-[#F5F5F5]">
-                            <Home className="w-16 h-16 text-[#757575]" />
-                          </div>
+                          <img
+                            src="/logo.png"
+                            alt="Logo"
+                            className="w-full h-full object-cover"
+                          />
                         )}
                         <div className="absolute top-3 right-3">
                           <div className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 ${
