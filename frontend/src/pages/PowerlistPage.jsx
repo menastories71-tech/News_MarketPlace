@@ -644,6 +644,15 @@ const PowerlistPage = () => {
 
                           {/* Dark overlay for better text readability */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+  
+                          {/* Industry Badge */}
+                          <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                            {nomination.industry && (
+                              <span className="px-3 py-1 bg-blue-500 text-white text-xs font-medium rounded-full">
+                                {nomination.industry}
+                              </span>
+                            )}
+                          </div>
                         </div>
 
 
