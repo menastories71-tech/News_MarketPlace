@@ -154,8 +154,8 @@ const PowerlistDetailPage = () => {
 
       const response = await api.post('/powerlist-nomination-submissions', submissionData);
 
-      // Show success message with email confirmation info
-      alert(`✅ ${response.data.message}\n\n📧 Confirmation emails have been sent to:\n• Your email: ${nominationForm.email}\n• Our team for review\n\nPlease check your email for details and next steps.`);
+      // Show success message
+      alert('Nomination successfully submitted! You will receive a confirmation email.');
       
       setNominationForm({
         full_name: '',
@@ -487,12 +487,6 @@ const PowerlistDetailPage = () => {
                   <p className="text-sm font-medium" style={{ color: theme.danger }}>
                     <strong>Disclaimer:</strong> We do not guarantee or authorize inclusion in the publication. 
                     All nominations are subject to review and editorial discretion.
-                  </p>
-                </div>
-                <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: '#E3F2FD', border: `1px solid ${theme.primary}` }}>
-                  <p className="text-sm font-medium" style={{ color: theme.primary }}>
-                    📧 <strong>Email Notifications:</strong> You and our team will receive confirmation emails immediately upon submission. 
-                    Status updates will also be sent via email.
                   </p>
                 </div>
                 <form onSubmit={handleNominationSubmit} className="space-y-4">
