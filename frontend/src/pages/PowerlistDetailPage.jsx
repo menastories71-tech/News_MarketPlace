@@ -154,7 +154,7 @@ const PowerlistDetailPage = () => {
 
       await api.post('/powerlist-nomination-submissions', submissionData);
 
-      alert('Nomination submitted successfully! You will receive a confirmation email.');
+      alert('Nomination submitted successfully! Our team will contact you soon.');
       setNominationForm({
         full_name: '',
         email: '',
