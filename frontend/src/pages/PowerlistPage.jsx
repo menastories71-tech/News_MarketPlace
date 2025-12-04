@@ -60,7 +60,7 @@ const PowerlistPage = () => {
   const [industryFilter, setIndustryFilter] = useState('');
   const [companyOrIndividualFilter, setCompanyOrIndividualFilter] = useState('');
   const [locationRegionFilter, setLocationRegionFilter] = useState('');
-  const [statusFilter, setStatusFilter] = useState('approved'); // Default to approved
+  const [monthFilter, setMonthFilter] = useState(''); // New month filter
 
   // Sorting state
   const [sortField, setSortField] = useState('publication_name');
@@ -103,7 +103,7 @@ const PowerlistPage = () => {
       if (industryFilter) params.append('industry', industryFilter);
       if (companyOrIndividualFilter) params.append('company_or_individual', companyOrIndividualFilter);
       if (locationRegionFilter) params.append('location_region', locationRegionFilter);
-      if (statusFilter) params.append('status', statusFilter);
+      if (monthFilter) params.append('tentative_month', monthFilter);
 
       // Use the powerlist nominations endpoint for approved nominations
       const response = await api.get(`/powerlist-nominations/public?${params.toString()}`);
@@ -133,7 +133,7 @@ const PowerlistPage = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, industryFilter, companyOrIndividualFilter, locationRegionFilter, statusFilter]);
+  }, [searchTerm, industryFilter, companyOrIndividualFilter, locationRegionFilter, monthFilter]);
 
   // Handle page changes
   const handlePageChange = (page) => {
@@ -181,11 +181,11 @@ const PowerlistPage = () => {
     setIndustryFilter('');
     setCompanyOrIndividualFilter('');
     setLocationRegionFilter('');
-    setStatusFilter('approved'); // Reset to default
+    setMonthFilter('');
   };
 
   const hasActiveFilters = () => {
-    return industryFilter || companyOrIndividualFilter || locationRegionFilter || statusFilter !== 'approved';
+    return industryFilter || companyOrIndividualFilter || locationRegionFilter || monthFilter;
   };
 
   // Get unique values for filter options
@@ -202,6 +202,11 @@ const PowerlistPage = () => {
   const getUniqueCompanyOrIndividual = () => {
     const types = powerlists.map(p => p.company_or_individual).filter(Boolean);
     return [...new Set(types)].sort();
+  };
+
+  const getUniqueMonths = () => {
+    const months = powerlists.map(p => p.tentative_month).filter(Boolean);
+    return [...new Set(months)].sort();
   };
 
   const handleShowAuth = () => {
@@ -429,6 +434,7 @@ const PowerlistPage = () => {
                       {getUniqueIndustries().map(industry => (
                         <option key={industry} value={industry}>{industry}</option>
                       ))}
+                      <option value="Other">Other</option>
                     </select>
                   </div>
 
@@ -446,6 +452,7 @@ const PowerlistPage = () => {
                       {getUniqueCompanyOrIndividual().map(type => (
                         <option key={type} value={type}>{type}</option>
                       ))}
+                      <option value="Other">Other</option>
                     </select>
                   </div>
 
@@ -466,20 +473,20 @@ const PowerlistPage = () => {
                     </select>
                   </div>
 
-                  {/* Status Filter */}
+                  {/* Month Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Status
+                      Month
                     </label>
                     <select
-                      value={statusFilter}
-                      onChange={(e) => setStatusFilter(e.target.value)}
+                      value={monthFilter}
+                      onChange={(e) => setMonthFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Status</option>
-                      <option value="approved">Approved</option>
-                      <option value="pending">Pending</option>
-                      <option value="rejected">Rejected</option>
+                      <option value="">All Months</option>
+                      {getUniqueMonths().map(month => (
+                        <option key={month} value={month}>{month}</option>
+                      ))}
                     </select>
                   </div>
                 </div>
