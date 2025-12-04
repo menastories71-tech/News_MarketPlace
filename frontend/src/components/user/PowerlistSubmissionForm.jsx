@@ -65,6 +65,9 @@ const PowerlistSubmissionForm = ({ onClose, onSuccess }) => {
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', 'error'
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupType, setPopupType] = useState(''); // 'success' or 'error'
+  const [showPopup, setShowPopup] = useState(false);
 
   // Redirect if admin is logged in
    useEffect(() => {
@@ -260,11 +263,15 @@ const PowerlistSubmissionForm = ({ onClose, onSuccess }) => {
 
       await api.post('/powerlist/submit', dataToSend);
 
+      setPopupMessage('Application submitted successfully! Your powerlist application has been submitted and is pending review. You will be notified once it\'s approved.');
+      setPopupType('success');
+      setShowPopup(true);
       setSubmitStatus('success');
       setTimeout(() => {
+        setShowPopup(false);
         if (onSuccess) onSuccess();
         if (onClose) onClose();
-      }, 2000);
+      }, 3000);
 
     } catch (error) {
       console.error('Error submitting powerlist:', error);
@@ -284,8 +291,14 @@ const PowerlistSubmissionForm = ({ onClose, onSuccess }) => {
         }
       }
 
+      setPopupMessage(errorMessage);
+      setPopupType('error');
+      setShowPopup(true);
       setSubmitStatus('error');
       setErrors(prev => ({ ...prev, submit: errorMessage }));
+      setTimeout(() => {
+        setShowPopup(false);
+      }, 5000);
     } finally {
       setLoading(false);
     }
@@ -412,43 +425,40 @@ const PowerlistSubmissionForm = ({ onClose, onSuccess }) => {
           </button>
         </div>
 
-        {submitStatus === 'success' && (
+        {/* Popup for success/error messages */}
+        {showPopup && (
           <div style={{
-            padding: '16px',
-            backgroundColor: '#e8f5e8',
-            border: `1px solid ${theme.success}`,
-            borderRadius: '8px',
-            marginBottom: '20px',
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
             display: 'flex',
             alignItems: 'center',
-            gap: '12px'
+            justifyContent: 'center',
+            zIndex: 10001,
+            padding: '20px'
           }}>
-            <Icon name="check-circle" size="lg" style={{ color: theme.success }} />
-            <div>
-              <div style={{ fontWeight: '600', color: theme.success }}>Application Submitted Successfully!</div>
-              <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                Your powerlist application has been submitted and is pending review. You will be notified once it's approved.
+            <div style={{
+              background: '#fff',
+              borderRadius: '12px',
+              padding: '24px',
+              maxWidth: '400px',
+              width: '100%',
+              boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+              textAlign: 'center'
+            }}>
+              <Icon
+                name={popupType === 'success' ? 'check-circle' : 'exclamation-triangle'}
+                size="3x"
+                style={{ color: popupType === 'success' ? theme.success : theme.danger, marginBottom: '16px' }}
+              />
+              <div style={{ fontWeight: '600', color: popupType === 'success' ? theme.success : theme.danger, marginBottom: '8px' }}>
+                {popupType === 'success' ? 'Success!' : 'Error!'}
               </div>
-            </div>
-          </div>
-        )}
-
-        {submitStatus === 'error' && (
-          <div style={{
-            padding: '16px',
-            backgroundColor: '#ffebee',
-            border: `1px solid ${theme.danger}`,
-            borderRadius: '8px',
-            marginBottom: '20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px'
-          }}>
-            <Icon name="exclamation-triangle" size="lg" style={{ color: theme.danger }} />
-            <div>
-              <div style={{ fontWeight: '600', color: theme.danger }}>Submission Failed</div>
               <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                {errors.submit || 'Please check your input and try again.'}
+                {popupMessage}
               </div>
             </div>
           </div>
