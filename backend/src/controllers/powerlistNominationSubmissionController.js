@@ -277,113 +277,52 @@ class PowerlistNominationSubmissionController {
   // Email template generators
   static generateSubmissionConfirmationEmailTemplate(fullName, publicationName, powerListName) {
     return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #212121; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: #1976D2; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #FAFAFA; padding: 30px; border-radius: 0 0 8px 8px; }
-            .footer { text-align: center; margin-top: 20px; color: #757575; font-size: 14px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>News Marketplace</h1>
-            </div>
-            <div class="content">
-              <h2>Nomination Submitted Successfully</h2>
-              <p>Dear ${fullName},</p>
-              <p>Thank you for submitting your nomination for <strong>${publicationName}</strong> in the <strong>${powerListName}</strong> powerlist.</p>
-              <p>Your nomination has been received and will be reviewed by our team. We do not ensure or authorize to add this in publication.</p>
-              <p>You will receive an email notification once your nomination has been processed.</p>
-              <p>Best regards,<br>The News Marketplace Team</p>
-            </div>
-            <div class="footer">
-              <p>&copy; 2024 News Marketplace. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #1976D2;">News Marketplace</h1>
+        <h2>Nomination Submitted Successfully</h2>
+        <p>Dear ${fullName},</p>
+        <p>Thank you for submitting your nomination for <strong>${publicationName}</strong> in the <strong>${powerListName}</strong> powerlist.</p>
+        <p>Your nomination has been received and will be reviewed by our team. We do not ensure or authorize to add this in publication.</p>
+        <p>You will receive an email notification once your nomination has been processed.</p>
+        <p>Best regards,<br>The News Marketplace Team</p>
+        <hr>
+        <p style="font-size: 12px; color: #666;">&copy; 2024 News Marketplace. All rights reserved.</p>
+      </div>
     `;
   }
 
   static generateAdminNotificationEmailTemplate(submission, nomination) {
     return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #212121; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: #FF9800; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #FAFAFA; padding: 30px; border-radius: 0 0 8px 8px; }
-            .footer { text-align: center; margin-top: 20px; color: #757575; font-size: 14px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>New Nomination Submission</h1>
-            </div>
-            <div class="content">
-              <h2>New Nomination Received</h2>
-              <p><strong>Publication:</strong> ${nomination.publication_name}</p>
-              <p><strong>Power List:</strong> ${nomination.power_list_name}</p>
-              <p><strong>Full Name:</strong> ${submission.full_name}</p>
-              <p><strong>Email:</strong> ${submission.email}</p>
-              <p><strong>Phone:</strong> ${submission.phone || 'Not provided'}</p>
-              <p><strong>Additional Message:</strong> ${submission.additional_message || 'None'}</p>
-              <p>Please review this nomination in the admin panel.</p>
-            </div>
-            <div class="footer">
-              <p>&copy; 2024 News Marketplace. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #FF9800;">New Nomination Submission</h1>
+        <h2>New Nomination Received</h2>
+        <p><strong>Publication:</strong> ${nomination.publication_name}</p>
+        <p><strong>Power List:</strong> ${nomination.power_list_name}</p>
+        <p><strong>Full Name:</strong> ${submission.full_name}</p>
+        <p><strong>Email:</strong> ${submission.email}</p>
+        <p><strong>Phone:</strong> ${submission.phone || 'Not provided'}</p>
+        <p><strong>Additional Message:</strong> ${submission.additional_message || 'None'}</p>
+        <p>Please review this nomination in the admin panel.</p>
+        <hr>
+        <p style="font-size: 12px; color: #666;">&copy; 2024 News Marketplace. All rights reserved.</p>
+      </div>
     `;
   }
 
   static generateStatusUpdateEmailTemplate(fullName, publicationName, powerListName, status) {
     const statusText = status.charAt(0).toUpperCase() + status.slice(1);
-    const statusColor = status === 'approved' ? '#4CAF50' : status === 'rejected' ? '#F44336' : '#FF9800';
 
     return `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8">
-          <style>
-            body { font-family: 'Inter', Arial, sans-serif; line-height: 1.6; color: #212121; }
-            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-            .header { background: ${statusColor}; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-            .content { background: #FAFAFA; padding: 30px; border-radius: 0 0 8px 8px; }
-            .footer { text-align: center; margin-top: 20px; color: #757575; font-size: 14px; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <div class="header">
-              <h1>Nomination ${statusText}</h1>
-            </div>
-            <div class="content">
-              <h2>Nomination Update</h2>
-              <p>Dear ${fullName},</p>
-              <p>Your nomination for <strong>${publicationName}</strong> in the <strong>${powerListName}</strong> powerlist has been <strong>${statusText.toLowerCase()}</strong>.</p>
-              ${status === 'approved' ? '<p>Congratulations! Your nomination has been accepted.</p>' : status === 'rejected' ? '<p>We regret to inform you that your nomination has been rejected.</p>' : '<p>Your nomination is still under review.</p>'}
-              <p>Best regards,<br>The News Marketplace Team</p>
-            </div>
-            <div class="footer">
-              <p>&copy; 2024 News Marketplace. All rights reserved.</p>
-            </div>
-          </div>
-        </body>
-      </html>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1>Nomination ${statusText}</h1>
+        <h2>Nomination Update</h2>
+        <p>Dear ${fullName},</p>
+        <p>Your nomination for <strong>${publicationName}</strong> in the <strong>${powerListName}</strong> powerlist has been <strong>${statusText.toLowerCase()}</strong>.</p>
+        ${status === 'approved' ? '<p>Congratulations! Your nomination has been accepted.</p>' : status === 'rejected' ? '<p>We regret to inform you that your nomination has been rejected.</p>' : '<p>Your nomination is still under review.</p>'}
+        <p>Best regards,<br>The News Marketplace Team</p>
+        <hr>
+        <p style="font-size: 12px; color: #666;">&copy; 2024 News Marketplace. All rights reserved.</p>
+      </div>
     `;
   }
 }

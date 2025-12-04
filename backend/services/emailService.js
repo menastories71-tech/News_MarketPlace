@@ -47,6 +47,8 @@ const transporter = createTransporter();
 // Send custom email
 const sendCustomEmail = async (to, subject, html) => {
   try {
+    console.log('📧 Attempting to send email to:', to, 'Subject:', subject);
+
     const mailOptions = {
       from: process.env.EMAIL_FROM || 'noreply@newsmarketplace.com',
       to,
@@ -54,11 +56,21 @@ const sendCustomEmail = async (to, subject, html) => {
       html
     };
 
+    console.log('📧 Mail options:', {
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      from: mailOptions.from,
+      htmlLength: mailOptions.html ? mailOptions.html.length : 0
+    });
+
     const result = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully to:', to);
+    console.log('✅ Email sent successfully to:', to, 'Message ID:', result.messageId);
     return result;
   } catch (error) {
-    console.error('❌ Error sending email:', error);
+    console.error('❌ Error sending email to:', to, 'Error:', error.message);
+    if (error.response) {
+      console.error('❌ Brevo response:', error.response.body);
+    }
     throw error;
   }
 };
