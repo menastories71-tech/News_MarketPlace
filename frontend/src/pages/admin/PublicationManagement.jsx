@@ -21,7 +21,7 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
     dr: '',
     word_limit: '',
     needs_images: false,
-    image_count: '',
+    image_count: '1',
     remarks: ''
   });
   const [loading, setLoading] = useState(false);
@@ -62,7 +62,7 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
         dr: '',
         word_limit: '',
         needs_images: false,
-        image_count: '',
+        image_count: '1',
         remarks: ''
       });
     }
@@ -80,7 +80,8 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
         practical_tat: parseInt(formData.practical_tat) || 0,
         price_usd: parseFloat(formData.price_usd) || 0,
         dr: parseInt(formData.dr) || 0,
-        word_limit: parseInt(formData.word_limit) || 0
+        word_limit: parseInt(formData.word_limit) || 0,
+        image_count: formData.needs_images ? parseInt(formData.image_count) || 0 : 0
       };
 
       if (record) {
@@ -323,13 +324,14 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
               <div style={formGroupStyle}>
                 <label style={labelStyle}>Image Count</label>
-                <input
-                  type="number"
-                  min="0"
+                <select
                   value={formData.image_count}
                   onChange={(e) => setFormData({ ...formData, image_count: e.target.value })}
                   style={inputStyle}
-                />
+                >
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                </select>
               </div>
             </div>
           )}

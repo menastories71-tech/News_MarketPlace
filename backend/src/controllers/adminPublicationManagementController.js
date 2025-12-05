@@ -18,7 +18,7 @@ class AdminPublicationManagementController {
     body('dr').optional().isInt({ min: 0, max: 100 }).withMessage('DR must be between 0 and 100'),
     body('word_limit').optional().isInt({ min: 0 }).withMessage('Word limit must be a non-negative integer'),
     body('needs_images').optional().isBoolean().withMessage('Needs images must be a boolean'),
-    body('image_count').optional().isInt({ min: 1, max: 2 }).withMessage('Image count must be 1 or 2'),
+    body('image_count').optional().isInt({ min: 0, max: 2 }).withMessage('Image count must be 0, 1 or 2'),
     body('remarks').optional().trim(),
   ];
 
@@ -38,7 +38,7 @@ class AdminPublicationManagementController {
     body('dr').optional().isInt({ min: 0, max: 100 }).withMessage('DR must be between 0 and 100'),
     body('word_limit').optional().isInt({ min: 0 }).withMessage('Word limit must be a non-negative integer'),
     body('needs_images').optional().isBoolean().withMessage('Needs images must be a boolean'),
-    body('image_count').optional().isInt({ min: 1, max: 2 }).withMessage('Image count must be 1 or 2'),
+    body('image_count').optional().isInt({ min: 0, max: 2 }).withMessage('Image count must be 0, 1 or 2'),
     body('remarks').optional().trim(),
   ];
 
@@ -124,12 +124,7 @@ class AdminPublicationManagementController {
         });
       }
 
-      // Set all publications to require 2 images
-      const publicationData = {
-        ...req.body,
-        needs_images: true,
-        image_count: 2
-      };
+      const publicationData = req.body;
 
       const publication = await PublicationManagement.create(publicationData);
 
@@ -165,12 +160,7 @@ class AdminPublicationManagementController {
         return res.status(404).json({ error: 'Publication management record not found' });
       }
 
-      // Set all publications to require 2 images
-      const updateData = {
-        ...req.body,
-        needs_images: true,
-        image_count: 2
-      };
+      const updateData = req.body;
 
       const updatedPublication = await publication.update(updateData);
       res.json({
