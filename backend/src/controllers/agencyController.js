@@ -1,7 +1,7 @@
 const Agency = require('../models/Agency');
 const emailService = require('../services/emailService');
 const otpService = require('../services/otpService');
-const s3Service = require('../services/s3Service');
+const { s3Service } = require('../services/s3Service');
 const { verifyRecaptcha } = require('../services/recaptchaService');
 const { body, validationResult } = require('express-validator');
 const multer = require('multer');

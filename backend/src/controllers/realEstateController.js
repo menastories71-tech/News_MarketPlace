@@ -1,7 +1,7 @@
 const RealEstate = require('../models/RealEstate');
 const { verifyRecaptcha } = require('../services/recaptchaService');
 const emailService = require('../services/emailService');
-const s3Service = require('../services/s3Service');
+const { s3Service } = require('../services/s3Service');
 const User = require('../models/User');
 const UserNotification = require('../models/UserNotification');
 const { body, validationResult } = require('express-validator');

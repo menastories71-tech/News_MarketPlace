@@ -3,7 +3,7 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 const PowerlistNomination = require('./src/models/PowerlistNomination');
-const s3Service = require('./src/services/s3Service');
+const { s3Service } = require('./src/services/s3Service');
 
 // Common logo URLs for major publications
 const LOGO_URLS = {
