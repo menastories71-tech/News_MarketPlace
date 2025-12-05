@@ -281,7 +281,10 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
   };
 
   const validateForm = () => {
-    console.log('Validating form, current formData:', formData);
+    // Force a re-render to get latest state
+    const currentFormData = { ...formData };
+    const currentFiles = { ...files };
+
     const newErrors = {};
 
     const requiredFields = [
@@ -290,86 +293,78 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
     ];
 
     requiredFields.forEach(field => {
-      const value = formData[field];
-      console.log(`Checking required field ${field}: "${value}" (type: ${typeof value})`);
-      if (value === undefined || value === null || value.toString().trim() === '') {
+      const value = currentFormData[field];
+      if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
         newErrors[field] = 'This field is required';
-        console.log(`Field ${field} is required but empty`);
       }
     });
 
     // URL validations
-    if (formData.media_website_address && !formData.media_website_address.match(/^https?:\/\/.+/)) {
+    if (currentFormData.media_website_address && !currentFormData.media_website_address.match(/^https?:\/\/.+/)) {
       newErrors.media_website_address = 'Please enter a valid URL starting with http:// or https://';
     }
 
     // Email validations
-    if (formData.email && !formData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+    if (currentFormData.email && !currentFormData.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       newErrors.email = 'Please enter a valid email address';
     }
 
     // Phone validation - check against country-specific requirements
-    console.log(`Phone validation: callingCountry="${formData.callingCountry}", callingNumber="${formData.callingNumber}"`);
-    if (formData.callingCountry && formData.callingNumber && formData.callingNumber.trim() !== '') {
-      const countryData = countryPhoneData[formData.callingCountry];
-      console.log('Country data:', countryData);
+    if (currentFormData.callingCountry && currentFormData.callingNumber && currentFormData.callingNumber.trim() !== '') {
+      const countryData = countryPhoneData[currentFormData.callingCountry];
       if (countryData) {
-        const length = formData.callingNumber.trim().length;
-        console.log(`Phone length: ${length}, required: ${countryData.minLength}-${countryData.maxLength}`);
+        const length = currentFormData.callingNumber.trim().length;
         if (length < countryData.minLength || length > countryData.maxLength) {
-          newErrors.callingNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${formData.callingCountry}`;
-          console.log('Phone validation failed:', newErrors.callingNumber);
-        } else {
-          console.log('Phone validation passed');
+          newErrors.callingNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${currentFormData.callingCountry}`;
         }
       }
     }
 
-    if (formData.whatsappCountry && formData.whatsappNumber) {
-      const countryData = countryPhoneData[formData.whatsappCountry];
+    if (currentFormData.whatsappCountry && currentFormData.whatsappNumber) {
+      const countryData = countryPhoneData[currentFormData.whatsappCountry];
       if (countryData) {
-        const length = formData.whatsappNumber.length;
+        const length = currentFormData.whatsappNumber.length;
         if (length < countryData.minLength || length > countryData.maxLength) {
-          newErrors.whatsappNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${formData.whatsappCountry}`;
+          newErrors.whatsappNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${currentFormData.whatsappCountry}`;
         }
       }
     }
 
     // Number validations
-    if (formData.no_of_images_allowed_in_article && isNaN(formData.no_of_images_allowed_in_article)) {
+    if (currentFormData.no_of_images_allowed_in_article && isNaN(currentFormData.no_of_images_allowed_in_article)) {
       newErrors.no_of_images_allowed_in_article = 'Please enter a valid number';
     }
-    if (formData.words_limit && isNaN(formData.words_limit)) {
+    if (currentFormData.words_limit && isNaN(currentFormData.words_limit)) {
       newErrors.words_limit = 'Please enter a valid number';
     }
-    if (formData.da && (isNaN(formData.da) || formData.da < 0 || formData.da > 100)) {
+    if (currentFormData.da && (isNaN(currentFormData.da) || currentFormData.da < 0 || currentFormData.da > 100)) {
       newErrors.da = 'Please enter a valid DA score (0-100)';
     }
-    if (formData.dr && (isNaN(formData.dr) || formData.dr < 0 || formData.dr > 100)) {
+    if (currentFormData.dr && (isNaN(currentFormData.dr) || currentFormData.dr < 0 || currentFormData.dr > 100)) {
       newErrors.dr = 'Please enter a valid DR score (0-100)';
     }
-    if (formData.pa && (isNaN(formData.pa) || formData.pa < 0 || formData.pa > 100)) {
+    if (currentFormData.pa && (isNaN(currentFormData.pa) || currentFormData.pa < 0 || currentFormData.pa > 100)) {
       newErrors.pa = 'Please enter a valid PA score (0-100)';
     }
-    if (formData.price && isNaN(formData.price)) {
+    if (currentFormData.price && isNaN(currentFormData.price)) {
       newErrors.price = 'Please enter a valid price';
     }
 
     // Terms accepted
-    if (!formData.terms_accepted) {
+    if (!currentFormData.terms_accepted) {
       newErrors.terms_accepted = 'You must accept the terms and conditions';
     }
 
     // File validations (required)
     const requiredFiles = ['website_registration_document', 'bank_details', 'general_contact_details'];
     requiredFiles.forEach(field => {
-      if (!files[field]) {
+      if (!currentFiles[field]) {
         newErrors[field] = 'This file is required';
       }
     });
 
     // Textarea limit
-    if (formData.any_to_say && formData.any_to_say.length > 500) {
+    if (currentFormData.any_to_say && currentFormData.any_to_say.length > 500) {
       newErrors.any_to_say = 'Message cannot exceed 500 characters';
     }
 
@@ -384,8 +379,6 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
     }
 
     setErrors(newErrors);
-    console.log('Validation errors:', newErrors);
-    console.log('Validation result:', Object.keys(newErrors).length === 0);
     return Object.keys(newErrors).length === 0;
   };
 
