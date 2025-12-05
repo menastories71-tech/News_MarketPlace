@@ -5,8 +5,8 @@ const {
   verifyAdminToken,
   requireAdminPanelAccess
 } = require('../middleware/auth');
-// Create instance of controller to access upload middleware
-const controller = new adminPublicationManagementController();
+// Controller is already an instance, use it directly to access upload middleware
+const controller = adminPublicationManagementController;
 
 // Test route
 router.get('/test', (req, res) => {
