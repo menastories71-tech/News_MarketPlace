@@ -61,7 +61,7 @@ const ArticleSubmissionPage = () => {
   const [selectedPublication, setSelectedPublication] = useState(null);
   const [wordCount, setWordCount] = useState(0);
   const [wordLimit, setWordLimit] = useState(500);
-  const [imageCount, setImageCount] = useState(2);
+  const [imageCount, setImageCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [errors, setErrors] = useState({});
@@ -201,7 +201,7 @@ const ArticleSubmissionPage = () => {
     setSelectedPublication(pub);
     setFormData(prev => ({ ...prev, publication_id: publicationId }));
     setWordLimit(pub?.word_limit || 500);
-    setImageCount(pub?.image_count || 2);
+    setImageCount(pub?.image_count ?? 0);
     setSearchTerm(pub ? pub.publication_name : '');
 
 
