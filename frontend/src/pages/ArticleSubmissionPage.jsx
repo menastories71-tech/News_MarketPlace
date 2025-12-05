@@ -61,6 +61,7 @@ const ArticleSubmissionPage = () => {
   const [selectedPublication, setSelectedPublication] = useState(null);
   const [wordCount, setWordCount] = useState(0);
   const [wordLimit, setWordLimit] = useState(500);
+  const [imageCount, setImageCount] = useState(2);
   const [loading, setLoading] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [errors, setErrors] = useState({});
@@ -200,6 +201,7 @@ const ArticleSubmissionPage = () => {
     setSelectedPublication(pub);
     setFormData(prev => ({ ...prev, publication_id: publicationId }));
     setWordLimit(pub?.word_limit || 500);
+    setImageCount(pub?.image_count || 2);
     setSearchTerm(pub ? pub.publication_name : '');
 
 
@@ -254,12 +256,11 @@ const ArticleSubmissionPage = () => {
       newErrors.terms_agreed = 'You must accept the terms and conditions';
     }
 
-    // Required files - always require images
-    if (!files.image1) {
-      newErrors.image1 = 'Image 1 is required';
-    }
-    if (!files.image2) {
-      newErrors.image2 = 'Image 2 is required';
+    // Required files - based on image count
+    for (let i = 1; i <= imageCount; i++) {
+      if (!files[`image${i}`]) {
+        newErrors[`image${i}`] = `Image ${i} is required`;
+      }
     }
 
     // reCAPTCHA
@@ -591,48 +592,35 @@ const ArticleSubmissionPage = () => {
               {errors.article_text && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.article_text}</div>}
             </div>
 
-            {/* Image Upload Section - Always required */}
-            <>
-              {/* Image 1 */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Image 1 <span style={{ color: theme.danger }}>*</span>
-                  <Icon name="information-circle" size="sm" className="ml-1 inline" title="only landscape mode - portrait mode not allowed. Logos, thumbnail, icons and text in image not allowed. Restrict the size limit to 10 MB" />
-                </label>
-                <input
-                  type="file"
-                  name="image1"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  style={{ borderColor: errors.image1 ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
-                />
-                <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
-                  Must be landscape orientation (width greater than height), high resolution recommended. Size limit: 10 MB. No logos, thumbnails, icons, or text in image.
-                </div>
-                {errors.image1 && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.image1}</div>}
-              </div>
-
-              {/* Image 2 - Always required */}
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                  Image 2 <span style={{ color: theme.danger }}>*</span>
-                  <Icon name="information-circle" size="sm" className="ml-1 inline" title="Required for all submissions" />
-                </label>
-                <input
-                  type="file"
-                  name="image2"
-                  onChange={handleFileChange}
-                  accept="image/*"
-                  className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
-                  style={{ borderColor: errors.image2 ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
-                />
-                <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
-                  Must be landscape orientation (width greater than height), high resolution recommended. Size limit: 10 MB. No logos, thumbnails, icons, or text in image.
-                </div>
-                {errors.image2 && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.image2}</div>}
-              </div>
-            </>
+            {/* Image Upload Section - Dynamic based on publication requirements */}
+            {imageCount > 0 && (
+              <>
+                {Array.from({ length: imageCount }, (_, index) => {
+                  const imageNum = index + 1;
+                  const imageKey = `image${imageNum}`;
+                  return (
+                    <div key={imageKey}>
+                      <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
+                        Image {imageNum} <span style={{ color: theme.danger }}>*</span>
+                        <Icon name="information-circle" size="sm" className="ml-1 inline" title="only landscape mode - portrait mode not allowed. Logos, thumbnail, icons and text in image not allowed. Restrict the size limit to 10 MB" />
+                      </label>
+                      <input
+                        type="file"
+                        name={imageKey}
+                        onChange={handleFileChange}
+                        accept="image/*"
+                        className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+                        style={{ borderColor: errors[imageKey] ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
+                      />
+                      <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
+                        Must be landscape orientation (width greater than height), high resolution recommended. Size limit: 10 MB. No logos, thumbnails, icons, or text in image.
+                      </div>
+                      {errors[imageKey] && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors[imageKey]}</div>}
+                    </div>
+                  );
+                })}
+              </>
+            )}
 
 
             {/* Website Link */}
