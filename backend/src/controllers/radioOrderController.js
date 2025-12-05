@@ -166,6 +166,7 @@ const updateStatus = async (req, res) => {
 
     const order = orderResult.rows[0];
     const customerInfo = order.customer_info;
+    const oldStatus = order.status;
 
     // Update status
     const updateQuery = `

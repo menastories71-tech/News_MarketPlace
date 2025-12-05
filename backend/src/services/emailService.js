@@ -240,9 +240,10 @@ class EmailService {
 
   // Send custom email (generic method for custom content)
   async sendCustomEmail(email, subject, htmlContent) {
-    // In development, don't send actual emails
-    if (process.env.NODE_ENV === 'development') {
+    // In development, don't send actual emails unless FORCE_EMAIL is set
+    if (process.env.NODE_ENV === 'development' && !process.env.FORCE_EMAIL) {
       console.log(`DEVELOPMENT MODE - Custom email to ${email} with subject: ${subject}`);
+      console.log('To send actual emails in development, set FORCE_EMAIL=true in .env');
       return true;
     }
 
