@@ -94,7 +94,7 @@ const ArticleSubmissionPage = () => {
   const fetchPublications = async () => {
     try {
       // Fetch publications from admin publication management
-      const response = await api.get('/admin/publication-managements');
+      const response = await api.get('/admin/publication-management');
       // All publication managements are available for selection
       setPublications(response.data.publications || []);
     } catch (error) {

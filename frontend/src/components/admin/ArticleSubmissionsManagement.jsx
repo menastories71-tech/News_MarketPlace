@@ -866,7 +866,7 @@ const ArticleSubmissionEditModal = ({ isOpen, onClose, submission, onSave }) => 
 
   const fetchPublications = async () => {
     try {
-      const response = await api.get('/admin/publication-managements');
+      const response = await api.get('/admin/publication-management');
       setPublications(response.data.publications || []);
     } catch (error) {
       console.error('Error fetching publications:', error);
