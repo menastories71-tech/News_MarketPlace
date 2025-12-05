@@ -122,6 +122,7 @@ import AwardCreationPage from './pages/admin/AwardCreation';
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
+  const { showAuthModal } = useAuthModal();
 
   if (loading) {
     return (
@@ -138,7 +139,31 @@ const ProtectedRoute = ({ children }) => {
     );
   }
 
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+  if (!isAuthenticated) {
+    // Show login modal instead of redirecting
+    showAuthModal();
+    return (
+      <div className="min-h-screen flex flex-col">
+        <UserHeader />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <Icon name="shield-exclamation" size="lg" className="text-warning mx-auto mb-4" />
+            <h2 className="heading-3 mb-4">Authentication Required</h2>
+            <p className="body-regular mb-6">Please log in to access this page.</p>
+            <button
+              onClick={showAuthModal}
+              className="btn-primary"
+            >
+              Log In
+            </button>
+          </div>
+        </div>
+        <UserFooter />
+      </div>
+    );
+  }
+
+  return children;
 };
 
 // Admin Protected Route Component
