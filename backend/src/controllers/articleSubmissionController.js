@@ -301,7 +301,7 @@ class ArticleSubmissionController {
 
         // Send confirmation emails
         try {
-          await this.sendSubmissionConfirmationEmails(submission, publication, pubManagement);
+          await this.sendSubmissionConfirmationEmails(submission, publication, pubManagement, req);
         } catch (emailError) {
           console.error('Failed to send submission confirmation emails:', emailError);
           // Don't fail the request if email fails
@@ -660,7 +660,7 @@ class ArticleSubmissionController {
 
       // Send approval notification email
       try {
-        await this.sendApprovalNotificationEmail(approvedSubmission);
+        await this.sendApprovalNotificationEmail(approvedSubmission, req);
       } catch (emailError) {
         console.error('Failed to send approval notification email:', emailError);
         // Don't fail the request if email fails
@@ -690,7 +690,7 @@ class ArticleSubmissionController {
 
       // Send rejection notification email
       try {
-        await this.sendRejectionNotificationEmail(rejectedSubmission);
+        await this.sendRejectionNotificationEmail(rejectedSubmission, req);
       } catch (emailError) {
         console.error('Failed to send rejection notification email:', emailError);
         // Don't fail the request if email fails
@@ -1231,28 +1231,39 @@ class ArticleSubmissionController {
 
 
   // Send submission confirmation emails
-  async sendSubmissionConfirmationEmails(submission, publication, pubManagement) {
+  async sendSubmissionConfirmationEmails(submission, publication, pubManagement, req) {
     try {
       // Get user information
       const user = await submission.getUser();
-      if (!user) {
-        console.warn('User not found for submission confirmation email');
+      let userEmail = user?.email;
+
+      // If no user found, try to get email from request (for admin submissions)
+      if (!user && req?.user?.email) {
+        userEmail = req.user.email;
+        console.log('Using email from request for submission confirmation:', userEmail);
+      }
+
+      if (!userEmail) {
+        console.warn('No user email found for submission confirmation email');
         return;
       }
 
       const teamEmail = 'menastories71@gmail.com';
 
+      // Create a mock user object if no user found
+      const emailUser = user || { first_name: req?.user?.first_name || 'User', email: userEmail };
+
       // Email to user
       const userSubject = 'Article Submission Received - News Marketplace';
-      const userHtmlContent = this.generateSubmissionConfirmationEmailTemplate(submission, publication, pubManagement, user);
+      const userHtmlContent = this.generateSubmissionConfirmationEmailTemplate(submission, publication, pubManagement, emailUser);
 
       // Email to team
       const teamSubject = 'New Article Submission - News Marketplace';
-      const teamHtmlContent = this.generateTeamNotificationEmailTemplate(submission, publication, pubManagement, user);
+      const teamHtmlContent = this.generateTeamNotificationEmailTemplate(submission, publication, pubManagement, emailUser);
 
       // Send emails
       await Promise.all([
-        emailService.sendCustomEmail(user.email, userSubject, userHtmlContent),
+        emailService.sendCustomEmail(userEmail, userSubject, userHtmlContent),
         emailService.sendCustomEmail(teamEmail, teamSubject, teamHtmlContent)
       ]);
 
@@ -1264,20 +1275,31 @@ class ArticleSubmissionController {
   }
 
   // Send approval notification email
-  async sendApprovalNotificationEmail(submission) {
+  async sendApprovalNotificationEmail(submission, req) {
     try {
       const user = await submission.getUser();
       const publication = await submission.getPublication();
 
-      if (!user) {
-        console.warn('User not found for approval notification email');
+      let userEmail = user?.email;
+
+      // If no user found, try to get email from request (for admin submissions)
+      if (!user && req?.user?.email) {
+        userEmail = req.user.email;
+        console.log('Using email from request for approval notification:', userEmail);
+      }
+
+      if (!userEmail) {
+        console.warn('No user email found for approval notification email');
         return;
       }
 
-      const subject = 'Article Submission Approved! - News Marketplace';
-      const htmlContent = this.generateApprovalEmailTemplate(submission, publication, user);
+      // Create a mock user object if no user found
+      const emailUser = user || { first_name: req?.user?.first_name || 'User', email: userEmail };
 
-      await emailService.sendCustomEmail(user.email, subject, htmlContent);
+      const subject = 'Article Submission Approved! - News Marketplace';
+      const htmlContent = this.generateApprovalEmailTemplate(submission, publication, emailUser);
+
+      await emailService.sendCustomEmail(userEmail, subject, htmlContent);
       console.log('Approval notification email sent successfully');
     } catch (error) {
       console.error('Error sending approval notification email:', error);
@@ -1286,20 +1308,31 @@ class ArticleSubmissionController {
   }
 
   // Send rejection notification email
-  async sendRejectionNotificationEmail(submission) {
+  async sendRejectionNotificationEmail(submission, req) {
     try {
       const user = await submission.getUser();
       const publication = await submission.getPublication();
 
-      if (!user) {
-        console.warn('User not found for rejection notification email');
+      let userEmail = user?.email;
+
+      // If no user found, try to get email from request (for admin submissions)
+      if (!user && req?.user?.email) {
+        userEmail = req.user.email;
+        console.log('Using email from request for rejection notification:', userEmail);
+      }
+
+      if (!userEmail) {
+        console.warn('No user email found for rejection notification email');
         return;
       }
 
-      const subject = 'Article Submission Update - News Marketplace';
-      const htmlContent = this.generateRejectionEmailTemplate(submission, publication, user);
+      // Create a mock user object if no user found
+      const emailUser = user || { first_name: req?.user?.first_name || 'User', email: userEmail };
 
-      await emailService.sendCustomEmail(user.email, subject, htmlContent);
+      const subject = 'Article Submission Update - News Marketplace';
+      const htmlContent = this.generateRejectionEmailTemplate(submission, publication, emailUser);
+
+      await emailService.sendCustomEmail(userEmail, subject, htmlContent);
       console.log('Rejection notification email sent successfully');
     } catch (error) {
       console.error('Error sending rejection notification email:', error);
