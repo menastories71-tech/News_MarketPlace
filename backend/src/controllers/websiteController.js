@@ -8,6 +8,7 @@ const { body, validationResult } = require('express-validator');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const sharp = require('sharp');
 const { query } = require('../config/database');
 
 // In-memory storage for pending website registrations
@@ -34,12 +35,58 @@ const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit per file
+    fileSize: 10 * 1024 * 1024, // 10MB limit per file (before compression)
     files: 5 // Maximum 5 files (registration, tax, bank, passport, contact)
   }
 });
 
 class WebsiteController {
+  // Compress file if it's too large
+  async compressFile(file) {
+    const maxSize = 10 * 1024 * 1024; // 10MB final limit
+    const mimeType = file.mimetype.toLowerCase();
+
+    // Only compress if file is larger than 8MB (leave some buffer)
+    if (file.size <= 8 * 1024 * 1024) {
+      return file;
+    }
+
+    try {
+      if (mimeType.includes('image/') && mimeType !== 'image/gif') {
+        // Compress images using sharp
+        const compressedBuffer = await sharp(file.buffer)
+          .jpeg({ quality: 80, progressive: true })
+          .png({ quality: 80, compressionLevel: 8 })
+          .webp({ quality: 80 })
+          .toBuffer();
+
+        // Check if compression helped
+        if (compressedBuffer.length < file.size && compressedBuffer.length <= maxSize) {
+          console.log(`Compressed ${file.originalname} from ${file.size} to ${compressedBuffer.length} bytes`);
+          return {
+            ...file,
+            buffer: compressedBuffer,
+            size: compressedBuffer.length
+          };
+        }
+      }
+
+      // If compression didn't help or file is not compressible, check if it's still too large
+      if (file.size > maxSize) {
+        throw new Error(`File ${file.originalname} is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB) even after compression. Maximum allowed size is 10MB.`);
+      }
+
+      return file;
+    } catch (error) {
+      console.error('Error compressing file:', error);
+      // If compression fails, check if original file is within limits
+      if (file.size > maxSize) {
+        throw new Error(`File ${file.originalname} is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Maximum allowed size is 10MB.`);
+      }
+      return file;
+    }
+  }
+
   // Validation rules for website submission
   submitValidation = [
     body('media_name').trim().isLength({ min: 1 }).withMessage('Media name is required'),
@@ -146,12 +193,21 @@ class WebsiteController {
         return res.status(401).json({ error: 'User authentication required' });
       }
 
-      // Handle file uploads to S3
+      // Handle file uploads to S3 with compression
       const uploadedFileUrls = {};
       if (req.files) {
         for (const fieldName of Object.keys(req.files)) {
           if (req.files[fieldName] && req.files[fieldName][0]) {
-            const file = req.files[fieldName][0];
+            let file = req.files[fieldName][0];
+
+            // Compress file if it's too large
+            try {
+              file = await this.compressFile(file);
+            } catch (compressionError) {
+              console.error(`File compression failed for ${fieldName}:`, compressionError);
+              throw compressionError; // Re-throw to stop submission
+            }
+
             const s3Key = s3Service.generateKey('websites', fieldName, file.originalname);
             const contentType = s3Service.getContentType(file.originalname);
 
