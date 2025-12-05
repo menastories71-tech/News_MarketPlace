@@ -5,11 +5,46 @@ import { useNavigate, useParams } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
+import AuthModal from '../components/auth/AuthModal';
+
+// Updated theme colors matching the color palette from PDF
+const theme = {
+  primary: '#1976D2',
+  primaryDark: '#0D47A1',
+  primaryLight: '#E3F2FD',
+  secondary: '#00796B',
+  secondaryDark: '#004D40',
+  secondaryLight: '#E0F2F1',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  danger: '#F44336',
+  info: '#9C27B0',
+  textPrimary: '#212121',
+  textSecondary: '#757575',
+  textDisabled: '#BDBDBD',
+  background: '#FFFFFF',
+  backgroundAlt: '#FAFAFA',
+  backgroundSoft: '#F5F5F5',
+  borderLight: '#E0E0E0',
+  borderMedium: '#BDBDBD',
+  borderDark: '#757575'
+};
 
 const RadioDetails = () => {
+  const { isAuthenticated, hasRole, hasAnyRole } = useAuth();
   const [radio, setRadio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [isOrdering, setIsOrdering] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [orderFormData, setOrderFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    message: ''
+  });
   const navigate = useNavigate();
   const { id } = useParams();
 
@@ -32,6 +67,55 @@ const RadioDetails = () => {
 
   const handleBack = () => {
     navigate('/radio');
+  };
+
+  const handleShowAuth = () => {
+    setShowAuth(true);
+  };
+
+  const handleCloseAuth = () => {
+    setShowAuth(false);
+  };
+
+  const handlePlaceOrder = () => {
+    if (!isAuthenticated) {
+      setShowAuth(true);
+      return;
+    }
+    setShowOrderModal(true);
+  };
+
+  const handleOrderSubmit = async (e) => {
+    e.preventDefault();
+    setIsOrdering(true);
+
+    try {
+      // Create order data for API
+      const orderData = {
+        radioId: radio.id,
+        radioName: radio.radio_name,
+        customerInfo: orderFormData,
+        orderDate: new Date().toISOString()
+      };
+
+      // Submit order to backend
+      const response = await api.post('/radio-orders', orderData);
+
+      if (response.data.success) {
+        alert('Radio interview booking request submitted successfully! Our team will contact you soon.');
+        setShowOrderModal(false);
+        setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
+      } else {
+        throw new Error(response.data.message || 'Failed to submit booking request');
+      }
+
+    } catch (error) {
+      console.error('Error placing order:', error);
+      const errorMessage = error.response?.data?.message || error.message || 'Error submitting booking request. Please try again.';
+      alert(errorMessage);
+    } finally {
+      setIsOrdering(false);
+    }
   };
 
   const openLink = (url) => {
@@ -262,6 +346,17 @@ const RadioDetails = () => {
                 </h3>
                 <div className="space-y-3">
                   <button
+                    className="w-full text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    style={{ backgroundColor: theme.primary }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+                    onClick={handlePlaceOrder}
+                    disabled={isOrdering}
+                  >
+                    {isOrdering ? 'Processing...' : (isAuthenticated ? 'Place Order' : 'Sign In to Order')}
+                  </button>
+
+                  <button
                     onClick={() => {
                       if (navigator.share) {
                         navigator.share({
@@ -295,6 +390,265 @@ const RadioDetails = () => {
       </section>
 
       <UserFooter />
+
+      {/* Auth Modal */}
+      {showAuth && (
+        <AuthModal
+          isOpen={showAuth}
+          onClose={handleCloseAuth}
+          onLoginSuccess={handleCloseAuth}
+        />
+      )}
+
+      {/* Order Modal */}
+      {showOrderModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          padding: '20px',
+          overflow: 'auto'
+        }} onClick={() => setShowOrderModal(false)}>
+          <div style={{
+            backgroundColor: theme.background,
+            borderRadius: '12px',
+            maxWidth: '600px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+            display: 'flex',
+            flexDirection: 'column'
+          }} onClick={(e) => e.stopPropagation()}>
+            {/* Header - Fixed */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '24px 24px 16px 24px',
+              borderBottom: `1px solid ${theme.borderLight}`,
+              flexShrink: 0
+            }}>
+              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: theme.textPrimary }}>
+                Place Order
+              </h2>
+              <button
+                onClick={() => setShowOrderModal(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: theme.textSecondary,
+                  padding: '4px',
+                  borderRadius: '4px'
+                }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = theme.backgroundSoft}
+                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* Content - Scrollable */}
+            <div style={{
+              padding: '24px',
+              overflowY: 'auto',
+              flex: 1
+            }}>
+              <div style={{
+                backgroundColor: theme.backgroundSoft,
+                padding: '16px',
+                borderRadius: '8px',
+                marginBottom: '20px'
+              }}>
+                <h4 style={{
+                  margin: '0 0 8px 0',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  color: theme.textPrimary
+                }}>
+                  {radio.radio_name}
+                </h4>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: theme.textSecondary }}>Radio Station:</span>
+                  <span style={{ fontSize: '18px', fontWeight: '700', color: theme.primary }}>
+                    {radio.frequency}
+                  </span>
+                </div>
+              </div>
+
+              <form id="order-form" onSubmit={handleOrderSubmit}>
+                <div className="grid grid-cols-1 gap-4 mb-4">
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: theme.textPrimary,
+                      marginBottom: '6px'
+                    }}>
+                      Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={orderFormData.fullName}
+                      onChange={(e) => setOrderFormData({ ...orderFormData, fullName: e.target.value })}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: `1px solid ${theme.borderLight}`,
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        backgroundColor: theme.background
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: theme.textPrimary,
+                      marginBottom: '6px'
+                    }}>
+                      Email *
+                    </label>
+                    <input
+                      type="email"
+                      value={orderFormData.email}
+                      onChange={(e) => setOrderFormData({ ...orderFormData, email: e.target.value })}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: `1px solid ${theme.borderLight}`,
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        backgroundColor: theme.background
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: theme.textPrimary,
+                      marginBottom: '6px'
+                    }}>
+                      Phone *
+                    </label>
+                    <input
+                      type="tel"
+                      value={orderFormData.phone}
+                      onChange={(e) => setOrderFormData({ ...orderFormData, phone: e.target.value })}
+                      required
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: `1px solid ${theme.borderLight}`,
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        backgroundColor: theme.background
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{
+                      display: 'block',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: theme.textPrimary,
+                      marginBottom: '6px'
+                    }}>
+                      Additional Message
+                    </label>
+                    <textarea
+                      value={orderFormData.message}
+                      onChange={(e) => setOrderFormData({ ...orderFormData, message: e.target.value })}
+                      rows={3}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px',
+                        border: `1px solid ${theme.borderLight}`,
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        backgroundColor: theme.background,
+                        resize: 'vertical'
+                      }}
+                      placeholder="Any specific requirements or questions..."
+                    />
+                  </div>
+                </div>
+
+              </form>
+            </div>
+
+            {/* Footer - Fixed */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px',
+              padding: '16px 24px 24px 24px',
+              borderTop: `1px solid ${theme.borderLight}`,
+              flexShrink: 0
+            }}>
+              <button
+                type="button"
+                onClick={() => setShowOrderModal(false)}
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: theme.backgroundSoft,
+                  color: theme.textPrimary,
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+                disabled={isOrdering}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                form="order-form"
+                style={{
+                  padding: '12px 24px',
+                  backgroundColor: theme.primary,
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
+                disabled={isOrdering}
+                onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+                onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
+              >
+                {isOrdering ? 'Processing...' : 'Submit Request'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

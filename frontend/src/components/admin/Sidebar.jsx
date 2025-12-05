@@ -27,6 +27,7 @@ export default function Sidebar({
   const [paparazziDropdownOpen, setPaparazziDropdownOpen] = useState(false);
   const [eventDropdownOpen, setEventDropdownOpen] = useState(false);
   const [awardsDropdownOpen, setAwardsDropdownOpen] = useState(false);
+  const [radioDropdownOpen, setRadioDropdownOpen] = useState(false);
 
   // compute desktop fixed styles so sidebar sticks to viewport left (matches screenshot)
   const desktopFixedStyles = {
@@ -520,17 +521,47 @@ export default function Sidebar({
               </a>
             </li>
 
-
             <li style={{ marginBottom: 10 }}>
               <a
-                href="/admin/radios"
+                href="/admin/radio-orders"
                 style={navItemBase}
                 onMouseEnter={e => e.currentTarget.style.background = '#E8F4F8'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={navIconCircle('#e8f4f8')}><Icon name="radio" size="sm" style={{ color: '#1976D2' }} /></span>
-                <span>Radio Management</span>
+                <span>Radio Order Management</span>
               </a>
+            </li>
+
+
+            <li style={{ marginBottom: 10 }}>
+              <div
+                style={navItemBase}
+                onClick={() => setRadioDropdownOpen(!radioDropdownOpen)}
+                onMouseEnter={e => e.currentTarget.style.background = '#E8F4F8'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <span style={navIconCircle('#e8f4f8')}><Icon name="radio" size="sm" style={{ color: '#1976D2' }} /></span>
+                <span>Radio</span>
+                <span style={{ marginLeft: 'auto', transform: radioDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                  <Icon name="chevron-down" size="sm" style={{ color: '#1976D2' }} />
+                </span>
+              </div>
+              {radioDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/radios"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#E8F4F8'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#e8f4f8')}><Icon name="radio" size="sm" style={{ color: '#1976D2' }} /></span>
+                      <span>Radio Management</span>
+                    </a>
+                  </li>
+                </ul>
+              )}
             </li>
 
             <li style={{ marginBottom: 10 }}>
@@ -680,7 +711,15 @@ export default function Sidebar({
             <li style={{ marginBottom: 12 }}><a href="/admin/paparazzi-orders" style={{ color: '#212121', textDecoration: 'none' }}>Paparazzi Order Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/theme-orders" style={{ color: '#212121', textDecoration: 'none' }}>Theme Order Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/press-pack-orders" style={{ color: '#212121', textDecoration: 'none' }}>Press Pack Order Management</a></li>
-            <li style={{ marginBottom: 12 }}><a href="/admin/radios" style={{ color: '#212121', textDecoration: 'none' }}>Radio Management</a></li>
+            <li style={{ marginBottom: 12 }}><a href="/admin/radio-orders" style={{ color: '#212121', textDecoration: 'none' }}>Radio Order Management</a></li>
+            <li style={{ marginBottom: 12 }}>
+              <div onClick={() => setRadioDropdownOpen(!radioDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Radio</div>
+              {radioDropdownOpen && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/radios" style={{ color: '#212121', textDecoration: 'none' }}>Radio Management</a></li>
+                </ul>
+              )}
+            </li>
             <li style={{ marginBottom: 12 }}><a href="/admin/real-estates" style={{ color: '#212121', textDecoration: 'none' }}>Real Estate Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/reporters" style={{ color: '#212121', textDecoration: 'none' }}>Reporter Management</a></li>
             <li style={{ marginBottom: 12 }}><a href="/admin/roles-permissions" style={{ color: '#212121', textDecoration: 'none' }}>Roles & Permissions</a></li>
