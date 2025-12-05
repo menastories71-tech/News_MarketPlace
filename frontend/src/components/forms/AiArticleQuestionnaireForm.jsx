@@ -4,6 +4,10 @@ import Icon from '../common/Icon';
 
 const AiArticleQuestionnaireForm = () => {
   const navigate = useNavigate();
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState('questionnaire'); // 'questionnaire' or 'my-submissions'
+
   const [formData, setFormData] = useState({
     // Story type
     storyType: '',
@@ -60,6 +64,10 @@ const AiArticleQuestionnaireForm = () => {
   const [rateLimitInfo, setRateLimitInfo] = useState(null);
   const [countdown, setCountdown] = useState(0);
 
+  // My submissions state
+  const [mySubmissions, setMySubmissions] = useState([]);
+  const [submissionsLoading, setSubmissionsLoading] = useState(false);
+
   // Fetch publications on component mount
   useEffect(() => {
     const fetchPublications = async () => {
@@ -88,6 +96,36 @@ const AiArticleQuestionnaireForm = () => {
 
     fetchPublications();
   }, []);
+
+  const fetchMySubmissions = async () => {
+    try {
+      setSubmissionsLoading(true);
+      const response = await fetch('/api/ai-generated-articles/my', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setMySubmissions(data.articles || []);
+      } else {
+        console.error('Failed to fetch my submissions');
+        setMySubmissions([]);
+      }
+    } catch (error) {
+      console.error('Error fetching my submissions:', error);
+      setMySubmissions([]);
+    } finally {
+      setSubmissionsLoading(false);
+    }
+  };
+
+  // Fetch submissions when my-submissions tab is active
+  useEffect(() => {
+    if (activeTab === 'my-submissions') {
+      fetchMySubmissions();
+    }
+  }, [activeTab]);
 
   // Countdown timer for rate limit
   useEffect(() => {
@@ -304,12 +342,39 @@ const AiArticleQuestionnaireForm = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-
-      {message && (
-        <div className={`mb-6 p-4 rounded-lg ${message.includes('success') ? 'bg-green-50 border-l-4 border-green-400' : 'bg-red-50 border-l-4 border-red-400'}`}>
-          <p className={`text-sm ${message.includes('success') ? 'text-green-800' : 'text-red-800'}`}>{message}</p>
+      {/* Tab Navigation */}
+      <div className="mb-8">
+        <div className="flex border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('questionnaire')}
+            className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'questionnaire'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            AI Article Questionnaire
+          </button>
+          <button
+            onClick={() => setActiveTab('my-submissions')}
+            className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${
+              activeTab === 'my-submissions'
+                ? 'border-blue-500 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            My AI Submissions
+          </button>
         </div>
-      )}
+      </div>
+
+      {activeTab === 'questionnaire' && (
+        <>
+          {message && (
+            <div className={`mb-6 p-4 rounded-lg ${message.includes('success') ? 'bg-green-50 border-l-4 border-green-400' : 'bg-red-50 border-l-4 border-red-400'}`}>
+              <p className={`text-sm ${message.includes('success') ? 'text-green-800' : 'text-red-800'}`}>{message}</p>
+            </div>
+          )}
 
       {rateLimitInfo && (
         <div className="mb-6 p-4 rounded-lg bg-orange-50 border-l-4 border-orange-400">
@@ -339,7 +404,7 @@ const AiArticleQuestionnaireForm = () => {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Story Type Section */}
         <div className="bg-gray-50 p-6 rounded-lg">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4 font-['Inter']">Story Type</h2>
+          <h2 className="text-xl font-semibold text-gray-900 mb-4 font-['Inter']">Article Format</h2>
           <p className="text-sm text-gray-600 mb-4 font-['Open_Sans']">Please choose from one of the options below:</p>
           <div className="space-y-3">
             {storyTypes.map((type) => (
@@ -530,6 +595,119 @@ const AiArticleQuestionnaireForm = () => {
           </button>
         </div>
       </form>
+        </>
+      )}
+
+      {activeTab === 'my-submissions' && (
+        <div>
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-4" style={{ color: '#212121' }}>
+              My AI Submissions
+            </h1>
+            <p style={{ color: '#757575' }}>
+              View all your AI-generated article submissions and their status
+            </p>
+          </div>
+
+          {submissionsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <svg className="animate-spin -ml-1 mr-3 h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span style={{ color: '#757575' }}>Loading submissions...</span>
+            </div>
+          ) : mySubmissions.length === 0 ? (
+            <div className="text-center py-12">
+              <svg className="mx-auto mb-4 h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <h3 className="text-lg font-medium mb-2" style={{ color: '#212121' }}>No AI submissions yet</h3>
+              <p style={{ color: '#757575' }}>You haven't submitted any AI-generated articles yet.</p>
+              <button
+                onClick={() => setActiveTab('questionnaire')}
+                className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Create Your First AI Article
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {mySubmissions.map((submission) => (
+                <div key={submission.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold mb-2" style={{ color: '#212121' }}>
+                        {submission.name || 'AI Generated Article'}
+                      </h3>
+                      <p className="text-sm mb-2" style={{ color: '#757575' }}>
+                        Story Type: <span className="font-medium capitalize">{submission.story_type}</span>
+                      </p>
+                      <p className="text-sm mb-2" style={{ color: '#757575' }}>
+                        Publication: <span className="font-medium">{submission.publication?.publication_name || 'N/A'}</span>
+                      </p>
+                      <p className="text-sm" style={{ color: '#757575' }}>
+                        Submitted on: {new Date(submission.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="ml-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-medium ${
+                          submission.status === 'approved'
+                            ? 'bg-green-100 text-green-800'
+                            : submission.status === 'pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : submission.status === 'draft'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {submission.generated_content && (
+                    <div className="mt-4">
+                      <p className="text-sm line-clamp-3" style={{ color: '#757575' }}>
+                        {submission.generated_content.substring(0, 200)}...
+                      </p>
+                    </div>
+                  )}
+
+                  {submission.status === 'approved' && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <a
+                        href={`/ai-article/${submission.id}`}
+                        className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        View Article
+                      </a>
+                    </div>
+                  )}
+
+                  {submission.status === 'draft' && (
+                    <div className="mt-4 pt-4 border-t border-gray-200">
+                      <a
+                        href={`/ai-article-generation/${submission.id}`}
+                        className="inline-flex items-center text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Continue Generation
+                      </a>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
