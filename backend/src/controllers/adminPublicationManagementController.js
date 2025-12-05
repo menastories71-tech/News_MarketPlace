@@ -19,6 +19,12 @@ class AdminPublicationManagementController {
     body('word_limit').optional().isInt({ min: 0 }).withMessage('Word limit must be a non-negative integer'),
     body('needs_images').optional().isBoolean().withMessage('Needs images must be a boolean'),
     body('image_count').optional().isInt({ min: 0, max: 2 }).withMessage('Image count must be 0, 1 or 2'),
+    body('image').optional().isURL().withMessage('Image must be a valid URL'),
+    body('rating_type').optional().isIn(['Customer Choice', 'Best Seller', 'Editor\'s Pick', 'Trending', 'Featured']).withMessage('Invalid rating type'),
+    body('instagram').optional().isURL().withMessage('Instagram must be a valid URL'),
+    body('facebook').optional().isURL().withMessage('Facebook must be a valid URL'),
+    body('twitter').optional().isURL().withMessage('Twitter must be a valid URL'),
+    body('linkedin').optional().isURL().withMessage('LinkedIn must be a valid URL'),
     body('remarks').optional().trim(),
   ];
 
@@ -39,6 +45,12 @@ class AdminPublicationManagementController {
     body('word_limit').optional().isInt({ min: 0 }).withMessage('Word limit must be a non-negative integer'),
     body('needs_images').optional().isBoolean().withMessage('Needs images must be a boolean'),
     body('image_count').optional().isInt({ min: 0, max: 2 }).withMessage('Image count must be 0, 1 or 2'),
+    body('image').optional().isURL().withMessage('Image must be a valid URL'),
+    body('rating_type').optional().isIn(['Customer Choice', 'Best Seller', 'Editor\'s Pick', 'Trending', 'Featured']).withMessage('Invalid rating type'),
+    body('instagram').optional().isURL().withMessage('Instagram must be a valid URL'),
+    body('facebook').optional().isURL().withMessage('Facebook must be a valid URL'),
+    body('twitter').optional().isURL().withMessage('Twitter must be a valid URL'),
+    body('linkedin').optional().isURL().withMessage('LinkedIn must be a valid URL'),
     body('remarks').optional().trim(),
   ];
 

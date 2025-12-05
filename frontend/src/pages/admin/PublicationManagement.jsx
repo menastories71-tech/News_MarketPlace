@@ -22,6 +22,12 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
     word_limit: '',
     needs_images: false,
     image_count: '1',
+    image: '',
+    rating_type: '',
+    instagram: '',
+    facebook: '',
+    twitter: '',
+    linkedin: '',
     remarks: ''
   });
   const [loading, setLoading] = useState(false);
@@ -44,6 +50,12 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
         word_limit: record.word_limit || '',
         needs_images: record.needs_images || false,
         image_count: record.image_count || '',
+        image: record.image || '',
+        rating_type: record.rating_type || '',
+        instagram: record.instagram || '',
+        facebook: record.facebook || '',
+        twitter: record.twitter || '',
+        linkedin: record.linkedin || '',
         remarks: record.remarks || ''
       });
     } else {
@@ -63,6 +75,12 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
         word_limit: '',
         needs_images: false,
         image_count: '1',
+        image: '',
+        rating_type: '',
+        instagram: '',
+        facebook: '',
+        twitter: '',
+        linkedin: '',
         remarks: ''
       });
     }
@@ -300,6 +318,83 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
                 value={formData.word_limit}
                 onChange={(e) => setFormData({ ...formData, word_limit: e.target.value })}
                 style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Publication Image URL</label>
+              <input
+                type="url"
+                value={formData.image}
+                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                style={inputStyle}
+                placeholder="https://example.com/image.jpg"
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Rating Type</label>
+              <select
+                value={formData.rating_type}
+                onChange={(e) => setFormData({ ...formData, rating_type: e.target.value })}
+                style={inputStyle}
+              >
+                <option value="">Select Rating Type</option>
+                <option value="Customer Choice">Customer Choice</option>
+                <option value="Best Seller">Best Seller</option>
+                <option value="Editor's Pick">Editor's Pick</option>
+                <option value="Trending">Trending</option>
+                <option value="Featured">Featured</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Instagram URL</label>
+              <input
+                type="url"
+                value={formData.instagram}
+                onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
+                style={inputStyle}
+                placeholder="https://instagram.com/username"
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Facebook URL</label>
+              <input
+                type="url"
+                value={formData.facebook}
+                onChange={(e) => setFormData({ ...formData, facebook: e.target.value })}
+                style={inputStyle}
+                placeholder="https://facebook.com/page"
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>Twitter/X URL</label>
+              <input
+                type="url"
+                value={formData.twitter}
+                onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
+                style={inputStyle}
+                placeholder="https://twitter.com/username"
+              />
+            </div>
+
+            <div style={formGroupStyle}>
+              <label style={labelStyle}>LinkedIn URL</label>
+              <input
+                type="url"
+                value={formData.linkedin}
+                onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
+                style={inputStyle}
+                placeholder="https://linkedin.com/company/page"
               />
             </div>
           </div>

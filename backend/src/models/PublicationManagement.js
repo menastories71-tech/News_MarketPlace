@@ -19,6 +19,12 @@ class PublicationManagement {
     this.word_limit = data.word_limit;
     this.needs_images = data.needs_images || false;
     this.image_count = data.image_count;
+    this.image = data.image;
+    this.rating_type = data.rating_type;
+    this.instagram = data.instagram;
+    this.facebook = data.facebook;
+    this.twitter = data.twitter;
+    this.linkedin = data.linkedin;
     this.created_at = data.created_at;
     this.updated_at = data.updated_at;
   }
@@ -41,22 +47,30 @@ class PublicationManagement {
       remarks,
       word_limit,
       needs_images,
-      image_count
+      image_count,
+      image,
+      rating_type,
+      instagram,
+      facebook,
+      twitter,
+      linkedin
     } = data;
 
     const sql = `
       INSERT INTO publication_managements (
         region, publication_name, publication_url, da, article_reference_link,
         committed_tat, language, publication_primary_focus, practical_tat,
-        price_usd, do_follow, dr, remarks, word_limit, needs_images, image_count
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
+        price_usd, do_follow, dr, remarks, word_limit, needs_images, image_count,
+        image, rating_type, instagram, facebook, twitter, linkedin
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)
       RETURNING *
     `;
 
     const values = [
       region, publication_name, publication_url, da, article_reference_link,
       committed_tat, language, publication_primary_focus, practical_tat,
-      price_usd, do_follow, dr, remarks, word_limit, needs_images, image_count
+      price_usd, do_follow, dr, remarks, word_limit, needs_images, image_count,
+      image, rating_type, instagram, facebook, twitter, linkedin
     ];
 
     const result = await query(sql, values);
@@ -146,6 +160,12 @@ class PublicationManagement {
       word_limit: this.word_limit,
       needs_images: this.needs_images,
       image_count: this.image_count,
+      image: this.image,
+      rating_type: this.rating_type,
+      instagram: this.instagram,
+      facebook: this.facebook,
+      twitter: this.twitter,
+      linkedin: this.linkedin,
       remarks: this.remarks,
       created_at: this.created_at,
       updated_at: this.updated_at
