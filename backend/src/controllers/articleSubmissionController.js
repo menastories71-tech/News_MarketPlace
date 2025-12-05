@@ -88,13 +88,27 @@ class ArticleSubmissionController {
   // Create a new article submission (user or admin)
   async createSubmission(req, res) {
     try {
+      console.log('=== Article Submission Debug Start ===');
+      console.log('Request method:', req.method);
+      console.log('Request path:', req.path);
+      console.log('Request headers:', JSON.stringify(req.headers, null, 2));
+      console.log('Request body keys:', Object.keys(req.body || {}));
+      console.log('Request files keys:', Object.keys(req.files || {}));
+      console.log('Starting article submission creation...');
+      console.log('Request body:', req.body);
+      console.log('Request files:', req.files);
+
+      // Check if validation middleware ran
+      console.log('Checking validation results...');
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
+        console.log('Validation errors found:', errors.array());
         return res.status(400).json({
           error: 'Validation failed',
           details: errors.array()
         });
       }
+      console.log('Validation passed');
 
       // For admin requests, user_id is optional; for user requests, required
       const userId = req.body.user_id || req.user?.userId || null;
@@ -112,118 +126,195 @@ class ArticleSubmissionController {
         recaptcha_token
       } = req.body;
 
+      console.log('Extracted data:', { 
+        userId, 
+        publication_id, 
+        title: title ? title.substring(0, 50) + '...' : 'null',
+        article_text_length: article_text ? article_text.length : 0
+      });
+
       // Verify captcha
-      const captchaScore = await verifyRecaptcha(recaptcha_token);
-      if (captchaScore === null || captchaScore < 0.5) {
+      console.log('Verifying captcha...');
+      try {
+        const captchaScore = await verifyRecaptcha(recaptcha_token);
+        console.log('Captcha verification result:', captchaScore);
+        if (captchaScore === null || captchaScore < 0.5) {
+          console.log('Captcha verification failed');
+          return res.status(400).json({
+            error: 'Captcha verification failed',
+            message: 'Please complete the captcha verification'
+          });
+        }
+        console.log('Captcha verification passed');
+      } catch (captchaError) {
+        console.error('Captcha verification error:', captchaError);
         return res.status(400).json({
           error: 'Captcha verification failed',
-          message: 'Please complete the captcha verification'
+          message: 'Captcha service error'
         });
       }
+
+      console.log('Getting publication management for publication_id:', publication_id);
 
       // Get publication management to check word limit and image requirements
-      const pubManagement = await PublicationManagement.findById(publication_id);
-      if (!pubManagement) {
-        return res.status(404).json({ error: 'Publication not found' });
-      }
-
-      // Find the corresponding Publication record by name
-      const publication = await Publication.findByPublicationName(pubManagement.publication_name);
-      if (!publication) {
-        return res.status(404).json({ error: 'Publication record not found' });
-      }
-
-      // Validate title: <= 12 words, no special characters
-      const titleWords = title.trim().split(/\s+/);
-      if (titleWords.length > 12) {
-        return res.status(400).json({ error: 'Title must be 12 words or less' });
-      }
-      const specialCharsRegex = /[^a-zA-Z0-9\s]/;
-      if (specialCharsRegex.test(title)) {
-        return res.status(400).json({ error: 'Title cannot contain special characters' });
-      }
-
-      // Validate article text word count <= publication word_limit
-      const articleWords = article_text.trim().split(/\s+/).length;
-      if (articleWords > pubManagement.word_limit) {
-        return res.status(400).json({
-          error: `Article text exceeds word limit of ${pubManagement.word_limit} words`
-        });
-      }
-
-      // Determine required image count from publication management
-      const requiredImageCount = pubManagement.needs_images ? parseInt(pubManagement.image_count) || 0 : 0;
-
-      // Handle file uploads to S3
-      let image1 = null;
-      let image2 = null;
-      let document = null;
-
-      // Validate required images based on publication management
-      for (let i = 1; i <= requiredImageCount; i++) {
-        if (!req.files || !req.files[`image${i}`] || !req.files[`image${i}`][0]) {
-          return res.status(400).json({ error: `Image ${i} is required` });
+      try {
+        const pubManagement = await PublicationManagement.findById(publication_id);
+        console.log('Publication management query result:', pubManagement ? 'found' : 'not found');
+        if (!pubManagement) {
+          console.log('Publication management not found for ID:', publication_id);
+          return res.status(404).json({ error: 'Publication not found' });
         }
-      }
+        console.log('Found publication management:', pubManagement.publication_name);
 
-      // Upload required images
-      for (let i = 1; i <= requiredImageCount; i++) {
-        if (req.files && req.files[`image${i}`] && req.files[`image${i}`][0]) {
-          const file = req.files[`image${i}`][0];
-          const s3Key = s3Service.generateKey('article-submissions', `image${i}`, file.originalname);
+        // Find the corresponding Publication record by name
+        console.log('Looking for publication record with name:', pubManagement.publication_name);
+        const publication = await Publication.findByPublicationName(pubManagement.publication_name);
+        console.log('Publication record query result:', publication ? 'found' : 'not found');
+        if (!publication) {
+          console.log('Publication record not found for name:', pubManagement.publication_name);
+          return res.status(404).json({ error: 'Publication record not found' });
+        }
+        console.log('Found publication:', publication.publication_name, 'ID:', publication.id);
+
+        // Validate title: <= 12 words, no special characters
+        console.log('Validating title...');
+        const titleWords = title.trim().split(/\s+/);
+        if (titleWords.length > 12) {
+          console.log('Title validation failed: too many words');
+          return res.status(400).json({ error: 'Title must be 12 words or less' });
+        }
+        const specialCharsRegex = /[^a-zA-Z0-9\s]/;
+        if (specialCharsRegex.test(title)) {
+          console.log('Title validation failed: special characters');
+          return res.status(400).json({ error: 'Title cannot contain special characters' });
+        }
+        console.log('Title validation passed');
+
+        // Validate article text word count <= publication word_limit
+        console.log('Validating article text word count...');
+        const articleWords = article_text.trim().split(/\s+/).length;
+        console.log('Article word count:', articleWords, 'Limit:', pubManagement.word_limit);
+        if (articleWords > pubManagement.word_limit) {
+          console.log('Article word count validation failed');
+          return res.status(400).json({
+            error: `Article text exceeds word limit of ${pubManagement.word_limit} words`
+          });
+        }
+        console.log('Article word count validation passed');
+
+        // Determine required image count from publication management
+        const requiredImageCount = pubManagement.needs_images ? parseInt(pubManagement.image_count) || 0 : 0;
+        console.log('Required image count:', requiredImageCount);
+
+        // Handle file uploads to S3
+        let image1 = null;
+        let image2 = null;
+        let document = null;
+
+        // Validate required images based on publication management
+        console.log('Validating required images...');
+        for (let i = 1; i <= requiredImageCount; i++) {
+          if (!req.files || !req.files[`image${i}`] || !req.files[`image${i}`][0]) {
+            console.log(`Image ${i} is missing but required`);
+            return res.status(400).json({ error: `Image ${i} is required` });
+          }
+        }
+        console.log('Required images validation passed');
+
+        // Upload required images
+        console.log('Uploading images to S3...');
+        for (let i = 1; i <= requiredImageCount; i++) {
+          if (req.files && req.files[`image${i}`] && req.files[`image${i}`][0]) {
+            const file = req.files[`image${i}`][0];
+            console.log(`Uploading image${i}:`, file.originalname, 'Size:', file.size);
+            const s3Key = s3Service.generateKey('article-submissions', `image${i}`, file.originalname);
+            const contentType = s3Service.getContentType(file.originalname);
+
+            try {
+              const imageUrl = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+              console.log(`Image${i} uploaded successfully:`, s3Key);
+              if (i === 1) image1 = imageUrl;
+              else if (i === 2) image2 = imageUrl;
+              // TODO: Validate landscape orientation
+            } catch (uploadError) {
+              console.error(`Failed to upload image${i} to S3:`, uploadError);
+              throw new Error(`Failed to upload image${i}`);
+            }
+          }
+        }
+        console.log('Image uploads completed');
+
+        // Upload document if provided
+        if (req.files && req.files.document && req.files.document[0]) {
+          console.log('Uploading document...');
+          const file = req.files.document[0];
+          const s3Key = s3Service.generateKey('article-submissions', 'document', file.originalname);
           const contentType = s3Service.getContentType(file.originalname);
 
           try {
-            const imageUrl = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
-            if (i === 1) image1 = imageUrl;
-            else if (i === 2) image2 = imageUrl;
-            // TODO: Validate landscape orientation
+            document = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+            console.log('Document uploaded successfully:', s3Key);
           } catch (uploadError) {
-            console.error(`Failed to upload image${i} to S3:`, uploadError);
-            throw new Error(`Failed to upload image${i}`);
+            console.error('Failed to upload document to S3:', uploadError);
+            throw new Error('Failed to upload document');
           }
         }
+
+        console.log('Preparing submission data...');
+        const submissionData = {
+          user_id: userId,
+          publication_id: publication.id, // Use the actual Publication ID, not PublicationManagement ID
+          title,
+          sub_title,
+          by_line,
+          tentative_publish_date,
+          article_text,
+          image1,
+          image2,
+          document,
+          website_link,
+          instagram_link,
+          facebook_link,
+          terms_agreed: terms_agreed === 'true'
+        };
+
+        console.log('Submission data prepared:', {
+          ...submissionData,
+          article_text: article_text ? `${article_text.length} chars` : 'null',
+          image1: image1 ? 'uploaded' : 'null',
+          image2: image2 ? 'uploaded' : 'null',
+          document: document ? 'uploaded' : 'null'
+        });
+
+        console.log('Creating submission in database...');
+        const submission = await ArticleSubmission.create(submissionData);
+        console.log('Submission created successfully with ID:', submission.id);
+
+        res.status(201).json({
+          message: 'Article submission created successfully',
+          submission: submission.toJSON()
+        });
+      } catch (dbError) {
+        console.error('Database operation error:', dbError);
+        console.error('Database error stack:', dbError.stack);
+        throw dbError;
       }
-
-      if (req.files && req.files.document && req.files.document[0]) {
-        const file = req.files.document[0];
-        const s3Key = s3Service.generateKey('article-submissions', 'document', file.originalname);
-        const contentType = s3Service.getContentType(file.originalname);
-
-        try {
-          document = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
-        } catch (uploadError) {
-          console.error('Failed to upload document to S3:', uploadError);
-          throw new Error('Failed to upload document');
-        }
-      }
-
-      const submissionData = {
-        user_id: userId,
-        publication_id: publication.id, // Use the actual Publication ID, not PublicationManagement ID
-        title,
-        sub_title,
-        by_line,
-        tentative_publish_date,
-        article_text,
-        image1,
-        image2,
-        document,
-        website_link,
-        instagram_link,
-        facebook_link,
-        terms_agreed: terms_agreed === 'true'
-      };
-
-      const submission = await ArticleSubmission.create(submissionData);
-
-      res.status(201).json({
-        message: 'Article submission created successfully',
-        submission: submission.toJSON()
-      });
     } catch (error) {
-      console.error('Create article submission error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('=== Article Submission Error ===');
+      console.error('Error type:', error.constructor.name);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      console.error('=== End Error Details ===');
+      
+      // Send more detailed error in development
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      res.status(500).json({ 
+        error: 'Internal server error',
+        ...(isDevelopment && {
+          details: error.message,
+          stack: error.stack
+        })
+      });
     }
   }
 

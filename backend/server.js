@@ -141,6 +141,28 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Test route working' });
 });
 
+// Debug route for article submission
+app.get('/api/debug-article-submission', (req, res) => {
+  console.log('Debug route hit');
+  res.json({
+    message: 'Debug route working',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Test POST route for article submissions
+app.post('/api/test-article-submission', (req, res) => {
+  console.log('Test POST route hit');
+  console.log('Body:', req.body);
+  console.log('Files:', req.files);
+  res.json({
+    message: 'Test POST route working',
+    receivedBody: !!req.body,
+    receivedFiles: !!req.files,
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Ultra simple test
 app.get('/simple-test', (req, res) => {
   console.log('Simple test route working!');
@@ -191,7 +213,9 @@ app.use('/api/careers', careersRoutes);
 app.use('/api/blogs', blogsRoutes);
 app.use('/api/real-estates', realEstatesRoutes);
 app.use('/api/published-works', publishedWorksRoutes);
+console.log('Mounting article submissions at /api/article-submissions');
 app.use('/api/article-submissions', articleSubmissionsRoutes);
+console.log('Article submissions routes mounted successfully');
 app.use('/api/ai-generated-articles', aiGeneratedArticlesRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/paparazzi-orders', paparazziOrdersRoutes);
