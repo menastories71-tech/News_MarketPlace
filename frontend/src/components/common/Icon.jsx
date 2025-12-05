@@ -709,6 +709,15 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         </svg>
       );
 
+    case 'sparkles':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M9.813 15.904L9 18l.813-2.096L12 12.73l2.187 2.187L15 18l.813-2.096L18 12.73l-2.187-2.187L15 6l-.813 2.096L12 11.27 9.813 9.096 9 6l.813 2.096L12 11.27z" />
+          <path d="M18.258 8.714L18 9l.258-.286L21 6.73l-2.742-2.742L18 3l-.258.988L15 6.73l2.742 2.742z" />
+          <path d="M5.742 15.286L6 15l-.258.286L3 17.27l2.742 2.742L6 21l.258-.988L9 17.27l-2.742-2.742z" />
+        </svg>
+      );
+
     case 'badge-check':
       return (
         <svg {...common} className={className} style={style} {...rest}>

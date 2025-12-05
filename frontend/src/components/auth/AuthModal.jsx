@@ -15,7 +15,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     otp: '',
     newPassword: '',
     confirmPassword: '',
-    rememberMe: false,
+    acceptTerms: false,
     recaptchaToken: null,
     resetToken: '',
   });
@@ -37,7 +37,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         otp: '',
         newPassword: '',
         confirmPassword: '',
-        rememberMe: false,
+        acceptTerms: false,
         recaptchaToken: null,
         resetToken: '',
       });
@@ -129,6 +129,12 @@ const AuthModal = ({ isOpen, onClose }) => {
     setLoading(true);
     setError('');
 
+    if (!formData.acceptTerms) {
+      setError('You must accept the terms and conditions to continue');
+      setLoading(false);
+      return;
+    }
+
     if (!formData.recaptchaToken) {
       setError('Please complete the reCAPTCHA verification');
       setLoading(false);
@@ -136,7 +142,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     }
 
     try {
-      const result = await login(formData.email, formData.password, formData.rememberMe, formData.recaptchaToken);
+      const result = await login(formData.email, formData.password, formData.acceptTerms, formData.recaptchaToken);
       setMessage(result.message);
       setStep('otp');
       // Auto-dismiss success message after 5 seconds
@@ -155,7 +161,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     setError('');
 
     try {
-      await verifyLogin(formData.email, formData.otp, formData.rememberMe);
+      await verifyLogin(formData.email, formData.otp, formData.acceptTerms);
       onClose();
       // Redirect to dashboard or home
     } catch (err) {
@@ -231,7 +237,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       otp: '',
       newPassword: '',
       confirmPassword: '',
-      rememberMe: false,
+      acceptTerms: false,
       recaptchaToken: null,
       resetToken: '',
     });
@@ -258,7 +264,7 @@ const AuthModal = ({ isOpen, onClose }) => {
       otp: '',
       newPassword: '',
       confirmPassword: '',
-      rememberMe: false,
+      acceptTerms: false,
       recaptchaToken: null,
       resetToken: '',
     });
@@ -453,14 +459,15 @@ const AuthModal = ({ isOpen, onClose }) => {
                     <div className="flex items-center">
                       <input
                         type="checkbox"
-                        id="rememberMe"
-                        name="rememberMe"
-                        checked={formData.rememberMe}
+                        id="acceptTerms"
+                        name="acceptTerms"
+                        checked={formData.acceptTerms}
                         onChange={handleInputChange}
                         className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                        required
                       />
-                      <label htmlFor="rememberMe" className="ml-3 text-sm text-gray-600 font-['Open_Sans']">
-                        Remember me
+                      <label htmlFor="acceptTerms" className="ml-3 text-sm text-gray-600 font-['Open_Sans']">
+                        I accept the <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">terms and conditions</a> <span className="text-red-500">*</span>
                       </label>
                     </div>
                   )}
