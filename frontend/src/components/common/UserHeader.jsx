@@ -43,6 +43,13 @@ const UserHeader = () => {
 
   const menuItems = [
     {
+      href: "/real-estates",
+      text: "Real Estate",
+      icon: "home",
+      description: "Real estate services and listings",
+      hasAuthCheck: false
+    },
+    {
       href: "/services-overview",
       text: "Services",
       icon: "cog-6-tooth",
@@ -100,18 +107,18 @@ const UserHeader = () => {
       icon: "check-circle",
       description: "View our success stories and published articles"
     },
-   
+
   ];
 
   const services = [
+    { name: 'Home', href: '/', icon: 'home' },
     { name: 'Submit Article', href: '#', icon: 'document-text', onClick: () => setShowArticleSubmissionPopup(true) },
     { name: 'Publications', href: '/publications', icon: 'newspaper' },
     { name: 'Websites', href: '/website-submission', icon: 'globe-alt' },
     { name: 'Radio', href: '/radio', icon: 'microphone' },
     { name: 'Paparazzi', href: '/paparazzi', icon: 'camera' },
     { name: 'Power List', href: '/power-lists', icon: 'chart-bar' },
-    { name: 'Awards', href: '/awards', icon: 'award' },
-    { name: 'Real Estate', href: '/real-estates', icon: 'home' }
+    { name: 'Awards', href: '/awards', icon: 'award' }
   ];
 
   const allItems = [
