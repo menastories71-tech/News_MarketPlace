@@ -69,6 +69,9 @@ const ArticleSubmissionPage = () => {
   const [generatedSlug, setGeneratedSlug] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupType, setPopupType] = useState(''); // 'success' or 'error'
 
   // My submissions state
   const [mySubmissions, setMySubmissions] = useState([]);
@@ -210,8 +213,33 @@ const ArticleSubmissionPage = () => {
     }
   };
 
+  // Calculate total payload size
+  const calculateTotalPayloadSize = () => {
+    let totalSize = 0;
+
+    // Add form data size (rough estimate)
+    const formDataString = JSON.stringify(formData);
+    totalSize += new Blob([formDataString]).size;
+
+    // Add file sizes
+    Object.values(files).forEach(file => {
+      if (file) {
+        totalSize += file.size;
+      }
+    });
+
+    return totalSize;
+  };
+
   const validateForm = () => {
     const newErrors = {};
+
+    // Check total payload size (50MB limit to prevent 413 error)
+    const maxPayloadSize = 50 * 1024 * 1024; // 50MB
+    const totalSize = calculateTotalPayloadSize();
+    if (totalSize > maxPayloadSize) {
+      newErrors.payload = `Total upload size (${(totalSize / (1024 * 1024)).toFixed(2)} MB) exceeds the limit of 50 MB. Please reduce file sizes or remove some files.`;
+    }
 
     // Required fields
     const requiredFields = [
@@ -276,11 +304,18 @@ const ArticleSubmissionPage = () => {
     e.preventDefault();
 
     if (!validateForm()) {
+      // Show validation errors in popup
+      const errorMessages = Object.values(errors);
+      if (errorMessages.length > 0) {
+        setPopupMessage(errorMessages.join('\n'));
+        setPopupType('error');
+        setShowPopup(true);
+        setTimeout(() => setShowPopup(false), 5000);
+      }
       return;
     }
 
     setLoading(true);
-    setSubmitStatus(null);
 
     try {
       const submitData = new FormData();
@@ -313,10 +348,14 @@ const ArticleSubmissionPage = () => {
         }
       });
 
-      setSubmitStatus('success');
+      // Show success popup
+      setPopupMessage('Article submitted successfully! Your article has been submitted and is pending review.');
+      setPopupType('success');
+      setShowPopup(true);
       setTimeout(() => {
+        setShowPopup(false);
         navigate('/articles');
-      }, 2000);
+      }, 3000);
 
     } catch (error) {
       console.error('Error submitting article:', error);
@@ -324,7 +363,9 @@ const ArticleSubmissionPage = () => {
 
       let errorMessage = 'Failed to submit article. Please try again.';
 
-      if (error.response?.status === 400) {
+      if (error.response?.status === 413) {
+        errorMessage = 'Upload size too large. Please reduce file sizes and try again.';
+      } else if (error.response?.status === 400) {
         errorMessage = 'Please check your input and try again.';
         if (error.response.data.details) {
           const validationErrors = {};
@@ -333,13 +374,21 @@ const ArticleSubmissionPage = () => {
           });
           setErrors(validationErrors);
           console.error('Validation errors:', validationErrors);
+          // Show validation errors in popup
+          const errorList = Object.values(validationErrors);
+          if (errorList.length > 0) {
+            errorMessage = 'Validation errors:\n' + errorList.join('\n');
+          }
         } else if (error.response.data.error) {
           errorMessage = error.response.data.error;
         }
       }
 
-      setSubmitStatus('error');
-      setErrors(prev => ({ ...prev, submit: errorMessage }));
+      // Show error popup
+      setPopupMessage(errorMessage);
+      setPopupType('error');
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 5000);
     } finally {
       setLoading(false);
     }
@@ -411,29 +460,6 @@ const ArticleSubmissionPage = () => {
                 </p>
               </div>
 
-          {submitStatus === 'success' && (
-            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: '#e8f5e8', border: `1px solid ${theme.success}` }}>
-              <div className="flex items-center gap-3">
-                <Icon name="check-circle" size="lg" style={{ color: theme.success }} />
-                <div>
-                  <div className="font-semibold" style={{ color: theme.success }}>Article Submitted Successfully!</div>
-                  <div style={{ color: theme.textSecondary }}>Your article has been submitted and is pending review.</div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {submitStatus === 'error' && (
-            <div className="mb-6 p-4 rounded-lg" style={{ backgroundColor: '#ffebee', border: `1px solid ${theme.danger}` }}>
-              <div className="flex items-center gap-3">
-                <Icon name="exclamation-triangle" size="lg" style={{ color: theme.danger }} />
-                <div>
-                  <div className="font-semibold" style={{ color: theme.danger }}>Submission Failed</div>
-                  <div style={{ color: theme.textSecondary }}>{errors.submit || 'Please check your input and try again.'}</div>
-                </div>
-              </div>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Publication Selection */}
@@ -853,7 +879,53 @@ const ArticleSubmissionPage = () => {
           )}
         </div>
       </div>
-      
+
+      {/* Popup for success/error messages */}
+      {showPopup && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: theme.background,
+          border: `1px solid ${popupType === 'success' ? theme.success : theme.danger}`,
+          borderRadius: '8px',
+          padding: '16px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          zIndex: 1000,
+          maxWidth: '400px',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <Icon
+              name={popupType === 'success' ? 'check-circle' : 'exclamation-triangle'}
+              size="3x"
+              style={{ color: popupType === 'success' ? theme.success : theme.danger }}
+            />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: '600', color: popupType === 'success' ? theme.success : theme.danger, marginBottom: '8px' }}>
+                {popupType === 'success' ? 'Success!' : 'Error!'}
+              </div>
+              <div style={{ fontSize: '14px', color: theme.textSecondary, whiteSpace: 'pre-line' }}>
+                {popupMessage}
+              </div>
+            </div>
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                fontSize: '18px',
+                cursor: 'pointer',
+                color: theme.textSecondary,
+                padding: '0',
+                marginLeft: 'auto'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       <UserFooter />
     </div>
@@ -861,3 +933,4 @@ const ArticleSubmissionPage = () => {
 };
 
 export default ArticleSubmissionPage;
+

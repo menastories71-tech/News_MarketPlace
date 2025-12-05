@@ -121,9 +121,9 @@ class ArticleSubmissionController {
         });
       }
 
-      // Get publication to check word limit
-      const publication = await Publication.findById(publication_id);
-      if (!publication) {
+      // Get publication management to check word limit and image requirements
+      const pubManagement = await PublicationManagement.findById(publication_id);
+      if (!pubManagement) {
         return res.status(404).json({ error: 'Publication not found' });
       }
 
@@ -139,11 +139,14 @@ class ArticleSubmissionController {
 
       // Validate article text word count <= publication word_limit
       const articleWords = article_text.trim().split(/\s+/).length;
-      if (articleWords > publication.word_limit) {
+      if (articleWords > pubManagement.word_limit) {
         return res.status(400).json({
-          error: `Article text exceeds word limit of ${publication.word_limit} words`
+          error: `Article text exceeds word limit of ${pubManagement.word_limit} words`
         });
       }
+
+      // Determine required image count from publication management
+      const requiredImageCount = pubManagement.needs_images ? parseInt(pubManagement.image_count) || 0 : 0;
 
       // Handle file uploads to S3
       let image1 = null;
