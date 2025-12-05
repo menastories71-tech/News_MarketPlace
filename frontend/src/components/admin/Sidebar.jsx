@@ -560,6 +560,17 @@ export default function Sidebar({
                       <span>Radio Management</span>
                     </a>
                   </li>
+                  <li style={{ marginBottom: 5 }}>
+                    <a
+                      href="/admin/radio-orders"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                      onMouseEnter={e => e.currentTarget.style.background = '#E8F4F8'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <span style={navIconCircle('#e8f4f8')}><Icon name="document-text" size="sm" style={{ color: '#1976D2' }} /></span>
+                      <span>Radio Orders</span>
+                    </a>
+                  </li>
                 </ul>
               )}
             </li>
@@ -717,6 +728,7 @@ export default function Sidebar({
               {radioDropdownOpen && (
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
                   <li style={{ marginBottom: 5 }}><a href="/admin/radios" style={{ color: '#212121', textDecoration: 'none' }}>Radio Management</a></li>
+                  <li style={{ marginBottom: 5 }}><a href="/admin/radio-orders" style={{ color: '#212121', textDecoration: 'none' }}>Radio Orders</a></li>
                 </ul>
               )}
             </li>
