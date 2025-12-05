@@ -328,7 +328,12 @@ const PublicationsPage = () => {
   // Get unique values for filter options
   const getUniqueRegions = () => {
     const regions = publications.map(pub => pub.region).filter(Boolean);
-    return [...new Set(regions)].sort();
+    const uniqueRegions = [...new Set(regions)].sort();
+    // Add "Other" option if not already present
+    if (!uniqueRegions.includes('Other')) {
+      uniqueRegions.push('Other');
+    }
+    return uniqueRegions;
   };
 
   const getUniqueLanguages = () => {
@@ -338,7 +343,12 @@ const PublicationsPage = () => {
 
   const getUniqueFocus = () => {
     const focuses = publications.map(pub => pub.publication_primary_focus).filter(Boolean);
-    return [...new Set(focuses)].sort();
+    const uniqueFocuses = [...new Set(focuses)].sort();
+    // Add "Other" option if not already present
+    if (!uniqueFocuses.includes('Other')) {
+      uniqueFocuses.push('Other');
+    }
+    return uniqueFocuses;
   };
 
   const formatPrice = (price) => {

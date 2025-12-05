@@ -49,9 +49,7 @@ const AwardsPage = () => {
   const [monthFilter, setMonthFilter] = useState('');
   const [focusFilter, setFocusFilter] = useState('');
   const [organiserFilter, setOrganiserFilter] = useState('');
-  const [urlFilter, setUrlFilter] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
-  const [regionalFilter, setRegionalFilter] = useState('');
   const [countryFilter, setCountryFilter] = useState('');
   const [cityFilter, setCityFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -89,9 +87,7 @@ const AwardsPage = () => {
       if (monthFilter) params.append('tentative_month', monthFilter);
       if (focusFilter) params.append('company_focused_individual_focused', focusFilter);
       if (organiserFilter) params.append('award_organiser_name', organiserFilter);
-      if (urlFilter) params.append('url', urlFilter);
       if (industryFilter) params.append('industry', industryFilter);
-      if (regionalFilter) params.append('regional_focused', regionalFilter);
       if (countryFilter) params.append('award_country', countryFilter);
       if (cityFilter) params.append('award_city', cityFilter);
 
@@ -120,7 +116,7 @@ const AwardsPage = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, monthFilter, focusFilter, organiserFilter, urlFilter, industryFilter, regionalFilter, countryFilter, cityFilter]);
+  }, [searchTerm, monthFilter, focusFilter, organiserFilter, industryFilter, countryFilter, cityFilter]);
 
   const handleShowAuth = () => {
     setShowAuth(true);
@@ -168,7 +164,12 @@ const AwardsPage = () => {
 
   const getUniqueIndustries = () => {
     const industries = awards.map(a => a.industry).filter(Boolean);
-    return [...new Set(industries)].sort();
+    const uniqueIndustries = [...new Set(industries)].sort();
+    // Add "Other" option if not already present
+    if (!uniqueIndustries.includes('Other')) {
+      uniqueIndustries.push('Other');
+    }
+    return uniqueIndustries;
   };
 
   const getUniqueCountries = () => {
@@ -193,9 +194,7 @@ const AwardsPage = () => {
     setMonthFilter('');
     setFocusFilter('');
     setOrganiserFilter('');
-    setUrlFilter('');
     setIndustryFilter('');
-    setRegionalFilter('');
     setCountryFilter('');
     setCityFilter('');
   };
@@ -381,35 +380,6 @@ const AwardsPage = () => {
                   </select>
                 </div>
 
-                {/* Regional Filter */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Regional
-                  </label>
-                  <select
-                    value={regionalFilter}
-                    onChange={(e) => setRegionalFilter(e.target.value)}
-                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
-                  >
-                    <option value="">All</option>
-                    <option value="true">Regional</option>
-                    <option value="false">Global</option>
-                  </select>
-                </div>
-
-                {/* URL Filter */}
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    URL
-                  </label>
-                  <input
-                    type="text"
-                    value={urlFilter}
-                    onChange={(e) => setUrlFilter(e.target.value)}
-                    placeholder="Filter by URL"
-                    className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
-                  />
-                </div>
               </div>
 
               {/* Clear Filters */}
