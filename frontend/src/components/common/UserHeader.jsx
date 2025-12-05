@@ -111,7 +111,7 @@ const UserHeader = () => {
   ];
 
   const services = [
-    { name: 'Home', href: '/', icon: 'home' },
+    { name: 'Home', href: '/', icon: 'home', bypassAuth: true },
     { name: 'Submit Article', href: '#', icon: 'document-text', onClick: () => setShowArticleSubmissionPopup(true) },
     { name: 'Publications', href: '/publications', icon: 'newspaper' },
     { name: 'Websites', href: '/website-submission', icon: 'globe-alt' },
@@ -239,7 +239,7 @@ const UserHeader = () => {
                   href={service.href}
                   className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md"
                   onClick={(e) => {
-                    if (!isAuthenticated) {
+                    if (!isAuthenticated && !service.bypassAuth) {
                       e.preventDefault();
                       showAuthModal();
                     }
@@ -314,7 +314,7 @@ const UserHeader = () => {
                       href={item.href}
                       className="flex flex-col items-center text-center p-1 text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-md transition-all duration-200"
                       onClick={(e) => {
-                        if (!isAuthenticated) {
+                        if (!isAuthenticated && !item.bypassAuth) {
                           e.preventDefault();
                           showAuthModal();
                         }
@@ -349,7 +349,7 @@ const UserHeader = () => {
                         href={item.href}
                         className="flex flex-col items-center text-center p-1 text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-md transition-all duration-200"
                         onClick={(e) => {
-                          if (!isAuthenticated) {
+                          if (!isAuthenticated && !item.bypassAuth) {
                             e.preventDefault();
                             showAuthModal();
                           }
@@ -508,7 +508,7 @@ const UserHeader = () => {
                           Manual Submission
                         </h4>
                         <p className="text-xs text-gray-600 group-hover:text-gray-700 transition-colors">
-                          Write your article directly
+                          Welcome Back, submit your article here
                         </p>
                       </div>
                     </div>
