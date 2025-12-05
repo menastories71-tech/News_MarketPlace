@@ -27,6 +27,11 @@ class RateLimiter {
         windowMs: 60 * 60 * 1000, // 1 hour
         maxRequests: 1,
         message: 'Your AI tokens have been used up for this hour. You can submit another article in {remainingMinutes} minutes.'
+      },
+      otp_operation: {
+        windowMs: 5 * 60 * 1000, // 5 minutes
+        maxRequests: 5,
+        message: 'Too many OTP operations. Please try again later.'
       }
     };
   }
@@ -216,11 +221,33 @@ const aiArticleSubmitLimit = async (req, res, next) => {
   next();
 };
 
+// Middleware function for OTP operations (more lenient rate limiting)
+const otpLimit = async (req, res, next) => {
+  const userId = req.user?.userId;
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  // Allow 5 OTP operations per 5 minutes (send + verify combined)
+  const result = await rateLimiter.checkLimit(userId, 'otp_operation');
+
+  if (!result.allowed) {
+    return res.status(429).json({
+      error: 'Rate limit exceeded',
+      message: 'Too many OTP operations. Please try again later.',
+      remainingMinutes: result.remainingTime
+    });
+  }
+
+  next();
+};
+
 module.exports = {
   publicationSubmitLimit,
   reporterSubmitLimit,
   careerSubmitLimit,
   podcasterSubmitLimit,
   aiArticleSubmitLimit,
+  otpLimit,
   rateLimiter
 };

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const websiteController = require('../controllers/websiteController');
 const { verifyToken, verifyAdminToken } = require('../middleware/auth');
-const { publicationSubmitLimit } = require('../middleware/rateLimit');
+const { publicationSubmitLimit, otpLimit } = require('../middleware/rateLimit');
 const multer = require('multer');
 const path = require('path');
 
@@ -33,7 +33,7 @@ const upload = multer({
 });
 
 // User Routes (require user authentication)
-router.post('/send-otp', verifyToken, publicationSubmitLimit, websiteController.sendOtp);
+router.post('/send-otp', verifyToken, otpLimit, websiteController.sendOtp);
 
 router.post('/submit', verifyToken, publicationSubmitLimit, upload.fields([
   { name: 'website_registration_document', maxCount: 1 },
@@ -43,7 +43,7 @@ router.post('/submit', verifyToken, publicationSubmitLimit, upload.fields([
   { name: 'general_contact_details', maxCount: 1 }
 ]), websiteController.submitValidation, websiteController.submitWebsite);
 
-router.post('/verify-otp', verifyToken, publicationSubmitLimit, websiteController.otpValidation, websiteController.verifyOtp);
+router.post('/verify-otp', verifyToken, otpLimit, websiteController.otpValidation, websiteController.verifyOtp);
 
 // Admin Routes (require admin authentication)
 router.get('/', verifyAdminToken, websiteController.getAll);
