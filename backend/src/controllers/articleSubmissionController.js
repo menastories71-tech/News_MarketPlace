@@ -51,6 +51,14 @@ const upload = multer({
 });
 
 class ArticleSubmissionController {
+  constructor() {
+    // Bind all methods to the instance to preserve 'this' context
+    Object.getOwnPropertyNames(Object.getPrototypeOf(this))
+      .filter(prop => typeof this[prop] === 'function' && prop !== 'constructor')
+      .forEach(method => {
+        this[method] = this[method].bind(this);
+      });
+  }
 
   // Validation rules for create submission
   createValidation = [
