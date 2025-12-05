@@ -70,6 +70,13 @@ class PublicationManagement {
     return result.rows[0] ? new PublicationManagement(result.rows[0]) : null;
   }
 
+  // Find by publication name
+  static async findByPublicationName(publication_name) {
+    const sql = 'SELECT * FROM publication_managements WHERE publication_name = $1';
+    const result = await query(sql, [publication_name]);
+    return result.rows[0] ? new PublicationManagement(result.rows[0]) : null;
+  }
+
   // Find all
   static async findAll(limit = null, offset = null) {
     let sql = 'SELECT * FROM publication_managements ORDER BY created_at DESC';

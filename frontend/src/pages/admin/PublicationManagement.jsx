@@ -20,8 +20,8 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
     do_follow: false,
     dr: '',
     word_limit: '',
-    needs_images: true,
-    image_count: '2',
+    needs_images: false,
+    image_count: '',
     remarks: ''
   });
   const [loading, setLoading] = useState(false);
@@ -42,8 +42,8 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
         do_follow: record.do_follow || false,
         dr: record.dr || '',
         word_limit: record.word_limit || '',
-        needs_images: true,
-        image_count: '2',
+        needs_images: record.needs_images || false,
+        image_count: record.image_count || '',
         remarks: record.remarks || ''
       });
     } else {
@@ -61,8 +61,8 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
         do_follow: false,
         dr: '',
         word_limit: '',
-        needs_images: true,
-        image_count: '2',
+        needs_images: false,
+        image_count: '',
         remarks: ''
       });
     }
@@ -305,18 +305,34 @@ const PublicationManagementFormModal = ({ isOpen, onClose, record, onSave }) => 
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Image Requirements</label>
-              <div style={{ padding: '12px', backgroundColor: '#f0f9ff', border: '1px solid #0ea5e9', borderRadius: '8px', color: '#0c4a6e' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '16px' }}>📸</span>
-                  <span style={{ fontWeight: '600' }}>All publications require 2 images</span>
-                </div>
-                <div style={{ fontSize: '13px', marginTop: '4px', opacity: 0.8 }}>
-                  This requirement is automatically applied to all publication records
-                </div>
+              <label style={labelStyle}>Needs Images</label>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <input
+                  type="checkbox"
+                  id="needs_images"
+                  checked={formData.needs_images}
+                  onChange={(e) => setFormData({ ...formData, needs_images: e.target.checked })}
+                  style={{ marginRight: '8px' }}
+                />
+                <label htmlFor="needs_images" style={{ fontSize: '14px', color: '#212121' }}>Publication needs images</label>
               </div>
             </div>
           </div>
+
+          {formData.needs_images && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
+              <div style={formGroupStyle}>
+                <label style={labelStyle}>Image Count</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={formData.image_count}
+                  onChange={(e) => setFormData({ ...formData, image_count: e.target.value })}
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px', marginTop: '16px' }}>
             <div style={formGroupStyle}>

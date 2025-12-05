@@ -1,5 +1,6 @@
 const ArticleSubmission = require('../models/ArticleSubmission');
 const Publication = require('../models/Publication');
+const PublicationManagement = require('../models/PublicationManagement');
 const { body, validationResult } = require('express-validator');
 const { verifyRecaptcha } = require('../services/recaptchaService');
 const s3Service = require('../services/s3Service');
@@ -144,44 +145,34 @@ class ArticleSubmissionController {
         });
       }
 
-      // Handle file uploads to S3 - Always require both images
+      // Handle file uploads to S3
       let image1 = null;
       let image2 = null;
       let document = null;
 
-      // Validate that both images are provided
-      if (!req.files || !req.files.image1 || !req.files.image1[0]) {
-        return res.status(400).json({ error: 'Primary image is required' });
-      }
-      if (!req.files || !req.files.image2 || !req.files.image2[0]) {
-        return res.status(400).json({ error: 'Secondary image is required' });
-      }
-
-      if (req.files && req.files.image1 && req.files.image1[0]) {
-        const file = req.files.image1[0];
-        const s3Key = s3Service.generateKey('article-submissions', 'image1', file.originalname);
-        const contentType = s3Service.getContentType(file.originalname);
-
-        try {
-          image1 = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
-          // TODO: Validate landscape orientation
-        } catch (uploadError) {
-          console.error('Failed to upload image1 to S3:', uploadError);
-          throw new Error('Failed to upload image1');
+      // Validate required images based on publication management
+      for (let i = 1; i <= requiredImageCount; i++) {
+        if (!req.files || !req.files[`image${i}`] || !req.files[`image${i}`][0]) {
+          return res.status(400).json({ error: `Image ${i} is required` });
         }
       }
 
-      if (req.files && req.files.image2 && req.files.image2[0]) {
-        const file = req.files.image2[0];
-        const s3Key = s3Service.generateKey('article-submissions', 'image2', file.originalname);
-        const contentType = s3Service.getContentType(file.originalname);
+      // Upload required images
+      for (let i = 1; i <= requiredImageCount; i++) {
+        if (req.files && req.files[`image${i}`] && req.files[`image${i}`][0]) {
+          const file = req.files[`image${i}`][0];
+          const s3Key = s3Service.generateKey('article-submissions', `image${i}`, file.originalname);
+          const contentType = s3Service.getContentType(file.originalname);
 
-        try {
-          image2 = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
-          // TODO: Validate landscape orientation
-        } catch (uploadError) {
-          console.error('Failed to upload image2 to S3:', uploadError);
-          throw new Error('Failed to upload image2');
+          try {
+            const imageUrl = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+            if (i === 1) image1 = imageUrl;
+            else if (i === 2) image2 = imageUrl;
+            // TODO: Validate landscape orientation
+          } catch (uploadError) {
+            console.error(`Failed to upload image${i} to S3:`, uploadError);
+            throw new Error(`Failed to upload image${i}`);
+          }
         }
       }
 
@@ -1000,6 +991,10 @@ class ArticleSubmissionController {
         return res.status(404).json({ error: 'Publication not found' });
       }
 
+      // Get publication management for image requirements
+      const pubManagement = await PublicationManagement.findByPublicationName(publication.publication_name);
+      const requiredImageCount = pubManagement && pubManagement.needs_images ? parseInt(pubManagement.image_count) || 0 : 0;
+
       // Validate title: <= 12 words, no special characters
       const titleWords = title.trim().split(/\s+/);
       if (titleWords.length > 12) {
@@ -1018,55 +1013,34 @@ class ArticleSubmissionController {
         });
       }
 
-      // Handle file uploads to S3 - Always require both images
+      // Handle file uploads to S3
       let image1 = null;
       let image2 = null;
       let document = null;
 
-      // Validate that both images are provided
-      if (!req.files || !req.files.image1 || !req.files.image1[0]) {
-        return res.status(400).json({ error: 'Primary image is required' });
-      }
-      if (!req.files || !req.files.image2 || !req.files.image2[0]) {
-        return res.status(400).json({ error: 'Secondary image is required' });
-      }
-
-      if (req.files && req.files.image1 && req.files.image1[0]) {
-        const file = req.files.image1[0];
-        const s3Key = s3Service.generateKey('articles', 'image1', file.originalname);
-        const contentType = s3Service.getContentType(file.originalname);
-
-        try {
-          image1 = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
-        } catch (uploadError) {
-          console.error('Failed to upload image1 to S3:', uploadError);
-          throw new Error('Failed to upload image1');
+      // Validate required images based on publication management
+      for (let i = 1; i <= requiredImageCount; i++) {
+        if (!req.files || !req.files[`image${i}`] || !req.files[`image${i}`][0]) {
+          return res.status(400).json({ error: `Image ${i} is required` });
         }
       }
 
-      if (req.files && req.files.image2 && req.files.image2[0]) {
-        const file = req.files.image2[0];
-        const s3Key = s3Service.generateKey('articles', 'image2', file.originalname);
-        const contentType = s3Service.getContentType(file.originalname);
+      // Upload required images
+      for (let i = 1; i <= requiredImageCount; i++) {
+        if (req.files && req.files[`image${i}`] && req.files[`image${i}`][0]) {
+          const file = req.files[`image${i}`][0];
+          const s3Key = s3Service.generateKey('articles', `image${i}`, file.originalname);
+          const contentType = s3Service.getContentType(file.originalname);
 
-        try {
-          image2 = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
-        } catch (uploadError) {
-          console.error('Failed to upload image2 to S3:', uploadError);
-          throw new Error('Failed to upload image2');
-        }
-      }
-
-      if (req.files && req.files.image2 && req.files.image2[0]) {
-        const file = req.files.image2[0];
-        const s3Key = s3Service.generateKey('articles', 'image2', file.originalname);
-        const contentType = s3Service.getContentType(file.originalname);
-
-        try {
-          image2 = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
-        } catch (uploadError) {
-          console.error('Failed to upload image2 to S3:', uploadError);
-          throw new Error('Failed to upload image2');
+          try {
+            const imageUrl = await s3Service.uploadFile(file.buffer, s3Key, contentType, file.originalname);
+            if (i === 1) image1 = imageUrl;
+            else if (i === 2) image2 = imageUrl;
+            // TODO: Validate landscape orientation
+          } catch (uploadError) {
+            console.error(`Failed to upload image${i} to S3:`, uploadError);
+            throw new Error(`Failed to upload image${i}`);
+          }
         }
       }
 
