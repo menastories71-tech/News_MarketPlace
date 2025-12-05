@@ -66,15 +66,21 @@ class PowerlistNomination {
     const values = [];
     let paramCount = 1;
 
-    if (filters.status) {
-      sql += ` AND status = $${paramCount}`;
-      values.push(filters.status);
-      paramCount++;
-    }
-
+    // By default, only show active nominations unless explicitly filtering by is_active
     if (filters.is_active !== undefined) {
       sql += ` AND is_active = $${paramCount}`;
       values.push(filters.is_active);
+      paramCount++;
+    } else {
+      // Default to only active nominations
+      sql += ` AND is_active = $${paramCount}`;
+      values.push(true);
+      paramCount++;
+    }
+
+    if (filters.status) {
+      sql += ` AND status = $${paramCount}`;
+      values.push(filters.status);
       paramCount++;
     }
 
@@ -229,15 +235,21 @@ class PowerlistNomination {
       const values = [];
       let paramCount = 1;
 
-      if (filters.status) {
-        sql += ` AND status = $${paramCount}`;
-        values.push(filters.status);
-        paramCount++;
-      }
-
+      // By default, only show active nominations unless explicitly filtering by is_active
       if (filters.is_active !== undefined) {
         sql += ` AND is_active = $${paramCount}`;
         values.push(filters.is_active);
+        paramCount++;
+      } else {
+        // Default to only active nominations
+        sql += ` AND is_active = $${paramCount}`;
+        values.push(true);
+        paramCount++;
+      }
+
+      if (filters.status) {
+        sql += ` AND status = $${paramCount}`;
+        values.push(filters.status);
         paramCount++;
       }
 
@@ -285,15 +297,21 @@ class PowerlistNomination {
       const values = [];
       let paramCount = 1;
 
-      if (filters.status) {
-        sql += ` AND status = $${paramCount}`;
-        values.push(filters.status);
-        paramCount++;
-      }
-
+      // By default, only show active nominations unless explicitly filtering by is_active
       if (filters.is_active !== undefined) {
         sql += ` AND is_active = $${paramCount}`;
         values.push(filters.is_active);
+        paramCount++;
+      } else {
+        // Default to only active nominations
+        sql += ` AND is_active = $${paramCount}`;
+        values.push(true);
+        paramCount++;
+      }
+
+      if (filters.status) {
+        sql += ` AND status = $${paramCount}`;
+        values.push(filters.status);
         paramCount++;
       }
 
