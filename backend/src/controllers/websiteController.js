@@ -42,7 +42,7 @@ const upload = multer({
 
 class WebsiteController {
   // Compress file if it's too large
-  async compressFile(file) {
+  compressFile = async (file) => {
     const maxSize = 10 * 1024 * 1024; // 10MB final limit
     const mimeType = file.mimetype.toLowerCase();
 
@@ -168,7 +168,7 @@ class WebsiteController {
   }
 
   // Submit website
-  async submitWebsite(req, res) {
+  submitWebsite = async (req, res) => {
     try {
       // Check validation errors
       const errors = validationResult(req);
@@ -399,7 +399,7 @@ class WebsiteController {
   }
 
   // Send individual OTP (only email OTP supported)
-  async sendOtp(req, res) {
+  sendOtp = async (req, res) => {
     try {
       const { type, email } = req.body;
 
@@ -437,7 +437,7 @@ class WebsiteController {
   }
 
   // Verify OTP
-  async verifyOtp(req, res) {
+  verifyOtp = async (req, res) => {
     try {
       const { type, otp, email } = req.body;
 
@@ -484,7 +484,7 @@ class WebsiteController {
   }
 
   // Get all websites (admin only)
-  async getAll(req, res) {
+  getAll = async (req, res) => {
     try {
       const {
         page = 1,
@@ -565,7 +565,7 @@ class WebsiteController {
   }
 
   // Get website by ID
-  async getById(req, res) {
+  getById = async (req, res) => {
     try {
       const { id } = req.params;
 
@@ -604,7 +604,7 @@ class WebsiteController {
   }
 
   // Update website status (admin only)
-  async updateStatus(req, res) {
+  updateStatus = async (req, res) => {
     try {
       // Check validation errors
       const errors = validationResult(req);
@@ -661,7 +661,7 @@ class WebsiteController {
   }
 
   // Delete website (soft delete)
-  async delete(req, res) {
+  delete = async (req, res) => {
     try {
       const { id } = req.params;
 
@@ -703,7 +703,7 @@ class WebsiteController {
   }
 
   // Bulk update status (admin only)
-  async bulkUpdateStatus(req, res) {
+  bulkUpdateStatus = async (req, res) => {
     try {
       // Check validation errors
       const errors = validationResult(req);
@@ -788,7 +788,7 @@ class WebsiteController {
   }
 
   // Bulk delete websites (admin only)
-  async bulkDelete(req, res) {
+  bulkDelete = async (req, res) => {
     try {
       // Check validation errors
       const errors = validationResult(req);
@@ -857,7 +857,7 @@ class WebsiteController {
   }
 
   // Send website submission confirmation emails
-  async sendWebsiteSubmissionConfirmationEmails(website, req) {
+  sendWebsiteSubmissionConfirmationEmails = async (website, req) => {
     try {
       // Get user information
       const user = await website.getUser();
@@ -888,7 +888,7 @@ class WebsiteController {
   }
 
   // Send website approval notification email
-  async sendWebsiteApprovalNotificationEmail(website, req) {
+  sendWebsiteApprovalNotificationEmail = async (website, req) => {
     try {
       let userEmail = website.owner_email;
 
@@ -909,7 +909,7 @@ class WebsiteController {
   }
 
   // Send website rejection notification email
-  async sendWebsiteRejectionNotificationEmail(website, reason, req) {
+  sendWebsiteRejectionNotificationEmail = async (website, reason, req) => {
     try {
       let userEmail = website.owner_email;
 
