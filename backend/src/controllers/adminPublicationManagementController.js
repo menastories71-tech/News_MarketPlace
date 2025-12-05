@@ -31,53 +31,54 @@ class AdminPublicationManagementController {
         files: 1 // Only one image file
       }
     });
-  }
 
-  // Compress image if it's too large
-  compressImage = async (file) => {
-    const maxSize = 5 * 1024 * 1024; // 5MB final limit
-    const mimeType = file.mimetype.toLowerCase();
+    // Define compressImage method as instance property
+    this.compressImage = async (file) => {
+      const maxSize = 5 * 1024 * 1024; // 5MB final limit
+      const mimeType = file.mimetype.toLowerCase();
 
-    // Only compress if file is larger than 3MB (leave some buffer)
-    if (file.size <= 3 * 1024 * 1024) {
-      return file;
-    }
+      // Only compress if file is larger than 3MB (leave some buffer)
+      if (file.size <= 3 * 1024 * 1024) {
+        return file;
+      }
 
-    try {
-      if (mimeType.includes('image/') && mimeType !== 'image/gif') {
-        // Compress images using sharp
-        const compressedBuffer = await sharp(file.buffer)
-          .jpeg({ quality: 80, progressive: true })
-          .png({ quality: 80, compressionLevel: 8 })
-          .webp({ quality: 80 })
-          .toBuffer();
+      try {
+        if (mimeType.includes('image/') && mimeType !== 'image/gif') {
+          // Compress images using sharp
+          const compressedBuffer = await sharp(file.buffer)
+            .jpeg({ quality: 80, progressive: true })
+            .png({ quality: 80, compressionLevel: 8 })
+            .webp({ quality: 80 })
+            .toBuffer();
 
-        // Check if compression helped
-        if (compressedBuffer.length < file.size && compressedBuffer.length <= maxSize) {
-          console.log(`Compressed publication image ${file.originalname} from ${file.size} to ${compressedBuffer.length} bytes`);
-          return {
-            ...file,
-            buffer: compressedBuffer,
-            size: compressedBuffer.length
-          };
+          // Check if compression helped
+          if (compressedBuffer.length < file.size && compressedBuffer.length <= maxSize) {
+            console.log(`Compressed publication image ${file.originalname} from ${file.size} to ${compressedBuffer.length} bytes`);
+            return {
+              ...file,
+              buffer: compressedBuffer,
+              size: compressedBuffer.length
+            };
+          }
         }
-      }
 
-      // If compression didn't help or file is not compressible, check if it's still too large
-      if (file.size > maxSize) {
-        throw new Error(`Image ${file.originalname} is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB) even after compression. Maximum allowed size is 5MB.`);
-      }
+        // If compression didn't help or file is not compressible, check if it's still too large
+        if (file.size > maxSize) {
+          throw new Error(`Image ${file.originalname} is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB) even after compression. Maximum allowed size is 5MB.`);
+        }
 
-      return file;
-    } catch (error) {
-      console.error('Error compressing image:', error);
-      // If compression fails, check if original file is within limits
-      if (file.size > maxSize) {
-        throw new Error(`Image ${file.originalname} is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Maximum allowed size is 5MB.`);
+        return file;
+      } catch (error) {
+        console.error('Error compressing image:', error);
+        // If compression fails, check if original file is within limits
+        if (file.size > maxSize) {
+          throw new Error(`Image ${file.originalname} is too large (${(file.size / (1024 * 1024)).toFixed(2)}MB). Maximum allowed size is 5MB.`);
+        }
+        return file;
       }
-      return file;
-    }
+    };
   }
+
 
   // Validation rules for create
   createValidation = [
