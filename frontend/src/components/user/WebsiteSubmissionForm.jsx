@@ -78,6 +78,9 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
   const [errors, setErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null); // null, 'success', 'error'
   const [sameAsCalling, setSameAsCalling] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [popupMessage, setPopupMessage] = useState('');
+  const [popupType, setPopupType] = useState(''); // 'success' or 'error'
 
   // Removed currentStep as OTP is now part of the form
   const [otpData, setOtpData] = useState({
@@ -219,8 +222,16 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
       return newData;
     });
 
+    // Clear errors for the changed field
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+
+    // Clear WhatsApp errors when auto-updating due to sameAsCalling
+    if (name === 'callingNumber' && sameAsCalling && errors.whatsappNumber) {
+      setErrors(prev => ({ ...prev, whatsappNumber: '' }));
+    } else if (name === 'callingCountry' && sameAsCalling && errors.whatsappNumber) {
+      setErrors(prev => ({ ...prev, whatsappNumber: '' }));
     }
   };
 
@@ -399,11 +410,15 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
         }
       });
 
-      setSubmitStatus('success');
+      // Show success popup
+      setPopupMessage('Website submitted successfully! Your website has been submitted and is pending review. You will be notified once it\'s approved.');
+      setPopupType('success');
+      setShowPopup(true);
       setTimeout(() => {
+        setShowPopup(false);
         if (onSuccess) onSuccess();
         if (onClose) onClose();
-      }, 2000);
+      }, 3000);
 
     } catch (error) {
       console.error('Error submitting website:', error);
@@ -423,8 +438,11 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
         }
       }
 
-      setSubmitStatus('error');
-      setErrors(prev => ({ ...prev, submit: errorMessage }));
+      // Show error popup
+      setPopupMessage(errorMessage);
+      setPopupType('error');
+      setShowPopup(true);
+      setTimeout(() => setShowPopup(false), 5000);
     } finally {
       setLoading(false);
     }
@@ -848,47 +866,6 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
               </p>
             </div>
 
-            {submitStatus === 'success' && (
-              <div style={{
-                padding: '16px',
-                backgroundColor: '#e8f5e8',
-                border: `1px solid ${theme.success}`,
-                borderRadius: '8px',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <Icon name="check-circle" size="lg" style={{ color: theme.success }} />
-                <div>
-                  <div style={{ fontWeight: '600', color: theme.success }}>Website Submitted Successfully!</div>
-                  <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    Your website has been submitted and is pending review. You will be notified once it's approved.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {submitStatus === 'error' && (
-              <div style={{
-                padding: '16px',
-                backgroundColor: '#ffebee',
-                border: `1px solid ${theme.danger}`,
-                borderRadius: '8px',
-                marginBottom: '20px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}>
-                <Icon name="exclamation-triangle" size="lg" style={{ color: theme.danger }} />
-                <div>
-                  <div style={{ fontWeight: '600', color: theme.danger }}>Submission Failed</div>
-                  <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    {errors.submit || 'Please check your input and try again.'}
-                  </div>
-                </div>
-              </div>
-            )}
 
             <form onSubmit={handleSubmit}>
               {/* Media Details Section */}
@@ -1755,6 +1732,54 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
         </>
 
       </div>
+
+      {/* Popup for success/error messages */}
+      {showPopup && (
+        <div style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          backgroundColor: theme.background,
+          border: `1px solid ${popupType === 'success' ? theme.success : theme.danger}`,
+          borderRadius: '8px',
+          padding: '16px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          zIndex: 1000,
+          maxWidth: '400px',
+          animation: 'slideIn 0.3s ease-out'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <Icon
+              name={popupType === 'success' ? 'check-circle' : 'exclamation-triangle'}
+              size="3x"
+              style={{ color: popupType === 'success' ? theme.success : theme.danger }}
+            />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: '600', color: popupType === 'success' ? theme.success : theme.danger, marginBottom: '8px' }}>
+                {popupType === 'success' ? 'Success!' : 'Error!'}
+              </div>
+              <div style={{ fontSize: '14px', color: theme.textSecondary, whiteSpace: 'pre-line' }}>
+                {popupMessage}
+              </div>
+            </div>
+            <button
+              onClick={() => setShowPopup(false)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                fontSize: '18px',
+                cursor: 'pointer',
+                color: theme.textSecondary,
+                padding: '0',
+                marginLeft: 'auto'
+              }}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
