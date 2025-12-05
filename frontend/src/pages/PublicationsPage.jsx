@@ -199,21 +199,23 @@ const PublicationsPage = () => {
         const days = pub.committed_tat;
         return tatFilter.some(tat => {
           switch (tat) {
-            case '1 Day': return days === 1;
-            case '1-3 Days': return days >= 1 && days <= 3;
-            case '1 Week': return days === 7;
-            case '1+ Week': return days > 7;
+            case '1-5 days': return days >= 1 && days <= 5;
+            case '6-10 days': return days >= 6 && days <= 10;
+            case '2-3 weeks': return days >= 14 && days <= 21;
+            case '4-6 weeks': return days >= 28 && days <= 42;
             default: return false;
           }
         });
       });
     }
 
-    // Do-follow filter
+    // Link type filter
     if (dofollowFilter) {
-      filtered = filtered.filter(pub =>
-        pub.do_follow === (dofollowFilter === 'true')
-      );
+      if (dofollowFilter === 'true') {
+        filtered = filtered.filter(pub => pub.do_follow === true);
+      } else if (dofollowFilter === 'false') {
+        filtered = filtered.filter(pub => pub.do_follow === false);
+      }
     }
 
     return filtered;
@@ -280,19 +282,19 @@ const PublicationsPage = () => {
 
   const hasActiveFilters = () => {
     return regionFilter || languageFilter || focusFilter ||
-           priceRange[0] > 0 || priceRange[1] < 2000 ||
-           daRange[0] > 0 || daRange[1] < 100 ||
-           drRange[0] > 0 || drRange[1] < 100 ||
-           tatFilter.length > 0 || dofollowFilter;
+            priceRange[0] > 0 || priceRange[1] < 2000 ||
+            daRange[0] > 0 || daRange[1] < 100 ||
+            drRange[0] > 0 || drRange[1] < 100 ||
+            tatFilter.length > 0 || (dofollowFilter !== '');
   };
 
   const formatTAT = (days) => {
     if (!days || days === 0) return 'N/A';
-    if (days === 1) return '1 Day';
-    if (days < 7) return `${days} Days`;
-    if (days === 7) return '1 Week';
-    if (days < 30) return `${Math.round(days / 7)} Weeks`;
-    return `${Math.round(days / 30)} Months`;
+    if (days === 1) return '1-5 days';
+    if (days <= 5) return '1-5 days';
+    if (days <= 10) return '6-10 days';
+    if (days <= 21) return '2-3 weeks';
+    return '4-6 weeks';
   };
 
   const getDAScoreColor = (score) => {
@@ -482,17 +484,17 @@ const PublicationsPage = () => {
                     </select>
                   </div>
 
-                  {/* Focus Filter */}
+                  {/* Industry/Niche Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Primary Focus
+                      Industry/Niche
                     </label>
                     <select
                       value={focusFilter}
                       onChange={(e) => setFocusFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Focus Areas</option>
+                      <option value="">All Industries/Niches</option>
                       {getUniqueFocus().map(focus => (
                         <option key={focus} value={focus}>{focus}</option>
                       ))}
@@ -501,15 +503,13 @@ const PublicationsPage = () => {
                 </div>
               </div>
 
-              {/* SEO Metrics Section */}
-              <div className="bg-[#E3F2FD] rounded-lg p-4 border border-[#1976D2]">
+              {/* Price Range Section */}
+              <div className="bg-[#FFF8E1] rounded-lg p-4 border border-[#FF9800]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
-                  <BarChart3 size={16} className="text-[#1976D2]" />
-                  SEO Metrics
+                  <DollarSign size={16} className="text-[#FF9800]" />
+                  Price Range
                 </h4>
-                
-                {/* Price Range */}
-                <div className="mb-4">
+                <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                     Price Range: ${priceRange[0]} - ${priceRange[1]}
                   </label>
@@ -521,7 +521,7 @@ const PublicationsPage = () => {
                       step="50"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
-                      className="w-full accent-[#1976D2]"
+                      className="w-full accent-[#FF9800]"
                     />
                     <input
                       type="range"
@@ -530,10 +530,18 @@ const PublicationsPage = () => {
                       step="50"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
-                      className="w-full accent-[#1976D2]"
+                      className="w-full accent-[#FF9800]"
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* SEO Metrics Section */}
+              <div className="bg-[#E3F2FD] rounded-lg p-4 border border-[#1976D2]">
+                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
+                  <BarChart3 size={16} className="text-[#1976D2]" />
+                  SEO Metrics
+                </h4>
 
                 {/* DA Range */}
                 <div className="mb-4">
@@ -561,7 +569,7 @@ const PublicationsPage = () => {
                 </div>
 
                 {/* DR Range */}
-                <div>
+                <div className="mb-4">
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
                     Domain Rating: {drRange[0]} - {drRange[1]}
                   </label>
@@ -584,6 +592,33 @@ const PublicationsPage = () => {
                     />
                   </div>
                 </div>
+
+                {/* Link Type */}
+                <div>
+                  <label className="block text-sm font-medium mb-3" style={{ color: theme.textPrimary }}>
+                    Link Type
+                  </label>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
+                      <input
+                        type="checkbox"
+                        checked={dofollowFilter === 'true'}
+                        onChange={(e) => setDofollowFilter(e.target.checked ? 'true' : '')}
+                        className="rounded accent-[#1976D2]"
+                      />
+                      <span className="text-sm" style={{ color: theme.textPrimary }}>Do-follow Links</span>
+                    </label>
+                    <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
+                      <input
+                        type="checkbox"
+                        checked={dofollowFilter === 'false'}
+                        onChange={(e) => setDofollowFilter(e.target.checked ? 'false' : '')}
+                        className="rounded accent-[#1976D2]"
+                      />
+                      <span className="text-sm" style={{ color: theme.textPrimary }}>No-follow Links</span>
+                    </label>
+                  </div>
+                </div>
               </div>
 
               {/* TAT Filter */}
@@ -593,7 +628,7 @@ const PublicationsPage = () => {
                   Turnaround Time
                 </h4>
                 <div className="space-y-3">
-                  {['1 Day', '1-3 Days', '1 Week', '1+ Week'].map(tat => (
+                  {['1-5 days', '6-10 days', '2-3 weeks', '4-6 weeks'].map(tat => (
                     <label key={tat} className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                       <input
                         type="checkbox"
@@ -607,24 +642,6 @@ const PublicationsPage = () => {
                 </div>
               </div>
 
-              {/* Feature Toggles */}
-              <div className="bg-[#E0F2F1] rounded-lg p-4 border border-[#00796B]">
-                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
-                  <CheckCircle size={16} className="text-[#00796B]" />
-                  Features
-                </h4>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
-                    <input
-                      type="checkbox"
-                      checked={dofollowFilter === 'true'}
-                      onChange={(e) => setDofollowFilter(e.target.checked ? 'true' : '')}
-                      className="rounded accent-[#00796B]"
-                    />
-                    <span className="text-sm" style={{ color: theme.textPrimary }}>Do-follow Links</span>
-                  </label>
-                </div>
-              </div>
 
               {/* Clear Filters */}
               <button
