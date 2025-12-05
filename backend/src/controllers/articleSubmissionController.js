@@ -1221,6 +1221,7 @@ class ArticleSubmissionController {
     return parseInt(result.rows[0].count);
   }
 
+
   // Send submission confirmation emails
   async sendSubmissionConfirmationEmails(submission, publication, pubManagement) {
     try {
