@@ -229,6 +229,11 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
 
+    // Clear phone number errors when country or number changes
+    if (name === 'callingNumber' || name === 'callingCountry') {
+      setErrors(prev => ({ ...prev, callingNumber: '' }));
+    }
+
     // Clear WhatsApp errors when auto-updating due to sameAsCalling
     if (name === 'callingNumber' && sameAsCalling && errors.whatsappNumber) {
       setErrors(prev => ({ ...prev, whatsappNumber: '' }));
@@ -236,22 +241,26 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
       setErrors(prev => ({ ...prev, whatsappNumber: '' }));
     }
 
-    // Re-validate phone number when it changes
+    // Re-validate phone number when it changes (with a slight delay to allow state to update)
     if (name === 'callingNumber' || name === 'callingCountry') {
       setTimeout(() => {
         const newErrors = {};
-        if (formData.callingCountry && value && value.trim() !== '') {
-          const countryData = countryPhoneData[formData.callingCountry];
+        const currentFormData = { ...formData, [name]: value };
+        
+        if (currentFormData.callingCountry && currentFormData.callingNumber && currentFormData.callingNumber.trim() !== '') {
+          const countryData = countryPhoneData[currentFormData.callingCountry];
           if (countryData) {
-            const length = value.trim().length;
-            console.log(`Validating phone: country=${formData.callingCountry}, number="${value}", length=${length}, required=${countryData.minLength}-${countryData.maxLength}`);
+            const length = currentFormData.callingNumber.trim().length;
+            console.log(`Validating phone: country=${currentFormData.callingCountry}, number="${currentFormData.callingNumber}", length=${length}, required=${countryData.minLength}-${countryData.maxLength}`);
             if (length < countryData.minLength || length > countryData.maxLength) {
-              newErrors.callingNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${formData.callingCountry}`;
+              newErrors.callingNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${currentFormData.callingCountry}`;
             }
           }
         }
-        setErrors(prev => ({ ...prev, ...newErrors }));
-      }, 0);
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(prev => ({ ...prev, ...newErrors }));
+        }
+      }, 100);
     }
   };
 
@@ -298,9 +307,20 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
       }
     });
 
-    // Phone number validation - check both fields are present
-    if (!currentFormData.callingCountry || !currentFormData.callingNumber || currentFormData.callingNumber.trim() === '') {
+    // Phone number validation - check both fields are present and not empty
+    if (!currentFormData.callingCountry || currentFormData.callingCountry.trim() === '') {
+      newErrors.callingNumber = 'Country is required for phone number';
+    } else if (!currentFormData.callingNumber || currentFormData.callingNumber.trim() === '') {
       newErrors.callingNumber = 'Phone number is required';
+    } else {
+      // Additional validation for phone number length
+      const countryData = countryPhoneData[currentFormData.callingCountry];
+      if (countryData) {
+        const length = currentFormData.callingNumber.trim().length;
+        if (length < countryData.minLength || length > countryData.maxLength) {
+          newErrors.callingNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${currentFormData.callingCountry}`;
+        }
+      }
     }
 
     // URL validations
@@ -313,17 +333,7 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
       newErrors.email = 'Please enter a valid email address';
     }
 
-    // Phone validation - check against country-specific requirements
-    if (currentFormData.callingCountry && currentFormData.callingNumber && currentFormData.callingNumber.trim() !== '') {
-      const countryData = countryPhoneData[currentFormData.callingCountry];
-      if (countryData) {
-        const length = currentFormData.callingNumber.trim().length;
-        if (length < countryData.minLength || length > countryData.maxLength) {
-          newErrors.callingNumber = `Phone number must be ${countryData.minLength}-${countryData.maxLength} digits for ${currentFormData.callingCountry}`;
-        }
-      }
-    }
-
+    // WhatsApp validation (only if filled)
     if (currentFormData.whatsappCountry && currentFormData.whatsappNumber && currentFormData.whatsappNumber.trim() !== '') {
       const countryData = countryPhoneData[currentFormData.whatsappCountry];
       if (countryData) {

@@ -286,7 +286,7 @@ class WebsiteController {
       const formatPhoneNumber = (country, number) => {
         if (!country || !number) return '';
         try {
-          // Import country phone data (you might need to import this from a separate file)
+          // Import country phone data from the separate file
           const countryPhoneData = require('../data/countryPhoneData');
           const countryData = countryPhoneData[country];
           const trimmedNumber = number.toString().trim();
@@ -353,12 +353,14 @@ class WebsiteController {
         }
       });
 
-      // Handle phone number formatting
+      // Handle phone number formatting - ensure both fields are present before formatting
       if (websiteData.callingNumber && websiteData.callingCountry) {
         mappedData.owner_number = formatPhoneNumber(websiteData.callingCountry, websiteData.callingNumber);
+        console.log(`Formatted owner number: ${mappedData.owner_number}`);
       }
       if (websiteData.whatsappNumber && websiteData.whatsappCountry) {
         mappedData.owner_whatsapp = formatPhoneNumber(websiteData.whatsappCountry, websiteData.whatsappNumber);
+        console.log(`Formatted WhatsApp number: ${mappedData.owner_whatsapp}`);
       }
 
       // Add user information
