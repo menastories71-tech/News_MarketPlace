@@ -783,11 +783,23 @@ const PublicationsPage = () => {
                               <span>{publication.language}</span>
                             </div>
                           </div>
-                          <div 
-                            className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                            style={{ backgroundColor: theme.primaryLight }}
-                          >
-                            <Newspaper size={24} className="text-[#1976D2]" />
+                          <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {publication.image ? (
+                              <img
+                                src={publication.image}
+                                alt={publication.publication_name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.src = '/logo.png';
+                                }}
+                              />
+                            ) : (
+                              <img
+                                src="/logo.png"
+                                alt="Logo"
+                                className="w-8 h-8 object-contain"
+                              />
+                            )}
                           </div>
                         </div>
 
@@ -802,29 +814,51 @@ const PublicationsPage = () => {
                             <div className="text-xs" style={{ color: theme.textSecondary }}>DR</div>
                           </div>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: theme.warning }}>{publication.committed_tat || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>TAT</div>
+                            <div className="text-lg font-bold" style={{ color: publication.do_follow ? '#4CAF50' : '#F44336' }}>
+                              {publication.do_follow ? 'Do' : 'No'}
+                            </div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>Follow</div>
                           </div>
                         </div>
 
-                        {/* Enhanced Price and Features */}
+                        {/* Enhanced Price and Word Count */}
                         <div className="flex items-center justify-between mb-4">
                           <div className="text-xl font-bold" style={{ color: theme.success }}>
                             {formatPrice(publication.price_usd)}
                           </div>
-                          <div className="flex items-center text-sm" style={{ color: theme.warning }}>
-                            <Star size={14} className="mr-1" />
-                            <span>4.{Math.floor(Math.random() * 9) + 1}</span>
+                          <div className="text-sm font-medium" style={{ color: theme.textSecondary }}>
+                            {publication.word_limit ? `${publication.word_limit} words` : 'Word count TBA'}
                           </div>
                         </div>
 
-                        {/* Enhanced Features */}
+                        {/* Rating Type Badges */}
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {publication.do_follow && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
-                              Do-follow
+                          {/* NEW Badge - Show for publications added in last 30 days */}
+                          {(() => {
+                            const createdDate = new Date(publication.created_at);
+                            const thirtyDaysAgo = new Date();
+                            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                            return createdDate > thirtyDaysAgo ? (
+                              <span className="px-2 py-1 rounded-full text-xs font-bold bg-orange-500 text-white">
+                                NEW
+                              </span>
+                            ) : null;
+                          })()}
+
+                          {/* Rating Type Badges */}
+                          {publication.rating_type && (
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              publication.rating_type === 'Customer Choice' ? 'bg-blue-100 text-blue-800' :
+                              publication.rating_type === 'Best Seller' ? 'bg-green-100 text-green-800' :
+                              publication.rating_type === 'Editor\'s Pick' ? 'bg-purple-100 text-purple-800' :
+                              publication.rating_type === 'Trending' ? 'bg-red-100 text-red-800' :
+                              publication.rating_type === 'Featured' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-gray-100 text-gray-800'
+                            }`}>
+                              {publication.rating_type}
                             </span>
                           )}
+
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
                             {formatTAT(publication.committed_tat)}
                           </span>
@@ -938,11 +972,23 @@ const PublicationsPage = () => {
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
-                                <div 
-                                  className="w-10 h-10 rounded-lg flex items-center justify-center"
-                                  style={{ backgroundColor: theme.primaryLight }}
-                                >
-                                  <Newspaper size={20} className="text-[#1976D2]" />
+                                <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+                                  {publication.image ? (
+                                    <img
+                                      src={publication.image}
+                                      alt={publication.publication_name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => {
+                                        e.target.src = '/logo.png';
+                                      }}
+                                    />
+                                  ) : (
+                                    <img
+                                      src="/logo.png"
+                                      alt="Logo"
+                                      className="w-6 h-6 object-contain"
+                                    />
+                                  )}
                                 </div>
                                 <div>
                                   <div className="font-semibold" style={{ color: theme.textPrimary }}>
