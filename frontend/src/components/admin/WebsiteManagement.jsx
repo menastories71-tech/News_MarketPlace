@@ -98,7 +98,7 @@ const WebsiteDetailsModal = ({ isOpen, onClose, website }) => {
               <div><strong>TikTok:</strong> {website.tiktok ? <a href={website.tiktok} target="_blank" rel="noopener noreferrer" style={{ color: '#000' }}>{website.tiktok}</a> : 'N/A'}</div>
               <div><strong>YouTube:</strong> {website.youtube ? <a href={website.youtube} target="_blank" rel="noopener noreferrer" style={{ color: '#ff0000' }}>{website.youtube}</a> : 'N/A'}</div>
               <div><strong>Snapchat:</strong> {website.snapchat ? <a href={website.snapchat} target="_blank" rel="noopener noreferrer" style={{ color: '#fffc00' }}>{website.snapchat}</a> : 'N/A'}</div>
-              <div><strong>Twitter:</strong> {website.twitter ? <a href={website.twitter} target="_blank" rel="noopener noreferrer" style={{ color: '#1da1f2' }}>{website.twitter}</a> : 'N/A'}</div>
+              <div><strong>X (Formerly known as Twitter):</strong> {website.twitter ? <a href={website.twitter} target="_blank" rel="noopener noreferrer" style={{ color: '#1da1f2' }}>{website.twitter}</a> : 'N/A'}</div>
             </div>
           </div>
 

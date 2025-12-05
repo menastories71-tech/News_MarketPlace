@@ -811,16 +811,24 @@ const WebsiteSubmissionForm = ({ onClose, onSuccess }) => {
               <div style={{ marginBottom: '24px' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: theme.textPrimary }}>Social Media Links</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
-                  {['ig', 'facebook', 'linkedin', 'tiktok', 'u_tube', 'snapchat', 'twitter'].map(social => (
-                    <div key={social} style={formGroupStyle}>
-                      <label style={labelStyle}>{social.charAt(0).toUpperCase() + social.slice(1).replace('_', ' ')}</label>
+                  {[
+                    { key: 'ig', label: 'Instagram', placeholder: '@instagram_handle' },
+                    { key: 'facebook', label: 'Facebook', placeholder: '@facebook_handle' },
+                    { key: 'linkedin', label: 'LinkedIn', placeholder: '@linkedin_handle' },
+                    { key: 'tiktok', label: 'TikTok', placeholder: '@tiktok_handle' },
+                    { key: 'u_tube', label: 'YouTube', placeholder: '@youtube_handle' },
+                    { key: 'snapchat', label: 'Snapchat', placeholder: '@snapchat_handle' },
+                    { key: 'twitter', label: 'X (Formerly known as Twitter)', placeholder: '@x_handle' }
+                  ].map(social => (
+                    <div key={social.key} style={formGroupStyle}>
+                      <label style={labelStyle}>{social.label}</label>
                       <input
                         type="text"
-                        name={social}
-                        value={formData[social]}
+                        name={social.key}
+                        value={formData[social.key]}
                         onChange={handleInputChange}
                         style={inputStyle}
-                        placeholder={`@${social}_handle`}
+                        placeholder={social.placeholder}
                       />
                     </div>
                   ))}
