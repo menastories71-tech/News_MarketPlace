@@ -128,7 +128,7 @@ class ArticleSubmissionController {
       }
 
       // Find the corresponding Publication record by name
-      const publication = await Publication.findByPublicationName ? await Publication.findByPublicationName(pubManagement.publication_name) : null;
+      const publication = await Publication.findByPublicationName(pubManagement.publication_name);
       if (!publication) {
         return res.status(404).json({ error: 'Publication record not found' });
       }
