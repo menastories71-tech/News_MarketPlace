@@ -353,7 +353,7 @@ const RadioDetails = () => {
                     onClick={handlePlaceOrder}
                     disabled={isOrdering}
                   >
-                    {isOrdering ? 'Processing...' : (isAuthenticated ? 'Place Order' : 'Sign In to Order')}
+                    {isOrdering ? 'Processing...' : (isAuthenticated ? 'Checkout' : 'Sign In to Order')}
                   </button>
 
                   <button
@@ -437,7 +437,7 @@ const RadioDetails = () => {
               flexShrink: 0
             }}>
               <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: theme.textPrimary }}>
-                Place Order
+                Checkout
               </h2>
               <button
                 onClick={() => setShowOrderModal(false)}
@@ -643,7 +643,7 @@ const RadioDetails = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                {isOrdering ? 'Processing...' : 'Submit Request'}
+                {isOrdering ? 'Processing...' : 'Checkout'}
               </button>
             </div>
           </div>

@@ -45,59 +45,27 @@ const create = async (req, res) => {
     const result = await db.query(query, values);
     const order = result.rows[0];
 
-    // Send confirmation email to user
+    // Send emails
     try {
+      console.log('📧 Sending radio order confirmation emails...');
+
+      // Email to user
       await emailService.sendCustomEmail(
         customerInfo.email,
         'Radio Interview Booking Request Submitted - News Marketplace',
-        `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #1976D2;">Thank you for your radio interview booking request!</h2>
-            <p>Dear ${customerInfo.fullName},</p>
-            <p>Your radio interview booking request for <strong>${radioName}</strong> has been successfully submitted.</p>
-            <p><strong>Order Details:</strong></p>
-            <ul>
-              <li>Radio Station: ${radioName}</li>
-              <li>Status: ${order.status}</li>
-              <li>Order Date: ${new Date(order.order_date).toLocaleDateString()}</li>
-            </ul>
-            <p>Our team will review your request and contact you within 24-48 hours to schedule the interview and discuss the next steps.</p>
-            <p>If you have any questions, please don't hesitate to contact us.</p>
-            <p>Best regards,<br>News Marketplace Team</p>
-          </div>
-        `
+        generateOrderConfirmationEmailTemplate(customerInfo.fullName, radioName, order)
       );
-    } catch (emailError) {
-      console.error('Error sending user confirmation email:', emailError);
-      // Don't fail the order creation if email fails
-    }
 
-    // Send notification email to admin
-    try {
+      // Email to admin
       await emailService.sendCustomEmail(
-        process.env.ADMIN_EMAIL || 'admin@newsmarketplace.com',
+        process.env.ADMIN_EMAIL || 'menastories71@gmail.com',
         'New Radio Interview Booking Request - News Marketplace',
-        `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #1976D2;">New Radio Interview Booking Request</h2>
-            <p>A new radio interview booking request has been submitted:</p>
-            <p><strong>Order Details:</strong></p>
-            <ul>
-              <li>Order ID: ${order.id}</li>
-              <li>Radio Station: ${radioName}</li>
-              <li>Customer: ${customerInfo.fullName}</li>
-              <li>Email: ${customerInfo.email}</li>
-              <li>Phone: ${customerInfo.phone || 'Not provided'}</li>
-              <li>Message: ${customerInfo.message || 'No message'}</li>
-              <li>Status: ${order.status}</li>
-              <li>Order Date: ${new Date(order.order_date).toLocaleDateString()}</li>
-            </ul>
-            <p>Please review this request in the admin panel.</p>
-          </div>
-        `
+        generateAdminNotificationEmailTemplate(order, radioName, customerInfo)
       );
+
+      console.log('✅ Radio order confirmation emails sent successfully');
     } catch (emailError) {
-      console.error('Error sending admin notification email:', emailError);
+      console.error('❌ Failed to send radio order emails:', emailError);
       // Don't fail the order creation if email fails
     }
 
@@ -297,3 +265,152 @@ module.exports = {
   updateStatus,
   deleteOrder
 };
+
+// Email template generators
+function generateOrderConfirmationEmailTemplate(fullName, radioName, order) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #1976D2 0%, #0D47A1 100%); padding: 30px 20px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">News Marketplace</h1>
+        <p style="color: #E3F2FD; margin: 8px 0 0 0; font-size: 16px;">Radio Interview Booking Submitted</p>
+      </div>
+      <div style="padding: 30px 20px;">
+        <h2 style="color: #1976D2; margin: 0 0 20px 0; font-size: 24px;">Thank You, ${fullName}!</h2>
+        <p style="color: #212121; font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+          Your radio interview booking request for <strong style="color: #1976D2;">${radioName}</strong>
+          has been successfully submitted.
+        </p>
+
+        <div style="background: #F5F5F5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #212121; margin: 0 0 15px 0; font-size: 18px;">Booking Details</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Radio Station:</td>
+              <td style="padding: 8px 0; color: #212121;"><strong>${radioName}</strong></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Order ID:</td>
+              <td style="padding: 8px 0; color: #212121;">${order.id}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Status:</td>
+              <td style="padding: 8px 0;">
+                <span style="background: #FFF3E0; color: #FF9800; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                  PENDING REVIEW
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Submitted:</td>
+              <td style="padding: 8px 0; color: #212121;">${new Date(order.created_at).toLocaleDateString()}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="background: #FFEBEE; border-left: 4px solid #F44336; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <p style="color: #F44336; font-weight: 600; margin: 0; font-size: 14px;">
+            <strong>Important Disclaimer:</strong> We do not guarantee or authorize inclusion in the radio interview.
+            All requests are subject to review and editorial discretion.
+          </p>
+        </div>
+
+        <div style="background: #E3F2FD; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #1976D2; margin: 0 0 15px 0; font-size: 18px;">What's Next?</h3>
+          <ul style="color: #212121; margin: 0; padding-left: 20px; line-height: 1.8;">
+            <li>Our team will review your booking request</li>
+            <li>You'll receive email updates on the status</li>
+            <li>The review process may take 3-5 business days</li>
+            <li>We'll contact you to schedule the interview if approved</li>
+          </ul>
+        </div>
+
+        <p style="color: #757575; font-size: 16px; line-height: 1.6; margin: 20px 0;">
+          You will receive email notifications as your booking request progresses through our review process.
+        </p>
+
+        <p style="color: #212121; font-size: 16px; margin: 30px 0 0 0;">
+          Best regards,<br>
+          <strong style="color: #1976D2;">The News Marketplace Team</strong>
+        </p>
+      </div>
+      <div style="background: #FAFAFA; padding: 20px; text-align: center; border-top: 1px solid #E0E0E0;">
+        <p style="font-size: 12px; color: #BDBDBD; margin: 0;">
+          &copy; 2024 News Marketplace. All rights reserved.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function generateAdminNotificationEmailTemplate(order, radioName, customerInfo) {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 8px; overflow: hidden;">
+      <div style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); padding: 30px 20px; text-align: center;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">New Radio Booking Alert</h1>
+        <p style="color: #FFF3E0; margin: 8px 0 0 0; font-size: 16px;">Action Required</p>
+      </div>
+      <div style="padding: 30px 20px;">
+        <h2 style="color: #FF9800; margin: 0 0 20px 0; font-size: 24px;">New Radio Interview Booking Request</h2>
+
+        <div style="background: #F5F5F5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #212121; margin: 0 0 15px 0; font-size: 18px;">Booking Details</h3>
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Radio Station:</td>
+              <td style="padding: 8px 0; color: #212121;"><strong>${radioName}</strong></td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Order ID:</td>
+              <td style="padding: 8px 0; color: #212121;">${order.id}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Full Name:</td>
+              <td style="padding: 8px 0; color: #212121;">${customerInfo.fullName}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Email:</td>
+              <td style="padding: 8px 0; color: #212121;">${customerInfo.email}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Phone:</td>
+              <td style="padding: 8px 0; color: #212121;">${customerInfo.phone || 'Not provided'}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #E0E0E0;">
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Status:</td>
+              <td style="padding: 8px 0;">
+                <span style="background: #FFF3E0; color: #FF9800; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                  PENDING REVIEW
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 0; color: #757575; font-weight: 600;">Submitted:</td>
+              <td style="padding: 8px 0; color: #212121;">${new Date(order.created_at).toLocaleDateString()}</td>
+            </tr>
+          </table>
+        </div>
+
+        ${customerInfo.message ? `
+        <div style="background: #E3F2FD; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h4 style="color: #1976D2; margin: 0 0 10px 0;">Additional Message:</h4>
+          <p style="color: #212121; margin: 0; font-style: italic;">"${customerInfo.message}"</p>
+        </div>
+        ` : ''}
+
+        <div style="text-align: center; margin: 30px 0;">
+          <p style="color: #757575; margin-bottom: 15px;">Please review this booking request in the admin panel.</p>
+          <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/admin/radio-orders"
+             style="background: #1976D2; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+            Review in Admin Panel
+          </a>
+        </div>
+      </div>
+      <div style="background: #FAFAFA; padding: 20px; text-align: center; border-top: 1px solid #E0E0E0;">
+        <p style="font-size: 12px; color: #BDBDBD; margin: 0;">
+          &copy; 2024 News Marketplace Admin Panel. All rights reserved.
+        </p>
+      </div>
+    </div>
+  `;
+}
+
