@@ -32,46 +32,76 @@ class RealEstateOrderController {
 
   // Create a new order
   async create(req, res) {
+    console.log('🔄 Real Estate Order Creation - Start');
+    console.log('Request body keys:', Object.keys(req.body));
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+
     try {
+      // Check validation errors
       const errors = validationResult(req);
+      console.log('Validation errors:', errors.array());
+
       if (!errors.isEmpty()) {
+        console.log('❌ Validation failed with errors:', errors.array());
         return res.status(400).json({
           error: 'Validation failed',
           details: errors.array()
         });
       }
 
+      console.log('✅ Validation passed');
+
       // Verify reCAPTCHA
+      console.log('🔍 Verifying reCAPTCHA token:', req.body.captcha_token ? 'Token present' : 'No token');
       const recaptchaScore = await verifyRecaptcha(req.body.captcha_token);
+      console.log('reCAPTCHA score:', recaptchaScore);
+
       if (recaptchaScore === null || recaptchaScore < 0.5) {
+        console.log('❌ reCAPTCHA verification failed');
         return res.status(400).json({
           error: 'reCAPTCHA verification failed',
           message: 'Please complete the reCAPTCHA verification'
         });
       }
 
+      console.log('✅ reCAPTCHA verification passed');
+
       // Verify professional exists
+      console.log('🔍 Checking professional ID:', req.body.professional_id);
       const professional = await RealEstateProfessional.findById(req.body.professional_id);
+      console.log('Professional found:', !!professional);
+
       if (!professional) {
+        console.log('❌ Professional not found');
         return res.status(404).json({ error: 'Real estate professional not found' });
       }
+
+      console.log('✅ Professional verified');
 
       const orderData = {
         ...req.body,
         submitted_by: req.user?.userId
       };
 
+      console.log('📝 Creating order with data:', JSON.stringify(orderData, null, 2));
+
       const order = await RealEstateOrder.create(orderData);
+      console.log('✅ Order created successfully with ID:', order.id);
 
       // Send email notifications
+      console.log('📧 Sending email notifications...');
       await this.sendOrderSubmissionEmails(order, professional);
+      console.log('✅ Email notifications sent');
+
+      console.log('🎉 Order creation completed successfully');
 
       res.status(201).json({
         message: 'Order submitted successfully',
         order: order.toJSON()
       });
     } catch (error) {
-      console.error('Create real estate order error:', error);
+      console.error('❌ Create real estate order error:', error);
+      console.error('Error stack:', error.stack);
       res.status(500).json({ error: error.message || 'Internal server error' });
     }
   }
