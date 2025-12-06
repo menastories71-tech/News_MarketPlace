@@ -109,7 +109,7 @@ class PressPackOrder {
     const fieldMapping = {
       name: 'customer_name',
       whatsapp_number: 'customer_phone',
-      calling_number: 'calling_number',
+      // calling_number column doesn't exist in remote DB
       press_release_selection: 'press_release_selection',
       email: 'customer_email',
       company_registration_document: 'company_registration_document',
@@ -127,7 +127,7 @@ class PressPackOrder {
       submitted_by_admin: 'submitted_by_admin'
     };
 
-    const allowedFields = Object.keys(fieldMapping);
+    const allowedFields = Object.keys(fieldMapping).filter(field => field !== 'calling_number');
 
     const filteredData = {};
     const dbFields = [];
