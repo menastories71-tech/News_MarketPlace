@@ -959,7 +959,8 @@ const RealEstateProfessionalDetail = () => {
                           border: `1px solid ${theme.borderLight}`,
                           borderRadius: '8px',
                           backgroundColor: theme.background,
-                          minWidth: '120px'
+                          width: '100px',
+                          fontSize: '12px'
                         }}
                       >
                         {Object.entries(countryPhoneData).map(([country, data]) => (
@@ -1011,23 +1012,24 @@ const RealEstateProfessionalDetail = () => {
                           border: `1px solid ${theme.borderLight}`,
                           borderRadius: '8px',
                           backgroundColor: theme.background,
-                          minWidth: '80px'
+                          width: '100px',
+                          fontSize: '12px'
                         }}
                       >
-                        <option value="+91">+91 (IN)</option>
-                        <option value="+1">+1 (US)</option>
-                        <option value="+44">+44 (UK)</option>
-                        <option value="+971">+971 (UAE)</option>
-                        <option value="+966">+966 (SA)</option>
+                        {Object.entries(countryPhoneData).map(([country, data]) => (
+                          <option key={data.code} value={data.code}>
+                            {data.code} ({country})
+                          </option>
+                        ))}
                       </select>
                       <input
                         type="tel"
                         value={orderFormData.customer_calling_number}
-                        onChange={(e) => setOrderFormData({ ...orderFormData, customer_calling_number: e.target.value })}
+                        onChange={(e) => handlePhoneNumberChange('customer_calling_number', e.target.value)}
                         style={{
                           flex: 1,
                           padding: '10px 12px',
-                          border: `1px solid ${theme.borderLight}`,
+                          border: `1px solid ${formErrors.customer_calling_number ? theme.danger : theme.borderLight}`,
                           borderRadius: '8px',
                           fontSize: '14px',
                           boxSizing: 'border-box',
@@ -1035,6 +1037,11 @@ const RealEstateProfessionalDetail = () => {
                         }}
                       />
                     </div>
+                    {formErrors.customer_calling_number && (
+                      <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>
+                        {formErrors.customer_calling_number}
+                      </div>
+                    )}
                   </div>
 
                   {/* Budget Range */}
