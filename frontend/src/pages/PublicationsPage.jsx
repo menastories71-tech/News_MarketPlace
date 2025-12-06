@@ -63,7 +63,7 @@ const PublicationsPage = () => {
   const [regionFilter, setRegionFilter] = useState('');
   const [languageFilter, setLanguageFilter] = useState('');
   const [focusFilter, setFocusFilter] = useState('');
-  const [priceRange, setPriceRange] = useState([0, 2000]);
+  const [priceRange, setPriceRange] = useState([0, 20000]);
   const [daRange, setDaRange] = useState([0, 100]);
   const [drRange, setDrRange] = useState([0, 100]);
   const [tatFilter, setTatFilter] = useState([]);
@@ -264,7 +264,7 @@ const PublicationsPage = () => {
     setRegionFilter('');
     setLanguageFilter('');
     setFocusFilter('');
-    setPriceRange([0, 2000]);
+    setPriceRange([0, 20000]);
     setDaRange([0, 100]);
     setDrRange([0, 100]);
     setTatFilter([]);
@@ -281,7 +281,7 @@ const PublicationsPage = () => {
 
   const hasActiveFilters = () => {
     return regionFilter || languageFilter || focusFilter ||
-            priceRange[0] > 0 || priceRange[1] < 2000 ||
+            priceRange[0] > 0 || priceRange[1] < 20000 ||
             daRange[0] > 0 || daRange[1] < 100 ||
             drRange[0] > 0 || drRange[1] < 100 ||
             tatFilter.length > 0 || (dofollowFilter !== '');
@@ -526,7 +526,7 @@ const PublicationsPage = () => {
                     <input
                       type="range"
                       min="0"
-                      max="2000"
+                      max="20000"
                       step="50"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
@@ -535,7 +535,7 @@ const PublicationsPage = () => {
                     <input
                       type="range"
                       min="0"
-                      max="2000"
+                      max="20000"
                       step="50"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
