@@ -188,7 +188,11 @@ const PressPackCreationFormModal = ({ isOpen, onClose, record, onSave }) => {
       submitData.append('package_options', JSON.stringify(formData.press_release_package_options));
       submitData.append('price', formData.price);
       submitData.append('turnaround_time', formData.turnaround_time_in_days);
-      submitData.append('customer_info_needed', JSON.stringify(formData.information_and_documents_needed_from_customers));
+      // Ensure it's an array before stringifying
+      const customerInfo = Array.isArray(formData.information_and_documents_needed_from_customers)
+        ? formData.information_and_documents_needed_from_customers
+        : [];
+      submitData.append('customer_info_needed', JSON.stringify(customerInfo));
       submitData.append('description', formData.description);
       submitData.append('best_seller', formData.best_seller);
       // Convert content_writing_assistance string to boolean
