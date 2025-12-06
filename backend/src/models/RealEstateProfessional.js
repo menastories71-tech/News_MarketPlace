@@ -278,8 +278,9 @@ class RealEstateProfessional {
     console.log('RealEstateProfessional.update - Executing SQL:', sql);
     console.log('RealEstateProfessional.update - Values:', values);
 
+    let result;
     try {
-      const result = await query(sql, values);
+      result = await query(sql, values);
       console.log('RealEstateProfessional.update - Query result:', result.rows.length > 0 ? 'Success' : 'No rows returned');
     } catch (dbError) {
       // If the error is about a missing column, try again with only existing columns
@@ -311,10 +312,12 @@ class RealEstateProfessional {
           const basicSql = `UPDATE real_estate_professionals SET ${basicFields.join(', ')}, updated_at = NOW() WHERE id = $${basicParamCount} RETURNING *`;
           console.log('RealEstateProfessional.update - Retrying with basic SQL:', basicSql);
 
-          const basicResult = await query(basicSql, basicValues);
-          console.log('RealEstateProfessional.update - Basic update result:', basicResult.rows.length > 0 ? 'Success' : 'No rows returned');
+          result = await query(basicSql, basicValues);
+          console.log('RealEstateProfessional.update - Basic update result:', result.rows.length > 0 ? 'Success' : 'No rows returned');
         } else {
           console.log('RealEstateProfessional.update - No basic fields to update');
+          // Create a dummy result for the code below
+          result = { rows: [this] };
         }
       } else {
         // Re-throw other errors
