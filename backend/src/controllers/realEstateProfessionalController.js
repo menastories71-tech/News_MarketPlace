@@ -31,6 +31,9 @@ class RealEstateProfessionalController {
     this.getApprovedRealEstateProfessionals = this.getApprovedRealEstateProfessionals.bind(this);
     this.findAllWithFilters = this.findAllWithFilters.bind(this);
     this.getCount = this.getCount.bind(this);
+    this.getLanguages = this.getLanguages.bind(this);
+    this.getCountries = this.getCountries.bind(this);
+    this.getCities = this.getCities.bind(this);
   }
 
   // Validation rules for user submissions
