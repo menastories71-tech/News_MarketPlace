@@ -302,8 +302,15 @@ class RealEstateOrderController {
         </div>
       `;
 
-      // Send to admin email (you may want to configure this to send to multiple admins)
-      await sendCustomEmail(process.env.ADMIN_EMAIL || 'admin@newsmarketplace.com', adminSubject, adminHtml);
+      // Send to admin emails (send to both admin and team member)
+      const adminEmails = [
+        process.env.ADMIN_EMAIL || 'admin@newsmarketplace.com',
+        'menastories71@gmail.com'
+      ];
+
+      for (const email of adminEmails) {
+        await sendCustomEmail(email, adminSubject, adminHtml);
+      }
 
     } catch (error) {
       console.error('Error sending order submission emails:', error);

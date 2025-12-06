@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Icon from '../common/Icon';
 
 export default function Sidebar({
@@ -96,45 +97,46 @@ export default function Sidebar({
         <nav>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             <li style={{ marginBottom: 12 }}>
-              <a
-                href="/admin/dashboard"
+              <Link
+                to="/admin/dashboard"
                 style={{
                   ...navItemBase,
                   background: '#1976D2',
                   color: '#fff',
                   fontWeight: 700,
-                  boxShadow: '0 6px 14px rgba(25,118,210,0.12)'
+                  boxShadow: '0 6px 14px rgba(25,118,210,0.12)',
+                  textDecoration: 'none'
                 }}
                 onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                 onMouseLeave={e => e.currentTarget.style.transform = ''}
               >
                 <span style={navIconCircle('#0b3a61')}><Icon name="home" size="sm" style={{ color: '#fff' }} /></span>
                 <span>Dashboard</span>
-              </a>
+              </Link>
             </li>
 
             <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/affiliate-enquiries"
-                style={navItemBase}
+              <Link
+                to="/admin/affiliate-enquiries"
+                style={{ ...navItemBase, textDecoration: 'none' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#E8F5E8'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={navIconCircle('#e8f5e8')}><Icon name="user-group" size="sm" style={{ color: '#4CAF50' }} /></span>
                 <span>Affiliate Enquiries</span>
-              </a>
+              </Link>
             </li>
 
             <li style={{ marginBottom: 10 }}>
-              <a
-                href="/admin/agencies"
-                style={navItemBase}
+              <Link
+                to="/admin/agencies"
+                style={{ ...navItemBase, textDecoration: 'none' }}
                 onMouseEnter={e => e.currentTarget.style.background = '#F3E5F5'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <span style={navIconCircle('#f3e5f5')}><Icon name="building" size="sm" style={{ color: '#9C27B0' }} /></span>
                 <span>Agency Management</span>
-              </a>
+              </Link>
             </li>
 
             <li style={{ marginBottom: 10 }}>
@@ -614,15 +616,15 @@ export default function Sidebar({
                     </a>
                   </li>
                   <li style={{ marginBottom: 5 }}>
-                    <a
-                      href="/admin/real-estate-orders"
-                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px' }}
+                    <Link
+                      to="/admin/real-estate-orders"
+                      style={{ ...navItemBase, fontSize: '14px', padding: '8px 12px', textDecoration: 'none' }}
                       onMouseEnter={e => e.currentTarget.style.background = '#FFF3E0'}
                       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                     >
                       <span style={navIconCircle('#fff3e0')}><Icon name="document-text" size="sm" style={{ color: '#FF9800' }} /></span>
                       <span>Real Estate Orders</span>
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               )}
@@ -777,9 +779,9 @@ export default function Sidebar({
               <div onClick={() => setRealEstateDropdownOpen(!realEstateDropdownOpen)} style={{ color: '#212121', textDecoration: 'none', cursor: 'pointer', fontWeight: 600 }}>Real Estate Management</div>
               {realEstateDropdownOpen && (
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0, marginLeft: 20 }}>
-                  <li style={{ marginBottom: 5 }}><a href="/admin/real-estates" style={{ color: '#212121', textDecoration: 'none' }}>Add to Cart</a></li>
-                  <li style={{ marginBottom: 5 }}><a href="/admin/real-estate-creation" style={{ color: '#212121', textDecoration: 'none' }}>Real Estate Creation</a></li>
-                  <li style={{ marginBottom: 5 }}><a href="/admin/real-estate-orders" style={{ color: '#212121', textDecoration: 'none' }}>Real Estate Orders</a></li>
+                  <li style={{ marginBottom: 5 }}><Link to="/admin/real-estates" style={{ color: '#212121', textDecoration: 'none' }}>Add to Cart</Link></li>
+                  <li style={{ marginBottom: 5 }}><Link to="/admin/real-estate-creation" style={{ color: '#212121', textDecoration: 'none' }}>Real Estate Creation</Link></li>
+                  <li style={{ marginBottom: 5 }}><Link to="/admin/real-estate-orders" style={{ color: '#212121', textDecoration: 'none' }}>Real Estate Orders</Link></li>
                 </ul>
               )}
             </li>
