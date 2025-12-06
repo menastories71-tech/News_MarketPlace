@@ -9,6 +9,7 @@ class PressPackOrder {
     this.calling_number = data.calling_number;
     this.press_release_selection = data.press_release_selection;
     this.email = data.email || data.customer_email;
+    this.press_pack_id = data.press_pack_id;
     // File fields don't exist in remote DB
     this.company_registration_document = data.company_registration_document || null;
     this.letter_of_authorisation = data.letter_of_authorisation || null;
@@ -86,7 +87,7 @@ class PressPackOrder {
       name: 'customer_name',
       whatsapp_number: 'customer_phone',
       email: 'customer_email',
-      // Even basic columns like terms_accepted don't exist in remote DB
+      press_pack_id: 'press_pack_id',
       status: 'status'
     };
 
@@ -240,6 +241,7 @@ class PressPackOrder {
       calling_number: this.calling_number,
       press_release_selection: this.press_release_selection,
       email: this.email,
+      press_pack_id: this.press_pack_id,
       // File fields may not exist in remote DB
       company_registration_document: this.company_registration_document,
       letter_of_authorisation: this.letter_of_authorisation,
