@@ -3,18 +3,19 @@ const { query } = require('../config/database');
 class PressPackOrder {
   constructor(data) {
     this.id = data.id;
-    this.name = data.name;
-    this.whatsapp_number = data.whatsapp_number;
+    // Map database fields to model properties (handle legacy column names)
+    this.name = data.name || data.customer_name;
+    this.whatsapp_number = data.whatsapp_number || data.customer_phone;
     this.calling_number = data.calling_number;
     this.press_release_selection = data.press_release_selection;
-    this.email = data.email;
+    this.email = data.email || data.customer_email;
     this.company_registration_document = data.company_registration_document;
     this.letter_of_authorisation = data.letter_of_authorisation;
     this.image = data.image;
     this.word_pdf_document = data.word_pdf_document;
     this.submitted_by_type = data.submitted_by_type;
-    this.package_selection = data.package_selection;
-    this.message = data.message;
+    this.package_selection = data.package_selection || data.press_pack_name;
+    this.message = data.message || data.customer_message;
     this.captcha_token = data.captcha_token;
     this.terms_accepted = data.terms_accepted !== undefined ? data.terms_accepted : false;
     this.content_writing_assistance = data.content_writing_assistance !== undefined ? data.content_writing_assistance : false;
@@ -27,7 +28,7 @@ class PressPackOrder {
     this.rejected_by = data.rejected_by;
     this.rejection_reason = data.rejection_reason;
     this.admin_comments = data.admin_comments;
-    this.created_at = data.created_at;
+    this.created_at = data.created_at || data.order_date;
     this.updated_at = data.updated_at;
   }
 
@@ -104,26 +105,44 @@ class PressPackOrder {
       throw new Error(`Validation errors: ${validationErrors.join(', ')}`);
     }
 
-    const allowedFields = [
-      'name', 'whatsapp_number', 'calling_number', 'press_release_selection', 'email',
-      'company_registration_document', 'letter_of_authorisation', 'image', 'word_pdf_document',
-      'submitted_by_type', 'package_selection', 'message', 'captcha_token', 'terms_accepted',
-      'content_writing_assistance', 'status', 'submitted_by', 'submitted_by_admin'
-    ];
+    // Map model field names to database column names (support legacy column names in remote DB)
+    const fieldMapping = {
+      name: 'customer_name',
+      whatsapp_number: 'customer_phone',
+      calling_number: 'calling_number',
+      press_release_selection: 'press_release_selection',
+      email: 'customer_email',
+      company_registration_document: 'company_registration_document',
+      letter_of_authorisation: 'letter_of_authorisation',
+      image: 'image',
+      word_pdf_document: 'word_pdf_document',
+      submitted_by_type: 'submitted_by_type',
+      package_selection: 'press_pack_name',
+      message: 'customer_message',
+      captcha_token: 'captcha_token',
+      terms_accepted: 'terms_accepted',
+      content_writing_assistance: 'content_writing_assistance',
+      status: 'status',
+      submitted_by: 'submitted_by',
+      submitted_by_admin: 'submitted_by_admin'
+    };
+
+    const allowedFields = Object.keys(fieldMapping);
 
     const filteredData = {};
+    const dbFields = [];
     allowedFields.forEach(field => {
       if (orderData[field] !== undefined) {
         filteredData[field] = orderData[field];
+        dbFields.push(fieldMapping[field]);
       }
     });
 
-    const fields = Object.keys(filteredData);
     const values = Object.values(filteredData);
-    const placeholders = fields.map((_, index) => `$${index + 1}`);
+    const placeholders = dbFields.map((_, index) => `$${index + 1}`);
 
     const sql = `
-      INSERT INTO press_pack_orders (${fields.join(', ')})
+      INSERT INTO press_pack_orders (${dbFields.join(', ')})
       VALUES (${placeholders.join(', ')})
       RETURNING *
     `;
@@ -278,7 +297,14 @@ class PressPackOrder {
       rejection_reason: this.rejection_reason,
       admin_comments: this.admin_comments,
       created_at: this.created_at,
-      updated_at: this.updated_at
+      updated_at: this.updated_at,
+      // Legacy fields for backward compatibility
+      customer_name: this.name,
+      customer_email: this.email,
+      customer_phone: this.whatsapp_number,
+      customer_message: this.message,
+      press_pack_name: this.package_selection,
+      order_date: this.created_at
     };
   }
 }

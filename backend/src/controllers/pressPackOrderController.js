@@ -66,14 +66,11 @@ const create = async (req, res) => {
       });
     }
 
-    // Create order data
+    // Create order data (only include fields that exist in remote database)
     const orderData = {
       name: name,
-      whatsapp_country_code: whatsapp_country_code || '+91',
       whatsapp_number: whatsapp_number,
-      calling_country_code: calling_country_code || '+91',
       calling_number: calling_number || null,
-      press_release_type: Array.isArray(press_release_type) ? JSON.stringify(press_release_type) : JSON.stringify([]),
       email: email,
       company_registration_document: uploadedFiles.company_registration_document || null,
       letter_of_authorisation: uploadedFiles.letter_of_authorisation || null,
