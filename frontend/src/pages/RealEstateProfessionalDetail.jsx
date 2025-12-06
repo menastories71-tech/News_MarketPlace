@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +6,7 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
+import ReCAPTCHA from 'react-google-recaptcha';
 import countryPhoneData from '../data/countryPhoneData.js';
 import worldLanguages from '../data/languagesData.js';
 import {
@@ -78,7 +79,7 @@ const RealEstateProfessionalDetail = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [recaptchaToken, setRecaptchaToken] = useState('');
-  const [isComponentMounted, setIsComponentMounted] = useState(false);
+  const recaptchaRef = useRef(null);
 
   useEffect(() => {
     if (id) {
@@ -86,81 +87,6 @@ const RealEstateProfessionalDetail = () => {
     }
   }, [id]);
 
-  // Mark component as mounted
-  useEffect(() => {
-    setIsComponentMounted(true);
-  }, []);
-
-  // Load reCAPTCHA script and render widget
-  useEffect(() => {
-    // Only load reCAPTCHA after component is mounted
-    if (!isComponentMounted) return;
-
-    const loadRecaptcha = () => {
-      if (!window.grecaptcha) {
-        const script = document.createElement('script');
-        script.src = `https://www.google.com/recaptcha/api.js?render=explicit`;
-        script.async = true;
-        script.defer = true;
-        document.head.appendChild(script);
-
-        script.onload = () => {
-          if (window.grecaptcha) {
-            window.grecaptcha.ready(() => {
-              console.log('reCAPTCHA ready');
-              renderRecaptcha();
-            });
-          }
-        };
-      } else {
-        renderRecaptcha();
-      }
-    };
-
-    const renderRecaptcha = () => {
-      const container = document.getElementById('recaptcha-container-order');
-      if (!container) {
-        console.log('reCAPTCHA container not found, will retry...');
-        // Retry after component update
-        setTimeout(() => {
-          if (document.getElementById('recaptcha-container-order')) {
-            renderRecaptcha();
-          }
-        }, 200);
-        return;
-      }
-
-      if (container.hasChildNodes()) {
-        console.log('reCAPTCHA already rendered, skipping');
-        return;
-      }
-
-      const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
-
-      try {
-        const widgetId = window.grecaptcha.render('recaptcha-container-order', {
-          'sitekey': siteKey,
-          'callback': (token) => {
-            setRecaptchaToken(token);
-            setFormErrors(prev => ({ ...prev, recaptcha: '' }));
-          },
-          'expired-callback': () => {
-            setRecaptchaToken('');
-            setFormErrors(prev => ({ ...prev, recaptcha: 'reCAPTCHA expired. Please try again.' }));
-          },
-          'error-callback': () => {
-            setRecaptchaToken('');
-            setFormErrors(prev => ({ ...prev, recaptcha: 'reCAPTCHA error. Please try again.' }));
-          }
-        });
-        console.log('reCAPTCHA rendered with widget ID:', widgetId);
-      } catch (error) {
-        console.error('Error rendering reCAPTCHA:', error);
-      }
-    };
-
-    loadRecaptcha();
-  }, [isComponentMounted]);
 
   const fetchProfessionalDetails = async () => {
     try {
@@ -1337,10 +1263,18 @@ const RealEstateProfessionalDetail = () => {
 
                 {/* reCAPTCHA */}
                 <div style={{ marginBottom: '20px' }}>
-                  <div
-                    id="recaptcha-container-order"
-                    style={{ display: 'inline-block' }}
-                  ></div>
+                  <ReCAPTCHA
+                    ref={recaptchaRef}
+                    sitekey="6LdNzrErAAAAAB1EB7ETPEhUrynf0wSQftMt-COT"
+                    onChange={(token) => {
+                      setRecaptchaToken(token);
+                      setFormErrors(prev => ({ ...prev, recaptcha: '' }));
+                    }}
+                    onExpired={() => {
+                      setRecaptchaToken('');
+                      setFormErrors(prev => ({ ...prev, recaptcha: 'reCAPTCHA expired. Please try again.' }));
+                    }}
+                  />
                   {formErrors.recaptcha && (
                     <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>
                       {formErrors.recaptcha}
