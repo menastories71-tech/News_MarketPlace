@@ -34,7 +34,7 @@ const theme = {
 };
 
 const RealEstateOrdersManagement = () => {
-  const { isAuthenticated, hasRole } = useAdminAuth();
+  const { isAuthenticated, hasRole, hasAnyRole } = useAdminAuth();
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
