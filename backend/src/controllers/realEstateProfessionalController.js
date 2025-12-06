@@ -28,7 +28,6 @@ const upload = multer({
 class RealEstateProfessionalController {
   constructor() {
     // Bind methods to preserve 'this' context
-    this.getAll = this.getAll.bind(this);
     this.getApprovedRealEstateProfessionals = this.getApprovedRealEstateProfessionals.bind(this);
     this.findAllWithFilters = this.findAllWithFilters.bind(this);
     this.getCount = this.getCount.bind(this);
