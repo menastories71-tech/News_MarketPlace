@@ -44,10 +44,6 @@ router.get('/',
   realEstateProfessionalController.getApprovedRealEstateProfessionals
 );
 
-router.get('/:id',
-  realEstateProfessionalController.getApprovedById
-);
-
 // Form data routes (no authentication required for form population)
 router.get('/languages',
   realEstateProfessionalController.getLanguages
@@ -59,6 +55,11 @@ router.get('/countries',
 
 router.get('/cities/:country',
   realEstateProfessionalController.getCities
+);
+
+// Parameterized routes (must come after specific routes to avoid conflicts)
+router.get('/:id',
+  realEstateProfessionalController.getApprovedById
 );
 
 module.exports = router;
