@@ -77,12 +77,77 @@ const RealEstateProfessionalDetail = () => {
     terms_accepted: false
   });
   const [formErrors, setFormErrors] = useState({});
+  const [recaptchaToken, setRecaptchaToken] = useState('');
 
   useEffect(() => {
     if (id) {
       fetchProfessionalDetails();
     }
   }, [id]);
+
+  // Load reCAPTCHA script and render widget
+  useEffect(() => {
+    const loadRecaptcha = () => {
+      if (!window.grecaptcha) {
+        const script = document.createElement('script');
+        script.src = `https://www.google.com/recaptcha/api.js?render=explicit`;
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+
+        script.onload = () => {
+          if (window.grecaptcha) {
+            window.grecaptcha.ready(() => {
+              console.log('reCAPTCHA ready');
+              renderRecaptcha();
+            });
+          }
+        };
+      } else {
+        setTimeout(() => {
+          renderRecaptcha();
+        }, 100);
+      }
+    };
+
+    const renderRecaptcha = () => {
+      const container = document.getElementById('recaptcha-container-order');
+      if (!container) {
+        console.log('reCAPTCHA container not found');
+        return;
+      }
+
+      if (container.hasChildNodes()) {
+        console.log('reCAPTCHA already rendered, skipping');
+        return;
+      }
+
+      const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY || "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
+
+      try {
+        const widgetId = window.grecaptcha.render('recaptcha-container-order', {
+          'sitekey': siteKey,
+          'callback': (token) => {
+            setRecaptchaToken(token);
+            setFormErrors(prev => ({ ...prev, recaptcha: '' }));
+          },
+          'expired-callback': () => {
+            setRecaptchaToken('');
+            setFormErrors(prev => ({ ...prev, recaptcha: 'reCAPTCHA expired. Please try again.' }));
+          },
+          'error-callback': () => {
+            setRecaptchaToken('');
+            setFormErrors(prev => ({ ...prev, recaptcha: 'reCAPTCHA error. Please try again.' }));
+          }
+        });
+        console.log('reCAPTCHA rendered with widget ID:', widgetId);
+      } catch (error) {
+        console.error('Error rendering reCAPTCHA:', error);
+      }
+    };
+
+    loadRecaptcha();
+  }, []);
 
   const fetchProfessionalDetails = async () => {
     try {
@@ -202,6 +267,11 @@ const RealEstateProfessionalDetail = () => {
     if (whatsappError) newErrors.customer_whatsapp_number = whatsappError;
     if (callingError) newErrors.customer_calling_number = callingError;
 
+    // Validate reCAPTCHA
+    if (!recaptchaToken) {
+      newErrors.recaptcha = 'Please complete the reCAPTCHA verification';
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setFormErrors(newErrors);
       return;
@@ -210,16 +280,11 @@ const RealEstateProfessionalDetail = () => {
     setIsSubmittingOrder(true);
 
     try {
-      // Get reCAPTCHA token (if available)
-      let captchaToken = '';
-      if (window.grecaptcha && window.grecaptcha.execute) {
-        captchaToken = await window.grecaptcha.execute('6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI', { action: 'order_submit' });
-      }
-
+      // Use the visible reCAPTCHA token
       const orderData = {
         ...orderFormData,
         professional_id: parseInt(id),
-        captcha_token: captchaToken
+        captcha_token: recaptchaToken
       };
 
       const response = await api.post('/real-estate-orders', orderData);
@@ -1254,6 +1319,22 @@ const RealEstateProfessionalDetail = () => {
                       I agree to the <a href="#" style={{ color: theme.primary, textDecoration: 'underline' }}>Terms and Conditions</a> and <a href="#" style={{ color: theme.primary, textDecoration: 'underline' }}>Privacy Policy</a> *
                     </span>
                   </label>
+                </div>
+
+                {/* reCAPTCHA */}
+                <div style={{ marginBottom: '20px' }}>
+                  <div
+                    id="recaptcha-container-order"
+                    style={{ display: 'inline-block' }}
+                  ></div>
+                  {formErrors.recaptcha && (
+                    <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>
+                      {formErrors.recaptcha}
+                    </div>
+                  )}
+                  <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '8px' }}>
+                    Complete the reCAPTCHA verification to submit your order.
+                  </div>
                 </div>
               </form>
             </div>

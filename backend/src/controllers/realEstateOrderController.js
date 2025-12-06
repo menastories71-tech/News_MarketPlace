@@ -42,14 +42,12 @@ class RealEstateOrderController {
       }
 
       // Verify reCAPTCHA
-      if (req.body.captcha_token) {
-        const recaptchaScore = await verifyRecaptcha(req.body.captcha_token);
-        if (recaptchaScore === null || recaptchaScore < 0.5) {
-          return res.status(400).json({
-            error: 'reCAPTCHA verification failed',
-            message: 'Please complete the reCAPTCHA verification'
-          });
-        }
+      const recaptchaScore = await verifyRecaptcha(req.body.captcha_token);
+      if (recaptchaScore === null || recaptchaScore < 0.5) {
+        return res.status(400).json({
+          error: 'reCAPTCHA verification failed',
+          message: 'Please complete the reCAPTCHA verification'
+        });
       }
 
       // Verify professional exists
