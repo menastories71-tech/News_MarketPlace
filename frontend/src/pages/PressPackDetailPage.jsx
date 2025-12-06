@@ -39,10 +39,10 @@ const PressPackDetailPage = () => {
     calling_number: '',
     press_release_type: [], // multi check options: company/project, individual/brand
     email: '',
-    company_registration_document: '',
-    letter_of_authorisation: '',
-    image: '',
-    word_pdf_document: '',
+    company_registration_document: null,
+    letter_of_authorisation: null,
+    image: null,
+    word_pdf_document: null,
     submitted_by_type: 'agency', // agency or direct
     press_release_selection: '',
     package_selection: '',
@@ -54,12 +54,14 @@ const PressPackDetailPage = () => {
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [recaptchaToken, setRecaptchaToken] = useState('');
   const [formErrors, setFormErrors] = useState({});
+  const [pressReleases, setPressReleases] = useState([]);
   const recaptchaRef = useRef(null);
 
   useEffect(() => {
     if (id) {
       fetchPressPackDetails();
     }
+    fetchPressReleases();
   }, [id]);
 
   const fetchPressPackDetails = async () => {
@@ -82,6 +84,15 @@ const PressPackDetailPage = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPressReleases = async () => {
+    try {
+      const response = await api.get('/admin/press-releases?page=1&limit=100');
+      setPressReleases(response.data.pressReleases || []);
+    } catch (error) {
+      console.error('Error fetching press releases:', error);
     }
   };
 
@@ -177,26 +188,43 @@ const PressPackDetailPage = () => {
     setIsPurchasing(true);
 
     try {
-      const orderData = {
-        name: purchaseFormData.name,
-        whatsapp_number: purchaseFormData.whatsapp_number,
-        calling_number: purchaseFormData.calling_number,
-        press_release_type: purchaseFormData.press_release_type,
-        email: purchaseFormData.email,
-        company_registration_document: purchaseFormData.company_registration_document,
-        letter_of_authorisation: purchaseFormData.letter_of_authorisation,
-        image: purchaseFormData.image,
-        word_pdf_document: purchaseFormData.word_pdf_document,
-        submitted_by_type: purchaseFormData.submitted_by_type,
-        press_release_selection: purchaseFormData.press_release_selection,
-        package_selection: purchaseFormData.package_selection,
-        message: purchaseFormData.message,
-        captcha_token: recaptchaToken,
-        terms_accepted: purchaseFormData.terms_accepted,
-        content_writing_assistance: purchaseFormData.content_writing_assistance
-      };
+      const formDataToSend = new FormData();
 
-      const response = await api.post('/press-pack-orders', orderData);
+      // Add text fields
+      formDataToSend.append('name', purchaseFormData.name);
+      formDataToSend.append('whatsapp_country_code', purchaseFormData.whatsapp_country_code);
+      formDataToSend.append('whatsapp_number', purchaseFormData.whatsapp_number);
+      formDataToSend.append('calling_country_code', purchaseFormData.calling_country_code);
+      formDataToSend.append('calling_number', purchaseFormData.calling_number);
+      formDataToSend.append('press_release_type', JSON.stringify(purchaseFormData.press_release_type));
+      formDataToSend.append('email', purchaseFormData.email);
+      formDataToSend.append('submitted_by_type', purchaseFormData.submitted_by_type);
+      formDataToSend.append('press_release_selection', purchaseFormData.press_release_selection);
+      formDataToSend.append('package_selection', purchaseFormData.package_selection);
+      formDataToSend.append('message', purchaseFormData.message);
+      formDataToSend.append('captcha_token', recaptchaToken);
+      formDataToSend.append('terms_accepted', purchaseFormData.terms_accepted);
+      formDataToSend.append('content_writing_assistance', purchaseFormData.content_writing_assistance);
+
+      // Add file fields
+      if (purchaseFormData.company_registration_document) {
+        formDataToSend.append('company_registration_document', purchaseFormData.company_registration_document);
+      }
+      if (purchaseFormData.letter_of_authorisation) {
+        formDataToSend.append('letter_of_authorisation', purchaseFormData.letter_of_authorisation);
+      }
+      if (purchaseFormData.image) {
+        formDataToSend.append('image', purchaseFormData.image);
+      }
+      if (purchaseFormData.word_pdf_document) {
+        formDataToSend.append('word_pdf_document', purchaseFormData.word_pdf_document);
+      }
+
+      const response = await api.post('/press-pack-orders', formDataToSend, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       if (response.data.success !== false) {
         alert('Press pack order submitted successfully! Our team will contact you soon.');
@@ -209,10 +237,10 @@ const PressPackDetailPage = () => {
           calling_number: '',
           press_release_type: [],
           email: '',
-          company_registration_document: '',
-          letter_of_authorisation: '',
-          image: '',
-          word_pdf_document: '',
+          company_registration_document: null,
+          letter_of_authorisation: null,
+          image: null,
+          word_pdf_document: null,
           submitted_by_type: 'agency',
           press_release_selection: '',
           package_selection: '',
@@ -1077,13 +1105,17 @@ const PressPackDetailPage = () => {
                     Company registration document upload option *
                   </label>
                   <input
-                    type="url"
-                    value={purchaseFormData.company_registration_document}
-                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, company_registration_document: e.target.value })}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, company_registration_document: e.target.files[0] })}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Document URL"
                   />
+                  {purchaseFormData.company_registration_document && (
+                    <div style={{ fontSize: '12px', color: themeColors.textSecondary, marginTop: '4px' }}>
+                      Selected: {purchaseFormData.company_registration_document.name}
+                    </div>
+                  )}
                 </div>
 
                 {/* 7. Letter of Authorisation (Mandatory) */}
@@ -1098,13 +1130,17 @@ const PressPackDetailPage = () => {
                     Letter of Authorisation *
                   </label>
                   <input
-                    type="url"
-                    value={purchaseFormData.letter_of_authorisation}
-                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, letter_of_authorisation: e.target.value })}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, letter_of_authorisation: e.target.files[0] })}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Document URL"
                   />
+                  {purchaseFormData.letter_of_authorisation && (
+                    <div style={{ fontSize: '12px', color: themeColors.textSecondary, marginTop: '4px' }}>
+                      Selected: {purchaseFormData.letter_of_authorisation.name}
+                    </div>
+                  )}
                 </div>
 
                 {/* 8. Image for the Press release (Optional) */}
@@ -1119,12 +1155,16 @@ const PressPackDetailPage = () => {
                     Image for the Press release
                   </label>
                   <input
-                    type="url"
-                    value={purchaseFormData.image}
-                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, image: e.target.value })}
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, image: e.target.files[0] })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Image URL"
                   />
+                  {purchaseFormData.image && (
+                    <div style={{ fontSize: '12px', color: themeColors.textSecondary, marginTop: '4px' }}>
+                      Selected: {purchaseFormData.image.name}
+                    </div>
+                  )}
                 </div>
 
                 {/* 9. Word or PDF Document upload (Mandatory) */}
@@ -1139,13 +1179,17 @@ const PressPackDetailPage = () => {
                     Word or PDF Document upload *
                   </label>
                   <input
-                    type="url"
-                    value={purchaseFormData.word_pdf_document}
-                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, word_pdf_document: e.target.value })}
+                    type="file"
+                    accept=".pdf,.doc,.docx,.txt"
+                    onChange={(e) => setPurchaseFormData({ ...purchaseFormData, word_pdf_document: e.target.files[0] })}
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Document URL"
                   />
+                  {purchaseFormData.word_pdf_document && (
+                    <div style={{ fontSize: '12px', color: themeColors.textSecondary, marginTop: '4px' }}>
+                      Selected: {purchaseFormData.word_pdf_document.name}
+                    </div>
+                  )}
                 </div>
 
                 {/* 10. Submitted by - Agency or Direct Company / Individual (Check option, only one) (Mandatory) */}
@@ -1203,9 +1247,11 @@ const PressPackDetailPage = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">Select Press Release</option>
-                    <option value="press_release_1">Press Release 1</option>
-                    <option value="press_release_2">Press Release 2</option>
-                    <option value="press_release_3">Press Release 3</option>
+                    {pressReleases.map(pressRelease => (
+                      <option key={pressRelease.id} value={pressRelease.id}>
+                        {pressRelease.name} - {pressRelease.region} - ${pressRelease.price}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
