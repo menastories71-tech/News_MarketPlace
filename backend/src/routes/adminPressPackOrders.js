@@ -1,13 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const PressPackOrderController = require("../controllers/pressPackOrderController");
+const pressPackOrderController = require("../controllers/pressPackOrderController");
 const {
   verifyAdminToken,
   requireAdminPanelAccess,
   requireAdminPermission,
 } = require("../middleware/auth");
-
-const pressPackOrderController = new PressPackOrderController();
 
 // All routes require admin authentication and panel access
 router.use(verifyAdminToken);
