@@ -82,12 +82,64 @@ const pool = new Pool({
 });
 
 // Test database connection on startup
-pool.connect((err, client, release) => {
+pool.connect(async (err, client, release) => {
   if (err) {
     console.error('❌ Database connection failed:', err.message);
     process.exit(1);
   } else {
     console.log('✅ Database connected successfully');
+
+    // Run pending migrations
+    try {
+      console.log('🔄 Running pending migrations...');
+
+      // Migration 072: Add status and admin fields to real_estate_professionals
+      const migrationSQL = `
+        -- Add status column for approval workflow
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending';
+
+        -- Add user submission tracking
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS submitted_by INTEGER REFERENCES users(id);
+
+        -- Add admin submission tracking
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS submitted_by_admin INTEGER REFERENCES admins(id);
+
+        -- Add approval workflow fields
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP;
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS approved_by INTEGER REFERENCES admins(id);
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP;
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS rejected_by INTEGER REFERENCES admins(id);
+
+        -- Add admin feedback fields
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
+        ALTER TABLE real_estate_professionals ADD COLUMN IF NOT EXISTS admin_comments TEXT;
+
+        -- Create indexes for better performance on new fields
+        CREATE INDEX IF NOT EXISTS idx_real_estate_professionals_status ON real_estate_professionals(status);
+        CREATE INDEX IF NOT EXISTS idx_real_estate_professionals_submitted_by ON real_estate_professionals(submitted_by);
+        CREATE INDEX IF NOT EXISTS idx_real_estate_professionals_submitted_by_admin ON real_estate_professionals(submitted_by_admin);
+        CREATE INDEX IF NOT EXISTS idx_real_estate_professionals_approved_by ON real_estate_professionals(approved_by);
+        CREATE INDEX IF NOT EXISTS idx_real_estate_professionals_rejected_by ON real_estate_professionals(rejected_by);
+      `;
+
+      await client.query(migrationSQL);
+      console.log('✅ Migration 072 completed successfully');
+
+      // Verify columns were added
+      const result = await client.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'real_estate_professionals'
+        AND column_name IN ('status', 'submitted_by_admin', 'admin_comments')
+        ORDER BY column_name
+      `);
+
+      console.log('📋 Migration verification - Added columns:', result.rows.map(r => r.column_name).join(', '));
+
+    } catch (migrationError) {
+      console.error('❌ Migration failed:', migrationError.message);
+      // Don't exit - allow server to start even if migration fails
+    }
+
     release();
   }
 });
