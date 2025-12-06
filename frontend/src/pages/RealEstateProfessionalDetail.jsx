@@ -284,6 +284,7 @@ const RealEstateProfessionalDetail = () => {
       const orderData = {
         ...orderFormData,
         professional_id: parseInt(id),
+        min_followers: orderFormData.min_followers ? parseInt(orderFormData.min_followers) : undefined,
         captcha_token: recaptchaToken
       };
 
