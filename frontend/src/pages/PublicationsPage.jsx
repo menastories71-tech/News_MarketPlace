@@ -760,12 +760,30 @@ const PublicationsPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
                       onClick={() => handlePublicationClick(publication)}
-                      className="bg-white rounded-lg shadow-lg border hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden"
-                      style={{ 
+                      className="bg-white rounded-lg shadow-lg border hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden relative"
+                      style={{
                         borderColor: theme.borderLight,
                         boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
                       }}
                     >
+                      {/* NEW Badge - Angled at top left */}
+                      {(() => {
+                        const createdDate = new Date(publication.created_at);
+                        const thirtyDaysAgo = new Date();
+                        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                        return createdDate > thirtyDaysAgo ? (
+                          <div
+                            className="absolute top-0 left-0 bg-orange-500 text-white text-xs font-bold px-3 py-1 rounded-br-lg transform -rotate-12 shadow-lg z-10"
+                            style={{
+                              background: 'linear-gradient(135deg, #FF6B35 0%, #F7931E 100%)',
+                              boxShadow: '0 2px 8px rgba(255, 107, 53, 0.3)'
+                            }}
+                          >
+                            NEW
+                          </div>
+                        ) : null;
+                      })()}
+
                       {/* Enhanced Publication Header */}
                       <div className="p-6">
                         <div className="flex items-start justify-between mb-4">
@@ -820,29 +838,19 @@ const PublicationsPage = () => {
                           </div>
                         </div>
 
-                        {/* Enhanced Price and Word Count */}
-                        <div className="flex items-center justify-between mb-4">
+                        {/* Enhanced Price */}
+                        <div className="flex items-center justify-center mb-4">
                           <div className="text-xl font-bold" style={{ color: theme.success }}>
                             {formatPrice(publication.price_usd)}
-                          </div>
-                          <div className="text-sm font-medium" style={{ color: theme.textSecondary }}>
-                            {publication.word_limit ? `${publication.word_limit} words` : 'Word count TBA'}
                           </div>
                         </div>
 
                         {/* Rating Type Badges */}
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {/* NEW Badge - Show for publications added in last 30 days */}
-                          {(() => {
-                            const createdDate = new Date(publication.created_at);
-                            const thirtyDaysAgo = new Date();
-                            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                            return createdDate > thirtyDaysAgo ? (
-                              <span className="px-2 py-1 rounded-full text-xs font-bold bg-orange-500 text-white">
-                                NEW
-                              </span>
-                            ) : null;
-                          })()}
+                          {/* Word Limit Badge */}
+                          <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E3F2FD', color: theme.primary }}>
+                            {publication.word_limit ? `${publication.word_limit} words` : 'Word count TBA'}
+                          </span>
 
                           {/* Rating Type Badges */}
                           {publication.rating_type && (
