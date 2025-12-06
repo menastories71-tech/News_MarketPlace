@@ -6,6 +6,8 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
+import countryPhoneData from '../data/countryPhoneData.js';
+import worldLanguages from '../data/languagesData.js';
 import {
   ArrowLeft, Globe, User, Star, ExternalLink, Shield,
   Link as LinkIcon, Image as ImageIcon, FileText, CheckCircle,
@@ -74,6 +76,7 @@ const RealEstateProfessionalDetail = () => {
     captcha_token: '',
     terms_accepted: false
   });
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     if (id) {
@@ -182,6 +185,28 @@ const RealEstateProfessionalDetail = () => {
 
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate phone numbers
+    const whatsappError = validatePhoneNumber(
+      orderFormData.customer_whatsapp_country_code,
+      orderFormData.customer_whatsapp_number,
+      'WhatsApp Number'
+    );
+    const callingError = validatePhoneNumber(
+      orderFormData.customer_calling_country_code,
+      orderFormData.customer_calling_number,
+      'Calling Number'
+    );
+
+    const newErrors = {};
+    if (whatsappError) newErrors.customer_whatsapp_number = whatsappError;
+    if (callingError) newErrors.customer_calling_number = callingError;
+
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(newErrors);
+      return;
+    }
+
     setIsSubmittingOrder(true);
 
     try {
@@ -215,6 +240,7 @@ const RealEstateProfessionalDetail = () => {
           captcha_token: '',
           terms_accepted: false
         });
+        setFormErrors({});
       } else {
         throw new Error(response.data.message || 'Failed to submit order');
       }
@@ -227,13 +253,36 @@ const RealEstateProfessionalDetail = () => {
     }
   };
 
-  const handleLanguageToggle = (language) => {
-    setOrderFormData(prev => ({
-      ...prev,
-      languages_required: prev.languages_required.includes(language)
-        ? prev.languages_required.filter(lang => lang !== language)
-        : [...prev.languages_required, language]
-    }));
+
+  const validatePhoneNumber = (countryCode, phoneNumber, fieldName) => {
+    const country = Object.values(countryPhoneData).find(c => c.code === countryCode);
+    if (!country) return `${fieldName}: Invalid country code`;
+
+    const digitsOnly = phoneNumber.replace(/\D/g, '');
+    if (digitsOnly.length < country.minLength || digitsOnly.length > country.maxLength) {
+      return `${fieldName}: Phone number must be between ${country.minLength} and ${country.maxLength} digits`;
+    }
+    return null;
+  };
+
+  const handlePhoneNumberChange = (field, value) => {
+    setOrderFormData(prev => ({ ...prev, [field]: value }));
+
+    // Clear previous error for this field
+    if (formErrors[field]) {
+      setFormErrors(prev => ({ ...prev, [field]: null }));
+    }
+
+    // Validate if we have both country code and number
+    const countryCodeField = field.includes('whatsapp') ? 'customer_whatsapp_country_code' : 'customer_calling_country_code';
+    const numberField = field.includes('whatsapp') ? 'customer_whatsapp_number' : 'customer_calling_number';
+
+    if (field === numberField && orderFormData[countryCodeField] && value) {
+      const error = validatePhoneNumber(orderFormData[countryCodeField], value, field.includes('whatsapp') ? 'WhatsApp Number' : 'Calling Number');
+      if (error) {
+        setFormErrors(prev => ({ ...prev, [field]: error }));
+      }
+    }
   };
 
   const handleContactSubmit = async (e) => {
@@ -910,24 +959,24 @@ const RealEstateProfessionalDetail = () => {
                           border: `1px solid ${theme.borderLight}`,
                           borderRadius: '8px',
                           backgroundColor: theme.background,
-                          minWidth: '80px'
+                          minWidth: '120px'
                         }}
                       >
-                        <option value="+91">+91 (IN)</option>
-                        <option value="+1">+1 (US)</option>
-                        <option value="+44">+44 (UK)</option>
-                        <option value="+971">+971 (UAE)</option>
-                        <option value="+966">+966 (SA)</option>
+                        {Object.entries(countryPhoneData).map(([country, data]) => (
+                          <option key={data.code} value={data.code}>
+                            {data.code} ({country})
+                          </option>
+                        ))}
                       </select>
                       <input
                         type="tel"
                         value={orderFormData.customer_whatsapp_number}
-                        onChange={(e) => setOrderFormData({ ...orderFormData, customer_whatsapp_number: e.target.value })}
+                        onChange={(e) => handlePhoneNumberChange('customer_whatsapp_number', e.target.value)}
                         required
                         style={{
                           flex: 1,
                           padding: '10px 12px',
-                          border: `1px solid ${theme.borderLight}`,
+                          border: `1px solid ${formErrors.customer_whatsapp_number ? theme.danger : theme.borderLight}`,
                           borderRadius: '8px',
                           fontSize: '14px',
                           boxSizing: 'border-box',
@@ -935,6 +984,11 @@ const RealEstateProfessionalDetail = () => {
                         }}
                       />
                     </div>
+                    {formErrors.customer_whatsapp_number && (
+                      <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>
+                        {formErrors.customer_whatsapp_number}
+                      </div>
+                    )}
                   </div>
 
                   {/* Calling Number */}
@@ -1117,17 +1171,33 @@ const RealEstateProfessionalDetail = () => {
                   }}>
                     Languages Needed *
                   </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px' }}>
-                    {['English', 'Hindi', 'Arabic', 'French', 'Spanish', 'Chinese', 'Russian', 'German', 'Japanese', 'Portuguese'].map(language => (
-                      <label key={language} style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                        <input
-                          type="checkbox"
-                          checked={orderFormData.languages_required.includes(language)}
-                          onChange={() => handleLanguageToggle(language)}
-                        />
-                        <span style={{ fontSize: '14px', color: theme.textPrimary }}>{language}</span>
-                      </label>
+                  <select
+                    multiple
+                    value={orderFormData.languages_required}
+                    onChange={(e) => {
+                      const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+                      setOrderFormData({ ...orderFormData, languages_required: selectedOptions });
+                    }}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '10px 12px',
+                      border: `1px solid ${theme.borderLight}`,
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                      backgroundColor: theme.background,
+                      minHeight: '120px'
+                    }}
+                  >
+                    {worldLanguages.map(language => (
+                      <option key={language} value={language}>
+                        {language}
+                      </option>
                     ))}
+                  </select>
+                  <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
+                    Hold Ctrl (Cmd on Mac) to select multiple languages
                   </div>
                 </div>
 
