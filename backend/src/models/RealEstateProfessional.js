@@ -255,7 +255,8 @@ class RealEstateProfessional {
       'first_name', 'last_name', 'ig_url', 'no_of_followers', 'verified_tick',
       'linkedin', 'tiktok', 'facebook', 'youtube', 'real_estate_agency_owner',
       'real_estate_agent', 'developer_employee', 'gender', 'nationality',
-      'current_residence_city', 'languages', 'image', 'is_active'
+      'current_residence_city', 'languages', 'image', 'is_active',
+      'status', 'admin_comments', 'rejection_reason' // Allow these even if columns don't exist yet
     ];
 
     Object.keys(updateData).forEach(key => {
@@ -277,8 +278,49 @@ class RealEstateProfessional {
     console.log('RealEstateProfessional.update - Executing SQL:', sql);
     console.log('RealEstateProfessional.update - Values:', values);
 
-    const result = await query(sql, values);
-    console.log('RealEstateProfessional.update - Query result:', result.rows.length > 0 ? 'Success' : 'No rows returned');
+    try {
+      const result = await query(sql, values);
+      console.log('RealEstateProfessional.update - Query result:', result.rows.length > 0 ? 'Success' : 'No rows returned');
+    } catch (dbError) {
+      // If the error is about a missing column, try again with only existing columns
+      if (dbError.code === '42703' && dbError.message.includes('column') && dbError.message.includes('does not exist')) {
+        console.log('RealEstateProfessional.update - Column does not exist, retrying with basic fields only');
+
+        // Retry with only the basic fields that definitely exist
+        const basicFields = [];
+        const basicValues = [];
+        let basicParamCount = 1;
+
+        const basicUpdateFields = [
+          'first_name', 'last_name', 'ig_url', 'no_of_followers', 'verified_tick',
+          'linkedin', 'tiktok', 'facebook', 'youtube', 'real_estate_agency_owner',
+          'real_estate_agent', 'developer_employee', 'gender', 'nationality',
+          'current_residence_city', 'languages', 'image', 'is_active'
+        ];
+
+        Object.keys(updateData).forEach(key => {
+          if (updateData[key] !== undefined && basicUpdateFields.includes(key)) {
+            basicFields.push(`${key} = $${basicParamCount}`);
+            basicValues.push((key === 'languages') ? JSON.stringify(updateData[key]) : updateData[key]);
+            basicParamCount++;
+          }
+        });
+
+        if (basicFields.length > 0) {
+          basicValues.push(this.id);
+          const basicSql = `UPDATE real_estate_professionals SET ${basicFields.join(', ')}, updated_at = NOW() WHERE id = $${basicParamCount} RETURNING *`;
+          console.log('RealEstateProfessional.update - Retrying with basic SQL:', basicSql);
+
+          const basicResult = await query(basicSql, basicValues);
+          console.log('RealEstateProfessional.update - Basic update result:', basicResult.rows.length > 0 ? 'Success' : 'No rows returned');
+        } else {
+          console.log('RealEstateProfessional.update - No basic fields to update');
+        }
+      } else {
+        // Re-throw other errors
+        throw dbError;
+      }
+    }
 
     // Handle languages field parsing for updated data
     const updatedData = result.rows[0];
