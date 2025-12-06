@@ -133,18 +133,18 @@ class RealEstateProfessional {
       'current_residence_city', 'languages', 'image', 'is_active'
     ];
 
-    // Add optional fields that might exist depending on migration status
-    const optionalFields = [
-      'status', 'submitted_by', 'submitted_by_admin', 'approved_at', 'approved_by',
-      'rejected_at', 'rejected_by', 'rejection_reason', 'admin_comments'
-    ];
+    // Temporarily disable optional fields until migration is confirmed
+    // const optionalFields = [
+    //   'status', 'submitted_by', 'submitted_by_admin', 'approved_at', 'approved_by',
+    //   'rejected_at', 'rejected_by', 'rejection_reason', 'admin_comments'
+    // ];
 
-    // Check which optional fields exist in the data
-    optionalFields.forEach(field => {
-      if (professionalData[field] !== undefined) {
-        allowedFields.push(field);
-      }
-    });
+    // // Check which optional fields exist in the data
+    // optionalFields.forEach(field => {
+    //   if (professionalData[field] !== undefined) {
+    //     allowedFields.push(field);
+    //   }
+    // });
 
     const filteredData = {};
     allowedFields.forEach(field => {
