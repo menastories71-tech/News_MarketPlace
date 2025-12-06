@@ -95,31 +95,31 @@ const PressPackCreationFormModal = ({ isOpen, onClose, record, onSave }) => {
   useEffect(() => {
     if (record) {
       setFormData({
-        press_release_name: record.press_release_name || '',
+        press_release_name: record.name || '',
         region: record.region || '',
         niche: record.niche || '',
-        distribution_to_no_of_media_websites: record.distribution_to_no_of_media_websites || '',
-        guaranteed_no_of_media_placements: record.guaranteed_no_of_media_placements || '',
-        end_client_media_details_in_press_release: record.end_client_media_details_in_press_release || '',
-        middlemen_or_pr_agency_contact_details_in_press_release: record.middlemen_or_pr_agency_contact_details_in_press_release || '',
+        distribution_to_no_of_media_websites: record.distribution_media_websites || '',
+        guaranteed_no_of_media_placements: record.guaranteed_media_placements || '',
+        end_client_media_details_in_press_release: record.end_client_media_details || '',
+        middlemen_or_pr_agency_contact_details_in_press_release: record.middlemen_contact_details || '',
         google_search_optimised_status: record.google_search_optimised_status || '',
         google_search_optimised_publications: record.google_search_optimised_publications || '',
         google_news_index_status: record.google_news_index_status || '',
         google_news_index_publications: record.google_news_index_publications || '',
-        no_of_images_allowed: record.no_of_images_allowed || '',
+        no_of_images_allowed: record.images_allowed || '',
         word_limit: record.word_limit || '',
-        press_release_package_options: record.press_release_package_options || [],
+        press_release_package_options: record.package_options || [],
         price: record.price || '',
-        turnaround_time_in_days: record.turnaround_time_in_days || '',
-        information_and_documents_needed_from_customers: record.information_and_documents_needed_from_customers || [],
+        turnaround_time_in_days: record.turnaround_time || '',
+        information_and_documents_needed_from_customers: record.customer_info_needed || [],
         description: record.description || '',
         image_logo: record.image_logo || '',
         best_seller: record.best_seller || false,
-        newly_added: record.newly_added || false,
-        exclusive: record.exclusive || false,
-        best_price_guarantee: record.best_price_guarantee || false,
-        vaas_choice: record.vaas_choice || false,
-        content_writing_assistance: record.content_writing_assistance || ''
+        newly_added: false, // Not in API
+        exclusive: false, // Not in API
+        best_price_guarantee: false, // Not in API
+        vaas_choice: false, // Not in API
+        content_writing_assistance: record.content_writing_assistance ? 'Required' : 'Not required'
       });
 
       // Set image preview for existing record
@@ -167,14 +167,14 @@ const PressPackCreationFormModal = ({ isOpen, onClose, record, onSave }) => {
       // Create FormData for multipart upload
       const submitData = new FormData();
 
-      // Add text fields
-      submitData.append('press_release_name', formData.press_release_name);
+      // Add text fields with correct backend field names
+      submitData.append('name', formData.press_release_name);
       submitData.append('region', formData.region);
       submitData.append('niche', formData.niche);
-      submitData.append('distribution_to_no_of_media_websites', formData.distribution_to_no_of_media_websites);
-      submitData.append('guaranteed_no_of_media_placements', formData.guaranteed_no_of_media_placements);
-      submitData.append('end_client_media_details_in_press_release', formData.end_client_media_details_in_press_release);
-      submitData.append('middlemen_or_pr_agency_contact_details_in_press_release', formData.middlemen_or_pr_agency_contact_details_in_press_release);
+      submitData.append('distribution_media_websites', formData.distribution_to_no_of_media_websites);
+      submitData.append('guaranteed_media_placements', formData.guaranteed_no_of_media_placements);
+      submitData.append('end_client_media_details', formData.end_client_media_details_in_press_release);
+      submitData.append('middlemen_contact_details', formData.middlemen_or_pr_agency_contact_details_in_press_release);
       submitData.append('google_search_optimised_status', formData.google_search_optimised_status);
       if (formData.google_search_optimised_status === 'Guaranteed' && formData.google_search_optimised_publications) {
         submitData.append('google_search_optimised_publications', formData.google_search_optimised_publications);
@@ -183,19 +183,18 @@ const PressPackCreationFormModal = ({ isOpen, onClose, record, onSave }) => {
       if (formData.google_news_index_status === 'Guaranteed' && formData.google_news_index_publications) {
         submitData.append('google_news_index_publications', formData.google_news_index_publications);
       }
-      submitData.append('no_of_images_allowed', formData.no_of_images_allowed);
+      submitData.append('images_allowed', formData.no_of_images_allowed);
       submitData.append('word_limit', formData.word_limit);
-      submitData.append('press_release_package_options', JSON.stringify(formData.press_release_package_options));
+      submitData.append('package_options', JSON.stringify(formData.press_release_package_options));
       submitData.append('price', formData.price);
-      submitData.append('turnaround_time_in_days', formData.turnaround_time_in_days);
-      submitData.append('information_and_documents_needed_from_customers', JSON.stringify(formData.information_and_documents_needed_from_customers));
+      submitData.append('turnaround_time', formData.turnaround_time_in_days);
+      submitData.append('customer_info_needed', JSON.stringify(formData.information_and_documents_needed_from_customers));
       submitData.append('description', formData.description);
       submitData.append('best_seller', formData.best_seller);
-      submitData.append('newly_added', formData.newly_added);
-      submitData.append('exclusive', formData.exclusive);
-      submitData.append('best_price_guarantee', formData.best_price_guarantee);
-      submitData.append('vaas_choice', formData.vaas_choice);
-      submitData.append('content_writing_assistance', formData.content_writing_assistance);
+      // Convert content_writing_assistance string to boolean
+      const contentWritingBoolean = formData.content_writing_assistance === 'Required';
+      submitData.append('content_writing_assistance', contentWritingBoolean);
+      submitData.append('is_active', true); // Default to active
 
       // Add image file if selected
       if (selectedImage) {
@@ -1118,7 +1117,7 @@ const PressPackCreationPage = () => {
                       }}>
                         <td style={{ padding: '16px' }}>
                           <div style={{ fontSize: '14px', color: theme.textPrimary, fontWeight: '500' }}>
-                            {record.press_release_name}
+                            {record.name}
                           </div>
                         </td>
                         <td style={{ padding: '16px' }}>
