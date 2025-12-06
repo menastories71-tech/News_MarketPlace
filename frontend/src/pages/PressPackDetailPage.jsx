@@ -62,10 +62,10 @@ const PressPackDetailPage = () => {
       setLoading(true);
       console.log('Fetching press pack details for ID:', id);
 
-      const response = await api.get(`/press-packs/${id}`);
-      console.log('Press pack details response:', response.data);
+      const response = await api.get(`/admin/press-releases/${id}`);
+      console.log('Press release details response:', response.data);
 
-      setPressPack(response.data.pressPack || response.data);
+      setPressPack(response.data.pressRelease || response.data);
       setIncludedPublications(response.data.includedPublications || []);
     } catch (error) {
       console.error('Error fetching press pack details:', error);
@@ -113,8 +113,8 @@ const PressPackDetailPage = () => {
 
   const handleShare = () => {
     const shareData = {
-      title: pressPack.distribution_package,
-      text: `Check out this press pack: ${pressPack.distribution_package}`,
+      title: pressPack.name,
+      text: `Check out this press release: ${pressPack.name}`,
       url: window.location.href
     };
 
@@ -183,7 +183,7 @@ const PressPackDetailPage = () => {
         image: purchaseFormData.image,
         word_pdf_document: purchaseFormData.word_pdf_document,
         submitted_by_type: purchaseFormData.submitted_by_type,
-        package_selection: purchaseFormData.package_selection || pressPack.distribution_package,
+        package_selection: purchaseFormData.package_selection || pressPack.name,
         message: purchaseFormData.message,
         content_writing_assistance: purchaseFormData.content_writing_assistance,
         terms_accepted: purchaseFormData.terms_accepted,
@@ -330,7 +330,7 @@ const PressPackDetailPage = () => {
                   </div>
                   <div className="flex-1">
                     <h1 className="text-3xl font-bold mb-3" style={{ color: themeColors.textPrimary }}>
-                      {pressPack.distribution_package}
+                      {pressPack.name}
                     </h1>
                     <div className="flex flex-wrap items-center gap-6 text-sm" style={{ color: themeColors.textSecondary }}>
                       <div className="flex items-center gap-2">
@@ -339,11 +339,11 @@ const PressPackDetailPage = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Building size={16} />
-                        <span>{pressPack.industry}</span>
+                        <span>{pressPack.niche}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Globe size={16} />
-                        <span>{pressPack.language}</span>
+                        <DollarSign size={16} />
+                        <span>${pressPack.price}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar size={16} />
@@ -365,38 +365,38 @@ const PressPackDetailPage = () => {
                 )}
 
                 {/* Description */}
-                {pressPack.news && (
+                {pressPack.description && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: themeColors.textPrimary }}>
-                      Package Description
+                      Press Release Description
                     </h3>
                     <div className="prose max-w-none" style={{ color: themeColors.textSecondary }}>
-                      <p>{pressPack.news}</p>
+                      <p>{pressPack.description}</p>
                     </div>
                   </div>
                 )}
 
-                {/* Package Stats */}
+                {/* Press Release Stats */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-4" style={{ color: themeColors.textPrimary }}>
-                    Package Overview
+                    Press Release Overview
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center p-4 rounded-lg" style={{ backgroundColor: themeColors.backgroundSoft }}>
                       <div className="text-2xl font-bold mb-1" style={{ color: themeColors.primary }}>
-                        {pressPack.no_of_indexed_websites || 0}
+                        {pressPack.distribution_media_websites || 0}
                       </div>
-                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>Indexed Websites</div>
+                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>Media Websites</div>
                     </div>
                     <div className="text-center p-4 rounded-lg" style={{ backgroundColor: themeColors.backgroundSoft }}>
                       <div className="text-2xl font-bold mb-1" style={{ color: themeColors.success }}>
-                        {pressPack.no_of_non_indexed_websites || 0}
+                        {pressPack.guaranteed_media_placements || 0}
                       </div>
-                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>Non-Indexed Websites</div>
+                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>Guaranteed Placements</div>
                     </div>
                     <div className="text-center p-4 rounded-lg" style={{ backgroundColor: themeColors.backgroundSoft }}>
                       <div className="text-2xl font-bold mb-1" style={{ color: themeColors.warning }}>
-                        {pressPack.words_limit || 'N/A'}
+                        {pressPack.word_limit || 'N/A'}
                       </div>
                       <div className="text-sm" style={{ color: themeColors.textSecondary }}>Word Limit</div>
                     </div>
@@ -497,25 +497,25 @@ const PressPackDetailPage = () => {
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle size={16} style={{ color: themeColors.success }} />
                     <span style={{ color: themeColors.textSecondary }}>
-                      {pressPack.no_of_indexed_websites || 0} Indexed publications
+                      {pressPack.distribution_media_websites || 0} Media websites distribution
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle size={16} style={{ color: themeColors.success }} />
                     <span style={{ color: themeColors.textSecondary }}>
-                      {pressPack.no_of_non_indexed_websites || 0} Non-indexed publications
+                      {pressPack.guaranteed_media_placements || 0} Guaranteed placements
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle size={16} style={{ color: themeColors.success }} />
                     <span style={{ color: themeColors.textSecondary }}>
-                      {pressPack.words_limit ? `${pressPack.words_limit} word limit` : 'Flexible word count'}
+                      {pressPack.word_limit ? `${pressPack.word_limit} word limit` : 'Flexible word count'}
                     </span>
                   </div>
-                  {pressPack.indexed && (
+                  {pressPack.content_writing_assistance && (
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle size={16} style={{ color: themeColors.success }} />
-                      <span style={{ color: themeColors.textSecondary }}>SEO indexed content</span>
+                      <span style={{ color: themeColors.textSecondary }}>Content writing assistance included</span>
                     </div>
                   )}
                 </div>
@@ -545,21 +545,21 @@ const PressPackDetailPage = () => {
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: themeColors.textSecondary }}>Industry</span>
+                    <span style={{ color: themeColors.textSecondary }}>Niche</span>
                     <span style={{ color: themeColors.textPrimary }} className="font-medium">
-                      {pressPack.industry}
+                      {pressPack.niche}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: themeColors.textSecondary }}>Language</span>
+                    <span style={{ color: themeColors.textSecondary }}>Turnaround Time</span>
                     <span style={{ color: themeColors.textPrimary }} className="font-medium">
-                      {pressPack.language}
+                      {pressPack.turnaround_time} days
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: themeColors.textSecondary }}>Indexed</span>
+                    <span style={{ color: themeColors.textSecondary }}>Content Writing</span>
                     <span style={{ color: themeColors.textPrimary }} className="font-medium">
-                      {pressPack.indexed ? 'Yes' : 'No'}
+                      {pressPack.content_writing_assistance ? 'Included' : 'Not Included'}
                     </span>
                   </div>
                 </div>
@@ -859,7 +859,7 @@ const PressPackDetailPage = () => {
                 fontWeight: '600',
                 color: themeColors.textPrimary
               }}>
-                {pressPack.distribution_package}
+                {pressPack.name}
               </h4>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ color: themeColors.textSecondary }}>Total Amount:</span>

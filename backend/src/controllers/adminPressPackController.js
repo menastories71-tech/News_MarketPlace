@@ -38,16 +38,45 @@ class AdminPressPackController {
 
   // Validation rules for create
   createValidation = [
-    body('distribution_package').trim().isLength({ min: 1 }).withMessage('Distribution package is required'),
+    body().custom((body) => {
+      const hasName = body.press_release_name || body.name || body.distribution_package;
+      if (!hasName) {
+        throw new Error('Name is required (press_release_name, name, or distribution_package)');
+      }
+      return true;
+    }),
+    body('press_release_name').optional().trim().isLength({ min: 1 }).withMessage('Press release name must be at least 1 character'),
+    body('distribution_package').optional().trim().isLength({ min: 1 }).withMessage('Distribution package must be at least 1 character'),
+    body('name').optional().trim().isLength({ min: 1 }).withMessage('Name must be at least 1 character'),
     body('region').optional().trim(),
+    body('niche').optional().trim(),
     body('industry').optional().trim(),
+    body('description').optional().trim(),
     body('news').optional().trim(),
+    body('content_writing_assistance').optional().isBoolean().withMessage('Content writing assistance must be a boolean'),
     body('indexed').optional().isBoolean().withMessage('Indexed must be a boolean'),
     body('disclaimer').optional().trim(),
-    body('no_of_indexed_websites').optional().isInt({ min: 0 }).withMessage('Number of indexed websites must be a non-negative integer'),
-    body('no_of_non_indexed_websites').optional().isInt({ min: 0 }).withMessage('Number of non-indexed websites must be a non-negative integer'),
-    body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+    body('distribution_media_websites').optional().isInt({ min: 0 }).withMessage('Distribution media websites must be a non-negative integer'),
+    body('distribution_to_no_of_media_websites').optional().isInt({ min: 0 }).withMessage('Distribution to no of media websites must be a non-negative integer'),
+    body('guaranteed_media_placements').optional().isInt({ min: 0 }).withMessage('Guaranteed media placements must be a non-negative integer'),
+    body('guaranteed_no_of_media_placements').optional().isInt({ min: 0 }).withMessage('Guaranteed no of media placements must be a non-negative integer'),
+    body('end_client_media_details').optional().trim(),
+    body('end_client_media_details_in_press_release').optional().trim(),
+    body('middlemen_contact_details').optional().trim(),
+    body('middlemen_or_pr_agency_contact_details_in_press_release').optional().trim(),
+    body('google_search_optimised_status').optional().isIn(['Not Guaranteed', 'Guaranteed']).withMessage('Google search optimised status must be Not Guaranteed or Guaranteed'),
+    body('google_news_index_status').optional().isIn(['Not Guaranteed', 'Guaranteed']).withMessage('Google news index status must be Not Guaranteed or Guaranteed'),
+    body('images_allowed').optional().isInt({ min: 0 }).withMessage('Images allowed must be a non-negative integer'),
+    body('no_of_images_allowed').optional().isInt({ min: 0 }).withMessage('No of images allowed must be a non-negative integer'),
+    body('word_limit').optional().isInt({ min: 0 }).withMessage('Word limit must be a non-negative integer'),
     body('words_limit').optional().isInt({ min: 0 }).withMessage('Words limit must be a non-negative integer'),
+    body('package_options').optional().isArray().withMessage('Package options must be an array'),
+    body('press_release_package_options').optional().isArray().withMessage('Press release package options must be an array'),
+    body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+    body('turnaround_time').optional().trim(),
+    body('turnaround_time_in_days').optional().trim(),
+    body('customer_info_needed').optional().trim(),
+    body('information_and_documents_needed_from_customers').optional().trim(),
     body('language').optional().trim(),
     body('link').optional().isURL().withMessage('Link must be a valid URL'),
     body('is_active').optional().isBoolean().withMessage('Is active must be a boolean')
@@ -55,16 +84,38 @@ class AdminPressPackController {
 
   // Validation rules for update
   updateValidation = [
-    body('distribution_package').optional().trim().isLength({ min: 1 }).withMessage('Distribution package is required'),
+    body('press_release_name').optional().trim().isLength({ min: 1 }).withMessage('Press release name must be at least 1 character'),
+    body('distribution_package').optional().trim().isLength({ min: 1 }).withMessage('Distribution package must be at least 1 character'),
+    body('name').optional().trim().isLength({ min: 1 }).withMessage('Name must be at least 1 character'),
     body('region').optional().trim(),
+    body('niche').optional().trim(),
     body('industry').optional().trim(),
+    body('description').optional().trim(),
     body('news').optional().trim(),
+    body('content_writing_assistance').optional().isBoolean().withMessage('Content writing assistance must be a boolean'),
     body('indexed').optional().isBoolean().withMessage('Indexed must be a boolean'),
     body('disclaimer').optional().trim(),
-    body('no_of_indexed_websites').optional().isInt({ min: 0 }).withMessage('Number of indexed websites must be a non-negative integer'),
-    body('no_of_non_indexed_websites').optional().isInt({ min: 0 }).withMessage('Number of non-indexed websites must be a non-negative integer'),
-    body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+    body('distribution_media_websites').optional().isInt({ min: 0 }).withMessage('Distribution media websites must be a non-negative integer'),
+    body('distribution_to_no_of_media_websites').optional().isInt({ min: 0 }).withMessage('Distribution to no of media websites must be a non-negative integer'),
+    body('guaranteed_media_placements').optional().isInt({ min: 0 }).withMessage('Guaranteed media placements must be a non-negative integer'),
+    body('guaranteed_no_of_media_placements').optional().isInt({ min: 0 }).withMessage('Guaranteed no of media placements must be a non-negative integer'),
+    body('end_client_media_details').optional().trim(),
+    body('end_client_media_details_in_press_release').optional().trim(),
+    body('middlemen_contact_details').optional().trim(),
+    body('middlemen_or_pr_agency_contact_details_in_press_release').optional().trim(),
+    body('google_search_optimised_status').optional().isIn(['Not Guaranteed', 'Guaranteed']).withMessage('Google search optimised status must be Not Guaranteed or Guaranteed'),
+    body('google_news_index_status').optional().isIn(['Not Guaranteed', 'Guaranteed']).withMessage('Google news index status must be Not Guaranteed or Guaranteed'),
+    body('images_allowed').optional().isInt({ min: 0 }).withMessage('Images allowed must be a non-negative integer'),
+    body('no_of_images_allowed').optional().isInt({ min: 0 }).withMessage('No of images allowed must be a non-negative integer'),
+    body('word_limit').optional().isInt({ min: 0 }).withMessage('Word limit must be a non-negative integer'),
     body('words_limit').optional().isInt({ min: 0 }).withMessage('Words limit must be a non-negative integer'),
+    body('package_options').optional().isArray().withMessage('Package options must be an array'),
+    body('press_release_package_options').optional().isArray().withMessage('Press release package options must be an array'),
+    body('price').optional().isFloat({ min: 0 }).withMessage('Price must be a non-negative number'),
+    body('turnaround_time').optional().trim(),
+    body('turnaround_time_in_days').optional().trim(),
+    body('customer_info_needed').optional().trim(),
+    body('information_and_documents_needed_from_customers').optional().trim(),
     body('language').optional().trim(),
     body('link').optional().isURL().withMessage('Link must be a valid URL'),
     body('is_active').optional().isBoolean().withMessage('Is active must be a boolean')
@@ -188,6 +239,23 @@ class AdminPressPackController {
 
       console.log('AdminPressPackController.create - Validation passed');
       const pressPackData = { ...req.body };
+
+      // Map frontend field names to backend field names
+      if (pressPackData.press_release_name) pressPackData.name = pressPackData.press_release_name;
+      if (pressPackData.distribution_to_no_of_media_websites) pressPackData.distribution_media_websites = pressPackData.distribution_to_no_of_media_websites;
+      if (pressPackData.guaranteed_no_of_media_placements) pressPackData.guaranteed_media_placements = pressPackData.guaranteed_no_of_media_placements;
+      if (pressPackData.end_client_media_details_in_press_release) pressPackData.end_client_media_details = pressPackData.end_client_media_details_in_press_release;
+      if (pressPackData.middlemen_or_pr_agency_contact_details_in_press_release) pressPackData.middlemen_contact_details = pressPackData.middlemen_or_pr_agency_contact_details_in_press_release;
+      if (pressPackData.google_search_optimised_status) pressPackData.google_search_optimised_status = pressPackData.google_search_optimised_status;
+      if (pressPackData.google_news_index_status) pressPackData.google_news_index_status = pressPackData.google_news_index_status;
+      if (pressPackData.no_of_images_allowed) pressPackData.images_allowed = pressPackData.no_of_images_allowed;
+      if (pressPackData.word_limit) pressPackData.word_limit = pressPackData.word_limit;
+      if (pressPackData.press_release_package_options) pressPackData.package_options = pressPackData.press_release_package_options;
+      if (pressPackData.turnaround_time_in_days) pressPackData.turnaround_time = pressPackData.turnaround_time_in_days;
+      if (pressPackData.information_and_documents_needed_from_customers) pressPackData.customer_info_needed = pressPackData.information_and_documents_needed_from_customers;
+      if (pressPackData.description) pressPackData.description = pressPackData.description;
+      if (pressPackData.content_writing_assistance) pressPackData.content_writing_assistance = pressPackData.content_writing_assistance === 'true' || pressPackData.content_writing_assistance === true;
+
       console.log('AdminPressPackController.create - Press pack data prepared:', Object.keys(pressPackData));
 
       // Handle image upload to S3
@@ -260,6 +328,23 @@ class AdminPressPackController {
 
       console.log('AdminPressPackController.update - Press pack found:', pressPack.id);
       const updateData = { ...req.body };
+
+      // Map frontend field names to backend field names
+      if (updateData.press_release_name) updateData.name = updateData.press_release_name;
+      if (updateData.distribution_to_no_of_media_websites) updateData.distribution_media_websites = updateData.distribution_to_no_of_media_websites;
+      if (updateData.guaranteed_no_of_media_placements) updateData.guaranteed_media_placements = updateData.guaranteed_no_of_media_placements;
+      if (updateData.end_client_media_details_in_press_release) updateData.end_client_media_details = updateData.end_client_media_details_in_press_release;
+      if (updateData.middlemen_or_pr_agency_contact_details_in_press_release) updateData.middlemen_contact_details = updateData.middlemen_or_pr_agency_contact_details_in_press_release;
+      if (updateData.google_search_optimised_status) updateData.google_search_optimised_status = updateData.google_search_optimised_status;
+      if (updateData.google_news_index_status) updateData.google_news_index_status = updateData.google_news_index_status;
+      if (updateData.no_of_images_allowed) updateData.images_allowed = updateData.no_of_images_allowed;
+      if (updateData.word_limit) updateData.word_limit = updateData.word_limit;
+      if (updateData.press_release_package_options) updateData.package_options = updateData.press_release_package_options;
+      if (updateData.turnaround_time_in_days) updateData.turnaround_time = updateData.turnaround_time_in_days;
+      if (updateData.information_and_documents_needed_from_customers) updateData.customer_info_needed = updateData.information_and_documents_needed_from_customers;
+      if (updateData.description) updateData.description = updateData.description;
+      if (updateData.content_writing_assistance !== undefined) updateData.content_writing_assistance = updateData.content_writing_assistance === 'true' || updateData.content_writing_assistance === true;
+
       console.log('AdminPressPackController.update - Update data prepared:', Object.keys(updateData));
 
       // Handle image upload to S3 for updates

@@ -64,7 +64,7 @@ const PressPacksPage = () => {
   const [wordsLimitRange, setWordsLimitRange] = useState([0, 10000]);
 
   // Sorting state
-  const [sortField, setSortField] = useState('distribution_package');
+  const [sortField, setSortField] = useState('name');
   const [sortDirection, setSortDirection] = useState('asc');
 
   // Pagination
@@ -96,27 +96,27 @@ const PressPacksPage = () => {
       // Enhanced search across multiple fields
       if (searchTerm.trim()) {
         params.append('search', searchTerm.trim());
-        params.append('distribution_package', searchTerm.trim());
+        params.append('name', searchTerm.trim());
       }
 
       if (regionFilter) params.append('region', regionFilter);
-      if (industryFilter) params.append('industry', industryFilter);
+      if (industryFilter) params.append('niche', industryFilter);
       if (languageFilter) params.append('language', languageFilter);
 
-      const response = await api.get(`/press-packs?${params.toString()}`);
-      let packs = response.data.pressPacks || [];
+      const response = await api.get(`/admin/press-releases?${params.toString()}`);
+      let packs = response.data.pressReleases || [];
 
-      // Client-side filtering for price range, indexed, words limit
+      // Client-side filtering for price range, content writing assistance, words limit
       packs = packs.filter(pack => {
         const price = parseFloat(pack.price) || 0;
-        const words = parseInt(pack.words_limit) || 0;
-        const indexed = pack.indexed;
+        const words = parseInt(pack.word_limit) || 0;
+        const contentWriting = pack.content_writing_assistance;
 
         const priceMatch = price >= priceRange[0] && price <= priceRange[1];
         const wordsMatch = words >= wordsLimitRange[0] && words <= wordsLimitRange[1];
-        const indexedMatch = !indexedFilter || (indexedFilter === 'true' ? indexed : !indexed);
+        const contentWritingMatch = !indexedFilter || (indexedFilter === 'true' ? contentWriting : !contentWriting);
 
-        return priceMatch && wordsMatch && indexedMatch;
+        return priceMatch && wordsMatch && contentWritingMatch;
       });
 
       setPressPacks(packs);
@@ -156,7 +156,7 @@ const PressPacksPage = () => {
 
     // Words limit filter
     filtered = filtered.filter(pack => {
-      const words = parseInt(pack.words_limit) || 0;
+      const words = parseInt(pack.word_limit) || 0;
       return words >= wordsLimitRange[0] && words <= wordsLimitRange[1];
     });
 
@@ -238,9 +238,9 @@ const PressPacksPage = () => {
     return [...new Set(regions)].sort();
   };
 
-  const getUniqueIndustries = () => {
-    const industries = pressPacks.map(p => p.industry).filter(Boolean);
-    return [...new Set(industries)].sort();
+  const getUniqueNiches = () => {
+    const niches = pressPacks.map(p => p.niche).filter(Boolean);
+    return [...new Set(niches)].sort();
   };
 
   const getUniqueLanguages = () => {
@@ -277,7 +277,7 @@ const PressPacksPage = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 mx-auto mb-4 border-4 border-[#E0E0E0] border-t-[#1976D2]"></div>
-            <p className="text-lg text-[#757575]">Loading press packs...</p>
+            <p className="text-lg text-[#757575]">Loading press releases...</p>
           </div>
         </div>
         <UserFooter />
@@ -299,10 +299,10 @@ const PressPacksPage = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Press Release Distribution Packs
+              Press Release Services
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Professional press release distribution packages to maximize your media coverage and reach target audiences effectively.
+              Professional press release writing and distribution services to maximize your media coverage and reach target audiences effectively.
             </p>
 
             {/* Search Bar */}
@@ -310,7 +310,7 @@ const PressPacksPage = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search press packs by name, region, or industry..."
+                  placeholder="Search press releases by name, region, or niche..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
@@ -388,16 +388,16 @@ const PressPacksPage = () => {
                   {/* Industry Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Industry
+                      Niche
                     </label>
                     <select
                       value={industryFilter}
                       onChange={(e) => setIndustryFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Industries</option>
-                      {getUniqueIndustries().map(industry => (
-                        <option key={industry} value={industry}>{industry}</option>
+                      <option value="">All Niches</option>
+                      {getUniqueNiches().map(niche => (
+                        <option key={niche} value={niche}>{niche}</option>
                       ))}
                     </select>
                   </div>
@@ -497,7 +497,7 @@ const PressPacksPage = () => {
                       onChange={(e) => setIndexedFilter(e.target.checked ? 'true' : '')}
                       className="rounded accent-[#00796B]"
                     />
-                    <span className="text-sm" style={{ color: theme.textPrimary }}>Indexed Only</span>
+                    <span className="text-sm" style={{ color: theme.textPrimary }}>Content Writing Included</span>
                   </label>
                 </div>
               </div>
@@ -559,7 +559,7 @@ const PressPacksPage = () => {
                 </div>
 
                 <span className="text-sm font-medium text-[#212121]">
-                  {sortedPressPacks.length} press packs found
+                  {sortedPressPacks.length} press releases found
                   {searchTerm && (
                     <span className="ml-2 text-[#757575]">
                       for "{searchTerm}"
@@ -580,12 +580,12 @@ const PressPacksPage = () => {
                   }}
                   className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
-                  <option value="distribution_package-asc">Name (A-Z)</option>
-                  <option value="distribution_package-desc">Name (Z-A)</option>
+                  <option value="name-asc">Name (A-Z)</option>
+                  <option value="name-desc">Name (Z-A)</option>
                   <option value="price-asc">Price (Low to High)</option>
                   <option value="price-desc">Price (High to Low)</option>
                   <option value="region-asc">Region (A-Z)</option>
-                  <option value="industry-asc">Industry (A-Z)</option>
+                  <option value="niche-asc">Niche (A-Z)</option>
                   <option value="created_at-desc">Newest First</option>
                   <option value="created_at-asc">Oldest First</option>
                 </select>
@@ -617,7 +617,7 @@ const PressPacksPage = () => {
                         <div className="flex items-start justify-between mb-4">
                           <div className="flex-1">
                             <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
-                              {pack.distribution_package}
+                              {pack.name}
                             </h3>
                             <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
                               <MapPin size={14} className="mr-2" />
@@ -625,7 +625,7 @@ const PressPacksPage = () => {
                             </div>
                             <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
                               <Building size={14} className="mr-2" />
-                              <span>{pack.industry}</span>
+                              <span>{pack.niche}</span>
                             </div>
                           </div>
                           <div
@@ -636,18 +636,18 @@ const PressPacksPage = () => {
                           </div>
                         </div>
 
-                        {/* Enhanced SEO Metrics */}
+                        {/* Enhanced Press Release Metrics */}
                         <div className="grid grid-cols-3 gap-2 text-center mb-4 p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: theme.primary }}>{pack.no_of_indexed_websites || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Indexed</div>
+                            <div className="text-lg font-bold" style={{ color: theme.primary }}>{pack.distribution_media_websites || 0}</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>Media Websites</div>
                           </div>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: theme.success }}>{pack.no_of_non_indexed_websites || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Non-Indexed</div>
+                            <div className="text-lg font-bold" style={{ color: theme.success }}>{pack.guaranteed_media_placements || 0}</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>Guaranteed</div>
                           </div>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: theme.warning }}>{pack.words_limit || 0}</div>
+                            <div className="text-lg font-bold" style={{ color: theme.warning }}>{pack.word_limit || 0}</div>
                             <div className="text-xs" style={{ color: theme.textSecondary }}>Words</div>
                           </div>
                         </div>
@@ -658,20 +658,20 @@ const PressPacksPage = () => {
                             {formatPrice(pack.price)}
                           </div>
                           <div className="flex items-center text-sm" style={{ color: theme.warning }}>
-                            <Globe size={14} className="mr-1" />
-                            <span>{pack.language}</span>
+                            <Clock size={14} className="mr-1" />
+                            <span>{pack.turnaround_time} days</span>
                           </div>
                         </div>
 
                         {/* Enhanced Features */}
                         <div className="flex flex-wrap gap-2 mb-4">
-                          {pack.indexed && (
+                          {pack.content_writing_assistance && (
                             <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                              Indexed
+                              Content Writing
                             </span>
                           )}
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF3E0', color: theme.warning }}>
-                            {pack.region}
+                            {pack.niche}
                           </span>
                         </div>
 
@@ -705,10 +705,10 @@ const PressPacksPage = () => {
                           <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('distribution_package')}
+                            onClick={() => handleSort('name')}
                           >
                             <div className="flex items-center gap-2">
-                              Package {getSortIcon('distribution_package')}
+                              Press Release {getSortIcon('name')}
                             </div>
                           </th>
                           <th
@@ -723,10 +723,10 @@ const PressPacksPage = () => {
                           <th
                             className="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:bg-gray-50 transition-colors"
                             style={{ color: theme.textPrimary }}
-                            onClick={() => handleSort('industry')}
+                            onClick={() => handleSort('niche')}
                           >
                             <div className="flex items-center gap-2">
-                              Industry {getSortIcon('industry')}
+                              Niche {getSortIcon('niche')}
                             </div>
                           </th>
                           <th
@@ -767,10 +767,10 @@ const PressPacksPage = () => {
                                 </div>
                                 <div>
                                   <div className="font-semibold" style={{ color: theme.textPrimary }}>
-                                    {pack.distribution_package}
+                                    {pack.name}
                                   </div>
                                   <div className="text-sm" style={{ color: theme.textSecondary }}>
-                                    {pack.language}
+                                    {pack.region}
                                   </div>
                                 </div>
                               </div>
@@ -782,7 +782,7 @@ const PressPacksPage = () => {
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                {pack.industry}
+                                {pack.niche}
                               </span>
                             </td>
                             <td className="px-6 py-4">
@@ -792,8 +792,8 @@ const PressPacksPage = () => {
                             </td>
                             <td className="px-6 py-4">
                               <div className="text-sm">
-                                <div style={{ color: theme.primary }}>{pack.no_of_indexed_websites || 0} Indexed</div>
-                                <div style={{ color: theme.success }}>{pack.no_of_non_indexed_websites || 0} Non-Indexed</div>
+                                <div style={{ color: theme.primary }}>{pack.distribution_media_websites || 0} Media Websites</div>
+                                <div style={{ color: theme.success }}>{pack.guaranteed_media_placements || 0} Guaranteed</div>
                               </div>
                             </td>
                             <td className="px-6 py-4">
@@ -833,10 +833,10 @@ const PressPacksPage = () => {
                 <Package size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                No press packs found
+                No press releases found
               </h3>
               <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                We couldn't find any press packs matching your search criteria.
+                We couldn't find any press releases matching your search criteria.
               </p>
               <button
                 onClick={() => {
