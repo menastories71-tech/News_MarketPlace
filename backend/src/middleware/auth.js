@@ -272,6 +272,7 @@ const requireAdminPermission = (permission) => {
       'manage_reporters': 1,
       'manage_careers': 1,
       'manage_podcasters': 1,
+      'manage_orders': 1,
       'approve_publications': 2,
       'approve_themes': 2,
       'approve_reporters': 2,
