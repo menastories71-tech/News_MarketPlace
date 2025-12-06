@@ -393,24 +393,6 @@ const PublicationDetailPage = () => {
                   </div>
                 </div>
 
-                {/* Example Link */}
-                {publication.article_reference_link && (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                      Example Article
-                    </h3>
-                    <a
-                      href={publication.article_reference_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-colors"
-                      style={{ backgroundColor: theme.success }}
-                    >
-                      <ExternalLink size={16} />
-                      View Example Article
-                    </a>
-                  </div>
-                )}
 
                 {/* Tags/Badges */}
                 {publication.tags_badges && (
@@ -556,6 +538,25 @@ const PublicationDetailPage = () => {
                   )}
                 </div>
               </div>
+
+              {/* Example Article */}
+              {publication.article_reference_link && (
+                <div className="bg-white rounded-lg shadow-sm border p-6">
+                  <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
+                    Example Article
+                  </h3>
+                  <a
+                    href={publication.article_reference_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-white px-4 py-2 rounded-lg transition-colors"
+                    style={{ backgroundColor: theme.success }}
+                  >
+                    <ExternalLink size={16} />
+                    View Example Article
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -590,80 +591,6 @@ const PublicationDetailPage = () => {
               <Share size={16} style={{ color: theme.primary }} />
               <span style={{ color: theme.textSecondary }}>Share</span>
             </button>
-            {/* Social Media Links */}
-            <div className="flex items-center gap-2">
-              {publication.instagram && (
-                <a
-                  href={publication.instagram}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg border transition-colors hover:bg-gray-50"
-                  style={{ borderColor: theme.borderLight }}
-                  title="Instagram"
-                >
-                  <Instagram size={16} style={{ color: '#E4405F' }} />
-                </a>
-              )}
-              {!publication.instagram && (
-                <div className="p-2 rounded-lg border opacity-50" style={{ borderColor: theme.borderLight }}>
-                  <Instagram size={16} style={{ color: '#E4405F' }} />
-                </div>
-              )}
-
-              {publication.facebook && (
-                <a
-                  href={publication.facebook}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg border transition-colors hover:bg-gray-50"
-                  style={{ borderColor: theme.borderLight }}
-                  title="Facebook"
-                >
-                  <Facebook size={16} style={{ color: '#1877F2' }} />
-                </a>
-              )}
-              {!publication.facebook && (
-                <div className="p-2 rounded-lg border opacity-50" style={{ borderColor: theme.borderLight }}>
-                  <Facebook size={16} style={{ color: '#1877F2' }} />
-                </div>
-              )}
-
-              {publication.twitter && (
-                <a
-                  href={publication.twitter}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg border transition-colors hover:bg-gray-50"
-                  style={{ borderColor: theme.borderLight }}
-                  title="X (Twitter)"
-                >
-                  <Twitter size={16} style={{ color: '#000000' }} />
-                </a>
-              )}
-              {!publication.twitter && (
-                <div className="p-2 rounded-lg border opacity-50" style={{ borderColor: theme.borderLight }}>
-                  <Twitter size={16} style={{ color: '#000000' }} />
-                </div>
-              )}
-
-              {publication.linkedin && (
-                <a
-                  href={publication.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="p-2 rounded-lg border transition-colors hover:bg-gray-50"
-                  style={{ borderColor: theme.borderLight }}
-                  title="LinkedIn"
-                >
-                  <Linkedin size={16} style={{ color: '#0077B5' }} />
-                </a>
-              )}
-              {!publication.linkedin && (
-                <div className="p-2 rounded-lg border opacity-50" style={{ borderColor: theme.borderLight }}>
-                  <Linkedin size={16} style={{ color: '#0077B5' }} />
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </section>
@@ -934,3 +861,4 @@ const PublicationDetailPage = () => {
 };
 
 export default PublicationDetailPage;
+
