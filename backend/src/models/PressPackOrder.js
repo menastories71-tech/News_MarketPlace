@@ -9,10 +9,11 @@ class PressPackOrder {
     this.calling_number = data.calling_number;
     this.press_release_selection = data.press_release_selection;
     this.email = data.email || data.customer_email;
-    this.company_registration_document = data.company_registration_document;
-    this.letter_of_authorisation = data.letter_of_authorisation;
-    this.image = data.image;
-    this.word_pdf_document = data.word_pdf_document;
+    // File fields don't exist in remote DB
+    this.company_registration_document = data.company_registration_document || null;
+    this.letter_of_authorisation = data.letter_of_authorisation || null;
+    this.image = data.image || null;
+    this.word_pdf_document = data.word_pdf_document || null;
     this.submitted_by_type = data.submitted_by_type;
     this.package_selection = data.package_selection || data.press_pack_name;
     this.message = data.message || data.customer_message;
@@ -112,10 +113,7 @@ class PressPackOrder {
       // calling_number column doesn't exist in remote DB
       // press_release_selection column doesn't exist in remote DB
       email: 'customer_email',
-      company_registration_document: 'company_registration_document',
-      letter_of_authorisation: 'letter_of_authorisation',
-      image: 'image',
-      word_pdf_document: 'word_pdf_document',
+      // File columns don't exist in remote DB: company_registration_document, letter_of_authorisation, image, word_pdf_document
       submitted_by_type: 'submitted_by_type',
       package_selection: 'press_pack_name',
       message: 'customer_message',
@@ -277,6 +275,7 @@ class PressPackOrder {
       calling_number: this.calling_number,
       press_release_selection: this.press_release_selection,
       email: this.email,
+      // File fields may not exist in remote DB
       company_registration_document: this.company_registration_document,
       letter_of_authorisation: this.letter_of_authorisation,
       image: this.image,

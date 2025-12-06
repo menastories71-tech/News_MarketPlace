@@ -71,10 +71,7 @@ const create = async (req, res) => {
       name: name,
       whatsapp_number: whatsapp_number,
       email: email,
-      company_registration_document: uploadedFiles.company_registration_document || null,
-      letter_of_authorisation: uploadedFiles.letter_of_authorisation || null,
-      image: uploadedFiles.image || null,
-      word_pdf_document: uploadedFiles.word_pdf_document || null,
+      // File fields don't exist in remote DB
       submitted_by_type: submitted_by_type || 'agency',
       package_selection: package_selection || null,
       message: message || null,
