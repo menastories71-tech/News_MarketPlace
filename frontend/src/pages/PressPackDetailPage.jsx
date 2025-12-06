@@ -199,11 +199,11 @@ const PressPackDetailPage = () => {
       formDataToSend.append('press_release_type', JSON.stringify(purchaseFormData.press_release_type));
       formDataToSend.append('email', purchaseFormData.email);
       formDataToSend.append('submitted_by_type', purchaseFormData.submitted_by_type);
-      formDataToSend.append('press_release_selection', purchaseFormData.press_release_selection);
+      formDataToSend.append('press_release_selection', parseInt(purchaseFormData.press_release_selection) || null);
       formDataToSend.append('package_selection', purchaseFormData.package_selection);
       formDataToSend.append('message', purchaseFormData.message);
       formDataToSend.append('captcha_token', recaptchaToken);
-      formDataToSend.append('terms_accepted', purchaseFormData.terms_accepted);
+      formDataToSend.append('terms_accepted', purchaseFormData.terms_accepted ? 'true' : 'false');
       formDataToSend.append('content_writing_assistance', purchaseFormData.content_writing_assistance);
 
       // Add file fields

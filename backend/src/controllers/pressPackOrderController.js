@@ -23,6 +23,11 @@ const create = async (req, res) => {
       content_writing_assistance
     } = req.body;
 
+    // Convert string values to proper types
+    const parsedPressReleaseSelection = press_release_selection ? parseInt(press_release_selection) : null;
+    const parsedTermsAccepted = terms_accepted === 'true';
+    const parsedContentWritingAssistance = content_writing_assistance === 'required';
+
     // Handle file uploads to S3
     const uploadedFiles = {};
 
@@ -75,12 +80,12 @@ const create = async (req, res) => {
       image: uploadedFiles.image || null,
       word_pdf_document: uploadedFiles.word_pdf_document || null,
       submitted_by_type: submitted_by_type || 'agency',
-      press_release_selection: press_release_selection || null,
+      press_release_selection: parsedPressReleaseSelection,
       package_selection: package_selection || null,
       message: message || null,
       captcha_token: captcha_token || null,
-      terms_accepted: terms_accepted || false,
-      content_writing_assistance: content_writing_assistance === 'required' || content_writing_assistance === true,
+      terms_accepted: parsedTermsAccepted,
+      content_writing_assistance: parsedContentWritingAssistance,
       status: 'pending'
     };
 
