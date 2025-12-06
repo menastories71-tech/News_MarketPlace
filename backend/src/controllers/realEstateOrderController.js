@@ -1,7 +1,7 @@
 const RealEstateOrder = require('../models/RealEstateOrder');
 const RealEstateProfessional = require('../models/RealEstateProfessional');
 const { verifyRecaptcha } = require('../services/recaptchaService');
-const { sendEmail } = require('../services/emailService');
+const { sendCustomEmail } = require('../services/emailService');
 const { body, validationResult } = require('express-validator');
 
 class RealEstateOrderController {
@@ -272,7 +272,7 @@ class RealEstateOrderController {
         </div>
       `;
 
-      await sendEmail(order.customer_email, customerSubject, customerHtml);
+      await sendCustomEmail(order.customer_email, customerSubject, customerHtml);
 
       // Email to admin team
       const adminSubject = 'New Real Estate Order Submitted';
@@ -303,7 +303,7 @@ class RealEstateOrderController {
       `;
 
       // Send to admin email (you may want to configure this to send to multiple admins)
-      await sendEmail(process.env.ADMIN_EMAIL || 'admin@newsmarketplace.com', adminSubject, adminHtml);
+      await sendCustomEmail(process.env.ADMIN_EMAIL || 'admin@newsmarketplace.com', adminSubject, adminHtml);
 
     } catch (error) {
       console.error('Error sending order submission emails:', error);
@@ -369,7 +369,7 @@ class RealEstateOrderController {
         </div>
       `;
 
-      await sendEmail(order.customer_email, subject, html);
+      await sendCustomEmail(order.customer_email, subject, html);
 
     } catch (error) {
       console.error('Error sending order status update email:', error);
