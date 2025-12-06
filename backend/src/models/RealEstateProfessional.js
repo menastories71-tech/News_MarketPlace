@@ -255,8 +255,7 @@ class RealEstateProfessional {
       'first_name', 'last_name', 'ig_url', 'no_of_followers', 'verified_tick',
       'linkedin', 'tiktok', 'facebook', 'youtube', 'real_estate_agency_owner',
       'real_estate_agent', 'developer_employee', 'gender', 'nationality',
-      'current_residence_city', 'languages', 'image', 'is_active',
-      'status', 'admin_comments', 'rejection_reason' // Allow these even if columns don't exist yet
+      'current_residence_city', 'languages', 'image', 'is_active'
     ];
 
     Object.keys(updateData).forEach(key => {
