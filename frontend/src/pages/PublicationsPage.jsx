@@ -102,7 +102,7 @@ const PublicationsPage = () => {
       setLoading(true);
       
       const params = new URLSearchParams({
-        limit: '100'
+        limit: '1000'
       });
 
       // Enhanced search across multiple fields
