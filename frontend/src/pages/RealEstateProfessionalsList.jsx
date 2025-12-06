@@ -154,7 +154,7 @@ const RealEstateProfessionalsList = () => {
     }
 
     return filtered;
-  }, [professionals, professionTypeFilter, genderFilter]);
+  }, [professionals, professionTypeFilter]);
 
   // Sorting logic
   const sortedProfessionals = useMemo(() => {
