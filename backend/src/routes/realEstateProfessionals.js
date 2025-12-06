@@ -49,15 +49,15 @@ router.get('/:id',
 );
 
 // Form data routes (no authentication required for form population)
-router.get('/form/languages',
+router.get('/languages',
   realEstateProfessionalController.getLanguages
 );
 
-router.get('/form/countries',
+router.get('/countries',
   realEstateProfessionalController.getCountries
 );
 
-router.get('/form/cities/:country',
+router.get('/cities/:country',
   realEstateProfessionalController.getCities
 );
 
