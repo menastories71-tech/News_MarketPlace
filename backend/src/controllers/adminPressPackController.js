@@ -193,12 +193,12 @@ class AdminPressPackController {
       // Handle image upload to S3
       if (req.file) {
         console.log('AdminPressPackController.create - Uploading image to S3');
-        const s3Key = s3Service.generateKey('press-packs', 'image', req.file.originalname);
+        const s3Key = s3Service.generateKey('press-packs', 'image_logo', req.file.originalname);
         const contentType = s3Service.getContentType(req.file.originalname);
 
         try {
           const s3Url = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
-          pressPackData.image = s3Url;
+          pressPackData.image_logo = s3Url;
           console.log('AdminPressPackController.create - Image uploaded successfully:', s3Url);
         } catch (uploadError) {
           console.error('AdminPressPackController.create - S3 upload error:', uploadError);
@@ -265,12 +265,12 @@ class AdminPressPackController {
       // Handle image upload to S3 for updates
       if (req.file) {
         console.log('AdminPressPackController.update - Uploading image to S3');
-        const s3Key = s3Service.generateKey('press-packs', 'image', req.file.originalname);
+        const s3Key = s3Service.generateKey('press-packs', 'image_logo', req.file.originalname);
         const contentType = s3Service.getContentType(req.file.originalname);
 
         try {
           const s3Url = await s3Service.uploadFile(req.file.buffer, s3Key, contentType, req.file.originalname);
-          updateData.image = s3Url;
+          updateData.image_logo = s3Url;
           console.log('AdminPressPackController.update - Image uploaded successfully:', s3Url);
         } catch (uploadError) {
           console.error('AdminPressPackController.update - S3 upload error:', uploadError);
