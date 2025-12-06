@@ -24,6 +24,15 @@ class AdminRealEstateProfessionalController {
         }
       }
     });
+
+    // Bind methods to preserve 'this' context
+    this.getAll = this.getAll.bind(this);
+    this.getById = this.getById.bind(this);
+    this.create = this.create.bind(this);
+    this.update = this.update.bind(this);
+    this.delete = this.delete.bind(this);
+    this.findAllWithFilters = this.findAllWithFilters.bind(this);
+    this.getCount = this.getCount.bind(this);
   }
 
   // Validation rules for create
