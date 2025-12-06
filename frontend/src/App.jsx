@@ -112,7 +112,7 @@ import RolePermissionManagement from './components/admin/RolePermissionManagemen
 import OrderManagement from './components/admin/OrderManagement';
 import PaparazziOrderManagement from './components/admin/PaparazziOrderManagement';
 import ThemeOrderManagement from './components/admin/ThemeOrderManagement';
-import PressPackOrderManagement from './components/admin/PressPackOrderManagement';
+import PressPackOrderManagement from './pages/admin/PressPackOrderManagement';
 import PublicationManagementPage from './pages/admin/PublicationManagement';
 import PowerlistOrders from './pages/admin/PowerlistOrders';
 import RadioOrders from './pages/admin/RadioOrders';
@@ -120,6 +120,7 @@ import Icon from './components/common/Icon';
 import PaparazziCreations from './pages/admin/PaparazziCreations';
 import EventCreationPage from './pages/admin/EventCreation';
 import AwardCreationPage from './pages/admin/AwardCreation';
+import PressPackCreationPage from './pages/admin/PressPackCreation';
 import RealEstateManagement from './pages/admin/RealEstateManagement';
 import RealEstateProfessionalsManagement from './pages/admin/RealEstateProfessionalsManagement';
 import RealEstateOrdersManagement from './pages/admin/RealEstateOrdersManagement';
@@ -861,6 +862,16 @@ function App() {
                       <AdminProtectedRoute>
                         <div className="min-h-screen bg-gray-50">
                           <AwardCreationPage />
+                        </div>
+                      </AdminProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/press-pack-creation"
+                    element={
+                      <AdminProtectedRoute>
+                        <div className="min-h-screen bg-gray-50">
+                          <PressPackCreationPage />
                         </div>
                       </AdminProtectedRoute>
                     }
