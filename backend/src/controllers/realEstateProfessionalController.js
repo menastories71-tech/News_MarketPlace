@@ -132,6 +132,7 @@ class RealEstateProfessionalController {
         last_name,
         nationality,
         gender,
+        profession_type,
         current_residence_city,
         languages
       } = req.query;
@@ -160,21 +161,38 @@ class RealEstateProfessionalController {
       }
 
       if (nationality) {
-        searchSql += ` AND rp.nationality ILIKE $${searchParamCount}`;
-        searchValues.push(`%${nationality}%`);
+        searchSql += ` AND rp.nationality = $${searchParamCount}`;
+        searchValues.push(nationality);
         searchParamCount++;
       }
 
       if (current_residence_city) {
-        searchSql += ` AND rp.current_residence_city ILIKE $${searchParamCount}`;
-        searchValues.push(`%${current_residence_city}%`);
+        searchSql += ` AND rp.current_residence_city = $${searchParamCount}`;
+        searchValues.push(current_residence_city);
         searchParamCount++;
       }
 
       if (gender) {
-        searchSql += ` AND rp.gender ILIKE $${searchParamCount}`;
-        searchValues.push(`%${gender}%`);
+        searchSql += ` AND rp.gender = $${searchParamCount}`;
+        searchValues.push(gender);
         searchParamCount++;
+      }
+
+      if (profession_type) {
+        switch (profession_type) {
+          case 'agency_owner':
+            searchSql += ` AND rp.real_estate_agency_owner = true`;
+            break;
+          case 'agent':
+            searchSql += ` AND rp.real_estate_agent = true`;
+            break;
+          case 'developer_employee':
+            searchSql += ` AND rp.developer_employee = true`;
+            break;
+          default:
+            // No filtering if invalid profession_type
+            break;
+        }
       }
 
       if (languages) {

@@ -101,7 +101,7 @@ const RealEstateProfessionalsList = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, nationalityFilter, genderFilter, languagesFilter, locationFilter]);
+  }, [searchTerm, nationalityFilter, genderFilter, professionTypeFilter, languagesFilter, locationFilter]);
 
   const fetchProfessionals = async () => {
     try {
@@ -119,6 +119,7 @@ const RealEstateProfessionalsList = () => {
 
       if (nationalityFilter) params.append('nationality', nationalityFilter);
       if (genderFilter) params.append('gender', genderFilter);
+      if (professionTypeFilter) params.append('profession_type', professionTypeFilter);
       if (locationFilter) params.append('current_residence_city', locationFilter);
       if (languagesFilter) params.append('languages', languagesFilter);
 
@@ -140,7 +141,7 @@ const RealEstateProfessionalsList = () => {
       setProfessionals(pros);
 
       // Store unfiltered list for filter options when no filters are applied
-      const hasAnyFilter = nationalityFilter || genderFilter || locationFilter || languagesFilter || searchTerm.trim();
+      const hasAnyFilter = nationalityFilter || genderFilter || professionTypeFilter || locationFilter || languagesFilter || searchTerm.trim();
       if (!hasAnyFilter) {
         setAllProfessionals(pros);
       }
@@ -157,28 +158,10 @@ const RealEstateProfessionalsList = () => {
     }
   };
 
-  // Filtering logic
+  // No additional frontend filtering needed since all filtering is done on backend
   const filteredProfessionals = useMemo(() => {
-    let filtered = [...professionals];
-
-    // Apply filters
-    if (professionTypeFilter) {
-      filtered = filtered.filter(pro => {
-        switch (professionTypeFilter) {
-          case 'agency_owner':
-            return pro.real_estate_agency_owner;
-          case 'agent':
-            return pro.real_estate_agent;
-          case 'developer_employee':
-            return pro.developer_employee;
-          default:
-            return true;
-        }
-      });
-    }
-
-    return filtered;
-  }, [professionals, professionTypeFilter]);
+    return [...professionals];
+  }, [professionals]);
 
   // Sorting logic
   const sortedProfessionals = useMemo(() => {
@@ -231,7 +214,7 @@ const RealEstateProfessionalsList = () => {
   };
 
   const hasActiveFilters = () => {
-    return professionTypeFilter || nationalityFilter || genderFilter || languagesFilter || locationFilter;
+    return professionTypeFilter || nationalityFilter || genderFilter || languagesFilter || locationFilter || searchTerm.trim();
   };
 
   const handleShowAuth = () => {
