@@ -15,6 +15,7 @@ const UserHeader = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showPublicationForm, setShowPublicationForm] = useState(false);
   const [showArticleSubmissionPopup, setShowArticleSubmissionPopup] = useState(false);
+  const [showVideoTutorialPopup, setShowVideoTutorialPopup] = useState(false);
   const [mobileShowAllItems, setMobileShowAllItems] = useState(false);
   const [colorIndex, setColorIndex] = useState(0);
 
@@ -279,6 +280,11 @@ const UserHeader = () => {
                         href={item.href}
                         className="flex items-center px-3 py-2.5 text-xs text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded transition-all duration-200"
                         onClick={(e) => {
+                          if (item.text === "Video Tutorial") {
+                            e.preventDefault();
+                            setShowVideoTutorialPopup(true);
+                            return;
+                          }
                           if (item.hasAuthCheck && !isAuthenticated) {
                             e.preventDefault();
                             showAuthModal();
@@ -325,6 +331,11 @@ const UserHeader = () => {
                       href={item.href}
                       className="flex flex-col items-center text-center p-1 text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-md transition-all duration-200"
                       onClick={(e) => {
+                        if (item.name === "Video Tutorial") {
+                          e.preventDefault();
+                          setShowVideoTutorialPopup(true);
+                          return;
+                        }
                         if (!isAuthenticated && !item.bypassAuth) {
                           e.preventDefault();
                           showAuthModal();
@@ -557,6 +568,41 @@ const UserHeader = () => {
                       </div>
                     </div>
                   </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Video Tutorial Popup */}
+        {showVideoTutorialPopup && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+            onClick={() => setShowVideoTutorialPopup(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setShowVideoTutorialPopup(false)}
+                className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+              >
+                <Icon name="x" size="sm" />
+              </button>
+
+              <div className="p-6">
+                <div className="text-center">
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">
+                    Tutorials Coming Soon
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Tutorials will go live soon after the platform is officially launched.
+                  </p>
                 </div>
               </div>
             </motion.div>
