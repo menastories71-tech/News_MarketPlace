@@ -291,6 +291,9 @@ const RealEstateProfessionalsList = () => {
             <p className="text-base md:text-lg text-[#757575] max-w-2xl mx-auto leading-relaxed font-light mb-6">
               Connect with trusted real estate professionals and experts in your area.
             </p>
+            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4 mb-6">
+              The current page is for representation purpose only, the comprehensive list will be live soon
+            </p>
 
             {/* Search Bar */}
             <div className="max-w-xl mx-auto">

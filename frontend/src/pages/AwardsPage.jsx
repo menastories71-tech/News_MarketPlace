@@ -239,6 +239,9 @@ const AwardsPage = () => {
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
               Discover prestigious awards and recognition opportunities. {totalCount > 0 && `${totalCount} awards available`} for professionals and organizations.
             </p>
+            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
+              The current page is for representation purpose only, the comprehensive list will be live soon
+            </p>
           </motion.div>
         </div>
       </section>

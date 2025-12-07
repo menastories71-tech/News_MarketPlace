@@ -148,7 +148,10 @@ const PaparazziPage = () => {
               Paparazzi Network
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Connect with professional paparazzi across social media platforms. Find the perfect photographer for your content needs.
+              Showcase your product launch, celebrity endorsements, gala dinners, corporate events, or real estate project announcements across global lifestyle and paparazzi outlets — including top Instagram pages, TikTok accounts, and YouTube channels. Gain billions of organic, multi-country views at a fraction of traditional performance-marketing costs.
+            </p>
+            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
+              The current page is for representation purpose only, the comprehensive list will be live soon
             </p>
             <div className="mt-8">
               <button

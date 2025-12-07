@@ -195,6 +195,9 @@ const RadioPage = () => {
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
               Discover radio stations across the UAE. Find your favorite frequencies, languages, and popular RJ hosts.
             </p>
+            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
+              The current page is for representation purpose only, the comprehensive list will be live soon
+            </p>
 
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto mt-8">

@@ -59,7 +59,7 @@ const PressPacksPage = () => {
   const [regionFilter, setRegionFilter] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
   const [turnaroundTimeFilter, setTurnaroundTimeFilter] = useState('');
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 20000]);
   const [contentWritingFilter, setContentWritingFilter] = useState('');
   const [wordsLimitRange, setWordsLimitRange] = useState([0, 10000]);
 
@@ -223,14 +223,14 @@ const PressPacksPage = () => {
     setRegionFilter('');
     setIndustryFilter('');
     setTurnaroundTimeFilter('');
-    setPriceRange([0, 5000]);
+    setPriceRange([0, 20000]);
     setWordsLimitRange([0, 10000]);
     setContentWritingFilter('');
   };
 
   const hasActiveFilters = () => {
     return regionFilter || industryFilter || turnaroundTimeFilter ||
-           priceRange[0] > 0 || priceRange[1] < 5000 ||
+           priceRange[0] > 0 || priceRange[1] < 20000 ||
            wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
            contentWritingFilter;
   };
@@ -447,7 +447,7 @@ const PressPacksPage = () => {
                     <input
                       type="range"
                       min="0"
-                      max="5000"
+                      max="20000"
                       step="100"
                       value={priceRange[0]}
                       onChange={(e) => setPriceRange([parseInt(e.target.value), priceRange[1]])}
@@ -456,7 +456,7 @@ const PressPacksPage = () => {
                     <input
                       type="range"
                       min="0"
-                      max="5000"
+                      max="20000"
                       step="100"
                       value={priceRange[1]}
                       onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
