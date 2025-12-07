@@ -139,7 +139,7 @@ const RealEstateProfessionalsList = () => {
       setProfessionals(pros);
 
       // Store unfiltered list for filter options when no filters are applied
-      const hasAnyFilter = nationalityFilter || genderFilter || professionTypeFilter || locationFilter || languagesFilter || searchTerm.trim();
+      const hasAnyFilter = genderFilter || professionTypeFilter || locationFilter || languagesFilter || searchTerm.trim();
       if (!hasAnyFilter) {
         setAllProfessionals(pros);
       }
