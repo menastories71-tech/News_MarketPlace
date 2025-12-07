@@ -92,13 +92,8 @@ class PressPackOrder {
       status: 'status'
     };
 
-    // Include all fields that should be saved
-    const allowedFields = [
-      'name', 'whatsapp_country_code', 'whatsapp_number', 'calling_country_code', 'calling_number',
-      'press_release_type', 'email', 'submitted_by_type', 'press_release_selection', 'package_selection',
-      'message', 'content_writing_assistance', 'status', 'company_registration_document',
-      'letter_of_authorisation', 'image', 'word_pdf_document'
-    ];
+    // Only include fields that have mappings in the current remote DB
+    const allowedFields = Object.keys(fieldMapping);
 
     const filteredData = {};
     const dbFields = [];
