@@ -19,7 +19,7 @@ const TopHeader = () => {
 	const reporterRegistration = useTranslatedText('Reporter Registration');
 	// const submitPublication = useTranslatedText('Submit Publication');
 	const themePages = useTranslatedText('Theme Pages');
-	const events = useTranslatedText('Events');
+	const realEstate = useTranslatedText('Real Estate');
 	const pressRelease = useTranslatedText('Press Release');
 	const podcasters = useTranslatedText('Podcasters');
 	const more = useTranslatedText('More');
@@ -33,7 +33,7 @@ const TopHeader = () => {
 		{ name: 'Reporter Registration', displayName: reporterRegistration, href: '/reporter-registration', icon: 'user-plus', color: '#FF5722', isLink: true, hasAuthCheck: false },
 		// { name: 'Submit Publication', displayName: submitPublication, href: '#', icon: 'document-plus', color: '#9C27B0', isLink: false, hasAuthCheck: true },
 		{ name: 'Theme Pages', displayName: themePages, href: '/themes', icon: 'tag', color: '#FF9800', isLink: true, hasAuthCheck: false },
-		{ name: 'Events', displayName: events, href: '/events', icon: 'calendar', color: '#2196F3', isLink: true, hasAuthCheck: false },
+		{ name: 'Real Estate', displayName: realEstate, href: '/real-estate-professionals', icon: 'home', color: '#2196F3', isLink: true, hasAuthCheck: false },
 		{ name: 'Press Release', displayName: pressRelease, href: '/press-packs', icon: 'megaphone', color: '#4CAF50', isLink: true, hasAuthCheck: false },
 		{ name: 'Podcasters', displayName: podcasters, href: '/podcasters', icon: 'microphone', color: '#9C27B0', isLink: true, hasAuthCheck: false }
 	];

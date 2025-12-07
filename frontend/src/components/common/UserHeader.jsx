@@ -47,10 +47,10 @@ const UserHeader = () => {
 
   const menuItems = [
     {
-      href: "/real-estate-professionals",
-      text: "Real Estate",
-      icon: "home",
-      description: "Real estate services and listings",
+      href: "/events",
+      text: "Events",
+      icon: "calendar",
+      description: "Upcoming events and partnerships",
       hasAuthCheck: false
     },
     {
