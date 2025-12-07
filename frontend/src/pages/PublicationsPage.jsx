@@ -395,7 +395,7 @@ const PublicationsPage = () => {
             <p className="text-base md:text-lg text-[#757575] max-w-2xl mx-auto leading-relaxed font-light mb-6">
               Discover credible media outlets to amplify your vision and reach your target audience effectively.
             </p>
-            <p className="text-sm md:text-base text-red-600 max-w-2xl mx-auto leading-relaxed font-light mb-6">
+            <p className="text-sm md:text-base text-red-600 max-w-2xl mx-auto leading-relaxed font-semibold mb-6">
               The current page is for representation purpose only, the comprehensive list will be live soon
             </p>
 
