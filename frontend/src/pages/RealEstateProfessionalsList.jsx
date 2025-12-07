@@ -49,6 +49,7 @@ const RealEstateProfessionalsList = () => {
   const { isAuthenticated, hasRole, hasAnyRole, getRoleLevel } = useAuth();
   const navigate = useNavigate();
   const [professionals, setProfessionals] = useState([]);
+  const [allProfessionals, setAllProfessionals] = useState([]); // Store unfiltered list for filter options
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showAuth, setShowAuth] = useState(false);
@@ -77,8 +78,21 @@ const RealEstateProfessionalsList = () => {
   }, []);
 
   useEffect(() => {
-    fetchProfessionals();
+    fetchAllProfessionals(); // Initial load to get all data for filter options
   }, []);
+
+  const fetchAllProfessionals = async () => {
+    try {
+      const response = await api.get('/real-estate-professionals?limit=1000');
+      const pros = response.data.professionals || [];
+      setAllProfessionals(pros);
+      setProfessionals(pros); // Also set as current professionals
+    } catch (error) {
+      console.error('Error fetching all professionals:', error);
+      setAllProfessionals([]);
+      setProfessionals([]);
+    }
+  };
 
   // Enhanced search with debouncing
   useEffect(() => {
@@ -124,12 +138,19 @@ const RealEstateProfessionalsList = () => {
       }
 
       setProfessionals(pros);
+
+      // Store unfiltered list for filter options when no filters are applied
+      const hasAnyFilter = nationalityFilter || genderFilter || locationFilter || languagesFilter || searchTerm.trim();
+      if (!hasAnyFilter) {
+        setAllProfessionals(pros);
+      }
     } catch (error) {
       console.error('Error fetching professionals:', error);
       if (error.response?.status === 401) {
         setShowAuth(true);
       } else {
         setProfessionals([]);
+        setAllProfessionals([]);
       }
     } finally {
       setLoading(false);
@@ -204,6 +225,9 @@ const RealEstateProfessionalsList = () => {
     setGenderFilter('');
     setLanguagesFilter('');
     setLocationFilter('');
+    setSearchTerm('');
+    // Reset to show all professionals
+    setProfessionals(allProfessionals);
   };
 
   const hasActiveFilters = () => {
@@ -222,19 +246,19 @@ const RealEstateProfessionalsList = () => {
     navigate(`/real-estate-professionals/${professional.id}`);
   };
 
-  // Get unique values for filter options
+  // Get unique values for filter options (use unfiltered list)
   const getUniqueNationalities = () => {
-    const nationalities = professionals.map(pro => pro.nationality).filter(Boolean);
+    const nationalities = allProfessionals.map(pro => pro.nationality).filter(Boolean);
     return [...new Set(nationalities)].sort();
   };
 
   const getUniqueLanguages = () => {
-    const allLanguages = professionals.flatMap(pro => pro.languages || []);
+    const allLanguages = allProfessionals.flatMap(pro => pro.languages || []);
     return [...new Set(allLanguages)].sort();
   };
 
   const getUniqueLocations = () => {
-    const locations = professionals.map(pro => pro.current_residence_city).filter(Boolean);
+    const locations = allProfessionals.map(pro => pro.current_residence_city).filter(Boolean);
     return [...new Set(locations)].sort();
   };
 

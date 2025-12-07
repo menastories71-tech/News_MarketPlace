@@ -131,6 +131,7 @@ class RealEstateProfessionalController {
         first_name,
         last_name,
         nationality,
+        gender,
         current_residence_city,
         languages
       } = req.query;
@@ -167,6 +168,12 @@ class RealEstateProfessionalController {
       if (current_residence_city) {
         searchSql += ` AND rp.current_residence_city ILIKE $${searchParamCount}`;
         searchValues.push(`%${current_residence_city}%`);
+        searchParamCount++;
+      }
+
+      if (gender) {
+        searchSql += ` AND rp.gender ILIKE $${searchParamCount}`;
+        searchValues.push(`%${gender}%`);
         searchParamCount++;
       }
 
