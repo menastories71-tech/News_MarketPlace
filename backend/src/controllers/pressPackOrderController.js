@@ -278,7 +278,7 @@ const getAll = async (req, res) => {
         press_release_package: order.press_pack_name || 'Not specified',
         content_writing_assistance: additionalData.content_writing_assistance ? 'Yes' : 'No',
         status: order.status,
-        admin_notes: order.admin_notes || '',
+        admin_notes: order.admin_comments || '',
         created_at: order.created_at,
         updated_at: order.updated_at,
         // Additional fields
@@ -560,19 +560,31 @@ const update = async (req, res) => {
     const oldOrder = findResult.rows[0];
     const oldStatus = oldOrder.status;
 
-    // Build dynamic update query
-    const allowedFields = ['status', 'admin_notes', 'price'];
+    // Build dynamic update query - only update status for now since remote DB may not have all columns
     const updateFields = [];
     const values = [];
     let paramIndex = 1;
 
-    Object.keys(updateData).forEach(key => {
-      if (allowedFields.includes(key) && updateData[key] !== undefined) {
-        updateFields.push(`${key} = $${paramIndex}`);
-        values.push(updateData[key]);
+    // Always update status if provided
+    if (updateData.status !== undefined) {
+      updateFields.push(`status = $${paramIndex}`);
+      values.push(updateData.status);
+      paramIndex++;
+    }
+
+    // Try to update admin_comments if it exists (won't fail if column doesn't exist)
+    if (updateData.admin_notes !== undefined) {
+      try {
+        // Check if admin_comments column exists by attempting a simple query
+        await pool.query('SELECT admin_comments FROM press_pack_orders LIMIT 1');
+        updateFields.push(`admin_comments = $${paramIndex}`);
+        values.push(updateData.admin_notes);
         paramIndex++;
+      } catch (columnError) {
+        // Column doesn't exist, skip it
+        console.log('admin_comments column not found, skipping update');
       }
-    });
+    }
 
     if (updateFields.length === 0) {
       return res.status(400).json({
