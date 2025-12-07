@@ -48,12 +48,12 @@ export default function UserFooter() {
   const refunds = useTranslatedText('Refunds');
 
   const socialMediaIcons = [
-    { name: 'facebook', href: '#', label: facebookLabel },
-    { name: 'x', href: '#', label: xLabel },
-    { name: 'linkedin', href: '#', label: linkedinLabel },
-    { name: 'instagram', href: '#', label: instagramLabel },
-    { name: 'youtube', href: '#', label: youtubeLabel },
-    { name: 'play-circle', href: '#', label: tiktokLabel }
+    { name: 'facebook', href: 'https://vaas.solutions', label: facebookLabel },
+    { name: 'x', href: 'https://vaas.solutions', label: xLabel },
+    { name: 'linkedin', href: 'https://www.linkedin.com/company/visibilityasaservice/', label: linkedinLabel },
+    { name: 'instagram', href: 'https://www.instagram.com/vaas.solutions', label: instagramLabel },
+    { name: 'youtube', href: 'https://vaas.solutions', label: youtubeLabel },
+    { name: 'play-circle', href: 'https://vaas.solutions', label: tiktokLabel }
   ];
 
   return (
