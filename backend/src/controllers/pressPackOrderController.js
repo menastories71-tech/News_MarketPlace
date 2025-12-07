@@ -61,25 +61,28 @@ const create = async (req, res) => {
 
     // Terms accepted validation removed since column doesn't exist in remote DB
 
-    // Create order data (include all fields)
-    const orderData = {
-      name: name,
+    // Create order data (save additional data in message as JSON since remote DB has limited columns)
+    const additionalData = {
       whatsapp_country_code: whatsapp_country_code,
-      whatsapp_number: whatsapp_number,
       calling_country_code: calling_country_code,
-      calling_number: calling_number,
-      press_release_type: JSON.stringify(press_release_type),
-      email: email,
+      press_release_type: press_release_type,
       submitted_by_type: submitted_by_type,
-      press_release_selection: parsedPressReleaseSelection,
-      package_selection: package_selection,
-      message: message,
       content_writing_assistance: parsedContentWritingAssistance,
-      status: 'pending',
       company_registration_document: uploadedFiles.company_registration_document || null,
       letter_of_authorisation: uploadedFiles.letter_of_authorisation || null,
       image: uploadedFiles.image || null,
       word_pdf_document: uploadedFiles.word_pdf_document || null
+    };
+
+    const orderData = {
+      name: name,
+      whatsapp_number: whatsapp_number,
+      calling_number: calling_number,
+      email: email,
+      press_release_selection: parsedPressReleaseSelection,
+      package_selection: package_selection,
+      message: message ? `${message}\n\nADDITIONAL_DATA:${JSON.stringify(additionalData)}` : `ADDITIONAL_DATA:${JSON.stringify(additionalData)}`,
+      status: 'pending'
     };
 
     const order = await PressPackOrder.create(orderData);
@@ -234,77 +237,47 @@ const getAll = async (req, res) => {
     const totalPages = Math.ceil(totalCount / parseInt(limit));
 
     // Format orders for response
-    const formattedOrders = orders.map(order => ({
-      id: order.id,
-      // Map database fields to admin panel expected fields
-      name: order.name,
-      email: order.email,
-      whatsapp_number: order.whatsapp_number,
-      whatsapp_country_code: order.whatsapp_country_code || '+91',
-      calling_number: order.calling_number,
-      calling_country_code: order.calling_country_code || '+91',
-      company_project_type: order.press_release_type ? JSON.parse(order.press_release_type).join(', ') : '',
-      submitted_by: order.submitted_by_type === 'agency' ? 'Agency' : 'Direct Company/Individual',
-      press_release_name: 'Not specified', // Could be fetched from press releases table
-      press_release_package: order.package_selection || 'Not specified',
-      content_writing_assistance: order.content_writing_assistance ? 'Yes' : 'No',
-      status: order.status,
-      admin_notes: order.admin_notes || '',
-      created_at: order.created_at,
-      updated_at: order.updated_at,
-      // Additional fields
-      press_release_selection: order.press_release_selection,
-      message: order.message,
-      company_registration_document: order.company_registration_document,
-      letter_of_authorisation: order.letter_of_authorisation,
-      image: order.image,
-      word_pdf_document: order.word_pdf_document,
-      // Legacy fields for backward compatibility
-      press_pack_id: order.id,
-      press_pack_name: order.package_selection || 'Press Release Package',
-      price: 0, // Could be calculated based on package
-      customer_name: order.name,
-      customer_email: order.email,
-      customer_phone: order.whatsapp_number,
-      customer_message: order.message,
-      order_date: order.created_at,
-      toJSON: function() {
-        return {
-          id: this.id,
-          name: this.name,
-          email: this.email,
-          whatsapp_number: this.whatsapp_number,
-          whatsapp_country_code: this.whatsapp_country_code,
-          calling_number: this.calling_number,
-          calling_country_code: this.calling_country_code,
-          company_project_type: this.company_project_type,
-          submitted_by: this.submitted_by,
-          press_release_name: this.press_release_name,
-          press_release_package: this.press_release_package,
-          content_writing_assistance: this.content_writing_assistance,
-          status: this.status,
-          admin_notes: this.admin_notes,
-          created_at: this.created_at,
-          updated_at: this.updated_at,
-          // Additional fields
-          press_release_selection: this.press_release_selection,
-          message: this.message,
-          company_registration_document: this.company_registration_document,
-          letter_of_authorisation: this.letter_of_authorisation,
-          image: this.image,
-          word_pdf_document: this.word_pdf_document,
-          // Legacy fields
-          press_pack_id: this.press_pack_id,
-          press_pack_name: this.press_pack_name,
-          price: this.price,
-          customer_name: this.customer_name,
-          customer_email: this.customer_email,
-          customer_phone: this.customer_phone,
-          customer_message: this.customer_message,
-          order_date: this.order_date
-        };
+    const formattedOrders = orders.map(order => {
+      // Parse additional data from message field
+      let additionalData = {};
+      let cleanMessage = order.message || '';
+      if (cleanMessage.includes('ADDITIONAL_DATA:')) {
+        const parts = cleanMessage.split('ADDITIONAL_DATA:');
+        cleanMessage = parts[0].trim();
+        try {
+          additionalData = JSON.parse(parts[1]);
+        } catch (e) {
+          additionalData = {};
+        }
       }
-    }));
+
+      return {
+        id: order.id,
+        // Map database fields to admin panel expected fields
+        name: order.name,
+        email: order.email,
+        whatsapp_number: order.whatsapp_number,
+        whatsapp_country_code: additionalData.whatsapp_country_code || '+91',
+        calling_number: order.calling_number,
+        calling_country_code: additionalData.calling_country_code || '+91',
+        company_project_type: additionalData.press_release_type ? additionalData.press_release_type.join(', ') : '',
+        submitted_by: additionalData.submitted_by_type === 'agency' ? 'Agency' : 'Direct Company/Individual',
+        press_release_name: 'Not specified', // Could be fetched from press releases table
+        press_release_package: order.package_selection || 'Not specified',
+        content_writing_assistance: additionalData.content_writing_assistance ? 'Yes' : 'No',
+        status: order.status,
+        admin_notes: order.admin_notes || '',
+        created_at: order.created_at,
+        updated_at: order.updated_at,
+        // Additional fields
+        press_release_selection: order.press_release_selection,
+        message: cleanMessage,
+        company_registration_document: additionalData.company_registration_document,
+        letter_of_authorisation: additionalData.letter_of_authorisation,
+        image: additionalData.image,
+        word_pdf_document: additionalData.word_pdf_document,
+      };
+    });
 
     res.json({
       success: true,
