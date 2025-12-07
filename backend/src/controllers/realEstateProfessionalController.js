@@ -160,11 +160,6 @@ class RealEstateProfessionalController {
         searchParamCount++;
       }
 
-      if (nationality) {
-        searchSql += ` AND LOWER(rp.nationality) = LOWER($${searchParamCount})`;
-        searchValues.push(nationality);
-        searchParamCount++;
-      }
 
       if (current_residence_city) {
         searchSql += ` AND LOWER(rp.current_residence_city) = LOWER($${searchParamCount})`;
@@ -197,8 +192,8 @@ class RealEstateProfessionalController {
 
       if (languages) {
         // Search for professionals who speak the specified language (case-insensitive)
-        searchSql += ` AND EXISTS (SELECT 1 FROM unnest(rp.languages) AS lang WHERE LOWER(lang) = LOWER($${searchParamCount}))`;
-        searchValues.push(languages);
+        searchSql += ` AND $${searchParamCount} = ANY(ARRAY(SELECT LOWER(unnest(rp.languages))))`;
+        searchValues.push(languages.toLowerCase());
         searchParamCount++;
       }
 

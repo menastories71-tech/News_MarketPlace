@@ -13,7 +13,7 @@ const AboutSimplified = () => {
   // Translated texts
   const aboutText = useTranslatedText('About');
   const newsMarketPlaceText = useTranslatedText('Visibility as a Services (VaaS) Solutuions');
-  const heroDescription = useTranslatedText('We\'re revolutionizing digital publishing by connecting content creators with global audiences through innovative, transparent, and efficient platforms.');
+  const heroDescription = useTranslatedText('VaaS Solutions provides comprehensive omnichannel media, corporate communication, marketing, and PR solutions, including article publishing, press releases, content distribution, and digital marketing services. The platform connects clients with credible visibility solutions, ensuring maximum reach and impact for their vision and objectives.');
   const learnMoreButton = useTranslatedText('Click to read');
 
   return (

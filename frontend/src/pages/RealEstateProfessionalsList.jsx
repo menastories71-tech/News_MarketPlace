@@ -61,7 +61,6 @@ const RealEstateProfessionalsList = () => {
 
   // Filter states
   const [professionTypeFilter, setProfessionTypeFilter] = useState('');
-  const [nationalityFilter, setNationalityFilter] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
   const [languagesFilter, setLanguagesFilter] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
@@ -101,7 +100,7 @@ const RealEstateProfessionalsList = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, nationalityFilter, genderFilter, professionTypeFilter, languagesFilter, locationFilter]);
+  }, [searchTerm, genderFilter, professionTypeFilter, languagesFilter, locationFilter]);
 
   const fetchProfessionals = async () => {
     try {
@@ -117,7 +116,6 @@ const RealEstateProfessionalsList = () => {
         params.append('last_name', searchTerm.trim());
       }
 
-      if (nationalityFilter) params.append('nationality', nationalityFilter);
       if (genderFilter) params.append('gender', genderFilter);
       if (professionTypeFilter) params.append('profession_type', professionTypeFilter);
       if (locationFilter) params.append('current_residence_city', locationFilter);
@@ -204,7 +202,6 @@ const RealEstateProfessionalsList = () => {
 
   const clearAllFilters = () => {
     setProfessionTypeFilter('');
-    setNationalityFilter('');
     setGenderFilter('');
     setLanguagesFilter('');
     setLocationFilter('');
@@ -214,7 +211,7 @@ const RealEstateProfessionalsList = () => {
   };
 
   const hasActiveFilters = () => {
-    return professionTypeFilter || nationalityFilter || genderFilter || languagesFilter || locationFilter || searchTerm.trim();
+    return professionTypeFilter || genderFilter || languagesFilter || locationFilter || searchTerm.trim();
   };
 
   const handleShowAuth = () => {
@@ -229,11 +226,6 @@ const RealEstateProfessionalsList = () => {
     navigate(`/real-estate-professionals/${professional.id}`);
   };
 
-  // Get unique values for filter options (use unfiltered list)
-  const getUniqueNationalities = () => {
-    const nationalities = allProfessionals.map(pro => pro.nationality).filter(Boolean);
-    return [...new Set(nationalities)].sort();
-  };
 
   const getUniqueLanguages = () => {
     const allLanguages = allProfessionals.flatMap(pro => pro.languages || []);
@@ -379,22 +371,6 @@ const RealEstateProfessionalsList = () => {
                     </select>
                   </div>
 
-                  {/* Nationality Filter */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Nationality
-                    </label>
-                    <select
-                      value={nationalityFilter}
-                      onChange={(e) => setNationalityFilter(e.target.value)}
-                      className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
-                    >
-                      <option value="">All Nationalities</option>
-                      {getUniqueNationalities().map(nationality => (
-                        <option key={nationality} value={nationality}>{nationality}</option>
-                      ))}
-                    </select>
-                  </div>
 
                   {/* Gender Filter */}
                   <div>

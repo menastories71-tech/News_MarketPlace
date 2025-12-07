@@ -1,9 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Icon from './Icon';
 import useTranslatedText from '../../hooks/useTranslatedText';
 
 export default function UserFooter() {
+  // Popup states
+  const [showPrivacyPolicyPopup, setShowPrivacyPolicyPopup] = useState(false);
+  const [showCookiePolicyPopup, setShowCookiePolicyPopup] = useState(false);
+  const [showRefundPolicyPopup, setShowRefundPolicyPopup] = useState(false);
+  const [showTrademarkPolicyPopup, setShowTrademarkPolicyPopup] = useState(false);
+  const [showDataProtectionPopup, setShowDataProtectionPopup] = useState(false);
+  const [showResellingAgreementPopup, setShowResellingAgreementPopup] = useState(false);
+  const [showServicesOverviewPopup, setShowServicesOverviewPopup] = useState(false);
+  const [showHowItWorksPopup, setShowHowItWorksPopup] = useState(false);
+  const [showBlogPopup, setShowBlogPopup] = useState(false);
+  const [showCSRPopup, setShowCSRPopup] = useState(false);
+  const [showCareerPopup, setShowCareerPopup] = useState(false);
+  const [showMediaPartnershipsPopup, setShowMediaPartnershipsPopup] = useState(false);
+  const [showPressGuidelinesPopup, setShowPressGuidelinesPopup] = useState(false);
+  const [showBrandsPeoplePopup, setShowBrandsPeoplePopup] = useState(false);
+
   // Translated strings
   const facebookLabel = useTranslatedText('Facebook');
   const xLabel = useTranslatedText('X');
@@ -98,13 +115,13 @@ export default function UserFooter() {
           <div>
             <h4 className="heading-4 text-gray-900 mb-4">{legalPoliciesTitle}</h4>
             <ul className="space-y-2">
-              <li><Link to="/privacy-policy" className="body-small text-gray-600 hover:text-primary transition-colors">{privacyPolicy}</Link></li>
-              <li><Link to="/cookie-policy" className="body-small text-gray-600 hover:text-primary transition-colors">{cookiePolicy}</Link></li>
-              <li><Link to="/refund-policy" className="body-small text-gray-600 hover:text-primary transition-colors">{refundPolicy}</Link></li>
+              <li><button onClick={() => setShowPrivacyPolicyPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{privacyPolicy}</button></li>
+              <li><button onClick={() => setShowCookiePolicyPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{cookiePolicy}</button></li>
+              <li><button onClick={() => setShowRefundPolicyPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{refundPolicy}</button></li>
               <li><Link to="/terms-and-conditions" className="body-small text-gray-600 hover:text-primary transition-colors">{termsOfService}</Link></li>
-              <li><Link to="/trademark-policy" className="body-small text-gray-600 hover:text-primary transition-colors">{trademarkPolicy}</Link></li>
-              <li><Link to="/data-protection" className="body-small text-gray-600 hover:text-primary transition-colors">{dataProtectionPolicy}</Link></li>
-              <li><Link to="/reselling-agreement" className="body-small text-gray-600 hover:text-primary transition-colors">{resellingAgreement}</Link></li>
+              <li><button onClick={() => setShowTrademarkPolicyPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{trademarkPolicy}</button></li>
+              <li><button onClick={() => setShowDataProtectionPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{dataProtectionPolicy}</button></li>
+              <li><button onClick={() => setShowResellingAgreementPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{resellingAgreement}</button></li>
             </ul>
           </div>
 
@@ -113,11 +130,11 @@ export default function UserFooter() {
             <h4 className="heading-4 text-gray-900 mb-4">{companyTitle}</h4>
             <ul className="space-y-2">
               <li><Link to="/about-us" className="body-small text-gray-600 hover:text-primary transition-colors">{aboutUs}</Link></li>
-              <li><Link to="/services-overview" className="body-small text-gray-600 hover:text-primary transition-colors">{servicesOverview}</Link></li>
-              <li><Link to="/how-it-works" className="body-small text-gray-600 hover:text-primary transition-colors">{howItWorks}</Link></li>
-              <li><Link to="/blogs" className="body-small text-gray-600 hover:text-primary transition-colors">{blogSection}</Link></li>
-              <li><Link to="/csr" className="body-small text-gray-600 hover:text-primary transition-colors">{csr}</Link></li>
-              <li><Link to="/careers" className="body-small text-gray-600 hover:text-primary transition-colors">{career}</Link></li>
+              <li><button onClick={() => setShowServicesOverviewPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{servicesOverview}</button></li>
+              <li><button onClick={() => setShowHowItWorksPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{howItWorks}</button></li>
+              <li><button onClick={() => setShowBlogPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{blogSection}</button></li>
+              <li><button onClick={() => setShowCSRPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{csr}</button></li>
+              <li><button onClick={() => setShowCareerPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{career}</button></li>
               <li><Link to="/contact-us" className="body-small text-gray-600 hover:text-primary transition-colors">{contactUs}</Link></li>
               <li><Link to="/faq" className="body-small text-gray-600 hover:text-primary transition-colors">{faq}</Link></li>
             </ul>
@@ -129,11 +146,11 @@ export default function UserFooter() {
             <ul className="space-y-2">
               <li><Link to="/agency-registration" className="body-small text-gray-600 hover:text-primary transition-colors">{agencyRegistration}</Link></li>
               {/* <li><Link to="/submit-article" className="body-small text-gray-600 hover:text-primary transition-colors">{submitPublication}</Link></li> */}
-              <li><Link to="/reporter-registration" className="body-small text-gray-600 hover:text-primary transition-colors">{reporterRegistration}</Link></li>
-              <li><Link to="/event-enquiry" className="body-small text-gray-600 hover:text-primary transition-colors">{mediaPartnershipsEvents}</Link></li>
-              <li><Link to="/press-guidelines" className="body-small text-gray-600 hover:text-primary transition-colors">{pressGuidelines}</Link></li>
-              <li><Link to="/affiliate-program" className="body-small text-gray-600 hover:text-primary transition-colors">{affiliateProgramme}</Link></li>
-              <li><Link to="/brands-people" className="body-small text-gray-600 hover:text-primary transition-colors">{brandsPeopleFeatured}</Link></li>
+              <li><button onClick={() => setShowReporterRegistrationPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{reporterRegistration}</button></li>
+              <li><button onClick={() => setShowMediaPartnershipsPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{mediaPartnershipsEvents}</button></li>
+              <li><button onClick={() => setShowPressGuidelinesPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{pressGuidelines}</button></li>
+              <li><button onClick={() => setShowAffiliateProgrammePopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{affiliateProgramme}</button></li>
+              <li><button onClick={() => setShowBrandsPeoplePopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{brandsPeopleFeatured}</button></li>
             </ul>
           </div>
         </div>
@@ -147,6 +164,534 @@ export default function UserFooter() {
           </div>
         </div>
       </div>
+
+      {/* Privacy Policy Popup */}
+      {showPrivacyPolicyPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowPrivacyPolicyPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowPrivacyPolicyPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Privacy Policy
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our comprehensive privacy policy is being finalized to ensure transparency about how we collect, use, and protect your personal information. This document will outline our commitment to data privacy and user rights.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Cookie Policy Popup */}
+      {showCookiePolicyPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowCookiePolicyPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowCookiePolicyPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Cookie Policy
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our cookie policy is being developed to explain how we use cookies and similar technologies to enhance your browsing experience and provide personalized services while respecting your privacy preferences.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Refund Policy Popup */}
+      {showRefundPolicyPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowRefundPolicyPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowRefundPolicyPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Refund Policy
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our refund policy is being established to provide clear guidelines on refunds, cancellations, and dispute resolution. This ensures fair treatment for all our valued customers and service users.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Trademark Policy Popup */}
+      {showTrademarkPolicyPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowTrademarkPolicyPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowTrademarkPolicyPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Trademark and Logo Policy
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our trademark and logo usage policy is being developed to protect our brand identity and provide guidelines for proper use of our trademarks, logos, and intellectual property by partners and users.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Data Protection Popup */}
+      {showDataProtectionPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowDataProtectionPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowDataProtectionPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Data Protection Policy
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our data protection policy is being established to comply with international data protection regulations and ensure the security, confidentiality, and proper handling of all user data and personal information.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Reselling Agreement Popup */}
+      {showResellingAgreementPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowResellingAgreementPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowResellingAgreementPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Reselling Agreement
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our reselling and partnership agreement terms are being developed to establish clear guidelines for resellers, affiliates, and business partners regarding commission structures, responsibilities, and mutual obligations.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Services Overview Popup */}
+      {showServicesOverviewPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowServicesOverviewPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowServicesOverviewPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Services Overview
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Comprehensive information about our media distribution and visibility services is being prepared. Detailed service offerings will be available soon to help you choose the right solutions for your needs.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* How It Works Popup */}
+      {showHowItWorksPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowHowItWorksPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowHowItWorksPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  How It Works
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Step-by-step guides explaining our platform's workflow and processes are in development. You'll soon have access to comprehensive tutorials showing how to maximize your media visibility.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Blog Popup */}
+      {showBlogPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowBlogPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowBlogPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Blog Section
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our blog featuring industry insights, success stories, and expert opinions is being curated. Stay tuned for valuable content that will help you navigate the media landscape effectively.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* CSR Popup */}
+      {showCSRPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowCSRPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowCSRPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Corporate Social Responsibility
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Our CSR initiatives and community engagement programs are being developed. Learn about our commitment to social responsibility and community development through media and visibility services.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Career Popup */}
+      {showCareerPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowCareerPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowCareerPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Career Opportunities
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Join our growing team in the media and visibility industry. Career opportunities and job openings are being updated regularly. Check back soon for exciting positions in digital publishing and media services.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Reporter Registration Popup */}
+      {showReporterRegistrationPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowReporterRegistrationPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowReporterRegistrationPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Editor/Contributor Registration
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Join our network of professional editors and contributors. Registration forms and guidelines for media professionals are being finalized. Soon you'll be able to register and contribute to our growing media ecosystem.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Media Partnerships Popup */}
+      {showMediaPartnershipsPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowMediaPartnershipsPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowMediaPartnershipsPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Media Partnerships for Events
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Strategic partnerships for media coverage of events are in development. Learn about our event media services and how we can help amplify your event's visibility through comprehensive media partnerships.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Press Guidelines Popup */}
+      {showPressGuidelinesPopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowPressGuidelinesPopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowPressGuidelinesPopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Press Release Distribution Guidelines
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Comprehensive guidelines for effective press release distribution are being prepared. Learn best practices for media outreach, timing, and content optimization to maximize your press release impact.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Affiliate Programme Popup */}
+      {showAffiliateProgrammePopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowAffiliateProgrammePopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowAffiliateProgrammePopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Affiliate Programme
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Earn commissions by referring clients to our media visibility services. Our affiliate program details, commission structures, and partnership opportunities are being finalized. Join our network soon!
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Brands People Featured Popup */}
+      {showBrandsPeoplePopup && (
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          onClick={() => setShowBrandsPeoplePopup(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowBrandsPeoplePopup(false)}
+              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
+            >
+              <Icon name="x" size="sm" />
+            </button>
+            <div className="p-6">
+              <div className="text-center">
+                <h3 className="text-lg font-bold text-gray-900 mb-4">
+                  Brands and People Featured
+                </h3>
+                <p className="text-sm text-gray-600">
+                  Showcase of successful brands and individuals featured through our platform. Success stories, case studies, and testimonials demonstrating the impact of our media visibility services are being compiled.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </footer>
   );
 }
