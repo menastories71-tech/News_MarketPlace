@@ -113,8 +113,8 @@ export default function UserFooter() {
 
           {/* Legal & Policies */}
           <div>
-            <h4 className="heading-4 text-gray-900 mb-4">{legalPoliciesTitle}</h4>
-            <ul className="space-y-2">
+            <h4 className="heading-4 text-gray-900 mb-3">{legalPoliciesTitle}</h4>
+            <ul className="space-y-1.5">
               <li><button onClick={() => setShowPrivacyPolicyPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{privacyPolicy}</button></li>
               <li><button onClick={() => setShowCookiePolicyPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{cookiePolicy}</button></li>
               <li><button onClick={() => setShowRefundPolicyPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{refundPolicy}</button></li>
@@ -127,8 +127,8 @@ export default function UserFooter() {
 
           {/* Company */}
           <div>
-            <h4 className="heading-4 text-gray-900 mb-4">{companyTitle}</h4>
-            <ul className="space-y-2">
+            <h4 className="heading-4 text-gray-900 mb-3">{companyTitle}</h4>
+            <ul className="space-y-1.5">
               <li><Link to="/about-us" className="body-small text-gray-600 hover:text-primary transition-colors">{aboutUs}</Link></li>
               <li><button onClick={() => setShowServicesOverviewPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{servicesOverview}</button></li>
               <li><button onClick={() => setShowHowItWorksPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{howItWorks}</button></li>
@@ -142,8 +142,8 @@ export default function UserFooter() {
 
           {/* Services & Partnerships */}
           <div>
-            <h4 className="heading-4 text-gray-900 mb-4">{servicesPartnershipsTitle}</h4>
-            <ul className="space-y-2">
+            <h4 className="heading-4 text-gray-900 mb-3">{servicesPartnershipsTitle}</h4>
+            <ul className="space-y-1.5">
               <li><Link to="/agency-registration" className="body-small text-gray-600 hover:text-primary transition-colors">{agencyRegistration}</Link></li>
               {/* <li><Link to="/submit-article" className="body-small text-gray-600 hover:text-primary transition-colors">{submitPublication}</Link></li> */}
               <li><button onClick={() => setShowReporterRegistrationPopup(true)} className="body-small text-gray-600 hover:text-primary transition-colors text-left">{reporterRegistration}</button></li>
