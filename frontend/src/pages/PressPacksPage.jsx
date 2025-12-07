@@ -58,9 +58,9 @@ const PressPacksPage = () => {
   // Filter states
   const [regionFilter, setRegionFilter] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
-  const [languageFilter, setLanguageFilter] = useState('');
+  const [turnaroundTimeFilter, setTurnaroundTimeFilter] = useState('');
   const [priceRange, setPriceRange] = useState([0, 5000]);
-  const [indexedFilter, setIndexedFilter] = useState('');
+  const [contentWritingFilter, setContentWritingFilter] = useState('');
   const [wordsLimitRange, setWordsLimitRange] = useState([0, 10000]);
 
   // Sorting state
@@ -101,22 +101,24 @@ const PressPacksPage = () => {
 
       if (regionFilter) params.append('region', regionFilter);
       if (industryFilter) params.append('niche', industryFilter);
-      if (languageFilter) params.append('language', languageFilter);
+      if (turnaroundTimeFilter) params.append('turnaround_time', turnaroundTimeFilter);
 
       const response = await api.get(`/admin/press-releases?${params.toString()}`);
       let packs = response.data.pressReleases || [];
 
-      // Client-side filtering for price range, content writing assistance, words limit
+      // Client-side filtering for price range, content writing assistance, words limit, turnaround time
       packs = packs.filter(pack => {
         const price = parseFloat(pack.price) || 0;
         const words = parseInt(pack.word_limit) || 0;
         const contentWriting = pack.content_writing_assistance;
+        const turnaroundTime = parseInt(pack.turnaround_time) || 0;
 
         const priceMatch = price >= priceRange[0] && price <= priceRange[1];
         const wordsMatch = words >= wordsLimitRange[0] && words <= wordsLimitRange[1];
-        const contentWritingMatch = !indexedFilter || (indexedFilter === 'true' ? contentWriting : !contentWriting);
+        const contentWritingMatch = !contentWritingFilter || (contentWritingFilter === 'true' ? contentWriting : !contentWriting);
+        const turnaroundMatch = !turnaroundTimeFilter || turnaroundTime <= parseInt(turnaroundTimeFilter);
 
-        return priceMatch && wordsMatch && contentWritingMatch;
+        return priceMatch && wordsMatch && contentWritingMatch && turnaroundMatch;
       });
 
       setPressPacks(packs);
@@ -142,7 +144,7 @@ const PressPacksPage = () => {
     }, 300);
 
     return () => clearTimeout(debounceTimer);
-  }, [searchTerm, regionFilter, industryFilter, languageFilter]);
+  }, [searchTerm, regionFilter, industryFilter, turnaroundTimeFilter]);
 
   // Filtering logic
   const filteredPressPacks = useMemo(() => {
@@ -160,15 +162,23 @@ const PressPacksPage = () => {
       return words >= wordsLimitRange[0] && words <= wordsLimitRange[1];
     });
 
-    // Indexed filter
-    if (indexedFilter) {
+    // Content writing filter
+    if (contentWritingFilter) {
       filtered = filtered.filter(pack =>
-        pack.indexed === (indexedFilter === 'true')
+        pack.content_writing_assistance === (contentWritingFilter === 'true')
       );
     }
 
+    // Turnaround time filter
+    if (turnaroundTimeFilter) {
+      filtered = filtered.filter(pack => {
+        const turnaroundTime = parseInt(pack.turnaround_time) || 0;
+        return turnaroundTime <= parseInt(turnaroundTimeFilter);
+      });
+    }
+
     return filtered;
-  }, [pressPacks, priceRange, wordsLimitRange, indexedFilter]);
+  }, [pressPacks, priceRange, wordsLimitRange, contentWritingFilter, turnaroundTimeFilter]);
 
   // Sorting logic
   const sortedPressPacks = useMemo(() => {
@@ -212,17 +222,17 @@ const PressPacksPage = () => {
   const clearAllFilters = () => {
     setRegionFilter('');
     setIndustryFilter('');
-    setLanguageFilter('');
+    setTurnaroundTimeFilter('');
     setPriceRange([0, 5000]);
     setWordsLimitRange([0, 10000]);
-    setIndexedFilter('');
+    setContentWritingFilter('');
   };
 
   const hasActiveFilters = () => {
-    return regionFilter || industryFilter || languageFilter ||
+    return regionFilter || industryFilter || turnaroundTimeFilter ||
            priceRange[0] > 0 || priceRange[1] < 5000 ||
            wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
-           indexedFilter;
+           contentWritingFilter;
   };
 
   const handleShowAuth = () => {
@@ -243,9 +253,9 @@ const PressPacksPage = () => {
     return [...new Set(niches)].sort();
   };
 
-  const getUniqueLanguages = () => {
-    const languages = pressPacks.map(p => p.language).filter(Boolean);
-    return [...new Set(languages)].sort();
+  const getUniqueTurnaroundTimes = () => {
+    const times = pressPacks.map(p => parseInt(p.turnaround_time)).filter(Boolean);
+    return [...new Set(times)].sort((a, b) => a - b);
   };
 
   const formatPrice = (price) => {
@@ -402,19 +412,19 @@ const PressPacksPage = () => {
                     </select>
                   </div>
 
-                  {/* Language Filter */}
+                  {/* Turnaround Time Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Language
+                      Max Turnaround Time
                     </label>
                     <select
-                      value={languageFilter}
-                      onChange={(e) => setLanguageFilter(e.target.value)}
+                      value={turnaroundTimeFilter}
+                      onChange={(e) => setTurnaroundTimeFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Languages</option>
-                      {getUniqueLanguages().map(language => (
-                        <option key={language} value={language}>{language}</option>
+                      <option value="">Any Time</option>
+                      {getUniqueTurnaroundTimes().map(time => (
+                        <option key={time} value={time}>{time} days or less</option>
                       ))}
                     </select>
                   </div>
@@ -493,8 +503,8 @@ const PressPacksPage = () => {
                   <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                     <input
                       type="checkbox"
-                      checked={indexedFilter === 'true'}
-                      onChange={(e) => setIndexedFilter(e.target.checked ? 'true' : '')}
+                      checked={contentWritingFilter === 'true'}
+                      onChange={(e) => setContentWritingFilter(e.target.checked ? 'true' : '')}
                       className="rounded accent-[#00796B]"
                     />
                     <span className="text-sm" style={{ color: theme.textPrimary }}>Content Writing Included</span>

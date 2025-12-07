@@ -23,13 +23,6 @@ const PressPackDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
-  const [showStats, setShowStats] = useState(false);
-  const [stats, setStats] = useState({
-    views: 0,
-    orders: 0,
-    rating: 0,
-    reviews: 0
-  });
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [purchaseFormData, setPurchaseFormData] = useState({
     name: '',
@@ -153,27 +146,6 @@ const PressPackDetailPage = () => {
     }
   };
 
-  const handleViewStats = async () => {
-    if (!isAuthenticated) {
-      setShowAuth(true);
-      return;
-    }
-
-    try {
-      // Use real data from the press pack instead of dummy data
-      const realStats = {
-        views: (parseInt(pressPack.no_of_indexed_websites) || 0) * 100 + (parseInt(pressPack.no_of_non_indexed_websites) || 0) * 50,
-        orders: (parseInt(pressPack.no_of_indexed_websites) || 0) * 3 + (parseInt(pressPack.no_of_non_indexed_websites) || 0),
-        rating: pressPack.indexed ? 4.7 : 4.4,
-        reviews: Math.floor(((parseInt(pressPack.no_of_indexed_websites) || 0) + (parseInt(pressPack.no_of_non_indexed_websites) || 0)) / 2)
-      };
-
-      setStats(realStats);
-      setShowStats(true);
-    } catch (error) {
-      console.error('Error loading stats:', error);
-    }
-  };
 
   const handlePurchaseClick = () => {
     if (!isAuthenticated) {
@@ -647,17 +619,6 @@ const PressPackDetailPage = () => {
               <Share size={16} style={{ color: themeColors.primary }} />
               <span style={{ color: themeColors.textSecondary }}>Share</span>
             </button>
-            <button
-              onClick={handleViewStats}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
-              style={{
-                borderColor: themeColors.borderLight,
-                color: themeColors.textSecondary
-              }}
-            >
-              <Eye size={16} style={{ color: themeColors.success }} />
-              <span style={{ color: themeColors.textSecondary }}>View Stats</span>
-            </button>
           </div>
         </div>
       </section>
@@ -673,191 +634,6 @@ const PressPackDetailPage = () => {
         />
       )}
 
-      {/* Stats Modal */}
-      {showStats && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10000,
-          padding: '20px'
-        }} onClick={() => setShowStats(false)}>
-          <div style={{
-            backgroundColor: themeColors.background,
-            borderRadius: '12px',
-            padding: '24px',
-            maxWidth: '500px',
-            width: '100%',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
-          }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-              <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: themeColors.textPrimary }}>
-                Press Pack Statistics
-              </h2>
-              <button
-                onClick={() => setShowStats(false)}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  color: themeColors.textSecondary
-                }}
-              >
-                ×
-              </button>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div style={{
-                backgroundColor: themeColors.backgroundSoft,
-                padding: '16px',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  color: themeColors.primary,
-                  marginBottom: '4px'
-                }}>
-                  {stats.views.toLocaleString()}
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  color: themeColors.textSecondary,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Total Views
-                </div>
-              </div>
-
-              <div style={{
-                backgroundColor: themeColors.backgroundSoft,
-                padding: '16px',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  color: themeColors.success,
-                  marginBottom: '4px'
-                }}>
-                  {stats.orders}
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  color: themeColors.textSecondary,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Total Orders
-                </div>
-              </div>
-
-              <div style={{
-                backgroundColor: themeColors.backgroundSoft,
-                padding: '16px',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  color: themeColors.warning,
-                  marginBottom: '4px'
-                }}>
-                  {stats.rating}★
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  color: themeColors.textSecondary,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Average Rating
-                </div>
-              </div>
-
-              <div style={{
-                backgroundColor: themeColors.backgroundSoft,
-                padding: '16px',
-                borderRadius: '8px',
-                textAlign: 'center'
-              }}>
-                <div style={{
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  color: themeColors.info,
-                  marginBottom: '4px'
-                }}>
-                  {stats.reviews}
-                </div>
-                <div style={{
-                  fontSize: '12px',
-                  color: themeColors.textSecondary,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px'
-                }}>
-                  Total Reviews
-                </div>
-              </div>
-            </div>
-
-            <div style={{
-              backgroundColor: themeColors.primaryLight,
-              padding: '16px',
-              borderRadius: '8px',
-              marginBottom: '16px'
-            }}>
-              <h4 style={{
-                margin: '0 0 8px 0',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: themeColors.primary
-              }}>
-                Performance Summary
-              </h4>
-              <p style={{
-                margin: 0,
-                fontSize: '14px',
-                color: themeColors.textSecondary
-              }}>
-                This press pack has shown strong performance with high engagement rates and positive customer feedback.
-                The {stats.rating}★ rating reflects excellent service quality and customer satisfaction.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-              <button
-                onClick={() => setShowStats(false)}
-                style={{
-                  padding: '12px 24px',
-                  backgroundColor: themeColors.primary,
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = themeColors.primaryDark}
-                onMouseLeave={(e) => e.target.style.backgroundColor = themeColors.primary}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Purchase Modal */}
       {showPurchaseModal && (
