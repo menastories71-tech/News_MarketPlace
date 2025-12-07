@@ -58,7 +58,7 @@ export default function UserFooter() {
   const pressGuidelines = useTranslatedText('Press Release Distribution Guidelines');
   const affiliateProgramme = useTranslatedText('Affiliate Programme');
   const brandsPeopleFeatured = useTranslatedText('Brands and People Featured');
-  const copyright = useTranslatedText('© 2024 VaaS Solutions: Vision to Visibility, Instantly. All rights reserved.');
+  const copyright = useTranslatedText('© 2025 VaaS Solutions: Vision to Visibility, Instantly. All rights reserved.');
   const privacy = useTranslatedText('Privacy');
   const terms = useTranslatedText('Terms');
   const cookies = useTranslatedText('Cookies');
@@ -528,38 +528,6 @@ export default function UserFooter() {
         </div>
       )}
 
-      {/* Reporter Registration Popup */}
-      {showReporterRegistrationPopup && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
-          onClick={() => setShowReporterRegistrationPopup(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowReporterRegistrationPopup(false)}
-              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
-            >
-              <Icon name="x" size="sm" />
-            </button>
-            <div className="p-6">
-              <div className="text-center">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">
-                  Editor/Contributor Registration
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Join our network of professional editors and contributors. Registration forms and guidelines for media professionals are being finalized. Soon you'll be able to register and contribute to our growing media ecosystem.
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
 
       {/* Media Partnerships Popup */}
       {showMediaPartnershipsPopup && (
@@ -627,38 +595,6 @@ export default function UserFooter() {
         </div>
       )}
 
-      {/* Affiliate Programme Popup */}
-      {showAffiliateProgrammePopup && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
-          onClick={() => setShowAffiliateProgrammePopup(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="bg-white rounded-xl shadow-2xl w-full max-w-sm mx-auto relative border border-gray-200 my-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setShowAffiliateProgrammePopup(false)}
-              className="absolute -top-2 -right-2 z-10 bg-white text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full shadow-lg border hover:bg-gray-50"
-            >
-              <Icon name="x" size="sm" />
-            </button>
-            <div className="p-6">
-              <div className="text-center">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">
-                  Affiliate Programme
-                </h3>
-                <p className="text-sm text-gray-600">
-                  Earn commissions by referring clients to our media visibility services. Our affiliate program details, commission structures, and partnership opportunities are being finalized. Join our network soon!
-                </p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      )}
 
       {/* Brands People Featured Popup */}
       {showBrandsPeoplePopup && (
