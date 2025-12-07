@@ -76,9 +76,16 @@ const TopHeader = () => {
 										if (item.hasAuthCheck && !isAuthenticated) {
 											e.preventDefault();
 											showAuthModal();
-										} else if (item.name === 'Submit Publication' && isAdminAuthenticated) {
-											e.preventDefault();
-											alert(adminAlert);
+										} else if (item.name === 'Submit Publication') {
+											if (isAdminAuthenticated) {
+												e.preventDefault();
+												alert(adminAlert);
+											} else if (isAuthenticated) {
+												window.location.href = '/submit-publication';
+											} else {
+												e.preventDefault();
+												showAuthModal();
+											}
 										}
 									}}
 								>
@@ -98,9 +105,16 @@ const TopHeader = () => {
 										if (item.hasAuthCheck && !isAuthenticated) {
 											e.preventDefault();
 											showAuthModal();
-										} else if (item.name === 'Submit Publication' && isAdminAuthenticated) {
-											e.preventDefault();
-											alert(adminAlert);
+										} else if (item.name === 'Submit Publication') {
+											if (isAdminAuthenticated) {
+												e.preventDefault();
+												alert(adminAlert);
+											} else if (isAuthenticated) {
+												window.location.href = '/submit-publication';
+											} else {
+												e.preventDefault();
+												showAuthModal();
+											}
 										}
 									}}
 								>
@@ -149,7 +163,7 @@ const TopHeader = () => {
 									key={`action-${index}`}
 									href={action.href}
 									className="flex-shrink-0 flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 group whitespace-nowrap"
-									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
+									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' ? (isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : isAuthenticated ? () => window.location.href = '/submit-publication' : (e) => { e.preventDefault(); showAuthModal(); }) : undefined}
 								>
 									<Icon
 										name={action.icon}
@@ -182,7 +196,7 @@ const TopHeader = () => {
 														key={index}
 														href={action.href}
 														className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200 w-full"
-														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
+														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' ? (isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : isAuthenticated ? () => window.location.href = '/submit-publication' : (e) => { e.preventDefault(); showAuthModal(); }) : undefined}
 													>
 														<Icon
 															name={action.icon}
@@ -289,7 +303,11 @@ const TopHeader = () => {
 							) : (
 								<button
 									key={`action-${index}`}
-									onClick={item.name === 'Submit Publication' ? (isAdminAuthenticated ? () => alert(adminAlert) : showAuthModal) : showAuthModal}
+									onClick={item.name === 'Submit Publication' ?
+										(isAdminAuthenticated ? () => alert(adminAlert) :
+										 isAuthenticated ? () => window.location.href = '/submit-publication' :
+										 showAuthModal) :
+										showAuthModal}
 									className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
 								>
 									<Icon
