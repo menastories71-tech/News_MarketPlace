@@ -13,7 +13,7 @@ const RealEstateSimplified = () => {
   // Translated texts
   const realEstateTitle = useTranslatedText('Real Estate');
   const realEstateDesc = useTranslatedText('Explore a wide range of real estate agency owners, agents, and marketing experts from different countries, languages, genders, and age groups. Partner with professionals who not only enhance your brand equity and amplify organic marketing but also drive substantial sales.');
-  const viewRealEstateText = useTranslatedText('View Real Estate Listings');
+  const viewRealEstateText = useTranslatedText('View');
 
   return (
     <section className="py-4 md:py-6 lg:py-8 bg-[#E3F2FD] relative overflow-hidden">

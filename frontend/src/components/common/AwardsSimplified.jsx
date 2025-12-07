@@ -29,7 +29,7 @@ const AwardsSimplified = () => {
             {awardsTitle}
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Celebrating our achievements and recognition in digital publishing and media innovation worldwide. Honoring excellence in journalism and content creation. Connecting with industry leaders and visionaries. Showcasing our commitment to quality and innovation.
+            Explore our prestigious collection of awards and recognitions celebrating excellence in digital publishing and media innovation worldwide. Discover our achievements in journalism, content creation, and industry leadership. Connect with award-winning professionals who set the standards for quality and innovation.
           </p>
           <div className="mt-4 md:mt-6 flex justify-center space-x-2 md:space-x-3">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>
@@ -46,9 +46,7 @@ const AwardsSimplified = () => {
               <h3 className="text-lg md:text-xl font-bold text-white mb-2 transition-colors duration-500">
                 Explore Our Awards and Recognition
               </h3>
-              <p className="text-white/90 leading-relaxed text-sm md:text-base mb-4">
-                Discover our achievements and commitment to excellence in digital publishing.
-              </p>
+             
               <CosmicButton
                 variant="small"
                 textColor="#ffffff"

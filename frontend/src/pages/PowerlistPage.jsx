@@ -352,7 +352,7 @@ const PowerlistPage = () => {
               Powerlist Nominations
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Discover prestigious powerlist nominations from leading publications and organizations across industries.
+            Explore our comprehensive Power List featuring the most influential organizations and leaders shaping the media and publishing landscape worldwide. Connect with industry visionaries and top performers who drive innovation in digital publishing. Discover opportunities to network with leaders from diverse backgrounds and expertise areas.
             </p>
             <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
               The current page is for representation purpose only, the comprehensive list will be live soon

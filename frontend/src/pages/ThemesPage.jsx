@@ -261,7 +261,8 @@ const ThemesPage = () => {
               Social Media Themes
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Discover approved social media themes and collaboration opportunities. {totalCount > 0 && `${totalCount} themes available`} for influencers and brands.
+                    Explore our extensive collection of professional themes designed for publications and content creators worldwide. Find the perfect design that matches your brand and enhances your visual storytelling. Customize your media presence with customizable templates that adapt to various content types.
+
             </p>
             <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
               The current page is for representation purpose only, the comprehensive list will be live soon

@@ -29,7 +29,7 @@ const ThemeSimplified = () => {
             {themeTitle}
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Explore our collection of themes for your publications and content. Find the perfect design for your needs. Customize your media presence with professional themes. Enhance your brand identity through visual storytelling. Access diverse templates for various content types.
+            Explore our extensive collection of professional themes designed for publications and content creators worldwide. Find the perfect design that matches your brand and enhances your visual storytelling. Customize your media presence with customizable templates that adapt to various content types.
           </p>
           <div className="mt-4 md:mt-6 flex justify-center space-x-2 md:space-x-3">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>
@@ -46,9 +46,7 @@ const ThemeSimplified = () => {
               <h3 className="text-lg md:text-xl font-bold text-white mb-2 transition-colors duration-500">
                 Customize Your Content Themes
               </h3>
-              <p className="text-white/90 leading-relaxed text-sm md:text-base mb-4">
-                Elevate your publications with our professional theme collection.
-              </p>
+             
               <CosmicButton
                 variant="small"
                 textColor="#ffffff"

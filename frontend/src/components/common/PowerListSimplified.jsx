@@ -29,7 +29,7 @@ const PowerListSimplified = () => {
             {powerListTitle}
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-[#757575] max-w-4xl mx-auto leading-relaxed font-light px-4 md:px-0">
-            Celebrating the most influential organizations and leaders shaping the media and publishing landscape worldwide. Recognizing excellence in digital publishing innovation. Connecting with industry leaders and visionaries. Showcasing achievements in media and journalism.
+            Explore our comprehensive Power List featuring the most influential organizations and leaders shaping the media and publishing landscape worldwide. Connect with industry visionaries and top performers who drive innovation in digital publishing. Discover opportunities to network with leaders from diverse backgrounds and expertise areas.
           </p>
           <div className="mt-4 md:mt-6 flex justify-center space-x-2 md:space-x-3">
             <div className="w-16 h-1.5 md:w-20 bg-gradient-to-r from-[#1976D2] to-[#42A5F5] rounded-full"></div>
@@ -46,9 +46,7 @@ const PowerListSimplified = () => {
               <h3 className="text-lg md:text-xl font-bold text-white mb-2 transition-colors duration-500">
                 Join the Power List Network
               </h3>
-              <p className="text-white/90 leading-relaxed text-sm md:text-base mb-4">
-                Connect with influential leaders shaping the media industry landscape.
-              </p>
+             
               <CosmicButton
                 variant="small"
                 textColor="#ffffff"
