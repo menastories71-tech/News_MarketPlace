@@ -29,17 +29,17 @@ const UserHeader = () => {
 
   const socialMediaIcons = [
     { name: 'facebook', href: 'https://vaas.solutions', label: 'Facebook', color: 'hover:text-blue-600' },
-    { name: 'x', href: 'https://vaas.solutions', label: 'X', color: 'hover:text-sky-500' },
+    { name: 'twitter', href: 'https://vaas.solutions', label: 'X', color: 'hover:text-sky-500' },
     { name: 'linkedin', href: 'https://www.linkedin.com/company/visibilityasaservice/', label: 'LinkedIn', color: 'hover:text-blue-700' },
     { name: 'instagram', href: 'https://www.instagram.com/vaas.solutions', label: 'Instagram', color: 'hover:text-pink-600' },
     { name: 'youtube', href: 'https://vaas.solutions', label: 'YouTube', color: 'hover:text-red-600' },
-    { name: 'tiktok', href: 'https://vaas.solutions', label: 'TikTok', color: 'hover:text-black' }
+    { name: 'play', href: 'https://vaas.solutions', label: 'TikTok', color: 'hover:text-black' }
   ];
 
   const contactIcons = [
     { name: 'whatsapp', href: 'https://whatsapp.com/channel/0029VbBpPm2J3juzI0r3wy11', label: 'WhatsApp', color: 'hover:text-green-600' },
     { name: 'telegram', href: 'https://t.me/visibilityasaservice', label: 'Telegram', color: 'hover:text-blue-500' },
-    { name: 'email', href: 'mailto:info@vaas.solutions', label: 'Email', color: 'hover:text-emerald-600' }
+    { name: 'mail', href: 'mailto:info@vaas.solutions', label: 'Email', color: 'hover:text-emerald-600' }
   ];
 
   const menuItems = [
