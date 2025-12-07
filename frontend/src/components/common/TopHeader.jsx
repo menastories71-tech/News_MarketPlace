@@ -15,9 +15,9 @@ const TopHeader = () => {
 
 	// Translated strings
 	const agencyRegistration = useTranslatedText('Agency Registration');
-	const editorRegistration = useTranslatedText('Editor Registration');
+	// const editorRegistration = useTranslatedText('Editor Registration');
 	const reporterRegistration = useTranslatedText('Reporter Registration');
-	const submitPublication = useTranslatedText('Submit Publication');
+	// const submitPublication = useTranslatedText('Submit Publication');
 	const themePages = useTranslatedText('Theme Pages');
 	const events = useTranslatedText('Events');
 	const pressRelease = useTranslatedText('Press Release');
@@ -29,9 +29,9 @@ const TopHeader = () => {
 
 	const actionItems = [
 		{ name: 'Agency Registration', displayName: agencyRegistration, href: '/agency-registration', icon: 'user-group', color: '#4CAF50', isLink: true, hasAuthCheck: false },
-		{ name: 'Editor Registration', displayName: editorRegistration, href: '#', icon: 'user', color: '#1976D2', isLink: false, hasAuthCheck: true },
+		// { name: 'Editor Registration', displayName: editorRegistration, href: '#', icon: 'user', color: '#1976D2', isLink: false, hasAuthCheck: true },
 		{ name: 'Reporter Registration', displayName: reporterRegistration, href: '/reporter-registration', icon: 'user-plus', color: '#FF5722', isLink: true, hasAuthCheck: false },
-		{ name: 'Submit Publication', displayName: submitPublication, href: '#', icon: 'document-plus', color: '#9C27B0', isLink: false, hasAuthCheck: true },
+		// { name: 'Submit Publication', displayName: submitPublication, href: '#', icon: 'document-plus', color: '#9C27B0', isLink: false, hasAuthCheck: true },
 		{ name: 'Theme Pages', displayName: themePages, href: '/themes', icon: 'tag', color: '#FF9800', isLink: true, hasAuthCheck: false },
 		{ name: 'Events', displayName: events, href: '/events', icon: 'calendar', color: '#2196F3', isLink: true, hasAuthCheck: false },
 		{ name: 'Press Release', displayName: pressRelease, href: '/press-packs', icon: 'megaphone', color: '#4CAF50', isLink: true, hasAuthCheck: false },
