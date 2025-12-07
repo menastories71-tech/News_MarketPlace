@@ -29,11 +29,11 @@ const UserHeader = () => {
 
   const socialMediaIcons = [
     { name: 'facebook', href: 'https://vaas.solutions', label: 'Facebook', color: 'hover:text-blue-600' },
-    { name: 'twitter', href: 'https://vaas.solutions', label: 'X', color: 'hover:text-sky-500' },
+    { name: 'x', href: 'https://vaas.solutions', label: 'X', color: 'hover:text-sky-500' },
     { name: 'linkedin', href: 'https://www.linkedin.com/company/visibilityasaservice/', label: 'LinkedIn', color: 'hover:text-blue-700' },
     { name: 'instagram', href: 'https://www.instagram.com/vaas.solutions', label: 'Instagram', color: 'hover:text-pink-600' },
     { name: 'youtube', href: 'https://vaas.solutions', label: 'YouTube', color: 'hover:text-red-600' },
-    { name: 'play', href: 'https://vaas.solutions', label: 'TikTok', color: 'hover:text-black' }
+    { name: 'play-circle', href: 'https://vaas.solutions', label: 'TikTok', color: 'hover:text-black' }
   ];
 
   const contactIcons = [
