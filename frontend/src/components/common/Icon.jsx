@@ -657,6 +657,17 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         </svg>
       );
 
+    case 'share-nodes':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <circle cx="18" cy="5" r="3" />
+          <circle cx="6" cy="12" r="3" />
+          <circle cx="18" cy="19" r="3" />
+          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+        </svg>
+      );
+
     case 'alert-circle':
       return (
         <svg {...common} className={className} style={style} {...rest}>
@@ -682,6 +693,15 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         <svg {...common} className={className} style={style} {...rest}>
           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
           <circle cx="12" cy="7" r="4" />
+        </svg>
+      );
+
+    case 'user-star':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+          <path d="M19 8l-1.382-.618L17 6l-.618 1.382L15 8l1.382.618L17 10l.618-1.382L19 8z" fill="currentColor" stroke="none" />
         </svg>
       );
 
