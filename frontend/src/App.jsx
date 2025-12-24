@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
@@ -284,6 +284,37 @@ const DashboardPage = () => {
       <UserFooter />
     </div>
   );
+};
+
+// Global Auth Modal Wrapper to handle redirects
+const GlobalAuthModal = ({ isOpen, setIsOpen }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated } = useAuth();
+
+  const handleClose = () => {
+    setIsOpen(false);
+
+    // List of public routes that don't need redirect on modal close
+    const publicPaths = [
+      '/', '/about-us', '/contact-us', '/faq',
+      '/terms-and-conditions', '/privacy-policy',
+      '/cookie-policy', '/refund-policy', '/csr',
+      '/trademark-policy', '/data-protection',
+      '/reselling-agreement', '/press-guidelines',
+      '/brands-people', '/media-partnerships',
+      '/services-overview', '/how-it-works',
+      '/contact-management', '/group-management'
+    ];
+
+    // If we're on a route that's not explicitly public and we're not logged in, go home
+    const isPublic = publicPaths.includes(location.pathname);
+    if (!isPublic && !isAuthenticated) {
+      navigate('/');
+    }
+  };
+
+  return <AuthModal isOpen={isOpen} onClose={handleClose} />;
 };
 
 // Main App Component
@@ -1072,9 +1103,9 @@ function App() {
                 </Routes>
 
                 {/* Global Auth Modal */}
-                <AuthModal
+                <GlobalAuthModal
                   isOpen={showAuthModal}
-                  onClose={() => setShowAuthModal(false)}
+                  setIsOpen={setShowAuthModal}
                 />
               </Router>
             </AuthModalContext.Provider>
