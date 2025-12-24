@@ -41,7 +41,58 @@ const FeatureSlider = () => {
   const contentCreationText = useTranslatedText("Lifetime");
   const goToSlideText = useTranslatedText("Go to slide");
 
+  // New Slides Translations
+  const creatorsMarketplaceTitle = useTranslatedText("Creators Marketplace");
+  const creatorsMarketplaceSubtitle = useTranslatedText("Brand-Safe Creator Partnerships. Connecting Global, Regional, National, and Local Creators with the Right Brands");
+  const creatorsMarketplaceDesc = useTranslatedText("A structured marketplace connecting celebrity, macro, micro, and women-led creators with aligned brands, using data-driven discovery to enable authentic, compliant, performance-focused collaborations across platforms and regional markets.");
+  const creatorFirstText = useTranslatedText("Creator-First");
+  const trustedText = useTranslatedText("Trusted");
+  const brandSafeText = useTranslatedText("Brand-Safe");
+
+  const influencerDistributionTitle = useTranslatedText("Influencer Distribution Network");
+  const influencerDistributionSubtitle = useTranslatedText("Region-First Content & Press Distribution");
+  const influencerDistributionDesc = useTranslatedText("A structured distribution framework enabling region-first video and editorial dissemination through bloggers, YouTubers, Instagrammers, TikTokers, vloggers, and independent creators across social media platforms. The model follows principles similar to traditional press distribution via newspapers and digital publications, adapted for influencer-led channels with regional relevance and platform adherence.");
+  const creatorsLedText = useTranslatedText("Creators Led");
+  const videoDistributionText = useTranslatedText("Video Distribution");
+  const scalableText = useTranslatedText("Scalable");
+
   const features = [
+    {
+      id: 101,
+      title: creatorsMarketplaceTitle,
+      subtitle: creatorsMarketplaceSubtitle,
+      leftText: "Creators Marketplace",
+      icon: "user-group",
+      placeholderIcon: "user-group",
+      color: "pink",
+      bgGradient: "from-[#D81B60] to-[#880E4F]",
+      iconBg: "from-[#D81B60] to-[#880E4F]",
+      image: "",
+      description: creatorsMarketplaceDesc,
+      highlights: [
+        { text: creatorFirstText, icon: "check-circle" },
+        { text: trustedText, icon: "check-circle" },
+        { text: brandSafeText, icon: "check-circle" }
+      ]
+    },
+    {
+      id: 102,
+      title: influencerDistributionTitle,
+      subtitle: influencerDistributionSubtitle,
+      leftText: "Influencer Distribution Network",
+      icon: "megaphone",
+      placeholderIcon: "megaphone",
+      color: "cyan",
+      bgGradient: "from-[#00ACC1] to-[#006064]",
+      iconBg: "from-[#00ACC1] to-[#006064]",
+      image: "",
+      description: influencerDistributionDesc,
+      highlights: [
+        { text: creatorsLedText, icon: "check-circle" },
+        { text: videoDistributionText, icon: "check-circle" },
+        { text: scalableText, icon: "check-circle" }
+      ]
+    },
     {
       id: 1,
       title: socialMediaRecoveryTitle,
@@ -124,11 +175,11 @@ const FeatureSlider = () => {
     setCurrentSlide((prev) => (prev - 1 + features.length) % features.length);
   };
 
-  // Auto-slide every 4 seconds
+  // Auto-slide every 5 seconds
   useEffect(() => {
-    const timer = setInterval(nextSlide, 4000);
+    const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [features.length]);
 
   return (
     <section className="pb-4 relative overflow-hidden">
@@ -203,7 +254,7 @@ const FeatureSlider = () => {
           </div>
 
           {/* Slide Indicators */}
-         
+
         </div>
       </div>
 
