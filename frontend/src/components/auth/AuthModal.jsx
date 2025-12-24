@@ -282,7 +282,7 @@ const AuthModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4" onClick={onClose}>
       <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto relative" onClick={(e) => e.stopPropagation()}>
         <button
           className="absolute top-3 right-3 p-1.5 hover:bg-gray-100 rounded-full transition-colors duration-200 z-10"
@@ -298,17 +298,17 @@ const AuthModal = ({ isOpen, onClose }) => {
         <div className="text-center mb-6 pt-8 px-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-2 font-['Inter']">
             {step === 'select' ? 'Welcome to News Marketplace' :
-             mode === 'login' ? 'Welcome Back' :
-             mode === 'register' ? 'Create Account' :
-             'Reset Password'}
+              mode === 'login' ? 'Welcome Back' :
+                mode === 'register' ? 'Create Account' :
+                  'Reset Password'}
           </h2>
           <p className="text-sm text-gray-600 font-['Open_Sans'] leading-relaxed">
             {step === 'select' ? 'Choose how you\'d like to proceed' :
-             mode === 'login' ? 'Sign in to your News Marketplace account' :
-             mode === 'register' ? 'Join News Marketplace to start your journey' :
-             step === 'form' ? 'Enter your email address to receive a reset code' :
-             step === 'otp' ? 'Enter the reset code and create a new password' :
-             'Password reset successful!'}
+              mode === 'login' ? 'Sign in to your News Marketplace account' :
+                mode === 'register' ? 'Join News Marketplace to start your journey' :
+                  step === 'form' ? 'Enter your email address to receive a reset code' :
+                    step === 'otp' ? 'Enter the reset code and create a new password' :
+                      'Password reset successful!'}
           </p>
         </div>
 
@@ -385,8 +385,8 @@ const AuthModal = ({ isOpen, onClose }) => {
         ) : step === 'form' ? (
           <form onSubmit={
             mode === 'login' ? handleLogin :
-            mode === 'register' ? handleRegister :
-            handleForgotPassword
+              mode === 'register' ? handleRegister :
+                handleForgotPassword
           } className="px-6 pb-6">
             <div className="space-y-4">
               {mode === 'register' && (
@@ -517,16 +517,16 @@ const AuthModal = ({ isOpen, onClose }) => {
                 </div>
               ) : (
                 mode === 'login' ? 'Sign In' :
-                mode === 'register' ? 'Create Account' :
-                'Send Reset Code'
+                  mode === 'register' ? 'Create Account' :
+                    'Send Reset Code'
               )}
             </button>
           </form>
         ) : step === 'otp' ? (
           <form onSubmit={
             mode === 'login' ? handleVerifyLogin :
-            mode === 'register' ? handleVerifyRegistration :
-            handleVerifyForgotPassword
+              mode === 'register' ? handleVerifyRegistration :
+                handleVerifyForgotPassword
           } className="px-6 pb-6">
             <div className="text-center mb-4">
               <p className="text-sm text-gray-600 mb-4 font-['Open_Sans'] leading-relaxed">

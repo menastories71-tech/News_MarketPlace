@@ -73,7 +73,7 @@ const TopHeader = () => {
 									href={item.href}
 									className="flex flex-col items-center text-center p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
 									onClick={(e) => {
-										if (item.hasAuthCheck && !isAuthenticated) {
+										if (!isAuthenticated) {
 											e.preventDefault();
 											showAuthModal();
 										} else if (item.name === 'Submit Publication') {
@@ -102,7 +102,7 @@ const TopHeader = () => {
 									href={item.href}
 									className="flex flex-col items-center text-center p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
 									onClick={(e) => {
-										if (item.hasAuthCheck && !isAuthenticated) {
+										if (!isAuthenticated) {
 											e.preventDefault();
 											showAuthModal();
 										} else if (item.name === 'Submit Publication') {
@@ -163,7 +163,7 @@ const TopHeader = () => {
 									key={`action-${index}`}
 									href={action.href}
 									className="flex-shrink-0 flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 group whitespace-nowrap"
-									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' ? (isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : isAuthenticated ? () => window.location.href = '/submit-publication' : (e) => { e.preventDefault(); showAuthModal(); }) : undefined}
+									onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' ? (isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : isAuthenticated ? () => window.location.href = '/submit-publication' : (e) => { e.preventDefault(); showAuthModal(); }) : undefined}
 								>
 									<Icon
 										name={action.icon}
@@ -196,7 +196,7 @@ const TopHeader = () => {
 														key={index}
 														href={action.href}
 														className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200 w-full"
-														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' ? (isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : isAuthenticated ? () => window.location.href = '/submit-publication' : (e) => { e.preventDefault(); showAuthModal(); }) : undefined}
+														onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' ? (isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : isAuthenticated ? () => window.location.href = '/submit-publication' : (e) => { e.preventDefault(); showAuthModal(); }) : undefined}
 													>
 														<Icon
 															name={action.icon}
@@ -225,7 +225,7 @@ const TopHeader = () => {
 									key={`action-${index}`}
 									href={action.href}
 									className="flex items-center space-x-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md group"
-									onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
+									onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
 								>
 									<Icon
 										name={action.icon}
@@ -263,7 +263,7 @@ const TopHeader = () => {
 														key={index}
 														href={action.href}
 														className="flex items-center space-x-2 px-2 py-1.5 text-xs text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded transition-all duration-200"
-														onClick={action.hasAuthCheck && !isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
+														onClick={!isAuthenticated ? (e) => { e.preventDefault(); showAuthModal(); } : action.name === 'Submit Publication' && isAdminAuthenticated ? (e) => { e.preventDefault(); alert(adminAlert); } : undefined}
 													>
 														<Icon
 															name={action.icon}
@@ -292,6 +292,12 @@ const TopHeader = () => {
 									key={`action-${index}`}
 									to={item.href}
 									className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
+									onClick={(e) => {
+										if (!isAuthenticated) {
+											e.preventDefault();
+											showAuthModal();
+										}
+									}}
 								>
 									<Icon
 										name={item.icon}
@@ -305,8 +311,8 @@ const TopHeader = () => {
 									key={`action-${index}`}
 									onClick={item.name === 'Submit Publication' ?
 										(isAdminAuthenticated ? () => alert(adminAlert) :
-										 isAuthenticated ? () => window.location.href = '/submit-publication' :
-										 showAuthModal) :
+											isAuthenticated ? () => window.location.href = '/submit-publication' :
+												showAuthModal) :
 										showAuthModal}
 									className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
 								>

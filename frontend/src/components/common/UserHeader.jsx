@@ -133,7 +133,7 @@ const UserHeader = () => {
 
   const allItems = [
     ...menuItems.map(item => ({ name: item.text, href: item.href, icon: item.icon })),
-    ...services.map(item => ({ name: item.name, href: item.href, icon: item.icon }))
+    ...services.map(item => ({ name: item.name, href: item.href, icon: item.icon, bypassAuth: item.bypassAuth }))
   ];
 
   const getDisplayedServices = (breakpoint) => {
@@ -172,7 +172,7 @@ const UserHeader = () => {
               >
                 {icon.name === 'x' ? (
                   <svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 462.799" className="w-4 h-4">
-                    <path fill="currentColor" fill-rule="nonzero" d="M403.229 0h78.506L310.219 196.04 512 462.799H354.002L230.261 301.007 88.669 462.799h-78.56l183.455-209.683L0 0h161.999l111.856 147.88L403.229 0zm-27.556 415.805h43.505L138.363 44.527h-46.68l283.99 371.278z"/>
+                    <path fill="currentColor" fill-rule="nonzero" d="M403.229 0h78.506L310.219 196.04 512 462.799H354.002L230.261 301.007 88.669 462.799h-78.56l183.455-209.683L0 0h161.999l111.856 147.88L403.229 0zm-27.556 415.805h43.505L138.363 44.527h-46.68l283.99 371.278z" />
                   </svg>
                 ) : icon.name === 'play-circle' ? (
                   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -288,6 +288,13 @@ const UserHeader = () => {
                         href={item.href}
                         className="flex items-center px-3 py-2.5 text-xs text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded transition-all duration-200"
                         onClick={(e) => {
+                          // Enforce auth for all items in this list
+                          if (!isAuthenticated) {
+                            e.preventDefault();
+                            showAuthModal();
+                            return;
+                          }
+
                           if (item.text === "Video Tutorial") {
                             e.preventDefault();
                             setShowVideoTutorialPopup(true);
@@ -332,10 +339,6 @@ const UserHeader = () => {
                             e.preventDefault();
                             setShowHowToGuidePopup(true);
                             return;
-                          }
-                          if (item.hasAuthCheck && !isAuthenticated) {
-                            e.preventDefault();
-                            showAuthModal();
                           }
                         }}
                       >
@@ -529,7 +532,7 @@ const UserHeader = () => {
                   <option value="zh">🇨🇳 ZH</option>
                   <option value="fr">🇫🇷 FR</option>
                 </select>
-                
+
                 <div className="flex space-x-1">
                   {contactIcons.map((icon) => (
                     <a
@@ -555,7 +558,7 @@ const UserHeader = () => {
                   >
                     {icon.name === 'x' ? (
                       <svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 462.799" className="w-5 h-5">
-                        <path fill="currentColor" fill-rule="nonzero" d="M403.229 0h78.506L310.219 196.04 512 462.799H354.002L230.261 301.007 88.669 462.799h-78.56l183.455-209.683L0 0h161.999l111.856 147.88L403.229 0zm-27.556 415.805h43.505L138.363 44.527h-46.68l283.99 371.278z"/>
+                        <path fill="currentColor" fill-rule="nonzero" d="M403.229 0h78.506L310.219 196.04 512 462.799H354.002L230.261 301.007 88.669 462.799h-78.56l183.455-209.683L0 0h161.999l111.856 147.88L403.229 0zm-27.556 415.805h43.505L138.363 44.527h-46.68l283.99 371.278z" />
                       </svg>
                     ) : icon.name === 'play-circle' ? (
                       <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
