@@ -1,3 +1,106 @@
+import React from 'react';
+
+const App = () => {
+  return (
+    <div style={{
+      height: '100vh',
+      width: '100vw',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center',
+      background: '#050505',
+      color: '#ffffff',
+      fontFamily: "'Inter', system-ui, sans-serif",
+      margin: 0,
+      overflow: 'hidden',
+      position: 'fixed',
+      top: 0,
+      left: 0
+    }}>
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(circle at 50% 50%, #111 0%, #050505 100%)',
+        zIndex: -1
+      }} />
+
+      <div style={{
+        textAlign: 'center',
+        padding: '2rem',
+        zIndex: 1
+      }}>
+        <div style={{
+          fontSize: '0.75rem',
+          fontWeight: '600',
+          letterSpacing: '0.4em',
+          textTransform: 'uppercase',
+          color: '#3b82f6',
+          marginBottom: '1.5rem',
+        }}>
+          News Marketplace
+        </div>
+
+        <h1 style={{
+          fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
+          fontWeight: '800',
+          lineHeight: '1.1',
+          marginBottom: '1.5rem',
+          letterSpacing: '-0.05em',
+          background: 'linear-gradient(to bottom, #ffffff 40%, #475569)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent'
+        }}>
+          Something Big<br />is Happening
+        </h1>
+
+        <p style={{
+          fontSize: '1.125rem',
+          color: '#64748b',
+          maxWidth: '500px',
+          margin: '0 auto 3rem',
+          lineHeight: '1.6'
+        }}>
+          We are currently refining our platform to provide a better experience.
+          The evolution of news delivery is almost here.
+        </p>
+
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          padding: '0.5rem 1.25rem',
+          background: 'rgba(255, 255, 255, 0.03)',
+          borderRadius: '100px',
+          border: '1px solid rgba(255, 255, 255, 0.1)',
+          fontSize: '0.875rem',
+          color: '#94a3b8'
+        }}>
+          <span style={{
+            width: '6px',
+            height: '6px',
+            background: '#10b981',
+            borderRadius: '50%',
+            boxShadow: '0 0 8px #10b981'
+          }} />
+          Coming Soon
+        </div>
+      </div>
+
+      <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+                body { margin: 0; background: #050505; }
+            `}</style>
+    </div>
+  );
+};
+
+export default App;
+
+/*
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
@@ -333,7 +436,7 @@ function App() {
             <AuthModalContext.Provider value={{ showAuthModal: handleShowAuth }}>
               <Router>
                 <Routes>
-                  {/* Public Routes */}
+                  
                   <Route path="/" element={<Home />} />
                   <Route path="/about-us" element={<AboutUs />} />
                   <Route path="/contact-us" element={<ContactUs />} />
@@ -693,7 +796,7 @@ function App() {
                     }
                   />
 
-                  {/* Admin Routes */}
+
                   <Route path="/admin/login" element={<AdminLogin />} />
                   <Route
                     path="/admin/dashboard"
@@ -1094,26 +1197,27 @@ function App() {
 
                   <Route path="/data/new/cookies/user" element={<UserCookiesData />} />
 
-                  {/* Catch all route - redirect to admin login if accessing /admin */}
+
                   <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
                   <Route path="/admin/*" element={<Navigate to="/admin/login" replace />} />
 
-                  {/* Fallback */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
 
-                {/* Global Auth Modal */}
-                <GlobalAuthModal
-                  isOpen={showAuthModal}
-                  setIsOpen={setShowAuthModal}
-                />
-              </Router>
-            </AuthModalContext.Provider>
-          </AdminAuthProvider>
-        </AuthProvider>
-      </LanguageProvider>
-    </HelmetProvider>
+<Route path="*" element={<Navigate to="/" replace />} />
+                </Routes >
+
+  
+  < GlobalAuthModal
+isOpen = { showAuthModal }
+setIsOpen = { setShowAuthModal }
+  />
+              </Router >
+            </AuthModalContext.Provider >
+          </AdminAuthProvider >
+        </AuthProvider >
+      </LanguageProvider >
+    </HelmetProvider >
   );
 }
 
-export default App;
+// export default App;
+*/
