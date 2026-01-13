@@ -54,7 +54,7 @@ const PUBLICATIONS_DATA = [
     { sn: 48, region: 'Middle East', publication_name: 'CNN Business Arabic', publication_url: 'https://cnnbusinessarabic.com/', language: 'Arabic', publication_primary_focus: 'News', practical_tat: '25', price_usd: '30,000', instagram: '', facebook: '', linkedin: '', image: 'https://logo.page-source.com/resizeimage.ashx?ig=cnnbusinessarabic.com&sz=284403', twitter: '', da: 46, dr: null },
     { sn: 49, region: 'Kuwait', publication_name: 'Arab Times Online', publication_url: 'https://www.arabtimesonline.com/', language: 'English', publication_primary_focus: 'Newspaper', practical_tat: '5', price_usd: '1,000', instagram: 'https://www.instagram.com/arabtimeskuwait/', facebook: 'https://www.facebook.com/arabtimeskuwait/', linkedin: 'https://www.linkedin.com/company/arab-times-kuwait', image: 'https://www.arabtimesonline.com/theme_arabtimes/images/theme-logo.svg', twitter: 'https://twitter.com/arabtimeskuwait', da: 52, dr: 61 },
     { sn: 50, region: 'Kuwait', publication_name: 'Kuwait Times', publication_url: 'https://kuwaittimes.com/', language: 'English', publication_primary_focus: 'Newspaper', practical_tat: '5', price_usd: '1,500', instagram: 'https://www.instagram.com/kuwaittimes', facebook: 'https://www.facebook.com/kuwaittimes', linkedin: 'https://www.linkedin.com/company/kuwait-times', image: 'https://kuwaittimes.com/theme_kuwaittimes/images/logo.svg', twitter: 'https://twitter.com/kuwaittimes', da: 57, dr: 61 },
-    { sn: 51, region: 'Global', publication_name: 'Al Jazeera (Global)', publication_url: 'https://www.Aljazeera.com', language: 'English', publication_primary_focus: 'News Channel', practical_tat: '15', price_usd: '16,000', instagram: 'https://www.instagram.com/aljazeera', facebook: 'https://www.facebook.com/aljazeera', linkedin: 'https://www.linkedin.com/company/al-jazeera-media-network', image: 'https://www.aljazeera.com/static/media/aljazeera-logo.png', twitter: 'https://twitter.com/ajenglish', da: 94, dr: 91 },
+    { sn: 51, region: 'Global', publication_name: 'Al Jazeera', publication_url: 'https://www.Aljazeera.com', language: 'English', publication_primary_focus: 'News Channel', practical_tat: '15', price_usd: '16,000', instagram: 'https://www.instagram.com/aljazeera', facebook: 'https://www.facebook.com/aljazeera', linkedin: 'https://www.linkedin.com/company/al-jazeera-media-network', image: 'https://www.aljazeera.com/static/media/aljazeera-logo.png', twitter: 'https://twitter.com/ajenglish', da: 94, dr: 91 },
     { sn: 52, region: 'Bahrain', publication_name: 'Trade Arabia', publication_url: 'https://www.tradearabia.com/', language: 'English', publication_primary_focus: 'Business, Trade, Economy, Finance, General', practical_tat: '5', price_usd: '1,000', instagram: '', facebook: '', linkedin: '', image: 'https://www.tradearabia.com/Content/imgs/logoTA.webp', twitter: '', da: 35, dr: null },
     { sn: 53, region: 'Bahrain', publication_name: 'Gulf Digital News / GDN Online', publication_url: 'https://www.gdnonline.com/index.html', language: 'English', publication_primary_focus: 'Newspaper', practical_tat: '5', price_usd: '1,000', instagram: 'https://www.instagram.com/gdnonline/', facebook: 'https://www.facebook.com/gdnonline', linkedin: 'https://www.linkedin.com/company/gdn-online', image: 'https://www.gdnonline.com/content/images/gulfdailynewslogo.png?v=1.1', twitter: 'https://twitter.com/gdnonline', da: 52, dr: 61 },
     { sn: 54, region: 'Bahrain', publication_name: 'The Daily Tribune / News of Bahrain', publication_url: 'https://www.newsofbahrain.com/', language: 'English', publication_primary_focus: 'Newspaper', practical_tat: '5', price_usd: '1,000', instagram: 'https://www.instagram.com/newsofbahrain/', facebook: 'https://www.facebook.com/newsofbahrain/', linkedin: 'https://www.linkedin.com/company/daily-tribune-news-of-bahrain/', image: 'https://www.newsofbahrain.com/images/logo.png', twitter: 'https://twitter.com/newsofbahrain', da: 52, dr: 48 },
@@ -75,8 +75,7 @@ async function findOrCreateGroup(groupName) {
             status: 'approved',
             is_active: true
         };
-        const GroupMod = require('./src/models/Group');
-        const savedGroup = await GroupMod.create(groupData);
+        const savedGroup = await Group.create(groupData);
         return savedGroup.id;
     } catch (error) {
         console.error(`Error with group ${groupName}:`, error.message);
@@ -86,7 +85,7 @@ async function findOrCreateGroup(groupName) {
 
 async function populateMarketplace() {
     try {
-        console.log('Starting marketplace (publications) population...');
+        console.log('Starting marketplace population...');
 
         // Wipe existing publications first
         console.log('Deleting all existing publications...');
@@ -129,12 +128,7 @@ async function populateMarketplace() {
                     status: 'approved'
                 };
 
-                const existing = await Publication.findBySN(data.publication_sn);
-                if (existing) {
-                    console.log(`Publication ${data.publication_sn} already exists, skipping...`);
-                } else {
-                    await Publication.create(data);
-                }
+                await Publication.create(data);
                 successCount++;
                 console.log(`Saved Marketplace [${pub.sn}]: ${pub.publication_name}`);
             } catch (err) {
