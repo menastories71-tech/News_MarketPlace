@@ -90,45 +90,44 @@ class AdminPublicationManagementController {
   // Get all publication management records
   async getAll(req, res) {
     try {
-      // Allow non-admin GET requests for frontend publication selection
       const {
         page = 1,
         limit = 10,
         region,
+        language,
         publication_name,
-        language
+        search,
+        sortBy = 'created_at',
+        sortOrder = 'DESC'
       } = req.query;
 
-      const filters = {};
-      if (region) filters.region = region;
-      if (language) filters.language = language;
+      const whereClause = {};
 
-      // Add search filters
-      let searchSql = '';
-      const searchValues = [];
-      let searchParamCount = Object.keys(filters).length + 1;
-
-      if (publication_name) {
-        searchSql += ` AND publication_name ILIKE $${searchParamCount}`;
-        searchValues.push(`%${publication_name}%`);
-        searchParamCount++;
+      if (search) {
+        whereClause.search = { val: search };
+      } else {
+        if (region) whereClause.region = region;
+        if (language) whereClause.language = language;
+        if (publication_name) whereClause.publication_name = publication_name;
       }
 
-      const offset = (page - 1) * limit;
-      const publications = await PublicationManagement.findAll(limit, offset);
+      const limitNum = parseInt(limit);
+      const offset = (page - 1) * limitNum;
 
-      // For simplicity, get total count by getting all and counting
-      // In production, you'd want a separate count method
-      const allPublications = await PublicationManagement.findAll();
-      const totalCount = allPublications.length;
+      const { count, rows } = await PublicationManagement.findAndCountAll({
+        where: whereClause,
+        limit: limitNum,
+        offset: offset,
+        order: [[sortBy, sortOrder.toUpperCase()]]
+      });
 
       res.json({
-        publications: publications.map(pub => pub.toJSON()),
+        publications: rows.map(pub => pub.toJSON()),
         pagination: {
           page: parseInt(page),
-          limit: parseInt(limit),
-          total: totalCount,
-          pages: Math.ceil(totalCount / limit)
+          limit: limitNum,
+          total: count,
+          pages: Math.ceil(count / limitNum)
         }
       });
     } catch (error) {

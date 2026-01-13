@@ -93,67 +93,45 @@ class AdminRealEstateProfessionalController {
       const {
         page = 1,
         limit = 10,
-        first_name,
-        last_name,
-        nationality,
-        current_residence_city,
-        languages,
         status,
-        is_active
+        is_active,
+        search,
+        sortBy = 'created_at',
+        sortOrder = 'DESC',
+        gender,
+        nationality,
+        current_residence_city
       } = req.query;
 
-      // Build filters
-      const filters = {};
-      if (status) filters.status = status;
-      if (is_active !== undefined) filters.is_active = is_active === 'true';
+      const whereClause = {};
 
-      // Add search filters
-      let searchSql = '';
-      const searchValues = [];
-      let searchParamCount = Object.keys(filters).length + 1;
-
-      if (first_name) {
-        searchSql += ` AND rp.first_name ILIKE $${searchParamCount}`;
-        searchValues.push(`%${first_name}%`);
-        searchParamCount++;
+      if (search) {
+        whereClause.search = { val: search };
+      } else {
+        if (status) whereClause.status = status;
+        if (is_active !== undefined) whereClause.is_active = is_active === 'true';
+        if (gender) whereClause.gender = gender;
+        if (nationality) whereClause.nationality = nationality;
+        if (current_residence_city) whereClause.current_residence_city = current_residence_city;
       }
 
-      if (last_name) {
-        searchSql += ` AND rp.last_name ILIKE $${searchParamCount}`;
-        searchValues.push(`%${last_name}%`);
-        searchParamCount++;
-      }
+      const limitNum = parseInt(limit);
+      const offset = (page - 1) * limitNum;
 
-      if (nationality) {
-        searchSql += ` AND rp.nationality ILIKE $${searchParamCount}`;
-        searchValues.push(`%${nationality}%`);
-        searchParamCount++;
-      }
-
-      if (current_residence_city) {
-        searchSql += ` AND rp.current_residence_city ILIKE $${searchParamCount}`;
-        searchValues.push(`%${current_residence_city}%`);
-        searchParamCount++;
-      }
-
-      if (languages) {
-        // Search for professionals who speak the specified language
-        searchSql += ` AND $${searchParamCount} = ANY(rp.languages)`;
-        searchValues.push(languages);
-        searchParamCount++;
-      }
-
-      const offset = (page - 1) * limit;
-      const professionals = await this.findAllWithFilters(filters, searchSql, searchValues, limit, offset);
-      const total = await this.getCount(filters, searchSql, searchValues);
+      const { count, rows } = await RealEstateProfessional.findAndCountAll({
+        where: whereClause,
+        limit: limitNum,
+        offset: offset,
+        order: [[sortBy, sortOrder.toUpperCase()]]
+      });
 
       res.json({
-        professionals: professionals.map(p => p.toJSON()),
+        professionals: rows.map(p => p.toJSON()),
         pagination: {
           page: parseInt(page),
-          limit: parseInt(limit),
-          total: total,
-          pages: Math.ceil(total / limit)
+          limit: limitNum,
+          total: count,
+          pages: Math.ceil(count / limitNum)
         }
       });
     } catch (error) {

@@ -74,47 +74,44 @@ class AdminRealEstateController {
   // Get all real estate records
   async getAll(req, res) {
     try {
-      // Allow non-admin GET requests for frontend real estate browsing
       const {
         page = 1,
         limit = 10,
         status,
         location,
         property_type,
-        title
+        search,
+        sortBy = 'created_at',
+        sortOrder = 'DESC'
       } = req.query;
 
-      const filters = {};
-      if (status) filters.status = status;
-      if (location) filters.location = location;
-      if (property_type) filters.property_type = property_type;
+      const whereClause = {};
 
-      // Add search filters
-      let searchSql = '';
-      const searchValues = [];
-      let searchParamCount = Object.keys(filters).length + 1;
-
-      if (title) {
-        searchSql += ` AND title ILIKE $${searchParamCount}`;
-        searchValues.push(`%${title}%`);
-        searchParamCount++;
+      if (search) {
+        whereClause.search = { val: search };
+      } else {
+        if (status) whereClause.status = status;
+        if (location) whereClause.location = location;
+        if (property_type) whereClause.property_type = property_type;
       }
 
-      const offset = (page - 1) * limit;
-      const realEstates = await RealEstate.findAll(limit, offset);
+      const limitNum = parseInt(limit);
+      const offset = (page - 1) * limitNum;
 
-      // For simplicity, get total count by getting all and counting
-      // In production, you'd want a separate count method
-      const allRealEstates = await RealEstate.findAll();
-      const totalCount = allRealEstates.length;
+      const { count, rows } = await RealEstate.findAndCountAll({
+        where: whereClause,
+        limit: limitNum,
+        offset: offset,
+        order: [[sortBy, sortOrder.toUpperCase()]]
+      });
 
       res.json({
-        realEstates: realEstates.map(re => re.toJSON()),
+        realEstates: rows.map(re => re.toJSON()),
         pagination: {
           page: parseInt(page),
-          limit: parseInt(limit),
-          total: totalCount,
-          pages: Math.ceil(totalCount / limit)
+          limit: limitNum,
+          total: count,
+          pages: Math.ceil(count / limitNum)
         }
       });
     } catch (error) {

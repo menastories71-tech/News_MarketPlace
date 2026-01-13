@@ -611,6 +611,15 @@ const RealEstateProfessionalsManagementPage = () => {
   const [pageSize, setPageSize] = useState(25);
   const [message, setMessage] = useState(null);
 
+  // Search and Filter State
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
+  const [nationalityFilter, setNationalityFilter] = useState('');
+  const [cityFilter, setCityFilter] = useState('');
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('DESC');
+
   // Layout constants
   const headerZ = 1000;
   const mobileOverlayZ = 500;
@@ -675,13 +684,36 @@ const RealEstateProfessionalsManagementPage = () => {
 
   useEffect(() => {
     fetchRecords();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, statusFilter, genderFilter, nationalityFilter, cityFilter, sortBy, sortOrder]);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        fetchRecords();
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const fetchRecords = async () => {
     try {
+      setLoading(true);
       const params = new URLSearchParams();
       params.append('page', currentPage.toString());
       params.append('limit', pageSize.toString());
+
+      if (search) params.append('search', search);
+      if (statusFilter) params.append('status', statusFilter);
+      if (genderFilter) params.append('gender', genderFilter);
+      if (nationalityFilter) params.append('nationality', nationalityFilter);
+      if (cityFilter) params.append('current_residence_city', cityFilter);
+
+      params.append('sortBy', sortBy);
+      params.append('sortOrder', sortOrder);
+
       const response = await api.get(`/admin/real-estate-professionals?${params.toString()}`);
       setRecords(response.data.professionals || []);
       setTotalRecords(response.data.pagination?.total || 0);
@@ -906,6 +938,109 @@ const RealEstateProfessionalsManagementPage = () => {
               </div>
             </div>
 
+            {/* Filters Section */}
+            <div style={{ background: '#fff', borderRadius: 12, padding: '20px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', marginBottom: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+                {/* Search */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Search</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="text"
+                      placeholder="Search name, nationality..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 36px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }}>
+                      <Icon name="magnifying-glass" size="sm" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Filter */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Status</label>
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff' }}
+                  >
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+
+                {/* Gender Filter */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Gender</label>
+                  <select
+                    value={genderFilter}
+                    onChange={(e) => setGenderFilter(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff' }}
+                  >
+                    <option value="">All Genders</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
+                {/* Nationality Filter */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Nationality</label>
+                  <select
+                    value={nationalityFilter}
+                    onChange={(e) => setNationalityFilter(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff' }}
+                  >
+                    <option value="">All Nationalities</option>
+                    {[...new Set(records.map(r => r.nationality).filter(Boolean))].map(nat => (
+                      <option key={nat} value={nat}>{nat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Clear Filters */}
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <button
+                    onClick={() => {
+                      setSearch('');
+                      setStatusFilter('');
+                      setGenderFilter('');
+                      setNationalityFilter('');
+                      setCityFilter('');
+                      setSortBy('created_at');
+                      setSortOrder('DESC');
+                    }}
+                    style={{
+                      padding: '10px 16px',
+                      backgroundColor: '#f3f4f6',
+                      color: '#374151',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      width: '100%'
+                    }}
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Message */}
             {message && (
               <div style={{
@@ -931,28 +1066,31 @@ const RealEstateProfessionalsManagementPage = () => {
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
-                    Real Estate Professionals
+                    Real Estate Professionals ({totalRecords})
                   </span>
-                  <select
-                    value={pageSize}
-                    onChange={(e) => {
-                      const newPageSize = parseInt(e.target.value);
-                      setPageSize(newPageSize);
-                      setCurrentPage(1);
-                    }}
-                    style={{
-                      padding: '6px 12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      backgroundColor: '#fff'
-                    }}
-                  >
-                    <option value="10">10 per page</option>
-                    <option value="25">25 per page</option>
-                    <option value="50">50 per page</option>
-                    <option value="100">100 per page</option>
-                  </select>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {loading && <span style={{ fontSize: '12px', color: theme.primary }}>Updating...</span>}
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        const newPageSize = parseInt(e.target.value);
+                        setPageSize(newPageSize);
+                        setCurrentPage(1);
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        backgroundColor: '#fff'
+                      }}
+                    >
+                      <option value="10">10 per page</option>
+                      <option value="25">25 per page</option>
+                      <option value="50">50 per page</option>
+                      <option value="100">100 per page</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -960,24 +1098,47 @@ const RealEstateProfessionalsManagementPage = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Name
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Profession
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Location
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Followers
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Verification
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Status
-                      </th>
+                      {[
+                        { key: 'first_name', label: 'Name' },
+                        { key: 'real_estate_agent', label: 'Profession' },
+                        { key: 'current_residence_city', label: 'Location' },
+                        { key: 'no_of_followers', label: 'Followers' },
+                        { key: 'verified_tick', label: 'Verification' },
+                        { key: 'status', label: 'Status' }
+                      ].map(col => (
+                        <th
+                          key={col.key}
+                          onClick={() => {
+                            if (sortBy === col.key) {
+                              setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+                            } else {
+                              setSortBy(col.key);
+                              setSortOrder('ASC');
+                            }
+                          }}
+                          style={{
+                            padding: '16px',
+                            textAlign: 'left',
+                            fontWeight: '700',
+                            fontSize: '12px',
+                            color: theme.textPrimary,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {col.label}
+                            <Icon
+                              name={sortBy === col.key ? (sortOrder === 'ASC' ? 'chevron-up' : 'chevron-down') : 'chevron-up-down'}
+                              size="xs"
+                              style={{ color: sortBy === col.key ? theme.primary : '#9ca3af' }}
+                            />
+                          </div>
+                        </th>
+                      ))}
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Actions
                       </th>

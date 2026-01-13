@@ -97,7 +97,7 @@ class RealEstate {
 
     // Ensure at least one submitter is present
     if ((realEstateData.submitted_by === undefined || realEstateData.submitted_by === null) &&
-        (realEstateData.submitted_by_admin === undefined || realEstateData.submitted_by_admin === null)) {
+      (realEstateData.submitted_by_admin === undefined || realEstateData.submitted_by_admin === null)) {
       errors.push('Either submitted_by or submitted_by_admin must be provided');
     }
 
@@ -137,6 +137,69 @@ class RealEstate {
 
     const result = await query(sql, values);
     return new RealEstate(result.rows[0]);
+  }
+
+  // Find all with filters, sorting, and count
+  static async findAndCountAll({ where = {}, limit = null, offset = null, order = [['created_at', 'DESC']] }) {
+    let sql = 'SELECT * FROM real_estates';
+    let countSql = 'SELECT COUNT(*) FROM real_estates';
+    const values = [];
+    const whereClauses = [];
+
+    // Construct WHERE clause
+    Object.keys(where).forEach((key) => {
+      const condition = where[key];
+      if (condition && typeof condition === 'object') {
+        if (key === 'search' && condition.val) {
+          whereClauses.push(`(title ILIKE $${values.length + 1} OR location ILIKE $${values.length + 2} OR property_type ILIKE $${values.length + 3})`);
+          values.push(`%${condition.val}%`, `%${condition.val}%`, `%${condition.val}%`);
+        }
+      } else if (condition !== undefined && condition !== null) {
+        whereClauses.push(`${key} = $${values.length + 1}`);
+        values.push(condition);
+      }
+    });
+
+    if (whereClauses.length > 0) {
+      const wherePart = ` WHERE ${whereClauses.join(' AND ')}`;
+      sql += wherePart;
+      countSql += wherePart;
+    }
+
+    // Handle ORDER BY
+    if (order && order.length > 0) {
+      const [col, dir] = order[0];
+      sql += ` ORDER BY ${col} ${dir}`;
+    }
+
+    // Handle Limit and Offset
+    if (limit !== null) {
+      sql += ` LIMIT $${values.length + 1}`;
+      values.push(limit);
+    }
+    if (offset !== null) {
+      sql += ` OFFSET $${values.length + 1}`;
+      values.push(offset);
+    }
+
+    const [result, countResult] = await Promise.all([
+      query(sql, values),
+      query(countSql, values.slice(0, values.length - (limit !== null ? (offset !== null ? 2 : 1) : 0)))
+    ]);
+
+    return {
+      rows: result.rows.map(row => {
+        if (row.images && typeof row.images === 'string') {
+          try {
+            row.images = JSON.parse(row.images);
+          } catch (e) {
+            row.images = [];
+          }
+        }
+        return new RealEstate(row);
+      }),
+      count: parseInt(countResult.rows[0].count)
+    };
   }
 
   // Find real estate by ID
