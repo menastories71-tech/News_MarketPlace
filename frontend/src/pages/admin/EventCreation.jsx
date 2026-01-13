@@ -478,6 +478,14 @@ const EventCreationPage = () => {
   const [pageSize, setPageSize] = useState(25);
   const [message, setMessage] = useState(null);
 
+  // Search and Filter State
+  const [search, setSearch] = useState('');
+  const [industryFilter, setIndustryFilter] = useState('');
+  const [regionalFilter, setRegionalFilter] = useState('');
+  const [countryFilter, setCountryFilter] = useState('');
+  const [sortBy, setSortBy] = useState('created_at');
+  const [sortOrder, setSortOrder] = useState('DESC');
+
   // Layout constants
   const headerZ = 1000;
   const mobileOverlayZ = 500;
@@ -542,13 +550,35 @@ const EventCreationPage = () => {
 
   useEffect(() => {
     fetchRecords();
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, industryFilter, regionalFilter, countryFilter, sortBy, sortOrder]);
+
+  // Debounced search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        fetchRecords();
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [search]);
 
   const fetchRecords = async () => {
     try {
+      setLoading(true);
       const params = new URLSearchParams();
       params.append('page', currentPage.toString());
       params.append('limit', pageSize.toString());
+
+      if (search) params.append('search', search);
+      if (industryFilter) params.append('industry', industryFilter);
+      if (regionalFilter) params.append('regional_focused', regionalFilter);
+      if (countryFilter) params.append('event_country', countryFilter);
+
+      params.append('sortBy', sortBy);
+      params.append('sortOrder', sortOrder);
+
       const response = await api.get(`/admin/event-creations?${params.toString()}`);
       setRecords(response.data.eventCreations || []);
       setTotalRecords(response.data.pagination?.total || 0);
@@ -765,6 +795,108 @@ const EventCreationPage = () => {
               </div>
             </div>
 
+            {/* Filters Section */}
+            <div style={{ background: '#fff', borderRadius: 12, padding: '20px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', marginBottom: 24 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                {/* Search */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Search</label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type="text"
+                      placeholder="Search name, organiser, industry..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 12px 10px 36px',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    <div style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }}>
+                      <Icon name="magnifying-glass" size="sm" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Industry Filter */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Industry</label>
+                  <select
+                    value={industryFilter}
+                    onChange={(e) => setIndustryFilter(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff' }}
+                  >
+                    <option value="">All Industries</option>
+                    {[...new Set(records.map(r => r.industry).filter(Boolean))].map(ind => (
+                      <option key={ind} value={ind}>{ind}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Regional Filter */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Regional Focus</label>
+                  <select
+                    value={regionalFilter}
+                    onChange={(e) => setRegionalFilter(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff' }}
+                  >
+                    <option value="">All</option>
+                    {[...new Set(records.map(r => r.regional_focused).filter(Boolean))].map(reg => (
+                      <option key={reg} value={reg}>{reg}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Country Filter */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '12px', fontWeight: '700', color: theme.textSecondary, marginBottom: '8px', textTransform: 'uppercase' }}>Country</label>
+                  <select
+                    value={countryFilter}
+                    onChange={(e) => setCountryFilter(e.target.value)}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '14px', backgroundColor: '#fff' }}
+                  >
+                    <option value="">All Countries</option>
+                    {[...new Set(records.map(r => r.event_country).filter(Boolean))].map(country => (
+                      <option key={country} value={country}>{country}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Clear Filters */}
+                <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+                  <button
+                    onClick={() => {
+                      setSearch('');
+                      setIndustryFilter('');
+                      setRegionalFilter('');
+                      setCountryFilter('');
+                      setSortBy('created_at');
+                      setSortOrder('DESC');
+                    }}
+                    style={{
+                      padding: '10px 16px',
+                      backgroundColor: '#f3f4f6',
+                      color: '#374151',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      width: '100%'
+                    }}
+                  >
+                    Clear All
+                  </button>
+                </div>
+              </div>
+            </div>
+
             {/* Message */}
             {message && (
               <div style={{
@@ -790,28 +922,31 @@ const EventCreationPage = () => {
               <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
-                    Event Creation Records
+                    Event Creation Records ({totalRecords})
                   </span>
-                  <select
-                    value={pageSize}
-                    onChange={(e) => {
-                      const newPageSize = parseInt(e.target.value);
-                      setPageSize(newPageSize);
-                      setCurrentPage(1);
-                    }}
-                    style={{
-                      padding: '6px 12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      backgroundColor: '#fff'
-                    }}
-                  >
-                    <option value="10">10 per page</option>
-                    <option value="25">25 per page</option>
-                    <option value="50">50 per page</option>
-                    <option value="100">100 per page</option>
-                  </select>
+                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    {loading && <span style={{ fontSize: '12px', color: theme.primary }}>Updating...</span>}
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        const newPageSize = parseInt(e.target.value);
+                        setPageSize(newPageSize);
+                        setCurrentPage(1);
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        backgroundColor: '#fff'
+                      }}
+                    >
+                      <option value="10">10 per page</option>
+                      <option value="25">25 per page</option>
+                      <option value="50">50 per page</option>
+                      <option value="100">100 per page</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -819,33 +954,50 @@ const EventCreationPage = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Event Name
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Organiser
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        URL
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Month
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Industry
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Regional
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Country
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        City
-                      </th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Focus
-                      </th>
+                      {[
+                        { key: 'event_name', label: 'Event Name' },
+                        { key: 'event_organiser_name', label: 'Organiser' },
+                        { key: 'url', label: 'URL' },
+                        { key: 'tentative_month', label: 'Month' },
+                        { key: 'industry', label: 'Industry' },
+                        { key: 'regional_focused', label: 'Regional' },
+                        { key: 'event_country', label: 'Country' },
+                        { key: 'event_city', label: 'City' },
+                        { key: 'company_focused_individual_focused', label: 'Focus' }
+                      ].map(col => (
+                        <th
+                          key={col.key}
+                          onClick={() => {
+                            if (sortBy === col.key) {
+                              setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
+                            } else {
+                              setSortBy(col.key);
+                              setSortOrder('ASC');
+                            }
+                          }}
+                          style={{
+                            padding: '16px',
+                            textAlign: 'left',
+                            fontWeight: '700',
+                            fontSize: '12px',
+                            color: theme.textPrimary,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                            cursor: 'pointer',
+                            userSelect: 'none',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {col.label}
+                            <Icon
+                              name={sortBy === col.key ? (sortOrder === 'ASC' ? 'chevron-up' : 'chevron-down') : 'chevron-up-down'}
+                              size="xs"
+                              style={{ color: sortBy === col.key ? theme.primary : '#9ca3af' }}
+                            />
+                          </div>
+                        </th>
+                      ))}
                       <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                         Image
                       </th>

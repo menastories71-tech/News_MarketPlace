@@ -56,6 +56,63 @@ class EventCreation {
     return result.rows[0] ? new EventCreation(result.rows[0]) : null;
   }
 
+  // Find all with filters, sorting, and count
+  static async findAndCountAll({ where = {}, limit = null, offset = null, order = [['created_at', 'DESC']] }) {
+    let sql = 'SELECT * FROM event_creations';
+    let countSql = 'SELECT COUNT(*) FROM event_creations';
+    const values = [];
+    const whereClauses = [];
+
+    // Construct WHERE clause
+    Object.keys(where).forEach((key) => {
+      const condition = where[key];
+      if (condition && typeof condition === 'object') {
+        // Handle Op.iLike style if we want to be fancy, 
+        // but since this is manual SQL, let's keep it simple
+        const Op = require('sequelize')?.Op; // Cheeky check if available
+        if (key === 'search' && condition.val) {
+          whereClauses.push(`(event_name ILIKE $${values.length + 1} OR event_organiser_name ILIKE $${values.length + 2} OR industry ILIKE $${values.length + 3} OR event_country ILIKE $${values.length + 4} OR event_city ILIKE $${values.length + 5})`);
+          values.push(`%${condition.val}%`, `%${condition.val}%`, `%${condition.val}%`, `%${condition.val}%`, `%${condition.val}%`);
+        }
+      } else if (condition !== undefined && condition !== null) {
+        whereClauses.push(`${key} = $${values.length + 1}`);
+        values.push(condition);
+      }
+    });
+
+    if (whereClauses.length > 0) {
+      const wherePart = ` WHERE ${whereClauses.join(' AND ')}`;
+      sql += wherePart;
+      countSql += wherePart;
+    }
+
+    // Handle ORDER BY
+    if (order && order.length > 0) {
+      const [col, dir] = order[0];
+      sql += ` ORDER BY ${col} ${dir}`;
+    }
+
+    // Handle Limit and Offset
+    if (limit !== null) {
+      sql += ` LIMIT $${values.length + 1}`;
+      values.push(limit);
+    }
+    if (offset !== null) {
+      sql += ` OFFSET $${values.length + 1}`;
+      values.push(offset);
+    }
+
+    const [result, countResult] = await Promise.all([
+      query(sql, values),
+      query(countSql, values.slice(0, values.length - (limit !== null ? (offset !== null ? 2 : 1) : 0)))
+    ]);
+
+    return {
+      rows: result.rows.map(row => new EventCreation(row)),
+      count: parseInt(countResult.rows[0].count)
+    };
+  }
+
   // Find all
   static async findAll(limit = null, offset = null) {
     let sql = 'SELECT * FROM event_creations ORDER BY created_at DESC';

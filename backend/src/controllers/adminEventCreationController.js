@@ -43,40 +43,40 @@ class AdminEventCreationController {
         industry,
         regional_focused,
         event_country,
-        event_name
+        event_name,
+        search,
+        sortBy = 'created_at',
+        sortOrder = 'DESC'
       } = req.query;
 
-      const filters = {};
-      if (industry) filters.industry = industry;
-      if (regional_focused) filters.regional_focused = regional_focused;
-      if (event_country) filters.event_country = event_country;
+      const whereClause = {};
 
-      // Add search filters
-      let searchSql = '';
-      const searchValues = [];
-      let searchParamCount = Object.keys(filters).length + 1;
-
-      if (event_name) {
-        searchSql += ` AND event_name ILIKE $${searchParamCount}`;
-        searchValues.push(`%${event_name}%`);
-        searchParamCount++;
+      if (search) {
+        whereClause.search = { val: search };
+      } else {
+        if (industry) whereClause.industry = industry;
+        if (regional_focused) whereClause.regional_focused = regional_focused;
+        if (event_country) whereClause.event_country = event_country;
+        if (event_name) whereClause.event_name = event_name;
       }
 
-      const offset = (page - 1) * limit;
-      const eventCreations = await EventCreation.findAll(limit, offset);
+      const limitNum = parseInt(limit);
+      const offset = (page - 1) * limitNum;
 
-      // For simplicity, get total count by getting all and counting
-      // In production, you'd want a separate count method
-      const allEventCreations = await EventCreation.findAll();
-      const totalCount = allEventCreations.length;
+      const { count, rows } = await EventCreation.findAndCountAll({
+        where: whereClause,
+        limit: limitNum,
+        offset: offset,
+        order: [[sortBy, sortOrder.toUpperCase()]]
+      });
 
       res.json({
-        eventCreations: eventCreations.map(ec => ec.toJSON()),
+        eventCreations: rows.map(ec => ec.toJSON()),
         pagination: {
           page: parseInt(page),
-          limit: parseInt(limit),
-          total: totalCount,
-          pages: Math.ceil(totalCount / limit)
+          limit: limitNum,
+          total: count,
+          pages: Math.ceil(count / limitNum)
         }
       });
     } catch (error) {
