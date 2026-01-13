@@ -748,6 +748,25 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         </svg>
       );
 
+    case 'magnifying-glass':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+      );
+    case 'chevron-up':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M18 15l-6-6-6 6" />
+        </svg>
+      );
+    case 'chevron-up-down':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M7 15l5 5 5-5M7 9l5-5 5 5" />
+        </svg>
+      );
     default:
       // neutral placeholder: square with first letter (keeps layout stable)
       const label = (name || '').split('-').map(p => p[0]).join('').slice(0, 2).toUpperCase() || '?';

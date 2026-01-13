@@ -43,14 +43,29 @@ class AdminAwardCreationController {
         industry,
         regional_focused,
         award_country,
-        award_name
+        award_name,
+        search,
+        sortBy = 'createdAt',
+        sortOrder = 'DESC'
       } = req.query;
 
+      const { Op } = require('sequelize');
       const whereClause = {};
-      if (industry) whereClause.industry = industry;
-      if (regional_focused) whereClause.regional_focused = regional_focused;
-      if (award_country) whereClause.award_country = award_country;
-      if (award_name) whereClause.award_name = { [require('sequelize').Op.iLike]: `%${award_name}%` };
+
+      if (search) {
+        whereClause[Op.or] = [
+          { award_name: { [Op.iLike]: `%${search}%` } },
+          { award_organiser_name: { [Op.iLike]: `%${search}%` } },
+          { industry: { [Op.iLike]: `%${search}%` } },
+          { award_country: { [Op.iLike]: `%${search}%` } },
+          { award_city: { [Op.iLike]: `%${search}%` } }
+        ];
+      } else {
+        if (industry) whereClause.industry = industry;
+        if (regional_focused) whereClause.regional_focused = regional_focused;
+        if (award_country) whereClause.award_country = award_country;
+        if (award_name) whereClause.award_name = { [Op.iLike]: `%${award_name}%` };
+      }
 
       const offset = (page - 1) * parseInt(limit);
       const limitNum = parseInt(limit);
@@ -59,7 +74,7 @@ class AdminAwardCreationController {
         where: whereClause,
         limit: limitNum,
         offset: offset,
-        order: [['createdAt', 'DESC']]
+        order: [[sortBy, sortOrder.toUpperCase()]]
       });
 
       res.json({
