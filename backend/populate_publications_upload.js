@@ -195,7 +195,7 @@ const RAW_DATA = [
 
 async function populatePublications() {
   try {
-    console.log('Starting population of 135 publications...');
+    console.log('Starting population of 184 publications...');
     await db.query('TRUNCATE publication_managements RESTART IDENTITY CASCADE');
 
     for (const raw of RAW_DATA) {
@@ -208,11 +208,11 @@ async function populatePublications() {
         practical_tat: parseInt(raw[6]) || 0,
         committed_tat: parseInt(raw[6]) || 0,
         price_usd: parseFloat(raw[7].toString().replace(/,/g, '')) || 0,
-        instagram: raw[8],
-        facebook: raw[9],
-        linkedin: raw[10],
+        instagram: raw[8] ? raw[8].substring(0, 255) : null,
+        facebook: raw[9] ? raw[9].substring(0, 255) : null,
+        linkedin: raw[10] ? raw[10].substring(0, 255) : null,
         image: raw[11],
-        twitter: raw[12],
+        twitter: raw[12] ? raw[12].substring(0, 255) : null,
         da: raw[13],
         dr: raw[14],
         do_follow: true,
