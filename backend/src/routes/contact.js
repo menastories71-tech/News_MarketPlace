@@ -29,13 +29,13 @@ async function sendEmailOTP(email, otp) {
     return true;
   } catch (error) {
     console.error('Email service failed:', error);
-    
+
     // Fallback: Development mode
     if (process.env.NODE_ENV === 'development') {
       console.log(`DEVELOPMENT MODE - Email OTP for ${email}: ${otp}`);
       return true;
     }
-    
+
     throw new Error('Failed to send email OTP. Please try again.');
   }
 }
@@ -44,7 +44,7 @@ async function sendEmailOTP(email, otp) {
 async function sendWhatsAppOTP(phoneNumber, otp) {
   // Format phone number (ensure it starts with +)
   let formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
-  
+
   try {
     // Use Twilio template for WhatsApp message with the new template ID
     const message = await twilioClient.messages.create({
@@ -60,7 +60,7 @@ async function sendWhatsAppOTP(phoneNumber, otp) {
     return true;
   } catch (error) {
     console.error('WhatsApp sending failed:', error);
-    
+
     // Fallback: Try sending without template if template fails
     try {
       const fallbackMessage = await twilioClient.messages.create({
@@ -68,18 +68,18 @@ async function sendWhatsAppOTP(phoneNumber, otp) {
         to: `whatsapp:${formattedNumber}`,
         body: `Your OTP for News Marketplace contact form verification is: ${otp}\n\nThis code will expire in 10 minutes. Please do not share this code with anyone.`
       });
-      
+
       console.log(`WhatsApp OTP sent via fallback to ${formattedNumber}:`, fallbackMessage.sid);
       return true;
     } catch (fallbackError) {
       console.error('WhatsApp fallback also failed:', fallbackError);
-      
+
       // Final fallback: Log OTP for development/testing
       if (process.env.NODE_ENV === 'development') {
         console.log(`DEVELOPMENT MODE - WhatsApp OTP for ${phoneNumber}: ${otp}`);
         return true;
       }
-      
+
       throw new Error('Failed to send WhatsApp OTP. Please try again.');
     }
   }
@@ -216,6 +216,65 @@ router.post('/submit', [
   } catch (error) {
     console.error('Submit contact error:', error);
     res.status(500).json({ error: 'Failed to submit contact form' });
+  }
+});
+
+// Download CSV endpoint (admin only)
+router.get('/download-csv', async (req, res) => {
+  try {
+    const queryText = `
+      SELECT * FROM contacts
+      ORDER BY created_at DESC
+    `;
+
+    const result = await pool.query(queryText);
+
+    // Define headers matching the schema and frontend view
+    const headers = [
+      'ID', 'Name', 'Email', 'Number', 'WhatsApp', 'Gender',
+      'Query Type', 'Message', 'Company Name', 'Company Website',
+      'Status', 'Priority', 'Created At'
+    ];
+
+    // Create CSV string
+    let csv = headers.join(',') + '\n';
+
+    result.rows.forEach(row => {
+      // Helper to escape CSV fields
+      const escape = (text) => {
+        if (text === null || text === undefined) return '';
+        const stringValue = String(text);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      };
+
+      const line = [
+        row.id,
+        escape(row.name),
+        escape(row.email),
+        escape(row.number),
+        escape(row.whatsapp),
+        escape(row.gender),
+        escape(row.query_type),
+        escape(row.message),
+        escape(row.company_name),
+        escape(row.company_website),
+        escape(row.status),
+        escape(row.priority),
+        escape(new Date(row.created_at).toISOString().split('T')[0])
+      ].join(',');
+
+      csv += line + '\n';
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=contacts_export.csv');
+    res.status(200).send(csv);
+  } catch (error) {
+    console.error('Download CSV error:', error);
+    res.status(500).json({ error: 'Failed to generate CSV' });
   }
 });
 
