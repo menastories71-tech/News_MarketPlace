@@ -2,6 +2,22 @@ const Blog = require('../models/Blog');
 const { body, validationResult } = require('express-validator');
 
 class BlogController {
+  constructor() {
+    const multer = require('multer');
+    const path = require('path');
+    this.storage = multer.memoryStorage();
+    // Multer for CSV bulk upload
+    this.csvUpload = multer({
+      storage: this.storage,
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'text/csv' || path.extname(file.originalname).toLowerCase() === '.csv') {
+          cb(null, true);
+        } else {
+          cb(new Error('Only CSV files are allowed'));
+        }
+      }
+    });
+  }
   // Validation rules for creating a blog
   createValidation = [
     body('title').trim().isLength({ min: 1 }).withMessage('Title is required'),
@@ -192,6 +208,141 @@ class BlogController {
       res.json({ message: 'Blog deleted successfully' });
     } catch (error) {
       console.error('Delete blog error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+  // Download CSV Template
+  async downloadTemplate(req, res) {
+    try {
+      const headers = ['Title', 'Content', 'Image URL', 'Category', 'Publish Date (YYYY-MM-DD)'];
+      const dummyData = [
+        ['Future of AI', 'Artificial Intelligence is evolving...', 'https://example.com/ai.jpg', 'Technology', '2025-01-01'],
+        ['Healthy Living Tips', 'Start your day with water...', 'https://example.com/health.jpg', 'Health', '2025-02-14']
+      ];
+
+      let csv = headers.join(',') + '\n';
+      dummyData.forEach(row => {
+        csv += row.map(val => `"${val}"`).join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=blog_template.csv');
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download template error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Bulk Upload
+  async bulkUpload(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a CSV file' });
+      }
+
+      const csvParser = require('csv-parser');
+      const { Readable } = require('stream');
+
+      const results = [];
+      const stream = Readable.from(req.file.buffer.toString());
+
+      stream
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            const createdRecords = [];
+            const errors = [];
+
+            for (const [index, row] of results.entries()) {
+              try {
+                const title = row['Title'] || row['title'];
+                const content = row['Content'] || row['content'];
+                const image = row['Image URL'] || row['image'];
+                const category = row['Category'] || row['category'];
+                const publishDate = row['Publish Date'] || row['publishDate'];
+
+                if (!title || !content) {
+                  throw new Error('Title and Content are required');
+                }
+
+                const record = await Blog.create({
+                  title,
+                  content,
+                  image,
+                  category,
+                  publishDate: publishDate ? new Date(publishDate) : undefined
+                });
+                createdRecords.push(record);
+              } catch (err) {
+                errors.push(`Row ${index + 1}: ${err.message}`);
+              }
+            }
+
+            res.json({
+              message: `Bulk upload completed. ${createdRecords.length} records created.`,
+              count: createdRecords.length,
+              errors: errors.length > 0 ? errors : undefined
+            });
+          } catch (error) {
+            console.error('Processing batch error:', error);
+            res.status(500).json({ error: 'Error processing bulk upload' });
+          }
+        });
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      const { search, category, sortBy = 'created_at', sortOrder = 'DESC' } = req.query;
+      let whereClause = {};
+
+      if (category && category !== 'all') {
+        whereClause.category = category;
+      }
+
+      if (search) {
+        whereClause = {
+          ...whereClause,
+          $or: [
+            { title: { $iLike: `%${search}%` } },
+            { content: { $iLike: `%${search}%` } }
+          ]
+        };
+      }
+
+      const blogs = await Blog.findAll({
+        where: whereClause,
+        order: [[sortBy, sortOrder.toUpperCase()]]
+      });
+
+      const headers = ['ID', 'Title', 'Content', 'Image', 'Category', 'Publish Date', 'Created At'];
+      let csv = headers.join(',') + '\n';
+
+      blogs.forEach(blog => {
+        const row = [
+          blog.id,
+          `"${(blog.title || '').replace(/"/g, '""')}"`,
+          `"${(blog.content || '').replace(/"/g, '""')}"`,
+          `"${(blog.image || '').replace(/"/g, '""')}"`,
+          `"${(blog.category || '').replace(/"/g, '""')}"`,
+          blog.publishDate ? new Date(blog.publishDate).toISOString() : '',
+          blog.created_at ? new Date(blog.created_at).toISOString() : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      const filename = `blogs_${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download CSV error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
