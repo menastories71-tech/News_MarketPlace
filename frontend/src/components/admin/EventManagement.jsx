@@ -7,7 +7,6 @@ import api from '../../services/api';
 import {
   Plus, Eye, Edit, Trash2, Search, Filter, CheckCircle2, XCircle,
   AlertCircle, Info, Calendar, MapPin, Users, Ticket, FileText, User,
-  AlertCircle, Info, Calendar, MapPin, Users, Ticket, FileText, User,
   ToggleLeft, ToggleRight, CheckSquare, Square, Download, Upload, FileDown
 } from 'lucide-react';
 
