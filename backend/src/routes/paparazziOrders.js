@@ -13,6 +13,9 @@ router.post('/', paparazziOrderController.create);
 // Get all paparazzi orders (admin only)
 router.get('/', verifyAdminToken, requireAdminPanelAccess, paparazziOrderController.getAll);
 
+// Download CSV (admin only)
+router.get('/export-csv', verifyAdminToken, requireAdminPanelAccess, paparazziOrderController.downloadCSV);
+
 // Get paparazzi order by ID (admin only)
 router.get('/:id', verifyAdminToken, requireAdminPanelAccess, paparazziOrderController.getById);
 

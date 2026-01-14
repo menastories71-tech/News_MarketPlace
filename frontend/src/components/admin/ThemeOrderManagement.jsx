@@ -227,6 +227,29 @@ const ThemeOrderManagement = () => {
     return `$${parseFloat(price).toFixed(2)}`;
   };
 
+  const handleDownloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
+      if (statusFilter) params.append('status', statusFilter);
+
+      const response = await api.get(`/theme-orders/export-csv?${params.toString()}`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'theme_orders.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV');
+    }
+  };
+
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       await api.put(`/theme-orders/${orderId}`, { status: newStatus });
@@ -452,6 +475,26 @@ const ThemeOrderManagement = () => {
                 </div>
                 <p style={{ marginTop: 8, color: '#757575' }}>Manage theme collaboration orders and requests</p>
               </div>
+              <button
+                onClick={handleDownloadCSV}
+                style={{
+                  backgroundColor: theme.success,
+                  color: '#fff',
+                  padding: '0.625rem 1rem',
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(76, 175, 80, 0.3)'
+                }}
+              >
+                <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                Download CSV
+              </button>
             </div>
 
             {/* Search and Filters Bar */}
@@ -599,12 +642,12 @@ const ThemeOrderManagement = () => {
                         backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc',
                         transition: 'all 0.2s'
                       }}
-                      onMouseEnter={(e) => {
-                        e.target.closest('tr').style.backgroundColor = '#f1f5f9';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
-                      }}
+                        onMouseEnter={(e) => {
+                          e.target.closest('tr').style.backgroundColor = '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
+                        }}
                       >
                         <td style={{ padding: '16px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

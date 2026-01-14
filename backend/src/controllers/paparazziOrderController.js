@@ -145,13 +145,13 @@ const getAll = async (req, res) => {
         LOWER(customer_name) LIKE $${paramIndex + 1} OR 
         LOWER(customer_email) LIKE $${paramIndex + 2}
       )`;
-      
+
       if (whereClause) {
         whereClause += ` AND ${searchCondition}`;
       } else {
         whereClause = `WHERE ${searchCondition}`;
       }
-      
+
       queryParams.push(searchPattern, searchPattern, searchPattern);
       paramIndex += 3;
     }
@@ -205,7 +205,7 @@ const getAll = async (req, res) => {
       created_at: order.created_at,
       updated_at: order.updated_at,
       order_date: order.created_at, // Alias for compatibility
-      toJSON: function() {
+      toJSON: function () {
         return {
           id: this.id,
           paparazzi_id: this.paparazzi_id,
@@ -281,9 +281,9 @@ const acceptOrder = async (req, res) => {
     const findResult = await pool.query('SELECT * FROM paparazzi_orders WHERE id = $1', [id]);
 
     if (findResult.rows.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Order not found' 
+        message: 'Order not found'
       });
     }
 
@@ -349,9 +349,9 @@ const rejectOrder = async (req, res) => {
     const findResult = await pool.query('SELECT * FROM paparazzi_orders WHERE id = $1', [id]);
 
     if (findResult.rows.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Order not found' 
+        message: 'Order not found'
       });
     }
 
@@ -416,9 +416,9 @@ const completeOrder = async (req, res) => {
     const findResult = await pool.query('SELECT * FROM paparazzi_orders WHERE id = $1', [id]);
 
     if (findResult.rows.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Order not found' 
+        message: 'Order not found'
       });
     }
 
@@ -484,9 +484,9 @@ const update = async (req, res) => {
     const findResult = await pool.query('SELECT * FROM paparazzi_orders WHERE id = $1', [id]);
 
     if (findResult.rows.length === 0) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         success: false,
-        message: 'Order not found' 
+        message: 'Order not found'
       });
     }
 
@@ -543,12 +543,96 @@ const update = async (req, res) => {
   }
 };
 
+// Download CSV (admin only)
+const downloadCSV = async (req, res) => {
+  try {
+    const { status, search } = req.query;
+    const { Parser } = require('json2csv');
+
+    // Build search conditions
+    let whereClause = '';
+    const queryParams = [];
+    let paramIndex = 1;
+
+    // Add status filter if provided
+    if (status) {
+      whereClause = `WHERE status = $${paramIndex}`;
+      queryParams.push(status);
+      paramIndex++;
+    }
+
+    // Add search filter if provided
+    if (search && search.trim()) {
+      const searchPattern = `%${search.trim().toLowerCase()}%`;
+      const searchCondition = `(
+        LOWER(paparazzi_name) LIKE $${paramIndex} OR 
+        LOWER(customer_name) LIKE $${paramIndex + 1} OR 
+        LOWER(customer_email) LIKE $${paramIndex + 2}
+      )`;
+
+      if (whereClause) {
+        whereClause += ` AND ${searchCondition}`;
+      } else {
+        whereClause = `WHERE ${searchCondition}`;
+      }
+
+      queryParams.push(searchPattern, searchPattern, searchPattern);
+      paramIndex += 3;
+    }
+
+    // Build the query
+    const query = `
+      SELECT * FROM paparazzi_orders 
+      ${whereClause}
+      ORDER BY created_at DESC
+    `;
+
+    // Execute query
+    const { Pool } = require('pg');
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+    });
+
+    const result = await pool.query(query, queryParams);
+    const orders = result.rows;
+
+    const fields = [
+      { label: 'Order ID', value: 'id' },
+      { label: 'Paparazzi Name', value: 'paparazzi_name' },
+      { label: 'Customer Name', value: 'customer_name' },
+      { label: 'Customer Email', value: 'customer_email' },
+      { label: 'Customer Phone', value: 'customer_phone' },
+      { label: 'Price', value: 'price' },
+      { label: 'Status', value: 'status' },
+      { label: 'Order Date', value: (row) => new Date(row.created_at).toLocaleDateString() },
+      { label: 'Admin Notes', value: 'admin_notes' }
+    ];
+
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(orders);
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('paparazzi_orders.csv');
+    return res.send(csv);
+
+  } catch (error) {
+    console.error('Error downloading CSV:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to download CSV',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
+  downloadCSV,
   create,
   getAll,
   getById,
   acceptOrder,
   rejectOrder,
   completeOrder,
-  update
+  update,
+  downloadCSV
 };

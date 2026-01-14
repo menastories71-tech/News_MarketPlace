@@ -234,6 +234,25 @@ const RadioOrders = () => {
     return new Date(dateString).toLocaleString();
   };
 
+  const handleDownloadCSV = async () => {
+    try {
+      const response = await api.get(`/radio-orders/export-csv`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'radio_orders.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV');
+    }
+  };
+
   const handleStatusChange = async (orderId, newStatus) => {
     if (!window.confirm(`Are you sure you want to ${newStatus === 'approved' ? 'approve' : 'reject'} this radio order?\n\nThis will send email notifications to both the applicant and admin team.`)) {
       return;
@@ -363,6 +382,26 @@ const RadioOrders = () => {
                 </div>
                 <p style={{ marginTop: 8, color: '#757575' }}>Manage radio interview booking requests and their approval status</p>
               </div>
+              <button
+                onClick={handleDownloadCSV}
+                style={{
+                  backgroundColor: theme.success,
+                  color: '#fff',
+                  padding: '0.625rem 1rem',
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(76, 175, 80, 0.3)'
+                }}
+              >
+                <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                Download CSV
+              </button>
             </div>
 
             {/* Orders Table */}

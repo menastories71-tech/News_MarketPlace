@@ -696,7 +696,153 @@ const sendOrderStatusUpdateEmail = async (order) => {
   }
 };
 
+// Download CSV (admin only)
+const downloadCSV = async (req, res) => {
+  try {
+    const { status, search } = req.query;
+    const { Parser } = require('json2csv');
+
+    // Build filters
+    const filters = {};
+    if (status) filters.status = status;
+
+    // Build search conditions
+    let whereClause = '';
+    const queryParams = [];
+    let paramIndex = 1;
+
+    // Add status filter if provided
+    if (status) {
+      whereClause = `WHERE status = $${paramIndex}`;
+      queryParams.push(status);
+      paramIndex++;
+    }
+
+    // Add search filter if provided
+    if (search && search.trim()) {
+      const searchPattern = `%${search.trim().toLowerCase()}%`;
+      const searchCondition = `(
+        LOWER(press_pack_name) LIKE $${paramIndex} OR
+        LOWER(customer_name) LIKE $${paramIndex + 1} OR
+        LOWER(customer_email) LIKE $${paramIndex + 2}
+      )`;
+
+      if (whereClause) {
+        whereClause += ` AND ${searchCondition}`;
+      } else {
+        whereClause = `WHERE ${searchCondition}`;
+      }
+
+      queryParams.push(searchPattern, searchPattern, searchPattern);
+      paramIndex += 3;
+    }
+
+    // Build the query
+    const query = `
+      SELECT
+        po.*,
+        pr.name as press_release_title,
+        pr.region as press_release_region,
+        pr.price as press_release_price
+      FROM press_pack_orders po
+      LEFT JOIN press_releases pr ON po.press_pack_id = pr.id
+      ${whereClause}
+      ORDER BY po.created_at DESC
+    `;
+
+    // Execute query
+    const { Pool } = require('pg');
+    const pool = new Pool({
+      connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
+    });
+
+    const result = await pool.query(query, queryParams);
+    const orders = result.rows;
+
+    const formattedOrders = orders.map(order => {
+      // Parse additional data from message field
+      let additionalData = {};
+      let cleanMessage = order.customer_message || '';
+      if (cleanMessage.includes('ADDITIONAL_DATA:')) {
+        const parts = cleanMessage.split('ADDITIONAL_DATA:');
+        cleanMessage = parts[0].trim();
+        try {
+          additionalData = JSON.parse(parts[1]);
+        } catch (e) {
+          additionalData = {};
+        }
+      }
+
+      // Handle press_release_type
+      let pressReleaseType = '';
+      if (additionalData.press_release_type) {
+        if (Array.isArray(additionalData.press_release_type)) {
+          pressReleaseType = additionalData.press_release_type.join(', ');
+        } else {
+          pressReleaseType = additionalData.press_release_type;
+        }
+      }
+
+      return {
+        id: order.id,
+        name: order.customer_name,
+        email: order.customer_email,
+        whatsapp_number: order.customer_phone,
+        whatsapp_country_code: additionalData.whatsapp_country_code || '+91',
+        calling_number: additionalData.calling_number || 'Not provided',
+        calling_country_code: additionalData.calling_country_code || '+91',
+        company_project_type: pressReleaseType,
+        submitted_by: additionalData.submitted_by_type === 'agency' ? 'Agency' : 'Direct Company/Individual',
+        press_release_name: order.press_release_title ?
+          `${order.press_release_title} - ${order.press_release_region || 'N/A'} - $${order.press_release_price || '0.00'}` :
+          'Not specified',
+        press_release_package: order.press_pack_name || 'Not specified',
+        content_writing_assistance: additionalData.content_writing_assistance ? 'Yes' : 'No',
+        status: order.status,
+        admin_notes: order.admin_comments || '',
+        created_at: new Date(order.created_at).toLocaleString(),
+        message: cleanMessage
+      };
+    });
+
+    const fields = [
+      { label: 'Order ID', value: 'id' },
+      { label: 'Name', value: 'name' },
+      { label: 'Email', value: 'email' },
+      { label: 'WhatsApp', value: 'whatsapp_number' },
+      { label: 'WhatsApp Country Code', value: 'whatsapp_country_code' },
+      { label: 'Calling Number', value: 'calling_number' },
+      { label: 'Calling Country Code', value: 'calling_country_code' },
+      { label: 'Company/Project Type', value: 'company_project_type' },
+      { label: 'Submitted By', value: 'submitted_by' },
+      { label: 'Press Release Name', value: 'press_release_name' },
+      { label: 'Package', value: 'press_release_package' },
+      { label: 'Content Writing', value: 'content_writing_assistance' },
+      { label: 'Status', value: 'status' },
+      { label: 'Admin Notes', value: 'admin_notes' },
+      { label: 'Created At', value: 'created_at' },
+      { label: 'Message', value: 'message' }
+    ];
+
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(formattedOrders);
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('press_pack_orders.csv');
+    return res.send(csv);
+
+  } catch (error) {
+    console.error('Error downloading CSV:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to download CSV',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
+  downloadCSV,
   create,
   getAll,
   getById,

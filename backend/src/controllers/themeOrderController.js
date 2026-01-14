@@ -24,7 +24,7 @@ class ThemeOrderController {
   async create(req, res) {
     try {
       console.log('Creating theme order with data:', req.body);
-      
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         console.log('Validation errors:', errors.array());
@@ -56,7 +56,7 @@ class ThemeOrderController {
     } catch (error) {
       console.error('Create theme order error:', error);
       console.error('Error stack:', error.stack);
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Internal server error',
         message: error.message,
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined
@@ -105,7 +105,7 @@ class ThemeOrderController {
       });
     } catch (error) {
       console.error('Get theme orders error:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         error: 'Internal server error',
         message: error.message
       });
@@ -188,6 +188,74 @@ class ThemeOrderController {
     } catch (error) {
       console.error('Delete theme order error:', error);
       res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download CSV (admin only)
+  async downloadCSV(req, res) {
+    try {
+      const { status, search } = req.query;
+      const { Parser } = require('json2csv');
+      const { Op } = require('sequelize');
+
+      const filters = {};
+      if (status) filters.status = status;
+
+      // Add search functionality
+      if (search && search.trim()) {
+        const searchTerm = `%${search.trim()}%`;
+        filters[Op.or] = [
+          { theme_name: { [Op.iLike]: searchTerm } },
+          { 'customer_info.fullName': { [Op.iLike]: searchTerm } },
+          { 'customer_info.email': { [Op.iLike]: searchTerm } }
+        ];
+      }
+
+      const orders = await ThemeOrder.findAll({
+        where: filters,
+        order: [['created_at', 'DESC']]
+      });
+
+      const formattedOrders = orders.map(order => {
+        const data = order.toJSON();
+        const customerInfo = data.customer_info || {};
+        return {
+          id: data.id,
+          theme_name: data.theme_name,
+          customer_name: customerInfo.fullName,
+          customer_email: customerInfo.email,
+          customer_phone: customerInfo.phone,
+          price: data.price,
+          status: data.status,
+          created_at: new Date(data.created_at).toLocaleString()
+        };
+      });
+
+      const fields = [
+        { label: 'Order ID', value: 'id' },
+        { label: 'Theme Name', value: 'theme_name' },
+        { label: 'Customer Name', value: 'customer_name' },
+        { label: 'Customer Email', value: 'customer_email' },
+        { label: 'Customer Phone', value: 'customer_phone' },
+        { label: 'Price', value: 'price' },
+        { label: 'Status', value: 'status' },
+        { label: 'Date', value: 'created_at' }
+      ];
+
+      const json2csvParser = new Parser({ fields });
+      const csv = json2csvParser.parse(formattedOrders);
+
+      res.header('Content-Type', 'text/csv');
+      res.attachment('theme_orders.csv');
+      return res.send(csv);
+
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to download CSV',
+        error: error.message
+      });
     }
   }
 

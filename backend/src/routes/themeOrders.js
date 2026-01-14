@@ -8,6 +8,7 @@ router.post('/', optionalAuth, themeOrderController.createValidation, themeOrder
 router.get('/my-orders', verifyToken, themeOrderController.getUserOrders);
 
 // Admin routes
+router.get('/export-csv', verifyAdminToken, requireAdminPanelAccess, themeOrderController.downloadCSV);
 router.get('/', verifyAdminToken, requireAdminPanelAccess, themeOrderController.getAll);
 router.get('/:id', verifyAdminToken, requireAdminPanelAccess, themeOrderController.getById);
 router.put('/:id', verifyAdminToken, requireAdminPanelAccess, themeOrderController.updateValidation, themeOrderController.update);

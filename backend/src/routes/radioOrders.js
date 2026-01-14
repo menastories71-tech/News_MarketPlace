@@ -9,6 +9,9 @@ const {
 // Public route for creating radio order
 router.post('/', radioOrderController.create);
 
+// Download CSV (admin only)
+router.get('/export-csv', verifyAdminToken, requireAdminPanelAccess, radioOrderController.downloadCSV);
+
 // Get all radio orders (admin only)
 router.get('/', verifyAdminToken, requireAdminPanelAccess, radioOrderController.getAll);
 

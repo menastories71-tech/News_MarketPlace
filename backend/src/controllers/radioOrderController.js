@@ -256,7 +256,74 @@ const deleteOrder = async (req, res) => {
   }
 };
 
+// Download CSV (admin only)
+const downloadCSV = async (req, res) => {
+  try {
+    const { status } = req.query;
+    const { Parser } = require('json2csv');
+
+    let query = `
+      SELECT * FROM radio_orders
+      WHERE 1=1
+    `;
+    const values = [];
+    let paramCount = 0;
+
+    if (status) {
+      paramCount++;
+      query += ` AND status = $${paramCount}`;
+      values.push(status);
+    }
+
+    query += ` ORDER BY created_at DESC`;
+
+    const result = await db.query(query, values);
+    const orders = result.rows;
+
+    const formattedOrders = orders.map(order => {
+      const customerInfo = order.customer_info || {};
+      return {
+        id: order.id,
+        radio_name: order.radio_name,
+        customer_name: customerInfo.fullName,
+        customer_email: customerInfo.email,
+        customer_phone: customerInfo.phone,
+        message: customerInfo.message,
+        status: order.status,
+        created_at: new Date(order.created_at).toLocaleString()
+      };
+    });
+
+    const fields = [
+      { label: 'Order ID', value: 'id' },
+      { label: 'Radio Station', value: 'radio_name' },
+      { label: 'Customer Name', value: 'customer_name' },
+      { label: 'Customer Email', value: 'customer_email' },
+      { label: 'Customer Phone', value: 'customer_phone' },
+      { label: 'Message', value: 'message' },
+      { label: 'Status', value: 'status' },
+      { label: 'Date', value: 'created_at' }
+    ];
+
+    const json2csvParser = new Parser({ fields });
+    const csv = json2csvParser.parse(formattedOrders);
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('radio_orders.csv');
+    return res.send(csv);
+
+  } catch (error) {
+    console.error('Error downloading CSV:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to download CSV',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
+  downloadCSV,
   create,
   getAll,
   updateStatus,

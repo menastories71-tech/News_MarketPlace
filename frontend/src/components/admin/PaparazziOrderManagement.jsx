@@ -207,23 +207,23 @@ const PaparazziOrderManagement = () => {
       setTotalPages(data.pagination?.pages || 1);
     } catch (error) {
       console.error('Error fetching paparazzi orders:', error);
-      
+
       if (error.response?.status === 401) {
         // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
         return;
       }
-      
+
       // Set empty state on error
       setOrders([]);
       setTotalCount(0);
       setTotalPages(1);
-      
+
       // Show user-friendly error message
       const errorMessage = error.response?.data?.message || error.message || 'Failed to load orders';
       console.error('Fetch orders error:', errorMessage);
-      
+
       // You might want to show a toast notification instead of alert
       // For now, we'll just log the error and show empty state
     } finally {
@@ -264,6 +264,30 @@ const PaparazziOrderManagement = () => {
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+
+  const handleDownloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
+      if (statusFilter) params.append('status', statusFilter);
+
+      const response = await api.get(`/paparazzi-orders/export-csv?${params.toString()}`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'paparazzi_orders.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV');
+    }
+  };
 
 
   const handleAcceptOrder = async (orderId) => {
@@ -530,6 +554,26 @@ const PaparazziOrderManagement = () => {
                 </div>
                 <p style={{ marginTop: 8, color: '#757575' }}>Manage paparazzi call booking orders</p>
               </div>
+              <button
+                onClick={handleDownloadCSV}
+                style={{
+                  backgroundColor: theme.success,
+                  color: '#fff',
+                  padding: '0.625rem 1rem',
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(76, 175, 80, 0.3)'
+                }}
+              >
+                <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                Download CSV
+              </button>
             </div>
 
             {/* Search and Filters Bar */}
@@ -678,12 +722,12 @@ const PaparazziOrderManagement = () => {
                           backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc',
                           transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => {
-                          e.target.closest('tr').style.backgroundColor = '#f1f5f9';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
-                        }}
+                          onMouseEnter={(e) => {
+                            e.target.closest('tr').style.backgroundColor = '#f1f5f9';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
+                          }}
                         >
                           <td style={{ padding: '16px', fontSize: '14px', color: theme.textPrimary }}>
                             #{order.id}
