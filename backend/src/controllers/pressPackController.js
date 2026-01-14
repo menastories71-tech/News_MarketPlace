@@ -3,10 +3,205 @@ const Publication = require('../models/Publication');
 const { body, validationResult } = require('express-validator');
 
 class PressPackController {
+  constructor() {
+    const multer = require('multer');
+    this.storage = multer.memoryStorage();
+    this.csvUpload = multer({
+      storage: this.storage,
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'text/csv' || file.mimetype === 'application/vnd.ms-excel') {
+          cb(null, true);
+        } else {
+          cb(new Error('Only CSV files are allowed'));
+        }
+      }
+    });
+
+    this.downloadTemplate = this.downloadTemplate.bind(this);
+    this.bulkUpload = this.bulkUpload.bind(this);
+    this.downloadCSV = this.downloadCSV.bind(this);
+    this.getAll = this.getAll.bind(this);
+    this.getById = this.getById.bind(this);
+    this.create = this.create.bind(this);
+    this.update = this.update.bind(this);
+    this.delete = this.delete.bind(this);
+    this.bulkCreate = this.bulkCreate.bind(this);
+    this.bulkUpdate = this.bulkUpdate.bind(this);
+    this.bulkDelete = this.bulkDelete.bind(this);
+    this.getPublications = this.getPublications.bind(this);
+    this.addPublication = this.addPublication.bind(this);
+    this.removePublication = this.removePublication.bind(this);
+  }
+
   // Validation rules
   createValidation = [];
 
   updateValidation = [];
+
+  // Download CSV Template
+  async downloadTemplate(req, res) {
+    try {
+      const headers = [
+        'distribution_package',
+        'region',
+        'price',
+        'industry',
+        'news',
+        'indexed',
+        'disclaimer',
+        'no_of_indexed_websites',
+        'no_of_non_indexed_websites',
+        'image',
+        'link',
+        'words_limit',
+        'language',
+        'is_active'
+      ];
+      const csvContent = headers.join(',') + '\n';
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=press_pack_template.csv');
+      res.send(csvContent);
+    } catch (error) {
+      console.error('Download template error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Bulk Upload via CSV
+  async bulkUpload(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+      }
+
+      const results = [];
+      const errors = [];
+      const stream = require('stream');
+      const csv = require('csv-parser');
+      const bufferStream = new stream.PassThrough();
+      bufferStream.end(req.file.buffer);
+
+      bufferStream
+        .pipe(csv())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          const createdPressPacks = [];
+
+          for (let i = 0; i < results.length; i++) {
+            try {
+              const row = results[i];
+              // Map and clean data
+              const pressPackData = {
+                distribution_package: row.distribution_package,
+                region: row.region,
+                price: parseFloat(row.price) || 0,
+                industry: row.industry,
+                news: row.news,
+                indexed: row.indexed === 'true' || row.indexed === 'TRUE' || row.indexed === true,
+                disclaimer: row.disclaimer,
+                no_of_indexed_websites: parseInt(row.no_of_indexed_websites) || 0,
+                no_of_non_indexed_websites: parseInt(row.no_of_non_indexed_websites) || 0,
+                image: row.image,
+                link: row.link,
+                words_limit: parseInt(row.words_limit) || 0,
+                language: row.language,
+                is_active: row.is_active === 'true' || row.is_active === 'TRUE' || row.is_active === true
+              };
+
+              const pressPack = await PressPack.create(pressPackData);
+              createdPressPacks.push(pressPack);
+            } catch (err) {
+              errors.push({ row: i + 1, error: err.message });
+            }
+          }
+
+          res.json({
+            message: `Processed ${results.length} rows. Created ${createdPressPacks.length} press packs.`,
+            created: createdPressPacks.length,
+            errors: errors,
+            createdPressPacks
+          });
+        })
+        .on('error', (error) => {
+          console.error('CSV Parsing error:', error);
+          res.status(500).json({ error: 'Failed to process CSV file' });
+        });
+
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download All Data as CSV
+  async downloadCSV(req, res) {
+    try {
+      // Reuse getAll filters
+      const {
+        region,
+        industry,
+        indexed,
+        language,
+        is_active,
+        search
+      } = req.query;
+
+      const filters = {};
+      if (region) filters.region = region;
+      if (industry) filters.industry = industry;
+      if (indexed !== undefined) filters.indexed = indexed === 'true';
+      if (language) filters.language = language;
+      if (is_active !== undefined) filters.is_active = is_active === 'true';
+
+      let searchSql = '';
+      const searchValues = [];
+
+      if (search) {
+        searchSql = ` AND (distribution_package ILIKE $${Object.keys(filters).length + 1} OR news ILIKE $${Object.keys(filters).length + 1})`;
+        searchValues.push(`%${search}%`);
+      }
+
+      // Fetch all without pagination
+      const pressPacks = await PressPack.findAll(filters, searchSql, searchValues, null, null);
+
+      if (pressPacks.length === 0) {
+        return res.status(404).json({ error: 'No data found to export' });
+      }
+
+      const headers = [
+        'id', 'distribution_package', 'region', 'price', 'industry', 'news',
+        'indexed', 'disclaimer', 'no_of_indexed_websites', 'no_of_non_indexed_websites',
+        'image', 'link', 'words_limit', 'language', 'is_active', 'created_at', 'updated_at'
+      ];
+
+      // Simple CSV string construction
+      const csvRows = [headers.join(',')];
+
+      pressPacks.forEach(pp => {
+        const row = headers.map(header => {
+          const val = pp[header];
+          if (val === null || val === undefined) return '';
+          // Escape quotes and wrap in quotes
+          const stringVal = String(val).replace(/"/g, '""');
+          return `"${stringVal}"`;
+        });
+        csvRows.push(row.join(','));
+      });
+
+      const csvContent = csvRows.join('\n');
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=press_packs_export_${new Date().toISOString().split('T')[0]}.csv`);
+      res.send(csvContent);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Get all press packs with filtering and pagination
 
   // Get all press packs with filtering and pagination
   async getAll(req, res) {

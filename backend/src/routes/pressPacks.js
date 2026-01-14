@@ -18,6 +18,11 @@ router.post('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPerm
 router.put('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), pressPackController.bulkUpdate);
 router.delete('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), pressPackController.bulkDelete);
 
+// Bulk upload and export
+router.get('/admin/template', verifyAdminToken, requireAdminPanelAccess, pressPackController.downloadTemplate);
+router.post('/admin/bulk-upload', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), pressPackController.csvUpload.single('file'), pressPackController.bulkUpload);
+router.get('/admin/export', verifyAdminToken, requireAdminPanelAccess, pressPackController.downloadCSV);
+
 // Admin routes (admins can manage all press packs)
 router.get('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), pressPackController.getAll);
 router.post('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), pressPackController.createValidation, pressPackController.create);
