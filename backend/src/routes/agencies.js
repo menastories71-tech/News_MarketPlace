@@ -45,6 +45,8 @@ router.post('/resend-otp', agencyController.resendOtp);
 
 router.get('/', verifyAdminToken, agencyController.getAllAgencies);
 
+router.get('/download-csv', verifyAdminToken, (req, res) => agencyController.downloadCSV(req, res));
+
 router.post('/update-status', verifyAdminToken, agencyController.updateAgencyStatus);
 
 module.exports = router;

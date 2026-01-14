@@ -258,11 +258,11 @@ class AgencyController {
   async sendOtp(req, res) {
     try {
       const { type, email } = req.body;
-      
+
       if (type !== 'email') {
         return res.status(400).json({ error: 'Only email OTP is supported' });
       }
-      
+
       if (!email) {
         return res.status(400).json({ error: 'Email is required' });
       }
@@ -431,6 +431,94 @@ class AgencyController {
       });
     } catch (error) {
       console.error('Update agency status error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download agencies as CSV (admin only)
+  async downloadCSV(req, res) {
+    try {
+      const { status, agency_name, agency_country, agency_city, date_from, date_to } = req.query;
+
+      let whereClause = ' WHERE 1=1';
+      const params = [];
+      let paramCount = 1;
+
+      if (status && status !== 'all') {
+        whereClause += ` AND status = $${paramCount}`;
+        params.push(status);
+        paramCount++;
+      }
+
+      if (agency_name) {
+        whereClause += ` AND agency_name ILIKE $${paramCount}`;
+        params.push(`%${agency_name}%`);
+        paramCount++;
+      }
+
+      if (agency_country) {
+        whereClause += ` AND agency_country ILIKE $${paramCount}`;
+        params.push(`%${agency_country}%`);
+        paramCount++;
+      }
+
+      if (agency_city) {
+        whereClause += ` AND agency_city ILIKE $${paramCount}`;
+        params.push(`%${agency_city}%`);
+        paramCount++;
+      }
+
+      if (date_from) {
+        whereClause += ` AND DATE(created_at) >= $${paramCount}`;
+        params.push(date_from);
+        paramCount++;
+      }
+
+      if (date_to) {
+        whereClause += ` AND DATE(created_at) <= $${paramCount}`;
+        params.push(date_to);
+        paramCount++;
+      }
+
+      const sqlQuery = `SELECT * FROM agencies${whereClause} ORDER BY created_at DESC`;
+      const { query } = require('../config/database');
+      const result = await query(sqlQuery, params);
+      const agencies = result.rows;
+
+      const headers = ['ID', 'Agency Name', 'Legal Entity Name', 'Website', 'Instagram', 'LinkedIn', 'Facebook', 'Country', 'City', 'Address', 'Owner Name', 'Owner LinkedIn', 'Founded Year', 'Agency Email', 'Owner Email', 'Owner WhatsApp', 'Status', 'Created At'];
+
+      let csv = headers.join(',') + '\n';
+
+      agencies.forEach(a => {
+        const row = [
+          a.id,
+          `"${(a.agency_name || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_legal_entity_name || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_website || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_ig || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_linkedin || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_facebook || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_country || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_city || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_address || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_owner_name || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_owner_linkedin || '').replace(/"/g, '""')}"`,
+          a.agency_founded_year || '',
+          `"${(a.agency_email || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_owner_email || '').replace(/"/g, '""')}"`,
+          `"${(a.agency_owner_whatsapp_number || '').replace(/"/g, '""')}"`,
+          `"${(a.status || '').replace(/"/g, '""')}"`,
+          a.created_at ? new Date(a.created_at).toISOString() : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      const filename = `agencies_${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download CSV error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

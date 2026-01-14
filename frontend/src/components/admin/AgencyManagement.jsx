@@ -179,6 +179,8 @@ const AgencyManagement = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedAgency, setSelectedAgency] = useState(null);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -442,6 +444,40 @@ const AgencyManagement = () => {
     }, 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
+
+  const handleDownloadCSV = async (downloadAll = false) => {
+    setShowDownloadModal(false);
+    setDownloading(true);
+    try {
+      let params;
+      if (downloadAll) {
+        params = new URLSearchParams({});
+      } else {
+        params = new URLSearchParams({
+          ...(statusFilter && { status: statusFilter }),
+          ...(debouncedSearchTerm && { agency_name: debouncedSearchTerm })
+        });
+      }
+
+      const response = await api.get(`/agencies/download-csv?${params}`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', downloadAll ? 'agencies_all.csv' : 'agencies_filtered.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -784,6 +820,28 @@ const AgencyManagement = () => {
                     <option key={option.value} value={option.value}>{option.label}</option>
                   ))}
                 </select>
+
+                <button
+                  onClick={() => setShowDownloadModal(true)}
+                  disabled={downloading}
+                  style={{
+                    padding: '12px 16px',
+                    backgroundColor: theme.secondary,
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    cursor: downloading ? 'not-allowed' : 'pointer',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    opacity: downloading ? 0.7 : 1
+                  }}
+                >
+                  <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                  {downloading ? 'Downloading...' : 'Download CSV'}
+                </button>
               </div>
 
               {/* Search Results Summary */}
@@ -909,16 +967,16 @@ const AgencyManagement = () => {
                         backgroundColor: selectedAgencies.includes(agency.id) ? '#e0f2fe' : (index % 2 === 0 ? '#ffffff' : '#fafbfc'),
                         transition: 'all 0.2s'
                       }}
-                      onMouseEnter={(e) => {
-                        if (!selectedAgencies.includes(agency.id)) {
-                          e.target.closest('tr').style.backgroundColor = '#f1f5f9';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!selectedAgencies.includes(agency.id)) {
-                          e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
-                        }
-                      }}
+                        onMouseEnter={(e) => {
+                          if (!selectedAgencies.includes(agency.id)) {
+                            e.target.closest('tr').style.backgroundColor = '#f1f5f9';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!selectedAgencies.includes(agency.id)) {
+                            e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
+                          }
+                        }}
                       >
                         <td style={{ padding: '16px' }}>
                           <input
@@ -1149,6 +1207,119 @@ const AgencyManagement = () => {
         onClose={() => setShowDetailsModal(false)}
         agency={selectedAgency}
       />
+
+      {/* Download Options Modal */}
+      {showDownloadModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: '16px',
+            padding: '32px',
+            maxWidth: '450px',
+            width: '100%',
+            boxShadow: '0 25px 50px rgba(0,0,0,0.15)'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '700', color: theme.textPrimary }}>
+                Download Options
+              </h2>
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: theme.textSecondary }}
+              >
+                ×
+              </button>
+            </div>
+
+            <p style={{ color: theme.textSecondary, marginBottom: '24px', fontSize: '14px' }}>
+              Choose how you want to download the agencies data:
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={() => handleDownloadCSV(false)}
+                style={{
+                  padding: '16px 20px',
+                  backgroundColor: theme.primary,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  textAlign: 'left'
+                }}
+              >
+                <Icon name="funnel" size="sm" style={{ color: '#fff' }} />
+                <div>
+                  <div>Download Filtered Data</div>
+                  <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>
+                    Export {sortedAgencies.length} agencies matching current filters
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => handleDownloadCSV(true)}
+                style={{
+                  padding: '16px 20px',
+                  backgroundColor: theme.secondary,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  fontWeight: '600',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  textAlign: 'left'
+                }}
+              >
+                <Icon name="archive-box" size="sm" style={{ color: '#fff' }} />
+                <div>
+                  <div>Download All Data</div>
+                  <div style={{ fontSize: '12px', opacity: 0.8, marginTop: '4px' }}>
+                    Export complete database (all agencies)
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                style={{
+                  padding: '12px 20px',
+                  backgroundColor: '#f3f4f6',
+                  color: theme.textPrimary,
+                  border: 'none',
+                  borderRadius: '10px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  fontWeight: '500',
+                  marginTop: '8px'
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
