@@ -167,13 +167,29 @@ const UserManagement = () => {
     }
   };
 
+  const handleDownloadCSV = async () => {
+    try {
+      const response = await adminAPI.downloadUsersCSV();
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `users_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV');
+    }
+  };
+
   // Filter to show only users who have logged in successfully (have last_login)
   const loggedInUsers = users.filter(user => user.last_login !== null);
 
   const filteredUsers = loggedInUsers.filter(user => {
     const matchesSearch = user.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+      user.last_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesRole = !roleFilter || user.role === roleFilter;
     const matchesStatus = !statusFilter || (user.is_active ? 'active' : 'inactive') === statusFilter;
     return matchesSearch && matchesRole && matchesStatus;
@@ -359,242 +375,260 @@ const UserManagement = () => {
         minHeight: '100vh',
         transition: 'margin-left 0.3s ease'
       }}>
-            {/* Page Header */}
-            <div style={{ background: '#fff', borderRadius: 12, padding: 28, border: `4px solid #000`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+        {/* Page Header */}
+        <div style={{ background: '#fff', borderRadius: 12, padding: 28, border: `4px solid #000`, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e6f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name="users" size="sm" style={{ color: '#1976D2' }} />
+              </div>
+              <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>User Management</h1>
+            </div>
+            <p style={{ marginTop: 8, color: '#757575' }}>View all users who have successfully logged in</p>
+          </div>
+          <button
+            onClick={handleDownloadCSV}
+            style={{
+              backgroundColor: '#fff',
+              color: theme.success,
+              border: `1px solid ${theme.success}`,
+              padding: '0.625rem 1rem',
+              borderRadius: '0.5rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            <Icon name="arrow-down-tray" size="sm" />
+            Download CSV
+          </button>
+        </div>
+
+        {/* Stats Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
+          {[
+            { label: 'Logged In Users', value: stats.total, icon: 'users', bg: '#e6f0ff' },
+            { label: 'Active', value: stats.active, icon: 'check-circle', bg: '#dcfce7' },
+            { label: 'Verified', value: stats.verified, icon: 'shield-check', bg: '#e0f2fe' },
+            { label: 'Logged In Today', value: stats.today, icon: 'calendar', bg: '#f3e8ff' }
+          ].map((stat, index) => (
+            <div key={index} style={{ background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 8px 20px rgba(2,6,23,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 48, height: 48, borderRadius: 10, background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon name={stat.icon} size="lg" style={{ color: '#1976D2' }} />
+              </div>
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: '#e6f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name="users" size="sm" style={{ color: '#1976D2' }} />
-                  </div>
-                  <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800 }}>User Management</h1>
-                </div>
-                <p style={{ marginTop: 8, color: '#757575' }}>View all users who have successfully logged in</p>
+                <div style={{ fontSize: 20, fontWeight: 800 }}>{stat.value}</div>
+                <div style={{ fontSize: 12, color: '#757575' }}>{stat.label}</div>
               </div>
             </div>
+          ))}
+        </div>
 
-            {/* Stats Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
-              {[
-                { label: 'Logged In Users', value: stats.total, icon: 'users', bg: '#e6f0ff' },
-                { label: 'Active', value: stats.active, icon: 'check-circle', bg: '#dcfce7' },
-                { label: 'Verified', value: stats.verified, icon: 'shield-check', bg: '#e0f2fe' },
-                { label: 'Logged In Today', value: stats.today, icon: 'calendar', bg: '#f3e8ff' }
-              ].map((stat, index) => (
-                <div key={index} style={{ background: '#fff', borderRadius: 12, padding: 18, boxShadow: '0 8px 20px rgba(2,6,23,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 10, background: stat.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name={stat.icon} size="lg" style={{ color: '#1976D2' }} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 20, fontWeight: 800 }}>{stat.value}</div>
-                    <div style={{ fontSize: 12, color: '#757575' }}>{stat.label}</div>
-                  </div>
-                </div>
-              ))}
+        {/* Filters */}
+        <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', marginBottom: '24px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#212121', marginBottom: '8px' }}>
+                Search
+              </label>
+              <input
+                type="text"
+                placeholder="Search by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  fontSize: '14px'
+                }}
+              />
             </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '8px' }}>
+                Role
+              </label>
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">All Roles</option>
+                {roleOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '8px' }}>
+                Status
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '8px',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">All Status</option>
+                {statusOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
 
-            {/* Filters */}
-            <div style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '12px', marginBottom: '24px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#212121', marginBottom: '8px' }}>
-                    Search
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Search by name or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '8px' }}>
-                    Role
-                  </label>
-                  <select
-                    value={roleFilter}
-                    onChange={(e) => setRoleFilter(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                  >
-                    <option value="">All Roles</option>
-                    {roleOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: theme.text, marginBottom: '8px' }}>
-                    Status
-                  </label>
-                  <select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                  >
-                    <option value="">All Status</option>
-                    {statusOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+        {/* Users Table */}
+        <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', overflow: 'hidden' }}>
+          {/* Table Controls */}
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
+                  Users
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <select
+                  value={pageSize}
+                  onChange={(e) => {
+                    setPageSize(parseInt(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  style={{
+                    padding: '6px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    backgroundColor: '#fff'
+                  }}
+                >
+                  <option value="10">10 per page</option>
+                  <option value="25">25 per page</option>
+                  <option value="50">50 per page</option>
+                  <option value="100">100 per page</option>
+                </select>
               </div>
             </div>
+          </div>
 
-            {/* Users Table */}
-            <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', overflow: 'hidden' }}>
-              {/* Table Controls */}
-              <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
-                      Users
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <select
-                      value={pageSize}
-                      onChange={(e) => {
-                        setPageSize(parseInt(e.target.value));
-                        setCurrentPage(1);
-                      }}
-                      style={{
-                        padding: '6px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        backgroundColor: '#fff'
-                      }}
-                    >
-                      <option value="10">10 per page</option>
-                      <option value="25">25 per page</option>
-                      <option value="50">50 per page</option>
-                      <option value="100">100 per page</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead>
+                <tr style={{ backgroundColor: theme.muted }}>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>USER</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>ROLE</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>STATUS</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>VERIFIED</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>REGISTERED</th>
+                  <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>LAST LOGIN</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedUsers.map((user) => (
+                  <tr key={user.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                    <td style={{ padding: '16px' }}>
+                      <div>
+                        <div style={{ fontWeight: '600', fontSize: '14px', color: '#212121' }}>{user.first_name} {user.last_name}</div>
+                        <div style={{ fontSize: '12px', color: '#757575' }}>{user.email}</div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <span style={getRoleStyle(user.role)}>
+                        {roleDisplayNames[user.role] || 'Other'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <span style={getStatusStyle(user.is_active)}>
+                        {user.is_active ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <Icon name={user.is_verified ? 'check-circle' : 'x-circle'} size="sm" style={{ color: user.is_verified ? theme.success : theme.danger }} />
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <div style={{ fontSize: '12px', color: '#757575' }}>
+                        {formatDate(user.created_at)}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px' }}>
+                      <div style={{ fontSize: '12px', color: '#757575' }}>
+                        {user.last_login ? formatDate(user.last_login) : 'Never'}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead>
-                    <tr style={{ backgroundColor: theme.muted }}>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>USER</th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>ROLE</th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>STATUS</th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>VERIFIED</th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>REGISTERED</th>
-                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', fontSize: '14px', color: theme.text }}>LAST LOGIN</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedUsers.map((user) => (
-                      <tr key={user.id} style={{ borderBottom: '1px solid #e5e7eb' }}>
-                        <td style={{ padding: '16px' }}>
-                          <div>
-                            <div style={{ fontWeight: '600', fontSize: '14px', color: '#212121' }}>{user.first_name} {user.last_name}</div>
-                            <div style={{ fontSize: '12px', color: '#757575' }}>{user.email}</div>
-                          </div>
-                        </td>
-                        <td style={{ padding: '16px' }}>
-                          <span style={getRoleStyle(user.role)}>
-                            {roleDisplayNames[user.role] || 'Other'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px' }}>
-                          <span style={getStatusStyle(user.is_active)}>
-                            {user.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                        </td>
-                        <td style={{ padding: '16px' }}>
-                          <Icon name={user.is_verified ? 'check-circle' : 'x-circle'} size="sm" style={{ color: user.is_verified ? theme.success : theme.danger }} />
-                        </td>
-                        <td style={{ padding: '16px' }}>
-                          <div style={{ fontSize: '12px', color: '#757575' }}>
-                            {formatDate(user.created_at)}
-                          </div>
-                        </td>
-                        <td style={{ padding: '16px' }}>
-                          <div style={{ fontSize: '12px', color: '#757575' }}>
-                            {user.last_login ? formatDate(user.last_login) : 'Never'}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {filteredUsers.length === 0 && (
-                <div style={{ padding: '40px', textAlign: 'center', color: '#757575' }}>
-                  No users found matching your criteria.
-                </div>
-              )}
-
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button
-                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                      disabled={currentPage === 1}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
-                        color: currentPage === 1 ? '#9ca3af' : theme.textPrimary,
-                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      Previous
-                    </button>
-
-                    <span style={{ fontSize: '14px', color: theme.textSecondary }}>
-                      Page {currentPage} of {totalPages}
-                    </span>
-
-                    <button
-                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                      disabled={currentPage === totalPages}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
-                        color: currentPage === totalPages ? '#9ca3af' : theme.textPrimary,
-                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      Next
-                    </button>
-                  </div>
-                </div>
-              )}
+          {filteredUsers.length === 0 && (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#757575' }}>
+              No users found matching your criteria.
             </div>
+          )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                  style={{
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
+                    color: currentPage === 1 ? '#9ca3af' : theme.textPrimary,
+                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  Previous
+                </button>
+
+                <span style={{ fontSize: '14px', color: theme.textSecondary }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                  disabled={currentPage === totalPages}
+                  style={{
+                    padding: '8px 12px',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '6px',
+                    backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
+                    color: currentPage === totalPages ? '#9ca3af' : theme.textPrimary,
+                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </main>
     </div>
   );

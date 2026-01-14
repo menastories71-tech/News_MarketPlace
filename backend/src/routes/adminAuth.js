@@ -40,6 +40,59 @@ router.get('/editor-plus', verifyAdminToken, requireAdminPanelAccess, requireAdm
 });
 
 // User management routes (manage users permission required)
+// User management routes (manage users permission required)
+router.get('/users/export', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_users'), async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const users = await User.findAll();
+
+    const headers = [
+      'ID', 'First Name', 'Last Name', 'Email', 'Role', 'Status', 'Verified',
+      'Phone Code', 'Phone Number', 'City', 'State', 'Country', 'Designation',
+      'Created At', 'Last Login'
+    ];
+
+    let csv = headers.join(',') + '\n';
+
+    users.forEach(user => {
+      const escape = (text) => {
+        if (text === null || text === undefined) return '';
+        const stringValue = String(text);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      };
+
+      const row = [
+        user.id,
+        escape(user.first_name),
+        escape(user.last_name),
+        escape(user.email),
+        escape(user.role),
+        user.is_active ? 'Active' : 'Inactive',
+        user.is_verified ? 'Yes' : 'No',
+        escape(user.phone_code),
+        escape(user.phone_number),
+        escape(user.city),
+        escape(user.state),
+        escape(user.country),
+        escape(user.designation),
+        user.created_at ? new Date(user.created_at).toISOString().split('T')[0] : '',
+        user.last_login ? new Date(user.last_login).toISOString().split('T')[0] : 'Never'
+      ];
+      csv += row.join(',') + '\n';
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=users_export_${new Date().toISOString().split('T')[0]}.csv`);
+    res.status(200).send(csv);
+  } catch (error) {
+    console.error('Error exporting users:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 router.get('/users', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_users'), async (req, res) => {
   try {
     const User = require('../models/User');

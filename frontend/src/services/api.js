@@ -109,6 +109,7 @@ api.interceptors.response.use(
 export const adminAPI = {
   // Get all users
   getUsers: () => api.get('/admin/auth/users'),
+  downloadUsersCSV: () => api.get('/admin/auth/users/export', { responseType: 'blob' }),
 
   // Roles and Permissions management
   getRoles: (params) => api.get('/admin/role-permissions/roles', { params }),
