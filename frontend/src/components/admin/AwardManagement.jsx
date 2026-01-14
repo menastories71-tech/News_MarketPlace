@@ -966,6 +966,13 @@ const AwardManagement = () => {
                 />
 
                 <button
+                  onClick={handleDownloadTemplate}
+                  style={{ ...btnPrimary, backgroundColor: theme.secondary, fontSize: '14px', padding: '12px 20px' }}
+                >
+                  <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                  Template
+                </button>
+                <button
                   onClick={() => fileInputRef.current.click()}
                   style={{ ...btnPrimary, backgroundColor: theme.info, fontSize: '14px', padding: '12px 20px' }}
                   disabled={uploading}
