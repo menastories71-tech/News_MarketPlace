@@ -10,6 +10,7 @@ router.post('/', verifyToken, realEstateOrderController.createValidation, realEs
 router.get('/professional/:professionalId', verifyToken, realEstateOrderController.getOrdersByProfessional);
 
 // Admin routes (require admin authentication)
+router.get('/export-csv', verifyAdminToken, realEstateOrderController.downloadCSV);
 router.get('/', verifyAdminToken, realEstateOrderController.getAll);
 router.get('/:id', verifyAdminToken, realEstateOrderController.getById);
 router.put('/:id', verifyAdminToken, realEstateOrderController.update);

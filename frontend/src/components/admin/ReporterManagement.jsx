@@ -3,7 +3,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import ReporterFormModal from './ReporterFormModal';
-import api, { adminAPI } from '../../services/api';
+import api from '../../services/api';
 
 // Brand colors from Color palette .pdf - using only defined colors
 const theme = {
@@ -74,13 +74,8 @@ const ReporterManagement = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedReporters, setSelectedReporters] = useState([]);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const [uploadFile, setUploadFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState(null);
 
-  // ... (Layout constants remain unchanged)
-
+  // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
   const mobileOverlayZ = 500;
   const sidebarZ = 200;
@@ -401,8 +396,7 @@ const ReporterManagement = () => {
       fetchReporters();
     } catch (error) {
       console.error('Error bulk approving reporters:', error);
-      const errorMsg = error.response?.data?.error || 'Error bulk approving reporters. Please try again.';
-      alert(errorMsg);
+      alert('Error bulk approving reporters. Please try again.');
     } finally {
       setBulkActionLoading(false);
     }
@@ -424,101 +418,9 @@ const ReporterManagement = () => {
       fetchReporters();
     } catch (error) {
       console.error('Error bulk rejecting reporters:', error);
-      const errorMsg = error.response?.data?.error || 'Error bulk rejecting reporters. Please try again.';
-      alert(errorMsg);
+      alert('Error bulk rejecting reporters. Please try again.');
     } finally {
       setBulkActionLoading(false);
-    }
-  };
-
-  const handleDownloadTemplate = async () => {
-    try {
-      const response = await api.get('/reporters/admin/template', { responseType: 'blob' });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'reporter_template.csv');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error downloading template:', error);
-      alert('Error downloading template');
-    }
-  };
-
-  const handleBulkUpload = async (e) => {
-    e.preventDefault();
-    if (!uploadFile) {
-      alert('Please select a file');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', uploadFile);
-
-    try {
-      setIsUploading(true);
-      setUploadStatus(null);
-      const response = await api.post('/reporters/admin/bulk-upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      setUploadStatus({
-        type: 'success',
-        message: response.data.message,
-        errors: response.data.errors
-      });
-
-      fetchReporters();
-
-      if (!response.data.errors) {
-        setTimeout(() => {
-          setIsUploadModalOpen(false);
-          setUploadFile(null);
-          setUploadStatus(null);
-        }, 2000);
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
-      setUploadStatus({
-        type: 'error',
-        message: error.response?.data?.error || 'Error uploading file'
-      });
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  const handleDownloadCSV = async () => {
-    try {
-      const params = {
-        ...(debouncedSearchTerm && { name: debouncedSearchTerm }),
-        ...(debouncedSearchTerm && { email: debouncedSearchTerm }),
-        ...(debouncedSearchTerm && { publication_name: debouncedSearchTerm }),
-        ...(departmentFilter && { function_department: departmentFilter }),
-        ...(positionFilter && { position: positionFilter }),
-        ...(statusFilter && { status: statusFilter }),
-        ...(dateFromFilter && { date_from: dateFromFilter }),
-        ...(dateToFilter && { date_to: dateToFilter }),
-        sortBy: sortField,
-        sortOrder: sortDirection.toUpperCase()
-      };
-
-      // Construct query string manually to avoid axios param serialization issues if any
-      const queryString = new URLSearchParams(params).toString();
-      const response = await api.get(`/reporters/admin/export?${queryString}`, { responseType: 'blob' });
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `reporters_export_${new Date().toISOString().split('T')[0]}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (error) {
-      console.error('Error downloading CSV:', error);
-      alert('Error downloading CSV');
     }
   };
 
@@ -723,62 +625,7 @@ const ReporterManagement = () => {
                 <p style={{ marginTop: 8, color: '#757575' }}>Manage reporter submissions and approvals</p>
               </div>
 
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                <button
-                  onClick={handleDownloadTemplate}
-                  style={{
-                    backgroundColor: '#fff',
-                    color: theme.primary,
-                    border: `1px solid ${theme.primary}`,
-                    padding: '0.625rem 1rem',
-                    borderRadius: '0.5rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Icon name="document-text" size="sm" />
-                  Template
-                </button>
-                <button
-                  onClick={() => setIsUploadModalOpen(true)}
-                  style={{
-                    backgroundColor: '#fff',
-                    color: theme.primary,
-                    border: `1px solid ${theme.primary}`,
-                    padding: '0.625rem 1rem',
-                    borderRadius: '0.5rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                  disabled={!hasAnyRole(['super_admin', 'content_manager'])}
-                >
-                  <Icon name="arrow-up-tray" size="sm" />
-                  Bulk Upload
-                </button>
-                <button
-                  onClick={handleDownloadCSV}
-                  style={{
-                    backgroundColor: '#fff',
-                    color: theme.success,
-                    border: `1px solid ${theme.success}`,
-                    padding: '0.625rem 1rem',
-                    borderRadius: '0.5rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Icon name="arrow-down-tray" size="sm" />
-                  Download CSV
-                </button>
+              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
                 <button
                   onClick={handleCreateReporter}
                   style={{ ...btnPrimary, fontSize: '14px', padding: '12px 20px' }}
@@ -1165,11 +1012,11 @@ const ReporterManagement = () => {
                             <span style={{
                               padding: '4px 8px',
                               backgroundColor: reporter.status === 'approved' ? theme.success + '20' :
-                                reporter.status === 'rejected' ? theme.danger + '20' :
-                                  theme.warning + '20',
+                                             reporter.status === 'rejected' ? theme.danger + '20' :
+                                             theme.warning + '20',
                               color: reporter.status === 'approved' ? theme.success :
-                                reporter.status === 'rejected' ? theme.danger :
-                                  theme.warning,
+                                    reporter.status === 'rejected' ? theme.danger :
+                                    theme.warning,
                               borderRadius: '12px',
                               fontSize: '11px',
                               fontWeight: '600'
@@ -1322,148 +1169,6 @@ const ReporterManagement = () => {
         reporter={editingReporter}
         onSave={handleFormSave}
       />
-
-      {/* Bulk Upload Modal */}
-      {isUploadModalOpen && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 1100
-        }}>
-          <div style={{
-            backgroundColor: '#fff',
-            borderRadius: '12px',
-            padding: '24px',
-            width: '100%',
-            maxWidth: '500px',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: theme.textPrimary }}>
-                Bulk Upload Reporters
-              </h3>
-              <button
-                onClick={() => {
-                  setIsUploadModalOpen(false);
-                  setUploadFile(null);
-                  setUploadStatus(null);
-                }}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: theme.textSecondary }}
-              >
-                <Icon name="x" size="sm" />
-              </button>
-            </div>
-
-            <form onSubmit={handleBulkUpload}>
-              <div style={{ marginBottom: '20px' }}>
-                <div style={{
-                  border: `2px dashed ${theme.borderMedium}`,
-                  borderRadius: '8px',
-                  padding: '30px',
-                  textAlign: 'center',
-                  cursor: 'pointer',
-                  backgroundColor: theme.backgroundAlt,
-                  position: 'relative'
-                }}>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={(e) => setUploadFile(e.target.files[0])}
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      width: '100%',
-                      height: '100%',
-                      opacity: 0,
-                      cursor: 'pointer'
-                    }}
-                  />
-                  <Icon name="arrow-up-tray" size="xl" style={{ color: theme.primary, marginBottom: '10px' }} />
-                  <p style={{ margin: '0 0 5px 0', fontWeight: '600' }}>
-                    {uploadFile ? uploadFile.name : 'Click to upload CSV file'}
-                  </p>
-                  <p style={{ margin: 0, fontSize: '12px', color: theme.textSecondary }}>
-                    Maximum file size: 5MB
-                  </p>
-                </div>
-              </div>
-
-              {uploadStatus && (
-                <div style={{
-                  marginBottom: '20px',
-                  padding: '12px',
-                  borderRadius: '6px',
-                  backgroundColor: uploadStatus.type === 'success' ? '#dcfce7' : '#fee2e2',
-                  color: uploadStatus.type === 'success' ? '#166534' : '#991b1b',
-                  fontSize: '14px'
-                }}>
-                  <p style={{ margin: 0, fontWeight: '600' }}>{uploadStatus.message}</p>
-                  {uploadStatus.errors && uploadStatus.errors.length > 0 && (
-                    <ul style={{ margin: '8px 0 0 20px', padding: 0 }}>
-                      {uploadStatus.errors.slice(0, 5).map((error, idx) => (
-                        <li key={idx}>{error}</li>
-                      ))}
-                      {uploadStatus.errors.length > 5 && (
-                        <li>...and {uploadStatus.errors.length - 5} more errors</li>
-                      )}
-                    </ul>
-                  )}
-                </div>
-              )}
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px' }}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsUploadModalOpen(false);
-                    setUploadFile(null);
-                    setUploadStatus(null);
-                  }}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    border: `1px solid ${theme.borderMedium}`,
-                    backgroundColor: '#fff',
-                    color: theme.textPrimary,
-                    cursor: 'pointer',
-                    fontWeight: '600'
-                  }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isUploading || !uploadFile}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    backgroundColor: theme.primary,
-                    color: '#fff',
-                    border: 'none',
-                    cursor: (isUploading || !uploadFile) ? 'not-allowed' : 'pointer',
-                    fontWeight: '600',
-                    opacity: (isUploading || !uploadFile) ? 0.7 : 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  {isUploading && <Icon name="arrow-path" className="animate-spin" size="sm" />}
-                  {isUploading ? 'Uploading...' : 'Upload'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

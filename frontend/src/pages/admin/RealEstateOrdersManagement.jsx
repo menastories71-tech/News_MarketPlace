@@ -162,6 +162,30 @@ const RealEstateOrdersManagement = () => {
     }
   };
 
+  const handleDownloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (statusFilter) params.append('status', statusFilter);
+      if (searchTerm.trim()) params.append('customer_email', searchTerm.trim());
+
+      const response = await api.get('/real-estate-orders/export-csv', {
+        params: params,
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `real_estate_orders_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
+    }
+  };
+
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -413,6 +437,26 @@ const RealEstateOrdersManagement = () => {
               </div>
 
               <div className="flex items-center gap-4">
+                <button
+                  onClick={handleDownloadCSV}
+                  style={{
+                    backgroundColor: theme.success,
+                    color: '#fff',
+                    padding: '0.625rem 1rem',
+                    borderRadius: '0.5rem',
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    cursor: 'pointer',
+                    border: 'none',
+                    boxShadow: '0 4px 14px rgba(76, 175, 80, 0.3)'
+                  }}
+                >
+                  <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                  Download CSV
+                </button>
                 <div className="text-right">
                   <div className="text-2xl font-bold" style={{ color: theme.primary }}>
                     {sortedOrders.length}

@@ -12,6 +12,9 @@ router.post('/', powerlistNominationSubmissionController.createValidation, power
 // Get all nomination submissions (admin only)
 router.get('/', verifyAdminToken, requireAdminPanelAccess, powerlistNominationSubmissionController.getAll);
 
+// Export CSV
+router.get('/export-csv', verifyAdminToken, requireAdminPanelAccess, powerlistNominationSubmissionController.downloadCSV);
+
 // Get nomination submission by ID (admin only)
 router.get('/:id', verifyAdminToken, requireAdminPanelAccess, powerlistNominationSubmissionController.getById);
 

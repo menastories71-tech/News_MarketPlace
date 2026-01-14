@@ -49,7 +49,7 @@ class PowerlistNominationSubmissionController {
       // Send emails
       try {
         console.log('📧 Sending nomination confirmation emails...');
-        
+
         // Email to user
         await emailService.sendCustomEmail(
           submission.email,
@@ -70,7 +70,7 @@ class PowerlistNominationSubmissionController {
             nomination
           )
         );
-        
+
         console.log('✅ Nomination confirmation emails sent successfully');
       } catch (emailError) {
         console.error('❌ Failed to send nomination emails:', emailError);
@@ -149,6 +149,88 @@ class PowerlistNominationSubmissionController {
     }
   }
 
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const {
+        status,
+        powerlist_nomination_id,
+        email,
+        sortBy = 'submitted_at',
+        sortOrder = 'DESC'
+      } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+      if (powerlist_nomination_id) filters.powerlist_nomination_id = powerlist_nomination_id;
+      if (email) filters.email = email;
+
+      // Get all matching submissions (no limit)
+      // Note: Assuming findAll supports null limit/offset or we pass a large number
+      const submissions = await PowerlistNominationSubmission.findAll(filters, 100000, 0);
+
+      // In-memory sort if needed, or rely on database default
+      if (sortBy) {
+        submissions.sort((a, b) => {
+          let valA = a[sortBy];
+          let valB = b[sortBy];
+
+          if (valA === null) valA = '';
+          if (valB === null) valB = '';
+
+          if (typeof valA === 'string') valA = valA.toLowerCase();
+          if (typeof valB === 'string') valB = valB.toLowerCase();
+
+          if (valA < valB) return sortOrder.toUpperCase() === 'ASC' ? -1 : 1;
+          if (valA > valB) return sortOrder.toUpperCase() === 'ASC' ? 1 : -1;
+          return 0;
+        });
+      }
+
+      const headers = [
+        'ID', 'Full Name', 'Email', 'Phone', 'Additional Message',
+        'Status', 'Powerlist Nomination ID', 'Submitted At'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      submissions.forEach(submission => {
+        const escape = (text) => {
+          if (text === null || text === undefined) return '';
+          const stringValue = String(text);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        };
+
+        const row = [
+          submission.id,
+          escape(submission.full_name),
+          escape(submission.email),
+          escape(submission.phone),
+          escape(submission.additional_message),
+          escape(submission.status),
+          submission.powerlist_nomination_id,
+          submission.submitted_at ? new Date(submission.submitted_at).toISOString().split('T')[0] : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=powerlist_nominations_${new Date().toISOString().split('T')[0]}.csv`);
+      res.send(csv);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Update submission (admin only)
   async update(req, res) {
     try {
@@ -180,7 +262,7 @@ class PowerlistNominationSubmissionController {
       if (updateData.status && updateData.status !== oldStatus) {
         try {
           console.log(`📧 Sending status update emails for status change: ${oldStatus} -> ${updateData.status}`);
-          
+
           const nomination = await PowerlistNomination.findById(submission.powerlist_nomination_id);
 
           // Email to user
@@ -205,7 +287,7 @@ class PowerlistNominationSubmissionController {
               updateData.status
             )
           );
-          
+
           console.log('✅ Status update emails sent successfully');
         } catch (emailError) {
           console.error('❌ Failed to send status update emails:', emailError);
@@ -271,7 +353,7 @@ class PowerlistNominationSubmissionController {
       if (status !== oldStatus) {
         try {
           console.log(`📧 Sending status update emails for status change: ${oldStatus} -> ${status}`);
-          
+
           const nomination = await PowerlistNomination.findById(submission.powerlist_nomination_id);
 
           // Email to user
@@ -296,7 +378,7 @@ class PowerlistNominationSubmissionController {
               status
             )
           );
-          
+
           console.log('✅ Status update emails sent successfully');
         } catch (emailError) {
           console.error('❌ Failed to send status update emails:', emailError);

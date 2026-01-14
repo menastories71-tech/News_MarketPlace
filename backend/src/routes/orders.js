@@ -16,6 +16,13 @@ router.get('/admin',
   requireAdminPanelAccess,
   orderController.getAll
 );
+
+router.get('/admin/export-csv',
+  verifyAdminToken,
+  requireAdminPanelAccess,
+  orderController.downloadCSV
+);
+
 router.get('/admin/:id',
   verifyAdminToken,
   requireAdminPanelAccess,

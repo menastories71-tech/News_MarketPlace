@@ -141,6 +141,91 @@ class RealEstateOrderController {
     }
   }
 
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      const {
+        status,
+        professional_id,
+        customer_email,
+        sortBy = 'created_at',
+        sortOrder = 'DESC'
+      } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+      if (professional_id) filters.professional_id = parseInt(professional_id);
+      if (customer_email) filters.customer_email = customer_email;
+
+      // Get all matching orders
+      const orders = await RealEstateOrder.findAll(filters, 100000, 0);
+
+      // In-memory sort
+      orders.sort((a, b) => {
+        let valA = a[sortBy];
+        let valB = b[sortBy];
+
+        if (valA === null) valA = '';
+        if (valB === null) valB = '';
+
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return sortOrder.toUpperCase() === 'ASC' ? -1 : 1;
+        if (valA > valB) return sortOrder.toUpperCase() === 'ASC' ? 1 : -1;
+        return 0;
+      });
+
+      const headers = [
+        'ID', 'Customer Name', 'Customer Email', 'WhatsApp', 'Calling Number',
+        'Professional ID', 'Budget Range', 'Influencers Required',
+        'Gender Required', 'Languages', 'Min Followers',
+        'Status', 'Created At', 'Message', 'Admin Comments', 'Rejection Reason'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      orders.forEach(order => {
+        const escape = (text) => {
+          if (text === null || text === undefined) return '';
+          const stringValue = String(text);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        };
+
+        const row = [
+          order.id,
+          escape(order.customer_name),
+          escape(order.customer_email),
+          escape(`${order.customer_whatsapp_country_code || ''} ${order.customer_whatsapp_number || ''}`.trim()),
+          escape(`${order.customer_calling_country_code || ''} ${order.customer_calling_number || ''}`.trim()),
+          order.professional_id,
+          escape(order.budget_range),
+          escape(order.influencers_required),
+          escape(order.gender_required),
+          escape(order.languages_required ? order.languages_required.join(', ') : ''),
+          order.min_followers || '',
+          escape(order.status),
+          order.created_at ? new Date(order.created_at).toISOString().split('T')[0] : '',
+          escape(order.message),
+          escape(order.admin_comments),
+          escape(order.rejection_reason)
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=real_estate_orders_${new Date().toISOString().split('T')[0]}.csv`);
+      res.send(csv);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get order by ID
   async getById(req, res) {
     try {

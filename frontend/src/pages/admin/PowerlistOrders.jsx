@@ -241,10 +241,10 @@ const PowerlistOrders = () => {
 
     try {
       const response = await api.put(`/powerlist-nomination-submissions/${submissionId}/status`, { status: newStatus });
-      
+
       // Show success message with email confirmation
       alert(`✅ Nomination ${newStatus} successfully!\n\n📧 Email notifications have been sent to:\n• The applicant\n• Admin team\n\nThe status has been updated in the system.`);
-      
+
       fetchSubmissions();
     } catch (error) {
       console.error('Error updating status:', error);
@@ -265,6 +265,38 @@ const PowerlistOrders = () => {
     } catch (error) {
       console.error('Error deleting submission:', error);
       alert('Error deleting submission. Please try again.');
+    }
+  };
+
+  const handleDownloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      // Add current filters if you have them (e.g. status)
+      // Note: PowerlistOrders seems to fetch all then maybe filter, or uses api params
+      // Looking at fetchSubmissions, it uses page/limit. 
+      // It doesn't seem to have a status filter state variable that is passed to API in fetchSubmissions,
+      // wait, let me check fetchSubmissions again.
+      // fetchSubmissions uses: page, limit. It doesn't look like it filters by status in the API call currently.
+      // But looking at lines 178-214: const params = new URLSearchParams({ page: ..., limit: ... });
+      // So no status filter is currently passed to GET /.
+
+      // However, we can still allow downloading all.
+
+      const response = await api.get('/powerlist-nomination-submissions/export-csv', {
+        params: params,
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `powerlist_orders_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
     }
   };
 
@@ -363,6 +395,26 @@ const PowerlistOrders = () => {
                 </div>
                 <p style={{ marginTop: 8, color: '#757575' }}>Manage nomination submissions and their approval status</p>
               </div>
+              <button
+                onClick={handleDownloadCSV}
+                style={{
+                  backgroundColor: theme.success,
+                  color: '#fff',
+                  padding: '0.625rem 1rem',
+                  borderRadius: '0.5rem',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  border: 'none',
+                  boxShadow: '0 4px 14px rgba(76, 175, 80, 0.3)'
+                }}
+              >
+                <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                Download CSV
+              </button>
             </div>
 
             {/* Submissions Table */}

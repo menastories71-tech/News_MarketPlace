@@ -160,6 +160,79 @@ const getAll = async (req, res) => {
   }
 };
 
+// Download CSV
+const downloadCSV = async (req, res) => {
+  try {
+    const { status, sortBy = 'order_date', sortOrder = 'DESC' } = req.query;
+
+    const filters = {};
+    if (status) filters.status = status;
+
+    // Get all matching orders
+    const orders = await Order.findAll(filters, 100000, 0);
+
+    // In-memory sort
+    orders.sort((a, b) => {
+      let valA = a[sortBy];
+      let valB = b[sortBy];
+
+      if (valA === null) valA = '';
+      if (valB === null) valB = '';
+
+      if (typeof valA === 'string') valA = valA.toLowerCase();
+      if (typeof valB === 'string') valB = valB.toLowerCase();
+
+      if (valA < valB) return sortOrder.toUpperCase() === 'ASC' ? -1 : 1;
+      if (valA > valB) return sortOrder.toUpperCase() === 'ASC' ? 1 : -1;
+      return 0;
+    });
+
+    const headers = [
+      'ID', 'Type', 'Service Name', 'Price',
+      'Customer Name', 'Customer Email', 'Customer Phone',
+      'Status', 'Order Date', 'Last Updated', 'Admin Notes'
+    ];
+
+    let csv = headers.join(',') + '\n';
+
+    orders.forEach(order => {
+      const escape = (text) => {
+        if (text === null || text === undefined) return '';
+        const stringValue = String(text);
+        if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+          return `"${stringValue.replace(/"/g, '""')}"`;
+        }
+        return stringValue;
+      };
+
+      const serviceName = order.order_type === 'paparazzi' ? order.paparazzi_name : order.publication_name;
+
+      const row = [
+        order.id,
+        order.order_type === 'paparazzi' ? 'Paparazzi' : 'Publication',
+        escape(serviceName),
+        order.price,
+        escape(order.customer_name),
+        escape(order.customer_email),
+        escape(order.customer_phone),
+        escape(order.status),
+        order.order_date ? new Date(order.order_date).toISOString().split('T')[0] : '',
+        order.updated_at ? new Date(order.updated_at).toISOString().split('T')[0] : '',
+        escape(order.admin_notes)
+      ];
+      csv += row.join(',') + '\n';
+    });
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename=orders_export_${new Date().toISOString().split('T')[0]}.csv`);
+    res.send(csv);
+
+  } catch (error) {
+    console.error('Download CSV error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 // Get order by ID (admin only)
 const getById = async (req, res) => {
   try {
@@ -363,5 +436,6 @@ module.exports = {
   acceptOrder,
   rejectOrder,
   completeOrder,
-  update
+  update,
+  downloadCSV
 };

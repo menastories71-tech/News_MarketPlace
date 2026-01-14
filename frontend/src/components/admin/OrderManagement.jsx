@@ -86,11 +86,11 @@ const OrderViewModal = ({ isOpen, onClose, order }) => {
               fontSize: '12px',
               fontWeight: 'bold',
               color: order.status === 'accepted' ? '#4CAF50' :
-                    order.status === 'rejected' ? '#F44336' :
-                    order.status === 'completed' ? '#9C27B0' : '#FF9800',
+                order.status === 'rejected' ? '#F44336' :
+                  order.status === 'completed' ? '#9C27B0' : '#FF9800',
               backgroundColor: order.status === 'accepted' ? '#E8F5E8' :
-                              order.status === 'rejected' ? '#FFEBEE' :
-                              order.status === 'completed' ? '#F3E5F5' : '#FFF3E0'
+                order.status === 'rejected' ? '#FFEBEE' :
+                  order.status === 'completed' ? '#F3E5F5' : '#FFF3E0'
             }}>
               {order.status.toUpperCase()}
             </span>
@@ -297,6 +297,29 @@ const OrderManagement = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (statusFilter) params.append('status', statusFilter);
+
+      const response = await api.get('/orders/admin/export-csv', {
+        params: params,
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `orders_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
     }
   };
 
@@ -580,6 +603,14 @@ const OrderManagement = () => {
                 <div className="flex justify-between items-center flex-wrap gap-4">
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-semibold text-[#212121]">Service Orders</span>
+                    <button
+                      onClick={handleDownloadCSV}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#4CAF50] text-white text-sm font-semibold rounded-lg hover:bg-[#43A047] transition-colors shadow-sm"
+                      style={{ boxShadow: '0 4px 14px rgba(76, 175, 80, 0.3)' }}
+                    >
+                      <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff' }} />
+                      Download CSV
+                    </button>
                   </div>
                   <div className="flex items-center gap-4">
                     <select
