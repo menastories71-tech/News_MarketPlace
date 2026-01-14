@@ -653,10 +653,15 @@ const WebsiteManagement = () => {
     if (!window.confirm(`Are you sure you want to ${newStatus} ${selectedWebsites.length} websites?`)) return;
 
     try {
-      await api.post('/websites/bulk/status', { ids: selectedWebsites, status: newStatus });
+      const response = await api.post('/websites/bulk/status', { ids: selectedWebsites, status: newStatus });
       setSelectedWebsites([]);
       fetchWebsites();
-      setMessage({ type: 'success', text: `Websites ${newStatus} successfully!` });
+
+      if (response.data.message) {
+        setMessage({ type: 'success', text: response.data.message });
+      } else {
+        setMessage({ type: 'success', text: `Websites ${newStatus} successfully!` });
+      }
     } catch (error) {
       console.error('Error bulk updating status:', error);
       setMessage({ type: 'error', text: 'Error updating websites. Please try again.' });
@@ -669,10 +674,15 @@ const WebsiteManagement = () => {
     if (!window.confirm(`Are you sure you want to delete ${selectedWebsites.length} websites?`)) return;
 
     try {
-      await api.post('/websites/bulk/delete', { ids: selectedWebsites });
+      const response = await api.post('/websites/bulk/delete', { ids: selectedWebsites });
       setSelectedWebsites([]);
       fetchWebsites();
-      setMessage({ type: 'success', text: 'Websites deleted successfully!' });
+
+      if (response.data.message) {
+        setMessage({ type: 'success', text: response.data.message });
+      } else {
+        setMessage({ type: 'success', text: 'Websites deleted successfully!' });
+      }
     } catch (error) {
       console.error('Error bulk deleting:', error);
       setMessage({ type: 'error', text: 'Error deleting websites. Please try again.' });

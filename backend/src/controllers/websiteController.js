@@ -879,8 +879,7 @@ class WebsiteController {
           if (website) {
             await website.update({
               status,
-              submitted_by_admin: adminId,
-              updated_at: new Date()
+              submitted_by_admin: adminId
             });
             return { id, success: true };
           }

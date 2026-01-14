@@ -333,12 +333,12 @@ class Website {
     allowedFields.forEach(field => {
       if (websiteData[field] !== undefined) {
         let value = websiteData[field];
-        
+
         // Convert JavaScript arrays to JSON strings for database
         if ((field === 'languages' || field === 'categories' || field === 'selected_continent' || field === 'selected_country' || field === 'selected_state') && Array.isArray(value)) {
           value = JSON.stringify(value);
         }
-        
+
         filteredData[field] = value;
       }
     });
@@ -372,18 +372,20 @@ class Website {
   }
 
   // Update website
-  async update(updateData) {
-    // For status updates, only validate the status field to avoid issues with existing invalid data
-    if ('status' in updateData) {
-      const validStatuses = ['pending', 'approved', 'rejected'];
-      if (!validStatuses.includes(updateData.status)) {
-        throw new Error('Validation errors: Status must be one of: pending, approved, rejected');
-      }
+  async update(updateData, options = {}) {
+    // Check if we should validate
+    // Skip validation if:
+    // 1. Explicitly requested via options.skipValidation
+    // 2. Only 'status' is being updated (legacy support)
+    // 3. Only 'is_active' is being updated (soft delete)
+    // 4. Multiple bulk update fields (status + metadata)
 
-      // For status updates, skip full validation to avoid issues with existing invalid data
-      // Only validate the status field
-    } else {
-      // For other updates (non-status updates), validate all fields
+    const fieldsToUpdate = Object.keys(updateData);
+    const isSoftDelete = fieldsToUpdate.includes('is_active') && fieldsToUpdate.length === 1;
+    const isStatusUpdate = fieldsToUpdate.includes('status');
+    const shouldSerialize = options.skipValidation || isSoftDelete || isStatusUpdate;
+
+    if (!shouldSerialize) {
       const validationErrors = Website.validate({ ...this, ...updateData });
       if (validationErrors.length > 0) {
         throw new Error(`Validation errors: ${validationErrors.join(', ')}`);
@@ -395,6 +397,9 @@ class Website {
     let paramCount = 1;
 
     Object.keys(updateData).forEach(key => {
+      // Skip updated_at as it is handled by SQL NOW()
+      if (key === 'updated_at') return;
+
       if (updateData[key] !== undefined) {
         fields.push(`${key} = $${paramCount}`);
         values.push(updateData[key]);
