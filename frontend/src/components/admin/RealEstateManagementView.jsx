@@ -205,6 +205,81 @@ const RealEstateManagementView = () => {
     return sortDirection === 'asc' ? '↑' : '↓';
   };
 
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await api.get('/admin/real-estates/template', {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'real_estate_template.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      alert('Failed to download template.');
+    }
+  };
+
+  const handleDownloadCSV = async () => {
+    try {
+      const params = new URLSearchParams({
+        ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
+        ...(statusFilter && { status: statusFilter })
+      });
+
+      const response = await api.get(`/admin/real-estates/export-csv?${params}`, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'real_estate_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV.');
+    }
+  };
+
+  const handleBulkUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    try {
+      const response = await api.post('/admin/real-estates/bulk-upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      let msg = response.data.message;
+      if (response.data.errors && response.data.errors.length > 0) {
+        msg += '\n\nErrors:\n' + response.data.errors.join('\n');
+      }
+      alert(msg);
+      fetchRealEstates();
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      let errorMsg = error.response?.data?.error || 'Failed to upload file.';
+      if (error.response?.data?.errors && error.response.data.errors.length > 0) {
+        errorMsg += '\n\n' + error.response.data.errors.join('\n');
+      }
+      alert(errorMsg);
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleViewRealEstate = (realEstate) => {
     setSelectedRealEstate(realEstate);
   };
