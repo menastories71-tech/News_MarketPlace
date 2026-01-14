@@ -535,7 +535,7 @@ class ReporterController {
   // Bulk approve reporters
   async bulkApprove(req, res) {
     try {
-      const { ids } = req.body;
+      const ids = req.body?.ids;
 
       if (!Array.isArray(ids) || ids.length === 0) {
         return res.status(400).json({ error: 'IDs array is required' });
@@ -606,14 +606,16 @@ class ReporterController {
       });
     } catch (error) {
       console.error('Bulk approve reporters error:', error);
-      res.status(500).json({ error: `Bulk approve failed: ${error.message} | AdminID: ${req.admin?.adminId || req.admin?.id} | IDs: ${req.body?.ids?.length}` });
+      res.status(500).json({ error: `Bulk approve failed: ${error.message} | Valid Body: ${!!req.body}` });
     }
   }
 
   // Bulk reject reporters
   async bulkReject(req, res) {
     try {
-      const { ids, rejection_reason, admin_comments } = req.body;
+      const ids = req.body?.ids;
+      const rejection_reason = req.body?.rejection_reason;
+      const admin_comments = req.body?.admin_comments;
 
       if (!Array.isArray(ids) || ids.length === 0) {
         return res.status(400).json({ error: 'IDs array is required' });
@@ -689,7 +691,7 @@ class ReporterController {
       });
     } catch (error) {
       console.error('Bulk reject reporters error:', error);
-      res.status(500).json({ error: `Bulk reject failed: ${error.message} | AdminID: ${req.admin?.adminId || req.admin?.id} | IDs: ${req.body?.ids?.length}` });
+      res.status(500).json({ error: `Bulk reject failed: ${error.message} | Valid Body: ${!!req.body}` });
     }
   }
 
