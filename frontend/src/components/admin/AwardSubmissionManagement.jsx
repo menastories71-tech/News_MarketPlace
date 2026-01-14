@@ -3,6 +3,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import api from '../../services/api';
+import { Download } from 'lucide-react';
 
 // Award Submission Details Modal Component
 const AwardSubmissionDetailsModal = ({ isOpen, onClose, submission }) => {
@@ -200,6 +201,8 @@ const AwardSubmissionManagement = () => {
   const [genderFilter, setGenderFilter] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
   const [awards, setAwards] = useState([]);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Check if user has permission to manage award submissions
   if (!hasAnyRole(['super_admin', 'content_manager'])) {
@@ -417,6 +420,49 @@ const AwardSubmissionManagement = () => {
   const handleViewDetails = (submission) => {
     setSelectedSubmission(submission);
     setShowDetailsModal(true);
+  };
+
+  const handleDownloadCSV = async (downloadAll = false) => {
+    try {
+      setDownloading(true);
+      const params = new URLSearchParams();
+
+      if (!downloadAll) {
+        if (debouncedSearchTerm) {
+          params.append('name', debouncedSearchTerm);
+          params.append('email', debouncedSearchTerm);
+          params.append('current_company', debouncedSearchTerm);
+        }
+        if (awardFilter) params.append('award_id', awardFilter);
+        if (receiveFilter) params.append('interested_receive_award', receiveFilter);
+        if (sponsorFilter) params.append('interested_sponsor_award', sponsorFilter);
+        if (speakFilter) params.append('interested_speak_award', speakFilter);
+        if (exhibitFilter) params.append('interested_exhibit_award', exhibitFilter);
+        if (attendFilter) params.append('interested_attend_award', attendFilter);
+        if (genderFilter) params.append('gender', genderFilter);
+        if (industryFilter) params.append('company_industry', industryFilter);
+      }
+
+      const response = await api.get(`/award-submissions/download-csv?${params.toString()}`, {
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `award_submissions_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setShowDownloadModal(false);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
   };
 
   // Debounced search
@@ -847,50 +893,23 @@ const AwardSubmissionManagement = () => {
                       <option value="100">100 per page</option>
                     </select>
                     <button
-                      onClick={() => {
-                        // Export filtered results as CSV
-                        const headers = ['Name', 'Email', 'Award Name', 'Receive Award', 'Sponsor Award', 'Speak Award', 'Exhibit Award', 'Attend Award', 'Gender', 'Company', 'Position', 'Industry', 'Created At'];
-                        const csvData = [
-                          headers.join(','),
-                          ...filteredSubmissions.map(submission => [
-                            `"${submission.name}"`,
-                            `"${submission.email}"`,
-                            `"${submission.award_name || ''}"`,
-                            submission.interested_receive_award ? 'Yes' : 'No',
-                            submission.interested_sponsor_award ? 'Yes' : 'No',
-                            submission.interested_speak_award ? 'Yes' : 'No',
-                            submission.interested_exhibit_award ? 'Yes' : 'No',
-                            submission.interested_attend_award ? 'Yes' : 'No',
-                            `"${submission.gender || ''}"`,
-                            `"${submission.current_company || ''}"`,
-                            `"${submission.position || ''}"`,
-                            `"${submission.company_industry || ''}"`,
-                            `"${formatDate(submission.created_at)}"`
-                          ].join(','))
-                        ].join('\n');
-
-                        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-                        const link = document.createElement('a');
-                        const url = URL.createObjectURL(blob);
-                        link.setAttribute('href', url);
-                        link.setAttribute('download', `award_submissions_export_${new Date().toISOString().split('T')[0]}.csv`);
-                        link.style.visibility = 'hidden';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
+                      onClick={() => setShowDownloadModal(true)}
                       style={{
                         padding: '8px 16px',
-                        backgroundColor: theme.primary,
+                        backgroundColor: theme.secondary,
                         color: '#fff',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '14px',
                         cursor: 'pointer',
-                        fontWeight: '500'
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
                       }}
                     >
-                      Export CSV
+                      <Download size={16} />
+                      Download CSV
                     </button>
                   </div>
                 </div>
@@ -933,12 +952,12 @@ const AwardSubmissionManagement = () => {
                         backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc',
                         transition: 'all 0.2s'
                       }}
-                      onMouseEnter={(e) => {
-                        e.target.closest('tr').style.backgroundColor = '#f1f5f9';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
-                      }}
+                        onMouseEnter={(e) => {
+                          e.target.closest('tr').style.backgroundColor = '#f1f5f9';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
+                        }}
                       >
                         <td style={{ padding: '16px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -1168,9 +1187,73 @@ const AwardSubmissionManagement = () => {
         onClose={() => setShowDetailsModal(false)}
         submission={selectedSubmission}
       />
+
+      {/* Download Options Modal */}
+      {showDownloadModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, padding: '20px'
+        }}>
+          <div style={{
+            background: '#fff', borderRadius: '12px', padding: '24px', maxWidth: '450px', width: '100%', boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '700' }}>Download CSV</h3>
+              <button onClick={() => setShowDownloadModal(false)} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#9ca3af' }}>×</button>
+            </div>
+
+            <p style={{ color: '#4b5563', marginBottom: '24px' }}>Choose how you want to download award submissions data:</p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <button
+                onClick={() => handleDownloadCSV(false)}
+                disabled={downloading}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px',
+                  border: '2px solid #e5e7eb', borderRadius: '8px', background: '#fff', cursor: 'pointer', textAlign: 'left',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.secondary; e.currentTarget.style.backgroundColor = theme.secondaryLight; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.backgroundColor = '#fff'; }}
+              >
+                <div>
+                  <div style={{ fontWeight: '600', color: '#111827' }}>Download Filtered Data</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                    Export based on current search & filters
+                  </div>
+                </div>
+                <Download size={20} style={{ color: theme.secondary }} />
+              </button>
+
+              <button
+                onClick={() => handleDownloadCSV(true)}
+                disabled={downloading}
+                style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px',
+                  border: '2px solid #e5e7eb', borderRadius: '8px', background: '#fff', cursor: 'pointer', textAlign: 'left',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.primary; e.currentTarget.style.backgroundColor = theme.primaryLight; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e5e7eb'; e.currentTarget.style.backgroundColor = '#fff'; }}
+              >
+                <div>
+                  <div style={{ fontWeight: '600', color: '#111827' }}>Download All Data</div>
+                  <div style={{ fontSize: '12px', color: '#6b7280' }}>Export all submissions from database</div>
+                </div>
+                <Download size={20} style={{ color: theme.primary }} />
+              </button>
+            </div>
+
+            {downloading && (
+              <div style={{ marginTop: '20px', textAlign: 'center', color: theme.textSecondary }}>
+                Preparing download...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default AwardSubmissionManagement;
-                       

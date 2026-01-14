@@ -209,6 +209,186 @@ class AwardSubmissionController {
     }
   }
 
+  // Download Submissions as CSV (admin only)
+  async downloadCSV(req, res) {
+    try {
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const {
+        award_id,
+        interested_receive_award,
+        interested_sponsor_award,
+        interested_speak_award,
+        interested_exhibit_award,
+        interested_attend_award,
+        gender,
+        company_industry,
+        name,
+        email,
+        current_company
+      } = req.query;
+
+      const filters = {};
+      if (award_id) filters.award_id = award_id;
+      if (interested_receive_award !== undefined) filters.interested_receive_award = interested_receive_award === 'true';
+      if (interested_sponsor_award !== undefined) filters.interested_sponsor_award = interested_sponsor_award === 'true';
+      if (interested_speak_award !== undefined) filters.interested_speak_award = interested_speak_award === 'true';
+      if (interested_exhibit_award !== undefined) filters.interested_exhibit_award = interested_exhibit_award === 'true';
+      if (interested_attend_award !== undefined) filters.interested_attend_award = interested_attend_award === 'true';
+      if (gender) filters.gender = gender;
+      if (company_industry) filters.company_industry = company_industry;
+
+      // Add search filters
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (name) {
+        searchSql += ` AND asub.name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${name}%`);
+        searchParamCount++;
+      }
+
+      if (email) {
+        searchSql += ` AND asub.email ILIKE $${searchParamCount}`;
+        searchValues.push(`%${email}%`);
+        searchParamCount++;
+      }
+
+      if (current_company) {
+        searchSql += ` AND asub.current_company ILIKE $${searchParamCount}`;
+        searchValues.push(`%${current_company}%`);
+        searchParamCount++;
+      }
+
+      // Get ALL matching records (pass null for limit/offset)
+      const submissions = await AwardSubmission.findAll(filters, searchSql, searchValues, null, null);
+
+      const headers = ['Name', 'Email', 'Award Name', 'Receive Award', 'Sponsor Award', 'Speak Award', 'Exhibit Award', 'Attend Award', 'Gender', 'Company', 'Position', 'Industry', 'Created At'];
+      let csv = headers.join(',') + '\n';
+
+      submissions.forEach(s => {
+        const row = [
+          `"${(s.name || '').replace(/"/g, '""')}"`,
+          `"${(s.email || '').replace(/"/g, '""')}"`,
+          `"${(s.award_name || '').replace(/"/g, '""')}"`,
+          s.interested_receive_award ? 'Yes' : 'No',
+          s.interested_sponsor_award ? 'Yes' : 'No',
+          s.interested_speak_award ? 'Yes' : 'No',
+          s.interested_exhibit_award ? 'Yes' : 'No',
+          s.interested_attend_award ? 'Yes' : 'No',
+          `"${(s.gender || '').replace(/"/g, '""')}"`,
+          `"${(s.current_company || '').replace(/"/g, '""')}"`,
+          `"${(s.position || '').replace(/"/g, '""')}"`,
+          `"${(s.company_industry || '').replace(/"/g, '""')}"`,
+          s.created_at ? new Date(s.created_at).toISOString() : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      const filename = `award_submissions_${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.status(200).send(csv);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download Submissions as CSV (admin only)
+  async downloadCSV(req, res) {
+    try {
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const {
+        award_id,
+        interested_receive_award,
+        interested_sponsor_award,
+        interested_speak_award,
+        interested_exhibit_award,
+        interested_attend_award,
+        gender,
+        company_industry,
+        name,
+        email,
+        current_company
+      } = req.query;
+
+      const filters = {};
+      if (award_id) filters.award_id = award_id;
+      if (interested_receive_award !== undefined) filters.interested_receive_award = interested_receive_award === 'true';
+      if (interested_sponsor_award !== undefined) filters.interested_sponsor_award = interested_sponsor_award === 'true';
+      if (interested_speak_award !== undefined) filters.interested_speak_award = interested_speak_award === 'true';
+      if (interested_exhibit_award !== undefined) filters.interested_exhibit_award = interested_exhibit_award === 'true';
+      if (interested_attend_award !== undefined) filters.interested_attend_award = interested_attend_award === 'true';
+      if (gender) filters.gender = gender;
+      if (company_industry) filters.company_industry = company_industry;
+
+      // Add search filters
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (name) {
+        searchSql += ` AND asub.name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${name}%`);
+        searchParamCount++;
+      }
+
+      if (email) {
+        searchSql += ` AND asub.email ILIKE $${searchParamCount}`;
+        searchValues.push(`%${email}%`);
+        searchParamCount++;
+      }
+
+      if (current_company) {
+        searchSql += ` AND asub.current_company ILIKE $${searchParamCount}`;
+        searchValues.push(`%${current_company}%`);
+        searchParamCount++;
+      }
+
+      // Get ALL matching records (pass null for limit/offset)
+      const submissions = await AwardSubmission.findAll(filters, searchSql, searchValues, null, null);
+
+      const headers = ['Name', 'Email', 'Award Name', 'Receive Award', 'Sponsor Award', 'Speak Award', 'Exhibit Award', 'Attend Award', 'Gender', 'Company', 'Position', 'Industry', 'Created At'];
+      let csv = headers.join(',') + '\n';
+
+      submissions.forEach(s => {
+        const row = [
+          `"${(s.name || '').replace(/"/g, '""')}"`,
+          `"${(s.email || '').replace(/"/g, '""')}"`,
+          `"${(s.award_name || '').replace(/"/g, '""')}"`,
+          s.interested_receive_award ? 'Yes' : 'No',
+          s.interested_sponsor_award ? 'Yes' : 'No',
+          s.interested_speak_award ? 'Yes' : 'No',
+          s.interested_exhibit_award ? 'Yes' : 'No',
+          s.interested_attend_award ? 'Yes' : 'No',
+          `"${(s.gender || '').replace(/"/g, '""')}"`,
+          `"${(s.current_company || '').replace(/"/g, '""')}"`,
+          `"${(s.position || '').replace(/"/g, '""')}"`,
+          `"${(s.company_industry || '').replace(/"/g, '""')}"`,
+          s.created_at ? new Date(s.created_at).toISOString() : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      const filename = `award_submissions_${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.status(200).send(csv);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Email template generator
   static generateSubmissionEmailTemplate(name, awardName) {
     return `

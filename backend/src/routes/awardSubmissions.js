@@ -13,6 +13,8 @@ router.post('/', verifyToken, awardSubmissionController.submitValidation, awardS
 // Admin routes for managing submissions
 router.get('/', verifyAdminToken, requireAdminPanelAccess, awardSubmissionController.getAll);
 
+router.get('/download-csv', verifyAdminToken, requireAdminPanelAccess, (req, res) => awardSubmissionController.downloadCSV(req, res));
+
 // Admin search route
 router.get('/search', verifyAdminToken, requireAdminPanelAccess, awardSubmissionController.search);
 
