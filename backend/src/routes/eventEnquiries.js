@@ -11,6 +11,7 @@ const {
 router.post('/', eventEnquiryController.submitValidation, eventEnquiryController.submitEnquiry);
 
 // Admin routes (admins can view and manage event enquiries)
+router.get('/admin/download-csv', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_event_enquiries'), eventEnquiryController.downloadCSV);
 router.get('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_event_enquiries'), eventEnquiryController.getAll);
 router.get('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_event_enquiries'), eventEnquiryController.getById);
 router.put('/admin/:id/status', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_event_enquiries'), eventEnquiryController.updateStatusValidation, eventEnquiryController.updateStatus);

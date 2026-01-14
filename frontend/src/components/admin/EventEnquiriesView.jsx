@@ -3,6 +3,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import api from '../../services/api';
+import { Download } from 'lucide-react';
 
 // Brand colors from Color palette .pdf - using only defined colors
 const theme = {
@@ -48,6 +49,7 @@ const EventEnquiriesView = () => {
 
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFromFilter, setDateFromFilter] = useState('');
@@ -282,6 +284,28 @@ const EventEnquiriesView = () => {
     return { total, newCount, viewed };
   };
 
+  const handleDownloadCSV = async () => {
+    setDownloading(true);
+    try {
+      const response = await api.get('/event-enquiries/admin/download-csv', {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'event_enquiries_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   const stats = getEnquiryStats();
 
   if (loading) {
@@ -493,6 +517,28 @@ const EventEnquiriesView = () => {
                 </div>
                 <p style={{ marginTop: 8, color: '#757575' }}>View event media partnership enquiries</p>
               </div>
+
+              <button
+                onClick={handleDownloadCSV}
+                disabled={downloading}
+                style={{
+                  ...btnPrimary,
+                  backgroundColor: '#fff',
+                  color: '#1976D2',
+                  border: '1px solid #1976D2',
+                  boxShadow: 'none',
+                  fontSize: '14px',
+                  padding: '10px 16px',
+                  opacity: downloading ? 0.7 : 1
+                }}
+              >
+                {downloading ? (
+                  <span style={{ width: 16, height: 16, border: '2px solid #1976D2', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: 8 }}></span>
+                ) : (
+                  <Download size={16} style={{ color: '#1976D2', marginRight: 8 }} />
+                )}
+                {downloading ? 'Downloading...' : 'Download CSV'}
+              </button>
             </div>
 
             {/* Stats Cards */}

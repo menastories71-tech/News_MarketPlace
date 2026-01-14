@@ -61,6 +61,60 @@ class EventEnquiryController {
     }
   }
 
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      const sqlQuery = `SELECT * FROM event_enquiries ORDER BY created_at DESC`;
+      const result = await query(sqlQuery);
+
+      const headers = [
+        'ID', 'Event Name', 'Event Type', 'City', 'Country', 'Event Date',
+        'Website', 'Contact Person', 'Email', 'Phone', 'Company',
+        'Booth Provided', 'Comments', 'Status', 'Created At'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      result.rows.forEach(row => {
+        const escape = (text) => {
+          if (text === null || text === undefined) return '';
+          const stringValue = String(text);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        };
+
+        const line = [
+          row.id,
+          escape(row.event_name),
+          escape(row.event_type),
+          escape(row.city),
+          escape(row.country),
+          escape(row.event_date),
+          escape(row.website_url),
+          escape(row.contact_person_name),
+          escape(row.contact_person_email),
+          escape(row.contact_person_phone),
+          escape(row.market_company_name),
+          escape(row.provide_booth ? 'Yes' : 'No'),
+          escape(row.comments),
+          escape(row.status),
+          escape(new Date(row.created_at).toISOString().split('T')[0])
+        ].join(',');
+
+        csv += line + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=event_enquiries_export.csv');
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Failed to generate CSV' });
+    }
+  }
+
   // Get all enquiries (admin only)
   async getAll(req, res) {
     try {
