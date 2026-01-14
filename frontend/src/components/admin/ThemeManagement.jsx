@@ -1639,6 +1639,162 @@ const ThemeManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Bulk Upload Modal */}
+      {isUploadModalOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#fff',
+            borderRadius: '12px',
+            padding: '24px',
+            maxWidth: '500px',
+            width: '100%',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+          }}>
+            <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600', color: theme.textPrimary }}>
+                Bulk Upload Themes
+              </h3>
+              <button
+                onClick={() => {
+                  setIsUploadModalOpen(false);
+                  setUploadFile(null);
+                  setUploadStatus(null);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: theme.textSecondary
+                }}
+              >
+                <Icon name="x" size="sm" />
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <p style={{ margin: '0 0 16px 0', color: theme.textSecondary, fontSize: '14px' }}>
+                Upload a CSV file to add multiple themes at once.
+                Please ensure your file follows the template format.
+              </p>
+
+              <div style={{
+                border: `2px dashed ${theme.borderMedium}`,
+                borderRadius: '8px',
+                padding: '32px',
+                textAlign: 'center',
+                backgroundColor: theme.backgroundAlt,
+                position: 'relative'
+              }}>
+                <input
+                  type="file"
+                  accept=".csv"
+                  onChange={(e) => setUploadFile(e.target.files[0])}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    opacity: 0,
+                    cursor: 'pointer'
+                  }}
+                />
+                <Icon name="arrow-up-tray" size="lg" style={{ color: theme.primary, marginBottom: '12px' }} />
+                <div style={{ fontSize: '14px', fontWeight: '500', color: theme.textPrimary, marginBottom: '4px' }}>
+                  {uploadFile ? uploadFile.name : 'Click or drop file here'}
+                </div>
+                <div style={{ fontSize: '12px', color: theme.textSecondary }}>
+                  CSV files only (max 5MB)
+                </div>
+              </div>
+
+              {uploadStatus && (
+                <div style={{
+                  marginTop: '16px',
+                  padding: '12px',
+                  borderRadius: '6px',
+                  backgroundColor: uploadStatus.type === 'success' ? '#dcfce7' : '#fee2e2',
+                  color: uploadStatus.type === 'success' ? '#166534' : '#991b1b',
+                  fontSize: '14px'
+                }}>
+                  <div style={{ fontWeight: '500', marginBottom: uploadStatus.errors ? '4px' : '0' }}>
+                    {uploadStatus.message}
+                  </div>
+                  {uploadStatus.errors && (
+                    <ul style={{ margin: '4px 0 0 0', paddingLeft: '20px' }}>
+                      {uploadStatus.errors.map((err, idx) => (
+                        <li key={idx}>{err}</li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  setIsUploadModalOpen(false);
+                  setUploadFile(null);
+                  setUploadStatus(null);
+                }}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#f3f4f6',
+                  color: theme.textPrimary,
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkUpload}
+                disabled={!uploadFile || isUploading}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: theme.primary,
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  cursor: (!uploadFile || isUploading) ? 'not-allowed' : 'pointer',
+                  fontWeight: '500',
+                  opacity: (!uploadFile || isUploading) ? 0.7 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
+              >
+                {isUploading ? (
+                  <>Processing...</>
+                ) : (
+                  <>
+                    <Icon name="arrow-up-tray" size="sm" style={{ color: '#fff' }} />
+                    Upload
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
