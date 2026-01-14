@@ -6,6 +6,192 @@ const path = require('path');
 const sharp = require('sharp');
 
 class AdminEventCreationController {
+  constructor() {
+    const multer = require('multer');
+    this.storage = multer.memoryStorage();
+    this.csvUpload = multer({
+      storage: this.storage,
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'text/csv' || file.mimetype === 'application/vnd.ms-excel') {
+          cb(null, true);
+        } else {
+          cb(new Error('Only CSV files are allowed'));
+        }
+      }
+    });
+
+    this.downloadTemplate = this.downloadTemplate.bind(this);
+    this.bulkUpload = this.bulkUpload.bind(this);
+    this.downloadCSV = this.downloadCSV.bind(this);
+  }
+
+  // Download CSV Template
+  async downloadTemplate(req, res) {
+    try {
+      const headers = [
+        'Event Name', 'Organiser Name', 'URL', 'Tentative Month', 'Industry',
+        'Regional Focused', 'Event Country', 'Event City', 'Focus (Company/Individual)'
+      ];
+
+      const dummyData = [
+        ['Global Tech Summit', 'Tech Corp', 'https://example.com', 'June', 'Technology', 'North America', 'USA', 'San Francisco', 'Company'],
+        ['Local Meetup', 'Community Org', 'https://meetup.com', 'July', 'General', 'Europe', 'UK', 'London', 'Individual']
+      ];
+
+      let csv = headers.join(',') + '\n';
+      dummyData.forEach(row => {
+        csv += row.map(val => `"${val}"`).join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=event_creation_template.csv');
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download template error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Bulk Upload
+  async bulkUpload(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a CSV file' });
+      }
+
+      const csvParser = require('csv-parser');
+      const { Readable } = require('stream');
+
+      const results = [];
+      const stream = Readable.from(req.file.buffer.toString());
+
+      stream
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            const createdRecords = [];
+            const errors = [];
+
+            for (const [index, row] of results.entries()) {
+              try {
+                // Map fields
+                const event_name = row['Event Name'] || row['event_name'];
+                const event_organiser_name = row['Organiser Name'] || row['event_organiser_name'];
+
+                if (!event_name || !event_organiser_name) {
+                  throw new Error('Event Name and Organiser Name are required');
+                }
+
+                const eventData = {
+                  event_name,
+                  event_organiser_name,
+                  url: row['URL'] || row['url'] || '',
+                  tentative_month: row['Tentative Month'] || row['tentative_month'] || '',
+                  industry: row['Industry'] || row['industry'] || '',
+                  regional_focused: row['Regional Focused'] || row['regional_focused'] || '',
+                  event_country: row['Event Country'] || row['event_country'] || '',
+                  event_city: row['Event City'] || row['event_city'] || '',
+                  company_focused_individual_focused: row['Focus (Company/Individual)'] || row['focus'] || row['company_focused_individual_focused'] || '',
+                  image: '' // No image in bulk upload
+                };
+
+                const newEvent = await EventCreation.create(eventData);
+                createdRecords.push(newEvent);
+              } catch (err) {
+                errors.push(`Row ${index + 1}: ${err.message}`);
+              }
+            }
+
+            res.json({
+              message: `Bulk upload completed. ${createdRecords.length} records created.`,
+              count: createdRecords.length,
+              errors: errors.length > 0 ? errors : undefined
+            });
+          } catch (error) {
+            console.error('Processing batch error:', error);
+            res.status(500).json({ error: 'Error processing bulk upload' });
+          }
+        });
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      const {
+        industry,
+        regional_focused,
+        event_country,
+        event_name,
+        search
+      } = req.query;
+
+      const whereClause = {};
+
+      if (search) {
+        whereClause.search = { val: search };
+      } else {
+        if (industry) whereClause.industry = industry;
+        if (regional_focused) whereClause.regional_focused = regional_focused;
+        if (event_country) whereClause.event_country = event_country;
+        if (event_name) whereClause.event_name = event_name;
+      }
+
+      // Fetch all matching records (limit: null)
+      const { rows } = await EventCreation.findAndCountAll({
+        where: whereClause,
+        limit: null,
+        offset: null,
+        order: [['created_at', 'DESC']]
+      });
+
+      const headers = [
+        'ID', 'Event Name', 'Organiser Name', 'URL', 'Tentative Month',
+        'Industry', 'Regional Focused', 'Event Country', 'Event City', 'Focus', 'Created At'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      rows.forEach(event => {
+        const escape = (text) => {
+          if (text === null || text === undefined) return '';
+          const stringValue = String(text);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        };
+
+        const row = [
+          event.id,
+          escape(event.event_name),
+          escape(event.event_organiser_name),
+          escape(event.url),
+          escape(event.tentative_month),
+          escape(event.industry),
+          escape(event.regional_focused),
+          escape(event.event_country),
+          escape(event.event_city),
+          escape(event.company_focused_individual_focused),
+          event.created_at ? new Date(event.created_at).toISOString().split('T')[0] : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=event_creations_export.csv');
+      res.status(200).send(csv);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Validation rules for create
   createValidation = [
     body('event_name').trim().isLength({ min: 1 }).withMessage('Event name is required'),

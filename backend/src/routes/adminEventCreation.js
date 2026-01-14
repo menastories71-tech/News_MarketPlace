@@ -37,6 +37,26 @@ router.get('/test', (req, res) => {
   res.json({ message: 'Admin Event Creation test route working!' });
 });
 
+// Bulk/CSV Routes
+router.get('/download-template',
+  verifyAdminToken,
+  requireAdminPanelAccess,
+  adminEventCreationController.downloadTemplate
+);
+
+router.post('/bulk-upload',
+  verifyAdminToken,
+  requireAdminPanelAccess,
+  adminEventCreationController.csvUpload.single('file'),
+  adminEventCreationController.bulkUpload
+);
+
+router.get('/download-csv',
+  verifyAdminToken,
+  requireAdminPanelAccess,
+  adminEventCreationController.downloadCSV
+);
+
 // Get all event creations
 router.get('/',
   verifyAdminToken,

@@ -3,6 +3,125 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../../components/common/Icon';
 import Sidebar from '../../components/admin/Sidebar';
 import api from '../../services/api';
+import { Download, Upload, FileDown, CheckCircle2, AlertCircle, X } from 'lucide-react';
+
+// Bulk Upload Modal
+const BulkUploadModal = ({ isOpen, onClose, onUpload, loading }) => {
+  const [file, setFile] = useState(null);
+
+  if (!isOpen) return null;
+
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const modalStyle = {
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
+  };
+
+  const contentStyle = {
+    background: '#fff', borderRadius: '12px', padding: '24px', maxWidth: '500px', width: '90%',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+  };
+
+  return (
+    <div style={modalStyle} onClick={onClose}>
+      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>Bulk Upload Events</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+        </div>
+
+        <div style={{ padding: '30px', border: '2px dashed #e0e0e0', borderRadius: '8px', textAlign: 'center', marginBottom: '20px' }}>
+          <Upload size={48} style={{ color: '#bdbdbd', marginBottom: '10px' }} />
+          <p style={{ margin: '0 0 10px 0', color: '#616161' }}>Drag and drop your CSV file here</p>
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+            id="bulk-upload-input"
+          />
+          <label
+            htmlFor="bulk-upload-input"
+            style={{
+              padding: '8px 16px', background: '#1976D2', color: '#fff', borderRadius: '4px', cursor: 'pointer', display: 'inline-block'
+            }}
+          >
+            Browse File
+          </label>
+          {file && <div style={{ marginTop: '10px', fontWeight: '500' }}>{file.name}</div>}
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+          <button onClick={onClose} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer', background: '#f5f5f5' }}>Cancel</button>
+          <button
+            onClick={() => onUpload(file)}
+            disabled={!file || loading}
+            style={{
+              padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+              background: (!file || loading) ? '#bdbdbd' : '#1976D2', color: '#fff'
+            }}
+          >
+            {loading ? 'Uploading...' : 'Upload'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Download Options Modal
+const DownloadOptionsModal = ({ isOpen, onClose, onDownload, onDownloadTemplate }) => {
+  if (!isOpen) return null;
+
+  const modalStyle = {
+    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000
+  };
+
+  const contentStyle = {
+    background: '#fff', borderRadius: '12px', padding: '24px', maxWidth: '400px', width: '90%',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+  };
+
+  const buttonStyle = {
+    display: 'flex', alignItems: 'center', width: '100%', padding: '12px', marginBottom: '10px',
+    borderRadius: '8px', border: '1px solid #e0e0e0', background: '#fff', cursor: 'pointer',
+    textAlign: 'left', gap: '10px', fontSize: '14px', fontWeight: '500'
+  };
+
+  return (
+    <div style={modalStyle} onClick={onClose}>
+      <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: '20px', fontWeight: 'bold' }}>Download Options</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+        </div>
+
+        <button onClick={() => onDownload(true)} style={buttonStyle}>
+          <FileDown size={20} color="#1976D2" />
+          Download Filtered CSV
+        </button>
+
+        <button onClick={() => onDownload(false)} style={buttonStyle}>
+          <Download size={20} color="#4CAF50" />
+          Download All CSV
+        </button>
+
+        <div style={{ borderTop: '1px solid #e0e0e0', margin: '15px 0' }} />
+
+        <button onClick={onDownloadTemplate} style={buttonStyle}>
+          <FileDown size={20} color="#FF9800" />
+          Download CSV Template
+        </button>
+      </div>
+    </div>
+  );
+};
 
 // Event Creation Form Modal Component
 const EventCreationFormModal = ({ isOpen, onClose, record, onSave }) => {
@@ -478,6 +597,11 @@ const EventCreationPage = () => {
   const [pageSize, setPageSize] = useState(25);
   const [message, setMessage] = useState(null);
 
+  // CSV/Bulk State
+  const [downloadModalOpen, setDownloadModalOpen] = useState(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
   // Search and Filter State
   const [search, setSearch] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
@@ -608,6 +732,83 @@ const EventCreationPage = () => {
   const handleEditRecord = (record) => {
     setEditingRecord(record);
     setShowFormModal(true);
+  };
+
+  // CSV Handlers
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await api.get('/admin/event-creations/download-template', {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'event_creation_template.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Download template error:', error);
+      alert('Failed to download template');
+    }
+  };
+
+  const handleDownloadCSV = async (filtered) => {
+    try {
+      let endpoint = '/admin/event-creations/download-csv';
+      if (filtered) {
+        const params = new URLSearchParams();
+        if (search) params.append('search', search);
+        if (industryFilter) params.append('industry', industryFilter);
+        if (regionalFilter) params.append('regional_focused', regionalFilter);
+        if (countryFilter) params.append('event_country', countryFilter);
+        endpoint += `?${params.toString()}`;
+      }
+
+      const response = await api.get(endpoint, {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'event_creations_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setDownloadModalOpen(false);
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      alert('Failed to download CSV');
+    }
+  };
+
+  const handleBulkUpload = async (file) => {
+    if (!file) return;
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await api.post('/admin/event-creations/bulk-upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      alert(response.data.message);
+      if (response.data.errors && response.data.errors.length > 0) {
+        alert('Some errors occurred:\n' + response.data.errors.join('\n'));
+      }
+
+      setUploadModalOpen(false);
+      fetchRecords(); // Refresh list
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      alert(error.response?.data?.error || 'Failed to upload CSV');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleDeleteRecord = async (recordId) => {
@@ -773,13 +974,29 @@ const EventCreationPage = () => {
                 <p style={{ marginTop: 8, color: '#757575' }}>Manage event creation records</p>
               </div>
 
-              <button
-                onClick={handleCreateRecord}
-                style={btnPrimary}
-              >
-                <Icon name="plus-circle" size="sm" style={{ color: '#fff' }} />
-                Add Record
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  onClick={() => setUploadModalOpen(true)}
+                  style={btnPrimary}
+                >
+                  <Upload size={16} style={{ marginRight: '8px' }} />
+                  Bulk Upload
+                </button>
+                <button
+                  onClick={() => setDownloadModalOpen(true)}
+                  style={btnPrimary}
+                >
+                  <Download size={16} style={{ marginRight: '8px' }} />
+                  Download
+                </button>
+                <button
+                  onClick={handleCreateRecord}
+                  style={btnPrimary}
+                >
+                  <Icon name="plus-circle" size="sm" style={{ color: '#fff' }} />
+                  Add Record
+                </button>
+              </div>
             </div>
 
             {/* Stats Cards */}
@@ -1183,6 +1400,20 @@ const EventCreationPage = () => {
         onClose={() => setShowFormModal(false)}
         record={editingRecord}
         onSave={handleFormSave}
+      />
+
+      <BulkUploadModal
+        isOpen={uploadModalOpen}
+        onClose={() => setUploadModalOpen(false)}
+        onUpload={handleBulkUpload}
+        loading={uploading}
+      />
+
+      <DownloadOptionsModal
+        isOpen={downloadModalOpen}
+        onClose={() => setDownloadModalOpen(false)}
+        onDownload={handleDownloadCSV}
+        onDownloadTemplate={handleDownloadTemplate}
       />
     </div>
   );
