@@ -757,6 +757,7 @@ const downloadCSV = async (req, res) => {
 
     const result = await pool.query(sql, queryParams);
     const orders = result.rows;
+    await pool.end();
 
     const headers = [
       'Order ID', 'Customer Name', 'Customer Email', 'WhatsApp', 'Calling Number',
@@ -800,6 +801,17 @@ const downloadCSV = async (req, res) => {
         return stringValue;
       };
 
+      const formatDate = (dateVal) => {
+        if (!dateVal) return '';
+        try {
+          const d = new Date(dateVal);
+          if (isNaN(d.getTime())) return '';
+          return d.toISOString().split('T')[0];
+        } catch (e) {
+          return '';
+        }
+      };
+
       const row = [
         order.id,
         escape(order.customer_name),
@@ -814,7 +826,7 @@ const downloadCSV = async (req, res) => {
         escape(additionalData.submitted_by_type),
         additionalData.content_writing_assistance ? 'Yes' : 'No',
         escape(order.status),
-        order.created_at ? new Date(order.created_at).toISOString().split('T')[0] : '',
+        formatDate(order.created_at),
         escape(order.admin_notes)
       ];
       csv += row.join(',') + '\n';
@@ -826,7 +838,7 @@ const downloadCSV = async (req, res) => {
 
   } catch (error) {
     console.error('Download CSV error:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    res.status(500).json({ error: 'Internal server error', details: error.message, stack: error.stack });
   }
 };
 
