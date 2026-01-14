@@ -1,10 +1,99 @@
-
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import CareerFormModal from './CareerFormModal';
 import api from '../../services/api';
+import { Download } from 'lucide-react';
+
+// Download Options Modal
+const DownloadOptionsModal = ({ isOpen, onClose, onDownload }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 10000,
+      padding: '20px'
+    }} onClick={onClose}>
+      <div style={{
+        background: '#fff',
+        borderRadius: '12px',
+        padding: '24px',
+        width: '100%',
+        maxWidth: '400px',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+      }} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: '#111827' }}>Download Options</h3>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#6b7280' }}>×</button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <button
+            onClick={() => onDownload(false)}
+            style={{
+              padding: '12px',
+              backgroundColor: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '8px',
+              color: '#1d4ed8',
+              fontWeight: '600',
+              cursor: 'pointer',
+              textAlign: 'left',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              fontSize: '14px'
+            }}
+          >
+            <div style={{ padding: '8px', backgroundColor: '#fff', borderRadius: '6px' }}>
+              <Download size={16} />
+            </div>
+            <div>
+              <div style={{ fontWeight: '700' }}>Filtered Data</div>
+              <div style={{ fontSize: '12px', fontWeight: '400', marginTop: '2px' }}>Download only currently visible records</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => onDownload(true)}
+            style={{
+              padding: '12px',
+              backgroundColor: '#f0fdf4',
+              border: '1px solid #bbf7d0',
+              borderRadius: '8px',
+              color: '#15803d',
+              fontWeight: '600',
+              cursor: 'pointer',
+              textAlign: 'left',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              fontSize: '14px'
+            }}
+          >
+            <div style={{ padding: '8px', backgroundColor: '#fff', borderRadius: '6px' }}>
+              <Download size={16} />
+            </div>
+            <div>
+              <div style={{ fontWeight: '700' }}>All Data</div>
+              <div style={{ fontSize: '12px', fontWeight: '400', marginTop: '2px' }}>Download all records in database</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // Brand colors from Color palette .pdf - using only defined colors
 const theme = {
@@ -76,6 +165,10 @@ const CareerManagement = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedCareers, setSelectedCareers] = useState([]);
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
+  const fileInputRef = React.useRef(null);
+  const [uploading, setUploading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -389,6 +482,72 @@ const CareerManagement = () => {
   const stats = getCareerStats();
 
   // Bulk operations
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await api.get('/careers/download-template', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'career_template.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      alert('Failed to download template');
+    }
+  };
+
+  const handleBulkUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    setUploading(true);
+    try {
+      await api.post('/careers/bulk-upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      alert('Bulk upload successful!');
+      fetchCareers();
+    } catch (error) {
+      console.error('Error uploading CSV:', error);
+      alert(error.response?.data?.error || 'Failed to upload CSV');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleDownloadCSV = async (downloadAll = false) => {
+    setDownloading(true);
+    setShowDownloadModal(false);
+    try {
+      const params = new URLSearchParams();
+      if (!downloadAll) {
+        if (companyFilter) params.append('company', companyFilter);
+        if (locationFilter) params.append('location', locationFilter);
+        if (typeFilter) params.append('type', typeFilter);
+        if (statusFilter) params.append('status', statusFilter);
+      }
+
+      const response = await api.get(`/careers/download-csv?${params}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'careers_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV');
+    } finally {
+      setDownloading(false);
+    }
+  };
   const handleSelectAll = (checked) => {
     if (checked) {
       setSelectedCareers(paginatedCareers.map(c => c.id));
@@ -647,6 +806,49 @@ const CareerManagement = () => {
               </div>
 
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+                <button
+                  onClick={handleDownloadTemplate}
+                  style={{ ...btnPrimary, backgroundColor: '#fff', color: '#1976D2', border: '1px solid #1976D2', boxShadow: 'none', fontSize: '14px', padding: '10px 16px' }}
+                >
+                  <Icon name="file-text" size="sm" style={{ color: '#1976D2', marginRight: 8 }} />
+                  Template
+                </button>
+
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type="file"
+                    accept=".csv"
+                    style={{ display: 'none' }}
+                    ref={fileInputRef}
+                    onChange={handleBulkUpload}
+                  />
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    style={{ ...btnPrimary, backgroundColor: '#fff', color: '#1976D2', border: '1px solid #1976D2', boxShadow: 'none', fontSize: '14px', padding: '10px 16px', opacity: uploading ? 0.7 : 1 }}
+                  >
+                    {uploading ? (
+                      <span style={{ width: 16, height: 16, border: '2px solid #1976D2', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: 8 }}></span>
+                    ) : (
+                      <Icon name="upload" size="sm" style={{ color: '#1976D2', marginRight: 8 }} />
+                    )}
+                    {uploading ? 'Uploading...' : 'Bulk Upload'}
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setShowDownloadModal(true)}
+                  disabled={downloading}
+                  style={{ ...btnPrimary, backgroundColor: '#fff', color: '#1976D2', border: '1px solid #1976D2', boxShadow: 'none', fontSize: '14px', padding: '10px 16px', opacity: downloading ? 0.7 : 1 }}
+                >
+                  {downloading ? (
+                    <span style={{ width: 16, height: 16, border: '2px solid #1976D2', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', display: 'inline-block', marginRight: 8 }}></span>
+                  ) : (
+                    <Download size={16} style={{ color: '#1976D2', marginRight: 8 }} />
+                  )}
+                  {downloading ? 'Downloading...' : 'Download CSV'}
+                </button>
+
                 <button
                   onClick={handleCreateCareer}
                   style={{ ...btnPrimary, fontSize: '14px', padding: '12px 20px' }}
@@ -1002,227 +1204,233 @@ const CareerManagement = () => {
                         Actions
                       </th>
                     </tr>
-                   </thead>
-                   <tbody>
-                     {paginatedCareers.length === 0 ? (
-                       <tr>
-                         <td colSpan="8" style={{ padding: '40px', textAlign: 'center', color: theme.textSecondary }}>
-                           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                             <Icon name="briefcase" size="lg" style={{ color: theme.textDisabled }} />
-                             <div>No careers found matching your criteria.</div>
-                           </div>
-                         </td>
-                       </tr>
-                     ) : (
-                       paginatedCareers.map((career, index) => (
-                         <tr key={career.id} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc', borderBottom: '1px solid #f1f5f9' }}>
-                           <td style={{ padding: '16px' }}>
-                             <input
-                               type="checkbox"
-                               checked={selectedCareers.includes(career.id)}
-                               onChange={(e) => handleSelectCareer(career.id, e.target.checked)}
-                             />
-                           </td>
-                           <td style={{ padding: '16px' }}>
-                             <div style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '4px' }}>
-                               {career.title}
-                             </div>
-                             <div style={{ fontSize: '12px', color: theme.textSecondary }}>
-                               ID: {career.id}
-                             </div>
-                           </td>
-                           <td style={{ padding: '16px' }}>
-                             <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500' }}>
-                               {career.company || 'Not specified'}
-                             </div>
-                           </td>
-                           <td style={{ padding: '16px' }}>
-                             <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500', marginBottom: '2px' }}>
-                               {career.location || 'Not specified'}
-                             </div>
-                             <div style={{ fontSize: '12px', color: theme.textSecondary }}>
-                               {career.type ? career.type.charAt(0).toUpperCase() + career.type.slice(1) : 'Not specified'}
-                             </div>
-                           </td>
-                           <td style={{ padding: '16px' }}>
-                             <div style={{ fontSize: '13px', color: theme.textPrimary }}>
-                               {formatSalary(career.salary)}
-                             </div>
-                           </td>
-                           <td style={{ padding: '16px' }}>
-                             <div style={{ fontSize: '13px', color: theme.textPrimary }}>
-                               {formatDate(career.created_at)}
-                             </div>
-                             <div style={{ fontSize: '12px', color: theme.textSecondary }}>
-                               By: {career.submitted_by_first_name} {career.submitted_by_last_name}
-                             </div>
-                           </td>
-                           <td style={{ padding: '16px', fontSize: '14px', color: theme.textPrimary }}>
-                             <span style={{
-                               padding: '4px 8px',
-                               backgroundColor: career.status === 'approved' ? theme.success + '20' :
-                                              career.status === 'rejected' ? theme.danger + '20' :
-                                              career.status === 'active' ? theme.info + '20' :
-                                              theme.warning + '20',
-                               color: career.status === 'approved' ? theme.success :
-                                     career.status === 'rejected' ? theme.danger :
-                                     career.status === 'active' ? theme.info :
-                                     theme.warning,
-                               borderRadius: '12px',
-                               fontSize: '11px',
-                               fontWeight: '600'
-                             }}>
-                               {career.status.charAt(0).toUpperCase() + career.status.slice(1)}
-                             </span>
-                           </td>
-                           <td style={{ padding: '16px' }}>
-                             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                               {career.status === 'pending' && (
-                                 <>
-                                   <button
-                                     onClick={() => handleApproveCareer(career.id)}
-                                     style={{
-                                       padding: '6px 12px',
-                                       backgroundColor: theme.success,
-                                       color: '#fff',
-                                       border: 'none',
-                                       borderRadius: '6px',
-                                       fontSize: '12px',
-                                       cursor: 'pointer',
-                                       display: 'flex',
-                                       alignItems: 'center',
-                                       gap: '4px'
-                                     }}
-                                     title="Approve Career"
-                                   >
-                                     <Icon name="check" size="xs" style={{ color: '#fff' }} />
-                                     Approve
-                                   </button>
-                                   <button
-                                     onClick={() => handleRejectCareer(career.id)}
-                                     style={{
-                                       padding: '6px 12px',
-                                       backgroundColor: theme.danger,
-                                       color: '#fff',
-                                       border: 'none',
-                                       borderRadius: '6px',
-                                       fontSize: '12px',
-                                       cursor: 'pointer',
-                                       display: 'flex',
-                                       alignItems: 'center',
-                                       gap: '4px'
-                                     }}
-                                     title="Reject Career"
-                                   >
-                                     <Icon name="x" size="xs" style={{ color: '#fff' }} />
-                                     Reject
-                                   </button>
-                                 </>
-                               )}
-                               <button
-                                 onClick={() => handleEditCareer(career)}
-                                 style={{
-                                   padding: '6px 12px',
-                                   backgroundColor: theme.primary,
-                                   color: '#fff',
-                                   border: 'none',
-                                   borderRadius: '6px',
-                                   fontSize: '12px',
-                                   cursor: 'pointer',
-                                   display: 'flex',
-                                   alignItems: 'center',
-                                   gap: '4px'
-                                 }}
-                                 title="Edit Career"
-                               >
-                                 <Icon name="pencil" size="xs" style={{ color: '#fff' }} />
-                                 Edit
-                               </button>
-                               <button
-                                 onClick={() => handleDeleteCareer(career.id)}
-                                 style={{
-                                   padding: '6px 12px',
-                                   backgroundColor: theme.danger,
-                                   color: '#fff',
-                                   border: 'none',
-                                   borderRadius: '6px',
-                                   fontSize: '12px',
-                                   cursor: 'pointer',
-                                   display: 'flex',
-                                   alignItems: 'center',
-                                   gap: '4px'
-                                 }}
-                                 title="Delete Career"
-                               >
-                                 <Icon name="trash" size="xs" style={{ color: '#fff' }} />
-                                 Delete
-                               </button>
-                             </div>
-                           </td>
-                         </tr>
-                       ))
-                     )}
-                   </tbody>
-                 </table>
-               </div>
+                  </thead>
+                  <tbody>
+                    {paginatedCareers.length === 0 ? (
+                      <tr>
+                        <td colSpan="8" style={{ padding: '40px', textAlign: 'center', color: theme.textSecondary }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                            <Icon name="briefcase" size="lg" style={{ color: theme.textDisabled }} />
+                            <div>No careers found matching your criteria.</div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      paginatedCareers.map((career, index) => (
+                        <tr key={career.id} style={{ backgroundColor: index % 2 === 0 ? '#ffffff' : '#fafbfc', borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '16px' }}>
+                            <input
+                              type="checkbox"
+                              checked={selectedCareers.includes(career.id)}
+                              onChange={(e) => handleSelectCareer(career.id, e.target.checked)}
+                            />
+                          </td>
+                          <td style={{ padding: '16px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary, marginBottom: '4px' }}>
+                              {career.title}
+                            </div>
+                            <div style={{ fontSize: '12px', color: theme.textSecondary }}>
+                              ID: {career.id}
+                            </div>
+                          </td>
+                          <td style={{ padding: '16px' }}>
+                            <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500' }}>
+                              {career.company || 'Not specified'}
+                            </div>
+                          </td>
+                          <td style={{ padding: '16px' }}>
+                            <div style={{ fontSize: '13px', color: theme.textPrimary, fontWeight: '500', marginBottom: '2px' }}>
+                              {career.location || 'Not specified'}
+                            </div>
+                            <div style={{ fontSize: '12px', color: theme.textSecondary }}>
+                              {career.type ? career.type.charAt(0).toUpperCase() + career.type.slice(1) : 'Not specified'}
+                            </div>
+                          </td>
+                          <td style={{ padding: '16px' }}>
+                            <div style={{ fontSize: '13px', color: theme.textPrimary }}>
+                              {formatSalary(career.salary)}
+                            </div>
+                          </td>
+                          <td style={{ padding: '16px' }}>
+                            <div style={{ fontSize: '13px', color: theme.textPrimary }}>
+                              {formatDate(career.created_at)}
+                            </div>
+                            <div style={{ fontSize: '12px', color: theme.textSecondary }}>
+                              By: {career.submitted_by_first_name} {career.submitted_by_last_name}
+                            </div>
+                          </td>
+                          <td style={{ padding: '16px', fontSize: '14px', color: theme.textPrimary }}>
+                            <span style={{
+                              padding: '4px 8px',
+                              backgroundColor: career.status === 'approved' ? theme.success + '20' :
+                                career.status === 'rejected' ? theme.danger + '20' :
+                                  career.status === 'active' ? theme.info + '20' :
+                                    theme.warning + '20',
+                              color: career.status === 'approved' ? theme.success :
+                                career.status === 'rejected' ? theme.danger :
+                                  career.status === 'active' ? theme.info :
+                                    theme.warning,
+                              borderRadius: '12px',
+                              fontSize: '11px',
+                              fontWeight: '600'
+                            }}>
+                              {career.status.charAt(0).toUpperCase() + career.status.slice(1)}
+                            </span>
+                          </td>
+                          <td style={{ padding: '16px' }}>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                              {career.status === 'pending' && (
+                                <>
+                                  <button
+                                    onClick={() => handleApproveCareer(career.id)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      backgroundColor: theme.success,
+                                      color: '#fff',
+                                      border: 'none',
+                                      borderRadius: '6px',
+                                      fontSize: '12px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}
+                                    title="Approve Career"
+                                  >
+                                    <Icon name="check" size="xs" style={{ color: '#fff' }} />
+                                    Approve
+                                  </button>
+                                  <button
+                                    onClick={() => handleRejectCareer(career.id)}
+                                    style={{
+                                      padding: '6px 12px',
+                                      backgroundColor: theme.danger,
+                                      color: '#fff',
+                                      border: 'none',
+                                      borderRadius: '6px',
+                                      fontSize: '12px',
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}
+                                    title="Reject Career"
+                                  >
+                                    <Icon name="x" size="xs" style={{ color: '#fff' }} />
+                                    Reject
+                                  </button>
+                                </>
+                              )}
+                              <button
+                                onClick={() => handleEditCareer(career)}
+                                style={{
+                                  padding: '6px 12px',
+                                  backgroundColor: theme.primary,
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  fontSize: '12px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                                title="Edit Career"
+                              >
+                                <Icon name="pencil" size="xs" style={{ color: '#fff' }} />
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCareer(career.id)}
+                                style={{
+                                  padding: '6px 12px',
+                                  backgroundColor: theme.danger,
+                                  color: '#fff',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  fontSize: '12px',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}
+                                title="Delete Career"
+                              >
+                                <Icon name="trash" size="xs" style={{ color: '#fff' }} />
+                                Delete
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
 
-               {/* Pagination */}
-               {totalPages > 1 && (
-                 <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                     <button
-                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                       disabled={currentPage === 1}
-                       style={{
-                         padding: '8px 12px',
-                         border: '1px solid #d1d5db',
-                         borderRadius: '6px',
-                         backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
-                         color: currentPage === 1 ? '#9ca3af' : theme.textPrimary,
-                         cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                         fontSize: '14px'
-                       }}
-                     >
-                       Previous
-                     </button>
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      style={{
+                        padding: '8px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
+                        color: currentPage === 1 ? '#9ca3af' : theme.textPrimary,
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Previous
+                    </button>
 
-                     <span style={{ fontSize: '14px', color: theme.textSecondary }}>
-                       Page {currentPage} of {totalPages}
-                     </span>
+                    <span style={{ fontSize: '14px', color: theme.textSecondary }}>
+                      Page {currentPage} of {totalPages}
+                    </span>
 
-                     <button
-                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                       disabled={currentPage === totalPages}
-                       style={{
-                         padding: '8px 12px',
-                         border: '1px solid #d1d5db',
-                         borderRadius: '6px',
-                         backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
-                         color: currentPage === totalPages ? '#9ca3af' : theme.textPrimary,
-                         cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                         fontSize: '14px'
-                       }}
-                     >
-                       Next
-                     </button>
-                   </div>
-                 </div>
-               )}
-             </div>
-           </main>
-         </div>
-       </div>
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      style={{
+                        padding: '8px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
+                        color: currentPage === totalPages ? '#9ca3af' : theme.textPrimary,
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        fontSize: '14px'
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </main>
+        </div>
+      </div>
 
-       {/* Career Form Modal */}
-       <CareerFormModal
-         isOpen={showFormModal}
-         onClose={() => setShowFormModal(false)}
-         career={editingCareer}
-         onSave={handleFormSave}
-       />
-     </div>
-   );
+      {/* Career Form Modal */}
+      <CareerFormModal
+        isOpen={showFormModal}
+        onClose={() => setShowFormModal(false)}
+        career={editingCareer}
+        onSave={handleFormSave}
+      />
+
+      {/* Download Options Modal */}
+      <DownloadOptionsModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+        onDownload={handleDownloadCSV}
+      />
+    </div>
+  );
 };
 
 export default CareerManagement;
-                 

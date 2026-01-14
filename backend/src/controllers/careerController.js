@@ -26,6 +26,28 @@ class CareerController {
     body('status').optional().isIn(['active', 'pending', 'approved', 'rejected']).withMessage('Invalid status'),
   ];
 
+  constructor() {
+    const multer = require('multer');
+
+    // Multer setup for CSV upload
+    this.storage = multer.memoryStorage();
+    this.csvUpload = multer({
+      storage: this.storage,
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'text/csv' || file.mimetype === 'application/vnd.ms-excel') {
+          cb(null, true);
+        } else {
+          cb(new Error('Only CSV files are allowed'));
+        }
+      }
+    });
+
+    // Bind methods
+    this.downloadTemplate = this.downloadTemplate.bind(this);
+    this.bulkUpload = this.bulkUpload.bind(this);
+    this.downloadCSV = this.downloadCSV.bind(this);
+  }
+
   // Create a new career submission
   async create(req, res) {
     try {
@@ -452,6 +474,180 @@ class CareerController {
       });
     } catch (error) {
       console.error('Reject career error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download CSV Template
+  async downloadTemplate(req, res) {
+    try {
+      const headers = ['Title', 'Description', 'Company', 'Location', 'Salary', 'Type (full-time/part-time)'];
+      const dummyData = [
+        ['Senior Developer', 'We are looking for...', 'Tech Corp', 'Remote', '120000', 'full-time'],
+        ['Marketing Intern', 'Assist with marketing...', 'Creative Agency', 'New York', '30000', 'part-time']
+      ];
+
+      let csv = headers.join(',') + '\n';
+      dummyData.forEach(row => {
+        csv += row.map(val => `"${val}"`).join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=career_template.csv');
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download template error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Bulk Upload
+  async bulkUpload(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a CSV file' });
+      }
+
+      const csvParser = require('csv-parser');
+      const { Readable } = require('stream');
+
+      const results = [];
+      const stream = Readable.from(req.file.buffer.toString());
+
+      stream
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            const createdRecords = [];
+            const errors = [];
+
+            for (const [index, row] of results.entries()) {
+              try {
+                const title = row['Title'] || row['title'];
+                const description = row['Description'] || row['description'];
+                const company = row['Company'] || row['company'];
+                const location = row['Location'] || row['location'];
+                const salary = row['Salary'] || row['salary'];
+                const typeRaw = row['Type (full-time/part-time)'] || row['Type'] || row['type'];
+                const type = typeRaw ? typeRaw.toLowerCase() : 'full-time';
+
+                if (!title || !description) {
+                  throw new Error('Title and Description are required');
+                }
+
+                if (type !== 'full-time' && type !== 'part-time') {
+                  throw new Error('Type must be full-time or part-time');
+                }
+
+                const careerData = {
+                  title,
+                  description,
+                  company,
+                  location,
+                  salary: salary ? parseFloat(salary) : undefined,
+                  type,
+                  status: 'active', // Admin upload direct to active
+                  submitted_by_admin: req.admin?.adminId
+                };
+
+                const record = await Career.create(careerData);
+                createdRecords.push(record);
+              } catch (err) {
+                errors.push(`Row ${index + 1}: ${err.message}`);
+              }
+            }
+
+            res.json({
+              message: `Bulk upload completed. ${createdRecords.length} records created.`,
+              count: createdRecords.length,
+              errors: errors.length > 0 ? errors : undefined
+            });
+          } catch (error) {
+            console.error('Processing batch error:', error);
+            res.status(500).json({ error: 'Error processing bulk upload' });
+          }
+        });
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      const {
+        status,
+        type,
+        is_active,
+        title,
+        company,
+        location,
+        show_deleted = 'false'
+      } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+      if (type) filters.type = type;
+      if (is_active !== undefined) filters.is_active = is_active === 'true';
+
+      // Admin logic matching getAll
+      if (req.admin) {
+        if (show_deleted !== 'true') {
+          filters.is_active = true;
+        }
+      } else {
+        return res.status(403).json({ error: 'Access denied' });
+      }
+
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (title) {
+        searchSql += ` AND c.title ILIKE $${searchParamCount}`;
+        searchValues.push(`%${title}%`);
+        searchParamCount++;
+      }
+      if (company) {
+        searchSql += ` AND c.company ILIKE $${searchParamCount}`;
+        searchValues.push(`%${company}%`);
+        searchParamCount++;
+      }
+      if (location) {
+        searchSql += ` AND c.location ILIKE $${searchParamCount}`;
+        searchValues.push(`%${location}%`);
+        searchParamCount++;
+      }
+
+      // Use null limit to fetch all
+      const careers = await Career.findAll(filters, searchSql, searchValues, null, 0);
+
+      const headers = ['ID', 'Title', 'Description', 'Company', 'Location', 'Type', 'Salary', 'Status', 'Created At'];
+      let csv = headers.join(',') + '\n';
+
+      careers.forEach(career => {
+        const row = [
+          career.id,
+          `"${career.title.replace(/"/g, '""')}"`,
+          `"${(career.description || '').replace(/"/g, '""')}"`,
+          `"${(career.company || '').replace(/"/g, '""')}"`,
+          `"${(career.location || '').replace(/"/g, '""')}"`,
+          career.type,
+          career.salary || '',
+          career.status,
+          new Date(career.created_at).toISOString().split('T')[0]
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=careers_export.csv');
+      res.status(200).send(csv);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

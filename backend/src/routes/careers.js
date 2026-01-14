@@ -12,6 +12,10 @@ const {
 const { careerSubmitLimit } = require('../middleware/rateLimit');
 
 // Bulk operations routes (admin only) - must come first to avoid conflicts with parameterized routes
+router.get('/download-template', verifyAdminToken, requireAdminPanelAccess, careerController.downloadTemplate);
+router.get('/download-csv', verifyAdminToken, requireAdminPanelAccess, careerController.downloadCSV);
+router.post('/bulk-upload', verifyAdminToken, requireAdminPanelAccess, careerController.csvUpload.single('file'), careerController.bulkUpload);
+
 router.put('/bulk-approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_careers'), careerController.bulkApprove);
 router.put('/bulk-reject', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_careers'), careerController.bulkReject);
 router.delete('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_careers'), (req, res) => {
