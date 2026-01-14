@@ -1158,13 +1158,24 @@ const RealEstateProfessionalsManagementPage = () => {
                 border: `1px solid ${message.type === 'success' ? '#10b981' : '#ef4444'}`,
                 color: message.type === 'success' ? '#065f46' : '#991b1b'
               }}>
-                {message.text}
-                <button
-                  onClick={() => setMessage(null)}
-                  style={{ float: 'right', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '16px' }}
-                >
-                  ×
-                </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div>
+                    <div style={{ fontWeight: '600', marginBottom: message.errors ? '8px' : '0' }}>{message.text}</div>
+                    {message.errors && message.errors.length > 0 && (
+                      <ul style={{ margin: '0', paddingLeft: '20px', fontSize: '13px' }}>
+                        {message.errors.map((error, idx) => (
+                          <li key={idx} style={{ marginTop: '4px' }}>{error}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setMessage(null)}
+                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '18px', lineHeight: 1, padding: '0 0 0 12px', color: 'inherit' }}
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
             )}
 

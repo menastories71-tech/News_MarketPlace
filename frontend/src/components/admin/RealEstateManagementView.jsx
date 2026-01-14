@@ -179,7 +179,7 @@ const RealEstateManagementView = () => {
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await api.get('/real-estates/admin/template', {
+      const response = await api.get('/admin/real-estates/template', {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -202,7 +202,7 @@ const RealEstateManagementView = () => {
         ...(statusFilter && { status: statusFilter })
       });
 
-      const response = await api.get(`/real-estates/admin/export-csv?${params}`, {
+      const response = await api.get(`/admin/real-estates/export-csv?${params}`, {
         responseType: 'blob'
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -227,16 +227,25 @@ const RealEstateManagementView = () => {
 
     setUploading(true);
     try {
-      const response = await api.post('/real-estates/admin/bulk-upload', formData, {
+      const response = await api.post('/admin/real-estates/bulk-upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      alert(response.data.message);
+
+      let msg = response.data.message;
+      if (response.data.errors && response.data.errors.length > 0) {
+        msg += '\n\nErrors:\n' + response.data.errors.join('\n');
+      }
+      alert(msg);
       fetchRealEstates();
     } catch (error) {
       console.error('Error uploading file:', error);
-      alert(error.response?.data?.error || 'Failed to upload file.');
+      let errorMsg = error.response?.data?.error || 'Failed to upload file.';
+      if (error.response?.data?.errors && error.response.data.errors.length > 0) {
+        errorMsg += '\n\n' + error.response.data.errors.join('\n');
+      }
+      alert(errorMsg);
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
