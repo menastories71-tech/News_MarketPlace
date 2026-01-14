@@ -208,21 +208,19 @@ class AwardController {
     try {
       const headers = [
         'award_name',
-        'award_focus',
-        'organiser',
-        'website',
-        'linkedin',
-        'instagram',
-        'award_month',
-        'cta_text',
-        'description',
-        'chief_guest',
-        'celebrity_guest'
+        'award_organiser_name',
+        'url',
+        'tentative_month',
+        'industry',
+        'regional_focused',
+        'award_country',
+        'award_city',
+        'company_focused_individual_focused'
       ];
 
       const dummyData = [
-        ['Best Innovation Award', 'Technology', 'Global Tech Council', 'https://gtc.org', 'https://linkedin.com/gtc', 'https://instagram.com/gtc', 'October', 'Apply Now', 'Recognizing groundbreaking innovation', 'Satya Nadella', 'Tom Cruise'],
-        ['Rising Leader Award', 'Business', 'Business Leaders Forum', 'https://blf.com', '', '', 'March', 'Nominate', 'For young business leaders', 'Ratan Tata', 'Priyanka Chopra']
+        ['Best Innovation Award', 'Global Tech Council', 'https://gtc.org', 'October', 'Technology', 'Global', 'USA', 'San Francisco', 'Company Focused'],
+        ['Rising Leader Award', 'Business Leaders Forum', 'https://blf.com', 'March', 'Business', 'Regional', 'UK', 'London', 'Individual Focused']
       ];
 
       let csv = headers.join(',') + '\n';
@@ -266,27 +264,26 @@ class AwardController {
 
             for (const [index, row] of results.entries()) {
               try {
-                // Basic mapping and cleaning
+                // Basic mapping and cleaning - use AwardCreation model fields
                 const awardData = {
                   award_name: row.award_name || '',
-                  award_focus: row.award_focus || '',
-                  organiser: row.organiser || '',
-                  website: row.website || '',
-                  linkedin: row.linkedin || '',
-                  instagram: row.instagram || '',
-                  award_month: row.award_month || '',
-                  cta_text: row.cta_text || '',
-                  description: row.description || '',
-                  chief_guest: row.chief_guest || '',
-                  celebrity_guest: row.celebrity_guest || ''
+                  award_organiser_name: row.award_organiser_name || '',
+                  url: row.url || '',
+                  tentative_month: row.tentative_month || '',
+                  industry: row.industry || '',
+                  regional_focused: row.regional_focused || '',
+                  award_country: row.award_country || '',
+                  award_city: row.award_city || '',
+                  company_focused_individual_focused: row.company_focused_individual_focused || ''
                 };
 
-                if (!awardData.award_name || !awardData.organiser) {
-                  errors.push(`Row ${index + 1}: Award name and Organiser are required.`);
+                if (!awardData.award_name || !awardData.award_organiser_name) {
+                  errors.push(`Row ${index + 1}: Award name and Award Organiser Name are required.`);
                   continue;
                 }
 
-                const record = await Award.create(awardData);
+                // Use AwardCreation model (same as getAll uses)
+                const record = await AwardCreation.create(awardData);
                 createdRecords.push(record);
               } catch (err) {
                 errors.push(`Row ${index + 1}: ${err.message}`);
