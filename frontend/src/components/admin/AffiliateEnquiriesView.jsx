@@ -53,12 +53,14 @@ const AffiliateEnquiriesView = () => {
   const [statusFilter, setStatusFilter] = useState('');
   const [dateFromFilter, setDateFromFilter] = useState('');
   const [dateToFilter, setDateToFilter] = useState('');
+  const [referralCodeFilter, setReferralCodeFilter] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
+  const [downloading, setDownloading] = useState(false);
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -206,6 +208,49 @@ const AffiliateEnquiriesView = () => {
     setStatusFilter('');
     setDateFromFilter('');
     setDateToFilter('');
+    setReferralCodeFilter('');
+  };
+
+  const handleDownloadCSV = async () => {
+    setDownloading(true);
+    try {
+      const params = new URLSearchParams({
+        ...(debouncedSearchTerm && { search: debouncedSearchTerm }),
+        ...(statusFilter && { status: statusFilter }),
+        ...(dateFromFilter && { date_from: dateFromFilter }),
+        ...(dateToFilter && { date_to: dateToFilter }),
+        ...(referralCodeFilter && { referral_code: referralCodeFilter })
+      });
+
+      const response = await api.get(`/affiliate-enquiries/download-csv?${params}`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+
+      // Get filename from response headers or generate one
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'affiliate_enquiries.csv';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename=([^;\n]+)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/["']/g, '');
+        }
+      }
+
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const getEnquiryStats = () => {
@@ -607,6 +652,23 @@ const AffiliateEnquiriesView = () => {
                   placeholder="To Date"
                 />
 
+                <input
+                  type="text"
+                  value={referralCodeFilter}
+                  onChange={(e) => {
+                    setReferralCodeFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  style={{
+                    padding: '8px 12px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    minWidth: '140px'
+                  }}
+                  placeholder="Referral Code"
+                />
+
                 <button
                   onClick={clearFilters}
                   style={{
@@ -621,6 +683,28 @@ const AffiliateEnquiriesView = () => {
                   }}
                 >
                   Clear Filters
+                </button>
+
+                <button
+                  onClick={handleDownloadCSV}
+                  disabled={downloading}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: theme.secondary,
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    cursor: downloading ? 'not-allowed' : 'pointer',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    opacity: downloading ? 0.7 : 1
+                  }}
+                >
+                  <Icon name="arrow-down-tray" size="xs" style={{ color: '#fff' }} />
+                  {downloading ? 'Downloading...' : 'Download CSV'}
                 </button>
               </div>
 
