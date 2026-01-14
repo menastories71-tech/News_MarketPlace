@@ -158,13 +158,13 @@ class AwardController {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const award = await Award.findById(id);
+      const award = await AwardCreation.findById(id);
 
       if (!award) {
         return res.status(404).json({ error: 'Award not found' });
       }
 
-      await award.delete();
+      await award.destroy();
       res.json({ message: 'Award deleted successfully' });
     } catch (error) {
       console.error('Delete award error:', error);
