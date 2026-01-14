@@ -1193,45 +1193,6 @@ const AwardManagement = () => {
                       <option value="50">50 per page</option>
                       <option value="100">100 per page</option>
                     </select>
-                    <button
-                      onClick={() => {
-                        // Export filtered results as CSV
-                        const headers = ['Award Name', 'Organiser', 'Focus', 'Month', 'Website', 'Created At'];
-                        const csvData = [
-                          headers.join(','),
-                          ...filteredAwards.map(award => [
-                            `"${award.award_name}"`,
-                            `"${award.organiser}"`,
-                            `"${award.award_focus || ''}"`,
-                            `"${award.award_month || ''}"`,
-                            `"${award.website || ''}"`,
-                            `"${formatDate(award.created_at)}"`
-                          ].join(','))
-                        ].join('\n');
-
-                        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-                        const link = document.createElement('a');
-                        const url = URL.createObjectURL(blob);
-                        link.setAttribute('href', url);
-                        link.setAttribute('download', `awards_export_${new Date().toISOString().split('T')[0]}.csv`);
-                        link.style.visibility = 'hidden';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                      style={{
-                        padding: '8px 16px',
-                        backgroundColor: theme.primary,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        cursor: 'pointer',
-                        fontWeight: '500'
-                      }}
-                    >
-                      Export CSV
-                    </button>
                   </div>
                 </div>
               </div>
