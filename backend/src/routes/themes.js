@@ -20,6 +20,12 @@ router.get('/', verifyToken, themeController.getAll);
 router.post('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_themes'), themeController.bulkCreate);
 router.put('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_themes'), themeController.bulkUpdate);
 router.delete('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_themes'), themeController.bulkDelete);
+router.post('/bulk/status', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_themes'), themeController.bulkUpdateStatus);
+
+// Bulk upload and export
+router.get('/template', verifyAdminToken, requireAdminPanelAccess, themeController.downloadTemplate);
+router.post('/bulk-upload', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_themes'), themeController.csvUpload.single('file'), themeController.bulkUpload);
+router.get('/export', verifyAdminToken, requireAdminPanelAccess, themeController.downloadCSV);
 
 // Admin routes (admins can manage all themes and perform bulk operations)
 router.get('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_themes'), themeController.getAll);

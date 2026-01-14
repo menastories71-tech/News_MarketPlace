@@ -7,6 +7,25 @@ const UserNotification = require('../models/UserNotification');
 const { body, validationResult } = require('express-validator');
 
 class ThemeController {
+  constructor() {
+    const multer = require('multer');
+    this.storage = multer.memoryStorage();
+    this.csvUpload = multer({
+      storage: this.storage,
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'text/csv' || file.mimetype === 'application/vnd.ms-excel') {
+          cb(null, true);
+        } else {
+          cb(new Error('Only CSV files are allowed'));
+        }
+      }
+    });
+
+    this.downloadTemplate = this.downloadTemplate.bind(this);
+    this.bulkUpload = this.bulkUpload.bind(this);
+    this.downloadCSV = this.downloadCSV.bind(this);
+  }
+
   // Validation rules
   createValidation = [
     body('platform').trim().isLength({ min: 1 }).withMessage('Platform is required'),
@@ -44,6 +63,7 @@ class ThemeController {
     body('page_website').optional({ checkFalsy: true }).isURL().withMessage('Valid page website URL is required'),
     body('status').optional().isIn(['draft', 'pending', 'approved', 'rejected']).withMessage('Invalid status'),
   ];
+
 
   // Create a new theme
   async create(req, res) {
@@ -410,6 +430,77 @@ class ThemeController {
     }
   }
 
+  // Bulk update status
+  async bulkUpdateStatus(req, res) {
+    try {
+      const { ids, status, reason } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'IDs array is required' });
+      }
+
+      if (!['pending', 'approved', 'rejected'].includes(status)) {
+        return res.status(400).json({ error: 'Invalid status' });
+      }
+
+      const adminId = req.admin?.adminId;
+      if (!adminId) {
+        return res.status(403).json({ error: 'Admin authentication required' });
+      }
+
+      const results = [];
+      const errors = [];
+
+      for (let i = 0; i < ids.length; i++) {
+        try {
+          const theme = await Theme.findById(ids[i]);
+          if (!theme) {
+            errors.push({ id: ids[i], error: 'Theme not found' });
+            continue;
+          }
+
+          if (status === 'approved') {
+            await theme.approve(adminId);
+
+            // Send notification
+            try {
+              const controller = new ThemeController();
+              await controller.sendApprovalNotification(theme);
+            } catch (notifyError) {
+              console.error(`Failed to send approval notification for theme ${theme.id}:`, notifyError);
+            }
+          } else if (status === 'rejected') {
+            await theme.reject(adminId, reason || 'Bulk rejection');
+
+            // Send notification
+            try {
+              const controller = new ThemeController();
+              await controller.sendRejectionNotification(theme);
+            } catch (notifyError) {
+              console.error(`Failed to send rejection notification for theme ${theme.id}:`, notifyError);
+            }
+          } else {
+            // Pending or generic status update
+            await theme.update({ status });
+          }
+
+          results.push({ id: ids[i], status: 'success' });
+        } catch (error) {
+          errors.push({ id: ids[i], error: error.message });
+        }
+      }
+
+      res.json({
+        message: `Bulk status update completed. ${results.length} successful, ${errors.length} failed.`,
+        results,
+        errors: errors.length > 0 ? errors : undefined
+      });
+    } catch (error) {
+      console.error('Bulk update status error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Update theme status
   async updateStatus(req, res) {
     try {
@@ -511,85 +602,165 @@ class ThemeController {
     }
   }
 
-  // Reject theme
-  async rejectTheme(req, res) {
+
+  // Bulk Upload
+  async bulkUpload(req, res) {
     try {
-      const { id } = req.params;
-      const { rejection_reason, admin_comments } = req.body;
-
-      if (!rejection_reason || rejection_reason.trim().length === 0) {
-        return res.status(400).json({ error: 'Rejection reason is required' });
+      if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a CSV file' });
       }
 
-      const theme = await Theme.findById(id);
-      if (!theme) {
-        return res.status(404).json({ error: 'Theme not found' });
-      }
+      const csvParser = require('csv-parser');
+      const { Readable } = require('stream');
 
-      if (theme.status === 'rejected') {
-        return res.status(400).json({ error: 'Theme is already rejected' });
-      }
+      const results = [];
+      const stream = Readable.from(req.file.buffer.toString());
 
-      const adminId = req.admin?.adminId;
-      if (!adminId) {
-        return res.status(403).json({ error: 'Admin authentication required' });
-      }
+      stream
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            const createdThemes = [];
+            const errors = [];
 
-      const updateData = {
-        status: 'rejected',
-        rejected_at: new Date(),
-        rejected_by: adminId,
-        rejection_reason: rejection_reason.trim(),
-        approved_at: null,
-        approved_by: null,
-        admin_comments: admin_comments || null
-      };
+            for (const [index, row] of results.entries()) {
+              try {
+                // Map CSV fields to Theme model fields
+                // Support both exact header names and some variations
+                const platform = row['Platform'] || row['platform'];
+                const username = row['Username'] || row['username'];
+                const page_name = row['Page Name'] || row['page_name'];
 
-      const updatedTheme = await theme.update(updateData);
+                if (!platform || !username || !page_name) {
+                  throw new Error('Platform, Username, and Page Name are required');
+                }
 
-      // Create in-app notification
-      try {
-        await UserNotification.create({
-          user_id: theme.submitted_by,
-          type: 'theme_rejected',
-          title: 'Theme Review Update',
-          message: `Your theme "${theme.page_name}" has been reviewed. Please check your email for details.`,
-          related_id: theme.id
+                const themeData = {
+                  platform,
+                  username,
+                  page_name,
+                  no_of_followers: parseInt(row['Followers'] || row['no_of_followers'] || '0'),
+                  collaboration: row['Collaboration'] || row['collaboration'] || 'Paid',
+                  category: row['Category'] || row['category'] || 'General',
+                  location: row['Location'] || row['location'] || 'Global',
+                  price_reel_without_tagging_collaboration: parseFloat(row['Price Reel w/o Tag'] || row['price_reel_without_tagging_collaboration'] || '0'),
+                  price_reel_with_tagging_collaboration: parseFloat(row['Price Reel w/ Tag'] || row['price_reel_with_tagging_collaboration'] || '0'),
+                  price_reel_with_tagging: parseFloat(row['Price Reel Tag'] || row['price_reel_with_tagging'] || '0'),
+                  video_minute_allowed: parseInt(row['Video Min'] || row['video_minute_allowed'] || '0'),
+                  pin_post_charges_week: parseFloat(row['Pin Post/Week'] || row['pin_post_charges_week'] || '0'),
+                  story_charges: parseFloat(row['Story'] || row['story_charges'] || '0'),
+                  story_with_reel_charges: parseFloat(row['Story w/ Reel'] || row['story_with_reel_charges'] || '0'),
+                  page_website: row['Website'] || row['page_website'] || '',
+                  submitted_by: req.user?.userId,
+                  submitted_by_admin: req.admin?.adminId,
+                  status: 'approved' // Bulk upload assumes approved unless specified otherwise
+                };
+
+                const newTheme = await Theme.create(themeData);
+                createdThemes.push(newTheme);
+              } catch (err) {
+                errors.push(`Row ${index + 1}: ${err.message}`);
+              }
+            }
+
+            res.json({
+              message: `Bulk upload completed. ${createdThemes.length} themes created.`,
+              count: createdThemes.length,
+              errors: errors.length > 0 ? errors : undefined
+            });
+          } catch (error) {
+            console.error('Processing batch error:', error);
+            res.status(500).json({ error: 'Error processing bulk upload' });
+          }
         });
-      } catch (notificationError) {
-        console.error('Failed to create rejection notification:', notificationError);
-      }
-
-      // Send rejection email notification
-      try {
-        await this.sendRejectionNotification(updatedTheme);
-      } catch (emailError) {
-        console.error('Failed to send rejection email:', emailError);
-        // Log email failure but don't fail the rejection process
-        try {
-          await UserNotification.create({
-            user_id: theme.submitted_by,
-            type: 'system',
-            title: 'Email Delivery Issue',
-            message: 'We were unable to send you an email about your theme review. Please check your notifications for the rejection details.',
-            related_id: theme.id
-          });
-        } catch (notificationError) {
-          console.error('Failed to create email failure notification:', notificationError);
-        }
-      }
-
-      res.json({
-        message: 'Theme rejected successfully',
-        theme: updatedTheme.toJSON()
-      });
     } catch (error) {
-      console.error('Reject theme error:', error);
+      console.error('Bulk upload error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
 
-  // Send approval notification email
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      const { status, is_active, platform, category, location, search } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+      if (is_active !== undefined) filters.is_active = is_active === 'true';
+      if (platform) filters.platform = platform;
+      if (category) filters.category = category;
+
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (location) {
+        searchSql += ` AND location ILIKE $${searchParamCount}`;
+        searchValues.push(`%${location}%`);
+        searchParamCount++;
+      }
+
+      if (search) {
+        searchSql += ` AND (page_name ILIKE $${searchParamCount} OR username ILIKE $${searchParamCount} OR platform ILIKE $${searchParamCount})`;
+        searchValues.push(`%${search}%`);
+        searchParamCount++;
+      }
+
+      // Fetch all matching records (no limit)
+      const themes = await Theme.findAll(filters, searchSql, searchValues, null, 0);
+
+      const headers = [
+        'ID', 'Platform', 'Username', 'Page Name', 'Followers', 'Collaboration', 'Category', 'Location',
+        'Price Reel w/o Tag', 'Price Reel w/ Tag', 'Price Reel Tag', 'Video Min', 'Pin Post/Week',
+        'Story', 'Story w/ Reel', 'Website', 'Status', 'Created At'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      themes.forEach(theme => {
+        const escape = (text) => {
+          if (text === null || text === undefined) return '';
+          const stringValue = String(text);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        };
+
+        const row = [
+          theme.id,
+          escape(theme.platform),
+          escape(theme.username),
+          escape(theme.page_name),
+          theme.no_of_followers,
+          escape(theme.collaboration),
+          escape(theme.category),
+          escape(theme.location),
+          theme.price_reel_without_tagging_collaboration,
+          theme.price_reel_with_tagging_collaboration,
+          theme.price_reel_with_tagging,
+          theme.video_minute_allowed,
+          theme.pin_post_charges_week,
+          theme.story_charges,
+          theme.story_with_reel_charges,
+          escape(theme.page_website),
+          escape(theme.status),
+          theme.created_at ? new Date(theme.created_at).toISOString().split('T')[0] : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=themes_export.csv');
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Approval notification email (used by bulk actions)
   sendApprovalNotification = async (theme) => {
     try {
       // Get the user who submitted the theme

@@ -76,6 +76,11 @@ const ThemeManagement = () => {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectingTheme, setRejectingTheme] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadFile, setUploadFile] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null);
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -354,12 +359,20 @@ const ThemeManagement = () => {
 
     try {
       setLoading(true);
-      await api.put('/themes/bulk', { ids: selectedThemes, action: 'approve' });
+      const response = await api.post('/themes/bulk/status', { ids: selectedThemes, status: 'approved' });
+
+      if (response.data.message) {
+        alert(response.data.message);
+      } else {
+        alert(`Approved ${selectedThemes.length} themes successfully`);
+      }
+
       setSelectedThemes([]);
       fetchThemes();
     } catch (error) {
       console.error('Error bulk approving:', error);
-      alert(error.response?.data?.message || 'Error approving themes. Please try again.');
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Error approving themes';
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -372,12 +385,20 @@ const ThemeManagement = () => {
 
     try {
       setLoading(true);
-      await api.put('/themes/bulk', { ids: selectedThemes, action: 'reject' });
+      const response = await api.post('/themes/bulk/status', { ids: selectedThemes, status: 'rejected' });
+
+      if (response.data.message) {
+        alert(response.data.message);
+      } else {
+        alert(`Rejected ${selectedThemes.length} themes successfully`);
+      }
+
       setSelectedThemes([]);
       fetchThemes();
     } catch (error) {
       console.error('Error bulk rejecting:', error);
-      alert(error.response?.data?.message || 'Error rejecting themes. Please try again.');
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Error rejecting themes';
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -398,6 +419,89 @@ const ThemeManagement = () => {
       alert(error.response?.data?.message || 'Error deleting themes. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadTemplate = async () => {
+    try {
+      const response = await api.get('/themes/template', { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'themes_template.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      alert('Error downloading template');
+    }
+  };
+
+  const handleBulkUpload = async (e) => {
+    e.preventDefault();
+    if (!uploadFile) {
+      alert('Please select a file');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', uploadFile);
+
+    try {
+      setIsUploading(true);
+      setUploadStatus(null);
+      const response = await api.post('/themes/bulk-upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setUploadStatus({
+        type: 'success',
+        message: response.data.message,
+        errors: response.data.errors
+      });
+
+      fetchThemes();
+
+      if (!response.data.errors) {
+        setTimeout(() => {
+          setIsUploadModalOpen(false);
+          setUploadFile(null);
+          setUploadStatus(null);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      setUploadStatus({
+        type: 'error',
+        message: error.response?.data?.error || 'Error uploading file'
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDownloadCSV = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (debouncedSearchTerm) params.append('search', debouncedSearchTerm);
+      if (platformFilter) params.append('platform', platformFilter);
+      if (categoryFilter) params.append('category', categoryFilter);
+      if (locationFilter) params.append('location', locationFilter);
+      if (statusFilter) params.append('status', statusFilter);
+
+      const response = await api.get(`/themes/export?${params.toString()}`, { responseType: 'blob' });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `themes_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setIsDownloadModalOpen(false);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Error downloading CSV');
     }
   };
 
@@ -721,6 +825,43 @@ const ThemeManagement = () => {
 
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
                 <button
+                  onClick={() => setIsUploadModalOpen(true)}
+                  style={{
+                    backgroundColor: '#fff',
+                    color: theme.primary,
+                    border: `1px solid ${theme.primary}`,
+                    padding: '0.625rem 1rem',
+                    borderRadius: '0.5rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                  disabled={!hasAnyRole(['super_admin', 'content_manager'])}
+                >
+                  <Icon name="arrow-up-tray" size="sm" />
+                  Bulk Upload
+                </button>
+                <button
+                  onClick={handleDownloadCSV}
+                  style={{
+                    backgroundColor: '#fff',
+                    color: theme.success,
+                    border: `1px solid ${theme.success}`,
+                    padding: '0.625rem 1rem',
+                    borderRadius: '0.5rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <Icon name="arrow-down-tray" size="sm" />
+                  Export CSV
+                </button>
+                <button
                   onClick={handleCreateTheme}
                   style={{ ...btnPrimary, fontSize: '14px', padding: '12px 20px' }}
                   disabled={!hasAnyRole(['super_admin', 'content_manager'])}
@@ -915,7 +1056,7 @@ const ThemeManagement = () => {
                       fontWeight: '500',
                       cursor: 'pointer'
                     }}
-                    onClick={() => removeFilter(filter.type)}
+                      onClick={() => removeFilter(filter.type)}
                     >
                       {filter.label}
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -1142,16 +1283,16 @@ const ThemeManagement = () => {
                           backgroundColor: selectedThemes.includes(theme.id) ? '#e0f2fe' : (index % 2 === 0 ? '#ffffff' : '#fafbfc'),
                           transition: 'all 0.2s'
                         }}
-                        onMouseEnter={(e) => {
-                          if (!selectedThemes.includes(theme.id)) {
-                            e.target.closest('tr').style.backgroundColor = '#f1f5f9';
-                          }
-                        }}
-                        onMouseLeave={(e) => {
-                          if (!selectedThemes.includes(theme.id)) {
-                            e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
-                          }
-                        }}
+                          onMouseEnter={(e) => {
+                            if (!selectedThemes.includes(theme.id)) {
+                              e.target.closest('tr').style.backgroundColor = '#f1f5f9';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!selectedThemes.includes(theme.id)) {
+                              e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
+                            }
+                          }}
                         >
                           <td style={{ padding: '16px' }}>
                             <input
