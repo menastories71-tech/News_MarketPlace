@@ -401,7 +401,8 @@ const ReporterManagement = () => {
       fetchReporters();
     } catch (error) {
       console.error('Error bulk approving reporters:', error);
-      alert('Error bulk approving reporters. Please try again.');
+      const errorMsg = error.response?.data?.error || 'Error bulk approving reporters. Please try again.';
+      alert(errorMsg);
     } finally {
       setBulkActionLoading(false);
     }
@@ -423,7 +424,8 @@ const ReporterManagement = () => {
       fetchReporters();
     } catch (error) {
       console.error('Error bulk rejecting reporters:', error);
-      alert('Error bulk rejecting reporters. Please try again.');
+      const errorMsg = error.response?.data?.error || 'Error bulk rejecting reporters. Please try again.';
+      alert(errorMsg);
     } finally {
       setBulkActionLoading(false);
     }
@@ -431,7 +433,7 @@ const ReporterManagement = () => {
 
   const handleDownloadTemplate = async () => {
     try {
-      const response = await adminAPI.downloadReporterTemplate();
+      const response = await api.get('/reporters/admin/template', { responseType: 'blob' });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
@@ -458,7 +460,9 @@ const ReporterManagement = () => {
     try {
       setIsUploading(true);
       setUploadStatus(null);
-      const response = await adminAPI.uploadBulkReporters(formData);
+      const response = await api.post('/reporters/admin/bulk-upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
 
       setUploadStatus({
         type: 'success',
@@ -501,7 +505,10 @@ const ReporterManagement = () => {
         sortOrder: sortDirection.toUpperCase()
       };
 
-      const response = await adminAPI.downloadReportersCSV(params);
+      // Construct query string manually to avoid axios param serialization issues if any
+      const queryString = new URLSearchParams(params).toString();
+      const response = await api.get(`/reporters/admin/export?${queryString}`, { responseType: 'blob' });
+
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
