@@ -760,6 +760,33 @@ class ThemeController {
     }
   }
 
+  // Download Template CSV
+  downloadTemplate = async (req, res) => {
+    try {
+      const headers = [
+        'Platform', 'Username', 'Page Name', 'Followers', 'Collaboration', 'Category', 'Location',
+        'Price Reel w/o Tag', 'Price Reel w/ Tag', 'Price Reel Tag', 'Video Min', 'Pin Post/Week',
+        'Story', 'Story w/ Reel', 'Website'
+      ];
+
+      const exampleRow = [
+        'Instagram', 'example_user', 'Example Page', '10000', 'Paid', 'Fashion', 'USA',
+        '100.00', '150.00', '120.00', '60', '50.00',
+        '30.00', '80.00', 'https://example.com'
+      ];
+
+      let csv = headers.join(',') + '\n';
+      csv += exampleRow.join(',') + '\n';
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=theme_upload_template.csv');
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download Template CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Approval notification email (used by bulk actions)
   sendApprovalNotification = async (theme) => {
     try {
