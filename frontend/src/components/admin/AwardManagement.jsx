@@ -4,6 +4,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import api from '../../services/api';
+import { Download } from 'lucide-react';
 
 // Award Form Modal Component
 const AwardFormModal = ({ isOpen, onClose, award, onSave }) => {
@@ -364,6 +365,8 @@ const AwardManagement = () => {
   const fileInputRef = React.useRef(null);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState(null);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // Layout constants (same as AdminDashboard)
   const headerZ = 1000;
@@ -641,6 +644,45 @@ const AwardManagement = () => {
     } catch (error) {
       console.error('Error downloading template:', error);
       alert('Failed to download template.');
+    }
+  };
+
+  const handleDownloadCSV = async (downloadAll = false) => {
+    try {
+      setDownloading(true);
+      const params = new URLSearchParams();
+
+      if (!downloadAll) {
+        if (debouncedSearchTerm) {
+          // Both fields use the same term in frontend filtering, so we send it as name for now, 
+          // or we can adapt backend to search broadly. Backend has specific filters.
+          // Let's send it as award_name for now, or ensure backend 'search' parameter handles it.
+          // AwardController.downloadCSV implementation I wrote uses explicit fields.
+          params.append('award_name', debouncedSearchTerm);
+        }
+        if (focusFilter) params.append('company_focused_individual_focused', focusFilter);
+        if (monthFilter) params.append('tentative_month', monthFilter);
+      }
+
+      const response = await api.get(`/awards/download-csv?${params.toString()}`, {
+        responseType: 'blob'
+      });
+
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `awards_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      setShowDownloadModal(false);
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV. Please try again.');
+    } finally {
+      setDownloading(false);
     }
   };
 
@@ -936,6 +978,13 @@ const AwardManagement = () => {
                 >
                   <Icon name="cloud-arrow-up" size="sm" style={{ color: '#fff' }} />
                   {uploading ? 'Uploading...' : 'Bulk Upload'}
+                </button>
+                <button
+                  onClick={() => setShowDownloadModal(true)}
+                  style={{ ...btnPrimary, backgroundColor: '#00897B', fontSize: '14px', padding: '12px 20px' }}
+                >
+                  <Download size={18} style={{ marginRight: 8 }} />
+                  Download CSV
                 </button>
                 <button
                   onClick={handleCreateAward}
@@ -1456,6 +1505,63 @@ const AwardManagement = () => {
         award={editingAward}
         onSave={handleFormSave}
       />
+
+      {/* Download Options Modal */}
+      {showDownloadModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex items-center justify-center">
+          <div className="relative bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-gray-900">Download CSV</h3>
+              <button
+                onClick={() => setShowDownloadModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+
+            <p className="text-gray-600 mb-6">
+              Choose how you want to download award data:
+            </p>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => handleDownloadCSV(false)}
+                disabled={downloading}
+                className="w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-lg hover:border-teal-500 hover:bg-teal-50 transition-colors text-left"
+              >
+                <div>
+                  <div className="font-semibold text-gray-900">Download Filtered Data</div>
+                  <div className="text-sm text-gray-500">
+                    Export awards based on current filters
+                    (Search: {debouncedSearchTerm || 'None'}, Month: {monthFilter || 'All'}, Focus: {focusFilter || 'All'})
+                  </div>
+                </div>
+                <Download size={20} className="text-teal-600 flex-shrink-0" />
+              </button>
+
+              <button
+                onClick={() => handleDownloadCSV(true)}
+                disabled={downloading}
+                className="w-full flex items-center justify-between p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors text-left"
+              >
+                <div>
+                  <div className="font-semibold text-gray-900">Download All Data</div>
+                  <div className="text-sm text-gray-500">Export all awards from the database</div>
+                </div>
+                <Download size={20} className="text-blue-600 flex-shrink-0" />
+              </button>
+            </div>
+
+            {downloading && (
+              <div className="mt-4 text-center text-gray-600">
+                <div className="animate-spin inline-block w-5 h-5 border-2 border-teal-600 border-t-transparent rounded-full mr-2"></div>
+                Preparing download...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

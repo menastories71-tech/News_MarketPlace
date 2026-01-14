@@ -9,6 +9,9 @@ const {
 
 // Public routes for viewing awards
 router.get('/', awardController.getAll);
+
+router.get('/download-csv', verifyAdminToken, requireAdminPanelAccess, (req, res) => awardController.downloadCSV(req, res));
+
 router.get('/:id', awardController.getById);
 
 // Admin routes for managing awards

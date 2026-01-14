@@ -203,6 +203,66 @@ class AwardController {
     }
   }
 
+  // Download Awards as CSV (admin only)
+  async downloadCSV(req, res) {
+    try {
+      const {
+        tentative_month,
+        company_focused_individual_focused,
+        award_name,
+        award_organiser_name,
+        url,
+        industry,
+        regional_focused,
+        award_country,
+        award_city
+      } = req.query;
+
+      const filters = {};
+
+      if (tentative_month) filters.tentative_month = tentative_month;
+      if (company_focused_individual_focused) filters.company_focused_individual_focused = company_focused_individual_focused;
+      if (award_organiser_name) filters.award_organiser_name = award_organiser_name;
+      if (url) filters.url = url;
+      if (industry) filters.industry = industry;
+      if (regional_focused !== undefined && regional_focused !== '') filters.regional_focused = regional_focused;
+      if (award_country) filters.award_country = award_country;
+      if (award_city) filters.award_city = award_city;
+      if (award_name) filters.award_name = award_name;
+
+      const awards = await AwardCreation.findAllFiltered(filters, 'createdAt', 'desc');
+
+      const headers = ['ID', 'Name', 'Organiser', 'URL', 'Month', 'Industry', 'Region', 'Country', 'City', 'Focus', 'Created At'];
+      let csv = headers.join(',') + '\n';
+
+      awards.forEach(a => {
+        const row = [
+          a.id,
+          `"${(a.award_name || '').replace(/"/g, '""')}"`,
+          `"${(a.award_organiser_name || '').replace(/"/g, '""')}"`,
+          `"${(a.url || '').replace(/"/g, '""')}"`,
+          `"${(a.tentative_month || '').replace(/"/g, '""')}"`,
+          `"${(a.industry || '').replace(/"/g, '""')}"`,
+          `"${a.regional_focused || ''}"`,
+          `"${(a.award_country || '').replace(/"/g, '""')}"`,
+          `"${(a.award_city || '').replace(/"/g, '""')}"`,
+          `"${(a.company_focused_individual_focused || '').replace(/"/g, '""')}"`,
+          a.createdAt ? new Date(a.createdAt).toISOString() : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      const filename = `awards_${new Date().toISOString().split('T')[0]}.csv`;
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+      res.status(200).send(csv);
+
+    } catch (error) {
+      console.error('Download CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Download CSV template for bulk upload
   async downloadTemplate(req, res) {
     try {
