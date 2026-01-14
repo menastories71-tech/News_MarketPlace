@@ -2,6 +2,7 @@ const PressPackOrder = require('../models/PressPackOrder');
 const PressPack = require('../models/PressPack');
 const emailService = require('../services/emailService');
 const { s3Service } = require('../services/s3Service');
+const { query } = require('../config/database');
 
 // Create a new press pack order
 const create = async (req, res) => {
@@ -737,7 +738,7 @@ const downloadCSV = async (req, res) => {
     }
 
     // Build the query
-    const query = `
+    const sql = `
       SELECT
         po.*,
         pr.name as press_release_title,
@@ -749,13 +750,7 @@ const downloadCSV = async (req, res) => {
       ORDER BY po.created_at DESC
     `;
 
-    // Execute query
-    const { Pool } = require('pg');
-    const pool = new Pool({
-      connectionString: process.env.DATABASE_URL || `postgresql://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`
-    });
-
-    const result = await pool.query(query, queryParams);
+    const result = await query(sql, queryParams);
     const orders = result.rows;
 
     const headers = [
@@ -771,7 +766,7 @@ const downloadCSV = async (req, res) => {
       // Parse additional data from message field
       let additionalData = {};
       let cleanMessage = order.customer_message || '';
-      if (cleanMessage.includes('ADDITIONAL_DATA:')) {
+      if (cleanMessage && cleanMessage.includes('ADDITIONAL_DATA:')) {
         const parts = cleanMessage.split('ADDITIONAL_DATA:');
         cleanMessage = parts[0].trim();
         try {
@@ -826,7 +821,7 @@ const downloadCSV = async (req, res) => {
 
   } catch (error) {
     console.error('Download CSV error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 };
 
