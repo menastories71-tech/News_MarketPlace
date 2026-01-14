@@ -6,6 +6,37 @@ const UserNotification = require('../models/UserNotification');
 const { body, validationResult } = require('express-validator');
 
 class ReporterController {
+  constructor() {
+    const multer = require('multer');
+    this.storage = multer.memoryStorage();
+    this.csvUpload = multer({
+      storage: this.storage,
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype === 'text/csv' || file.mimetype === 'application/vnd.ms-excel') {
+          cb(null, true);
+        } else {
+          cb(new Error('Only CSV files are allowed'));
+        }
+      }
+    });
+
+    this.downloadTemplate = this.downloadTemplate.bind(this);
+    this.bulkUpload = this.bulkUpload.bind(this);
+    this.downloadCSV = this.downloadCSV.bind(this);
+    this.create = this.create.bind(this);
+    this.getAll = this.getAll.bind(this);
+    this.getMyReporters = this.getMyReporters.bind(this);
+    this.getById = this.getById.bind(this);
+    this.update = this.update.bind(this);
+    this.delete = this.delete.bind(this);
+    this.approveReporter = this.approveReporter.bind(this);
+    this.rejectReporter = this.rejectReporter.bind(this);
+    this.bulkApprove = this.bulkApprove.bind(this);
+    this.bulkReject = this.bulkReject.bind(this);
+    this.sendApprovalNotification = this.sendApprovalNotification.bind(this);
+    this.sendRejectionNotification = this.sendRejectionNotification.bind(this);
+  }
+
   // Validation rules
   createValidation = [
     body('function_department').isIn(['Commercial', 'Procurement', 'Publishing', 'Marketing', 'Accounts and Finance']).withMessage('Invalid function department'),
@@ -575,7 +606,7 @@ class ReporterController {
       });
     } catch (error) {
       console.error('Bulk approve reporters error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ error: `Bulk approve failed: ${error.message}` });
     }
   }
 
@@ -658,6 +689,240 @@ class ReporterController {
       });
     } catch (error) {
       console.error('Bulk reject reporters error:', error);
+      res.status(500).json({ error: `Bulk reject failed: ${error.message}` });
+    }
+  }
+
+  // Download CSV Template
+  async downloadTemplate(req, res) {
+    try {
+      const headers = [
+        'Name', 'Email', 'Publication Name', 'Publication Location',
+        'Function Department', 'Position', 'Website URL', 'LinkedIn',
+        'Instagram', 'Facebook', 'WhatsApp', 'Minimum Expectation USD',
+        'Articles Per Month'
+      ];
+
+      const csv = headers.join(',') + '\n' +
+        'John Doe,john@example.com,Global News,New York,' +
+        'Publishing,Journalist,https://example.com,https://linkedin.com/in/johndoe,' +
+        'https://instagram.com/johndoe,https://facebook.com/johndoe,+1234567890,100,5';
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=reporter_template.csv');
+      res.send(csv);
+    } catch (error) {
+      console.error('Download template error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Bulk Upload
+  async bulkUpload(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a CSV file' });
+      }
+
+      const csvParser = require('csv-parser');
+      const { Readable } = require('stream');
+
+      const results = [];
+      const stream = Readable.from(req.file.buffer.toString());
+
+      stream
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            const createdReporters = [];
+            const errors = [];
+            const validDepartments = ['Commercial', 'Procurement', 'Publishing', 'Marketing', 'Accounts and Finance'];
+            const validPositions = ['Journalist', 'Reporter', 'Contributor', 'Staff'];
+
+            for (const [index, row] of results.entries()) {
+              try {
+                // Map CSV fields to Reporter model fields
+                const name = row['Name'] || row['name'];
+                const email = row['Email'] || row['email'];
+                const function_department = row['Function Department'] || row['function_department'];
+                const position = row['Position'] || row['position'];
+
+                if (!name || !email) {
+                  throw new Error('Name and Email are required');
+                }
+
+                if (function_department && !validDepartments.includes(function_department)) {
+                  throw new Error(`Invalid function department. Must be one of: ${validDepartments.join(', ')}`);
+                }
+
+                if (position && !validPositions.includes(position)) {
+                  throw new Error(`Invalid position. Must be one of: ${validPositions.join(', ')}`);
+                }
+
+                // Check if email exists
+                const existingReporter = await Reporter.findByEmail(email);
+                if (existingReporter) {
+                  throw new Error(`Reporter with email ${email} already exists`);
+                }
+
+                const reporterData = {
+                  name,
+                  email,
+                  publication_name: row['Publication Name'] || row['publication_name'] || '',
+                  publication_location: row['Publication Location'] || row['publication_location'] || '',
+                  function_department: function_department || 'Publishing',
+                  position: position || 'Reporter',
+                  website_url: row['Website URL'] || row['website_url'] || null,
+                  linkedin: row['LinkedIn'] || row['linkedin'] || null,
+                  instagram: row['Instagram'] || row['instagram'] || null,
+                  facebook: row['Facebook'] || row['facebook'] || null,
+                  whatsapp: row['WhatsApp'] || row['whatsapp'] || null,
+                  minimum_expectation_usd: parseFloat(row['Minimum Expectation USD'] || row['minimum_expectation_usd'] || '0'),
+                  articles_per_month: parseInt(row['Articles Per Month'] || row['articles_per_month'] || '0'),
+                  terms_accepted: true,
+                  submitted_by: req.user?.userId,
+                  submitted_by_admin: req.admin?.adminId,
+                  status: 'approved' // Bulk upload by admin is auto-approved
+                };
+
+                const newReporter = await Reporter.create(reporterData);
+                createdReporters.push(newReporter);
+              } catch (err) {
+                errors.push(`Row ${index + 1}: ${err.message}`);
+              }
+            }
+
+            res.json({
+              message: `Bulk upload completed. ${createdReporters.length} reporters created.`,
+              count: createdReporters.length,
+              errors: errors.length > 0 ? errors : undefined
+            });
+          } catch (error) {
+            console.error('Processing batch error:', error);
+            res.status(500).json({ error: 'Error processing bulk upload' });
+          }
+        });
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Download CSV
+  async downloadCSV(req, res) {
+    try {
+      const {
+        status,
+        function_department,
+        position,
+        is_active,
+        name,
+        email,
+        publication_name,
+        publication_location,
+        sortBy = 'created_at',
+        sortOrder = 'DESC'
+      } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+      if (function_department) filters.function_department = function_department;
+      if (position) filters.position = position;
+      if (is_active !== undefined) filters.is_active = is_active === 'true';
+
+      // Handle search functionality
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (name) {
+        searchSql += ` AND r.name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${name}%`);
+        searchParamCount++;
+      }
+
+      if (email) {
+        searchSql += ` AND r.email ILIKE $${searchParamCount}`;
+        searchValues.push(`%${email}%`);
+        searchParamCount++;
+      }
+
+      if (publication_name) {
+        searchSql += ` AND r.publication_name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${publication_name}%`);
+        searchParamCount++;
+      }
+
+      if (publication_location) {
+        searchSql += ` AND r.publication_location ILIKE $${searchParamCount}`;
+        searchValues.push(`%${publication_location}%`);
+        searchParamCount++;
+      }
+
+      // Use the findAll method without limit/offset to get all matching
+      // Note: Assuming Reporter.findAll supports null limit to return all
+      // If not, we pass a very large number
+      const reporters = await Reporter.findAll(filters, searchSql, searchValues, 100000, 0);
+
+      // In-memory sort
+      reporters.sort((a, b) => {
+        let valA = a[sortBy];
+        let valB = b[sortBy];
+
+        if (valA === null) valA = '';
+        if (valB === null) valB = '';
+
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return sortOrder.toUpperCase() === 'ASC' ? -1 : 1;
+        if (valA > valB) return sortOrder.toUpperCase() === 'ASC' ? 1 : -1;
+        return 0;
+      });
+
+      const headers = [
+        'ID', 'Name', 'Email', 'Publication Name', 'Publication Location',
+        'Function Department', 'Position', 'Website', 'LinkedIn', 'Instagram',
+        'Facebook', 'WhatsApp', 'Status', 'Created At'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      reporters.forEach(reporter => {
+        const escape = (text) => {
+          if (text === null || text === undefined) return '';
+          const stringValue = String(text);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        };
+
+        const row = [
+          reporter.id,
+          escape(reporter.name),
+          escape(reporter.email),
+          escape(reporter.publication_name),
+          escape(reporter.publication_location),
+          escape(reporter.function_department),
+          escape(reporter.position),
+          escape(reporter.website_url),
+          escape(reporter.linkedin),
+          escape(reporter.instagram),
+          escape(reporter.facebook),
+          escape(reporter.whatsapp),
+          escape(reporter.status),
+          reporter.created_at ? new Date(reporter.created_at).toISOString().split('T')[0] : ''
+        ];
+        csv += row.join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=reporters_export_${new Date().toISOString().split('T')[0]}.csv`);
+      res.send(csv);
+    } catch (error) {
+      console.error('Download CSV error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

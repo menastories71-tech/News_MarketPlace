@@ -137,6 +137,13 @@ export const adminAPI = {
   updateBlog: (id, data) => api.put(`/blogs/${id}`, data),
   deleteBlog: (id) => api.delete(`/blogs/${id}`),
 
+  // Reporter management
+  downloadReporterTemplate: () => api.get('/reporters/admin/template', { responseType: 'blob' }),
+  uploadBulkReporters: (data) => api.post('/reporters/admin/bulk-upload', data, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  }),
+  downloadReportersCSV: (params) => api.get('/reporters/admin/export', { params, responseType: 'blob' }),
+
   // Other admin functions can be added here
 };
 

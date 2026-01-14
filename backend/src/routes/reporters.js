@@ -15,6 +15,11 @@ const { reporterSubmitLimit } = require('../middleware/rateLimit');
 router.post('/', verifyToken, reporterSubmitLimit, reporterController.createValidation, reporterController.create);
 router.get('/my', verifyToken, reporterController.getMyReporters);
 
+// Bulk upload and export
+router.get('/admin/template', verifyAdminToken, requireAdminPanelAccess, reporterController.downloadTemplate);
+router.post('/admin/bulk-upload', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_reporters'), reporterController.csvUpload.single('file'), reporterController.bulkUpload);
+router.get('/admin/export', verifyAdminToken, requireAdminPanelAccess, reporterController.downloadCSV);
+
 // Admin routes (admins can manage all reporter submissions)
 router.get('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_reporters'), reporterController.getAll);
 router.post('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_reporters'), reporterController.createValidation, reporterController.create);
