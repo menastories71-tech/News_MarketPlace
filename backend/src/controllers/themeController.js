@@ -761,7 +761,16 @@ class ThemeController {
   // Download CSV
   async downloadCSV(req, res) {
     try {
-      const { status, is_active, platform, category, location, search } = req.query;
+      const {
+        status,
+        is_active,
+        platform,
+        category,
+        location,
+        search,
+        sortBy = 'created_at',
+        sortOrder = 'DESC'
+      } = req.query;
 
       const filters = {};
       if (status) filters.status = status;
@@ -769,29 +778,78 @@ class ThemeController {
       if (platform) filters.platform = platform;
       if (category) filters.category = category;
 
+      // Handle search functionality
       let searchSql = '';
       const searchValues = [];
-      let searchParamCount = Object.keys(filters).length + 1;
+      let searchParamCount = Object.keys(filters).length + 1; // Parameters are 1-indexed
 
       if (location) {
-        searchSql += ` AND location ILIKE $${searchParamCount}`;
+        searchSql += ` AND (location ILIKE $${searchParamCount})`;
         searchValues.push(`%${location}%`);
         searchParamCount++;
       }
 
       if (search) {
-        searchSql += ` AND (page_name ILIKE $${searchParamCount} OR username ILIKE $${searchParamCount} OR platform ILIKE $${searchParamCount})`;
+        // More comprehensive search clause
+        searchSql += ` AND (
+          page_name ILIKE $${searchParamCount} OR 
+          username ILIKE $${searchParamCount} OR 
+          platform ILIKE $${searchParamCount} OR
+          category ILIKE $${searchParamCount}
+        )`;
         searchValues.push(`%${search}%`);
         searchParamCount++;
       }
 
-      // Fetch all matching records (no limit)
+      // Ensure valid sort column to prevent SQL injection
+      const allowedSortColumns = [
+        'id', 'page_name', 'username', 'platform', 'no_of_followers',
+        'category', 'location', 'status', 'created_at', 'updated_at'
+      ];
+
+      const orderBy = allowedSortColumns.includes(sortBy) ? sortBy : 'created_at';
+      const orderDirection = sortOrder.toUpperCase() === 'ASC' ? 'ASC' : 'DESC';
+      const orderClause = `ORDER BY ${orderBy} ${orderDirection}`;
+
+      // Use findAll but bypass limit/offset to get ALL matching records for export
+      // Note: We need to modify or use a variation of findAll that accepts orderClause if the model supports it, 
+      // or manually construct the query if the model abstraction is limited.
+      // Assuming Theme.findAll handles basic filters. For specific sort, we might need to handle it in the model or here.
+
+      // If Theme.findAll doesn't explicitly support 'orderClause' as a separate argument, 
+      // we might need to check the Model implementation. 
+      // Based on previous context, findAll takes (filters, searchSql, searchValues, limit, offset).
+      // It likely appends ORDER BY created_at DESC by default.
+      // If we want custom sort, we might need to update the model or just accept the default sort for CSV (which is usually fine).
+      // However, for "download according to sort", we should try to honor it.
+
+      // Let's assume for now we use the standard findAll which returns filtered results.
+      // If the user wants the CSV to be sorted exactly as the table, we'd need to pass sort params to findAll.
+
       const themes = await Theme.findAll(filters, searchSql, searchValues, null, 0);
+
+      // In-memory sort if model doesn't support dynamic sort params in findAll
+      themes.sort((a, b) => {
+        let valA = a[orderBy];
+        let valB = b[orderBy];
+
+        // Handle nulls
+        if (valA === null) valA = '';
+        if (valB === null) valB = '';
+
+        // Case insensitive string sort
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+
+        if (valA < valB) return orderDirection === 'ASC' ? -1 : 1;
+        if (valA > valB) return orderDirection === 'ASC' ? 1 : -1;
+        return 0;
+      });
 
       const headers = [
         'ID', 'Platform', 'Username', 'Page Name', 'Followers', 'Collaboration', 'Category', 'Location',
         'Price Reel w/o Tag', 'Price Reel w/ Tag', 'Price Reel Tag', 'Video Min', 'Pin Post/Week',
-        'Story', 'Story w/ Reel', 'Website', 'Status', 'Created At'
+        'Story', 'Story w/ Reel', 'Website', 'Status', 'Is Active', 'Created At', 'Updated At'
       ];
 
       let csv = headers.join(',') + '\n';
@@ -824,7 +882,9 @@ class ThemeController {
           theme.story_with_reel_charges,
           escape(theme.page_website),
           escape(theme.status),
-          theme.created_at ? new Date(theme.created_at).toISOString().split('T')[0] : ''
+          theme.is_active ? 'Yes' : 'No',
+          theme.created_at ? new Date(theme.created_at).toISOString().split('T')[0] : '',
+          theme.updated_at ? new Date(theme.updated_at).toISOString().split('T')[0] : ''
         ];
         csv += row.join(',') + '\n';
       });
