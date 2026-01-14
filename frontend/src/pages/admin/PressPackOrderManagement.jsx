@@ -445,7 +445,7 @@ const PressPackOrderManagement = () => {
       const params = new URLSearchParams();
       if (statusFilter !== 'all') params.append('status', statusFilter);
 
-      const response = await api.get('/admin/press-pack-orders/export-csv', {
+      const response = await api.get('/press-pack-orders/export-csv', {
         params: params,
         responseType: 'blob'
       });
