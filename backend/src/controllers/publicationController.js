@@ -1163,6 +1163,111 @@ class PublicationController {
     });
   }
 
+
+  // Export CSV
+  async exportCSV(req, res) {
+    try {
+      const {
+        publication_name,
+        group_name,
+        region,
+        status,
+        show_deleted
+      } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+
+      // Admin access check for export
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      if (show_deleted !== 'true') {
+        filters.is_active = true;
+      }
+
+      // Add search filters
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (publication_name) {
+        searchSql += ` AND p.publication_name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${publication_name}%`);
+        searchParamCount++;
+      }
+
+      if (group_name) {
+        searchSql += ` AND g.group_name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${group_name}%`);
+        searchParamCount++;
+      }
+
+      if (region) {
+        searchSql += ` AND p.publication_region ILIKE $${searchParamCount}`;
+        searchValues.push(`%${region}%`);
+        searchParamCount++;
+      }
+
+      let publications;
+      if (show_deleted === 'true') {
+        publications = await Publication.getDeleted(filters, searchSql, searchValues, 100000, 0);
+      } else {
+        publications = await Publication.findAll(filters, searchSql, searchValues, 100000, 0);
+      }
+
+      // Define standard headers
+      const headers = [
+        'id',
+        'publication_sn',
+        'group_name',
+        'publication_name',
+        'publication_website',
+        'publication_grade',
+        'publication_price',
+        'publication_categories',
+        'publication_region',
+        'publication_language',
+        'agreement_tat',
+        'practical_tat',
+        'word_limit',
+        'do_follow_link',
+        'status',
+        'is_active',
+        'created_at',
+        'updated_at'
+      ];
+
+      const csvRows = [headers.join(',')];
+
+      publications.forEach(pub => {
+        const p = pub.toJSON();
+        const row = headers.map(header => {
+          let val = p[header];
+
+          // Handle specific fields
+          if (header === 'group_name' && p.group) {
+            val = p.group.group_name;
+          }
+
+          if (val === null || val === undefined) return '';
+          if (typeof val === 'object') val = JSON.stringify(val);
+          return `"${String(val).replace(/"/g, '""')}"`;
+        });
+        csvRows.push(row.join(','));
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename=publications_export_${new Date().toISOString().split('T')[0]}.csv`);
+      res.send(csvRows.join('\n'));
+
+    } catch (error) {
+      console.error('Export CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Download CSV template
   async downloadCSVTemplate(req, res) {
     try {
