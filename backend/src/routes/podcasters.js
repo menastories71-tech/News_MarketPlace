@@ -56,38 +56,40 @@ const csvUpload = multer({
   }
 });
 
-// Admin CSV operations (before other routes)
+/**
+ * ADMIN CSV & BULK UPLOAD ROUTES
+ * These must be defined before parameterized routes to avoid conflicts
+ */
 router.get('/admin/template', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), podcasterController.downloadTemplate);
 router.get('/admin/export-csv', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), podcasterController.exportCSV);
 router.post('/admin/bulk-upload', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), csvUpload.single('file'), podcasterController.bulkUpload);
 
-
-// Public routes (no authentication required)
+/**
+ * PUBLIC ROUTES
+ */
 router.get('/approved', podcasterController.getApprovedPodcasters);
 router.get('/approved/:id', podcasterController.getApprovedById);
 
-// File upload route
+/**
+ * FILE UPLOAD ROUTES
+ */
 router.post('/upload-file', upload.single('file'), podcasterController.uploadFile);
 
-// User routes (authenticated users can create and view their own podcaster submissions)
+/**
+ * USER MANAGEMENT ROUTES
+ */
 router.post('/', verifyToken, podcasterSubmitLimit, podcasterController.createValidation, podcasterController.create);
 router.get('/my', verifyToken, podcasterController.getMyPodcasters);
 
-// Admin routes (admins can manage all podcaster submissions)
+/**
+ * ADMIN MANAGEMENT ROUTES (General)
+ */
 router.get('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), podcasterController.getAll);
 router.post('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), upload.single('image'), podcasterController.adminCreateValidation, podcasterController.create);
-router.get('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), podcasterController.getById);
-router.put('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), upload.single('image'), podcasterController.updateValidation, podcasterController.update);
-router.put('/admin/:id/approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.approvePodcaster);
-router.put('/admin/:id/reject', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.rejectPodcaster);
-router.delete('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), podcasterController.delete);
 
-// User parameterized routes (users can view and edit their own submissions)
-router.get('/:id', verifyToken, podcasterController.getById);
-router.put('/:id', verifyToken, requireOwnership('podcaster'), upload.single('image'), podcasterController.updateValidation, podcasterController.update);
-router.delete('/:id', verifyToken, requireOwnership('podcaster'), podcasterController.delete);
-
-// Bulk operations routes (admin only)
+/**
+ * BULK OPERATIONS (Static paths must come before parameterized ids)
+ */
 router.put('/bulk-approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.bulkApprove);
 router.put('/bulk-reject', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.bulkReject);
 router.delete('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), (req, res) => {
@@ -95,18 +97,30 @@ router.delete('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPe
   res.status(501).json({ error: 'Bulk delete not implemented yet' });
 });
 
-// Status management (admin only)
+/**
+ * ADMIN MANAGEMENT ROUTES (By ID)
+ */
+router.get('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), podcasterController.getById);
+router.put('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), upload.single('image'), podcasterController.updateValidation, podcasterController.update);
+router.put('/admin/:id/approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.approvePodcaster);
+router.put('/admin/:id/reject', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.rejectPodcaster);
+router.delete('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_podcasters'), podcasterController.delete);
+
+// Legacy/Alternative paths for approval
+router.post('/admin/:id/approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.approvePodcaster);
+router.post('/admin/:id/reject', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.rejectPodcaster);
+
+/**
+ * USER PARAMETERIZED ROUTES (Always keep wildcards at the end)
+ */
+router.get('/:id', verifyToken, podcasterController.getById);
+router.put('/:id', verifyToken, requireOwnership('podcaster'), upload.single('image'), podcasterController.updateValidation, podcasterController.update);
+router.delete('/:id', verifyToken, requireOwnership('podcaster'), podcasterController.delete);
+
+// Status updates by ID (Wildcard)
 router.patch('/:id/status', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), (req, res) => {
   // Status update implementation would go here
   res.status(501).json({ error: 'Status update not implemented yet' });
 });
-
-// Approval/Rejection endpoints (admin only)
-router.post('/:id/approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.approvePodcaster);
-router.post('/:id/reject', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.rejectPodcaster);
-
-// Bulk approval/rejection endpoints (admin only)
-router.put('/bulk-approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.bulkApprove);
-router.put('/bulk-reject', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_podcasters'), podcasterController.bulkReject);
 
 module.exports = router;
