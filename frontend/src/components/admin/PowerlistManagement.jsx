@@ -479,7 +479,6 @@ const PowerlistManagement = () => {
   });
   const fileInputRef = React.useRef(null);
   const [uploading, setUploading] = useState(false);
-  const [showExportModal, setShowExportModal] = useState(false);
   const [message, setMessage] = useState(null);
 
   // Layout constants (same as AdminDashboard)
@@ -809,36 +808,6 @@ const PowerlistManagement = () => {
     }
   };
 
-  const handleExportCSV = async (type) => {
-    try {
-      const params = new URLSearchParams();
-
-      if (type === 'filtered') {
-        if (debouncedSearchTerm) params.append('publication_name', debouncedSearchTerm);
-        if (filters.status) params.append('status', filters.status);
-        if (filters.industry) params.append('industry', filters.industry);
-        if (filters.company_or_individual) params.append('company_or_individual', filters.company_or_individual);
-        if (filters.location_region) params.append('location_region', filters.location_region);
-      }
-
-      const response = await api.get(`/powerlist-nominations/export-csv?${params.toString()}`, {
-        responseType: 'blob'
-      });
-
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'powerlist_nominations_export.csv');
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      setShowExportModal(false);
-    } catch (error) {
-      console.error('Error exporting CSV:', error);
-      alert('Failed to export CSV.');
-    }
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.backgroundSoft, color: theme.text, paddingBottom: '3rem' }}>
@@ -1059,13 +1028,6 @@ const PowerlistManagement = () => {
                 >
                   <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff', marginRight: 8 }} />
                   Download Template
-                </button>
-                <button
-                  onClick={() => setShowExportModal(true)}
-                  style={{ ...btnPrimary, backgroundColor: theme.secondaryDark, fontSize: '14px', padding: '12px 20px' }}
-                >
-                  <Icon name="document-arrow-down" size="sm" style={{ color: '#fff', marginRight: 8 }} />
-                  Download CSV
                 </button>
                 <button
                   onClick={() => fileInputRef.current.click()}
@@ -1655,88 +1617,6 @@ const PowerlistManagement = () => {
         nomination={editingNomination}
         onSave={handleFormSave}
       />
-
-      {/* Export Options Modal */}
-      {showExportModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 10000
-        }} onClick={() => setShowExportModal(false)}>
-          <div style={{
-            background: '#fff',
-            borderRadius: '12px',
-            padding: '24px',
-            maxWidth: '500px',
-            width: '100%',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
-          }} onClick={(e) => e.stopPropagation()}>
-            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', marginBottom: '20px' }}>Export Options</h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <button
-                onClick={() => handleExportCSV('all')}
-                style={{
-                  padding: '12px 16px',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  backgroundColor: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#fff'}
-              >
-                <Icon name="table-cells" size="sm" style={{ color: '#1976D2' }} />
-                Download All Data
-              </button>
-              <button
-                onClick={() => handleExportCSV('filtered')}
-                style={{
-                  padding: '12px 16px',
-                  border: '1px solid #e0e0e0',
-                  borderRadius: '8px',
-                  backgroundColor: '#fff',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  transition: 'all 0.2s'
-                }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = '#f5f5f5'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = '#fff'}
-              >
-                <Icon name="adjustments-horizontal" size="sm" style={{ color: '#FF9800' }} />
-                Download Filtered/Sorted Data
-              </button>
-            </div>
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
-              <button onClick={() => setShowExportModal(false)} style={{
-                padding: '8px 16px',
-                backgroundColor: '#f3f4f6',
-                color: '#374151',
-                border: 'none',
-                borderRadius: '6px',
-                cursor: 'pointer',
-                fontWeight: '600'
-              }}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Message Display */}
       {message && (
