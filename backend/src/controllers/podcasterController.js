@@ -43,6 +43,9 @@ class PodcasterController {
     this.getCount = this.getCount.bind(this);
     this.findByUserIdWithFilters = this.findByUserIdWithFilters.bind(this);
     this.getUserCount = this.getUserCount.bind(this);
+    this.exportCSV = this.exportCSV.bind(this);
+    this.bulkUpload = this.bulkUpload.bind(this);
+    this.downloadTemplate = this.downloadTemplate.bind(this);
   }
   // Validation rules for user submissions
   createValidation = [
@@ -1369,8 +1372,8 @@ class PodcasterController {
                   podcast_linkedin: row.podcast_linkedin || '',
                   podcast_facebook: row.podcast_facebook || '',
                   podcast_ig_username: row.podcast_ig_username || '',
-                  podcast_ig_followers: row.podcast_ig_followers ? parseInt(row.podcast_ig_followers) : null,
-                  podcast_ig_engagement_rate: row.podcast_ig_engagement_rate ? parseFloat(row.podcast_ig_engagement_rate) : null,
+                  podcast_ig_followers: (row.podcast_ig_followers && !isNaN(parseInt(row.podcast_ig_followers))) ? parseInt(row.podcast_ig_followers) : null,
+                  podcast_ig_engagement_rate: (row.podcast_ig_engagement_rate && !isNaN(parseFloat(row.podcast_ig_engagement_rate))) ? parseFloat(row.podcast_ig_engagement_rate) : null,
                   podcast_ig_prominent_guests: row.podcast_ig_prominent_guests || '',
                   spotify_channel_name: row.spotify_channel_name || '',
                   spotify_channel_url: row.spotify_channel_url || '',

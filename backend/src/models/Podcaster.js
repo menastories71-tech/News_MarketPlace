@@ -66,12 +66,12 @@ class Podcaster {
     });
 
     // Integer fields
-    if (podcasterData.podcast_ig_followers !== undefined && (!Number.isInteger(podcasterData.podcast_ig_followers) || podcasterData.podcast_ig_followers < 0)) {
+    if (podcasterData.podcast_ig_followers !== undefined && podcasterData.podcast_ig_followers !== null && (!Number.isInteger(podcasterData.podcast_ig_followers) || podcasterData.podcast_ig_followers < 0)) {
       errors.push('Podcast IG followers must be a non-negative integer');
     }
 
     // Decimal field
-    if (podcasterData.podcast_ig_engagement_rate !== undefined && (typeof podcasterData.podcast_ig_engagement_rate !== 'number' || podcasterData.podcast_ig_engagement_rate < 0 || podcasterData.podcast_ig_engagement_rate > 100)) {
+    if (podcasterData.podcast_ig_engagement_rate !== undefined && podcasterData.podcast_ig_engagement_rate !== null && (typeof podcasterData.podcast_ig_engagement_rate !== 'number' || podcasterData.podcast_ig_engagement_rate < 0 || podcasterData.podcast_ig_engagement_rate > 100)) {
       errors.push('Podcast IG engagement rate must be a number between 0 and 100');
     }
 
@@ -98,7 +98,7 @@ class Podcaster {
 
     // Ensure at least one submitter is present
     if ((podcasterData.submitted_by === undefined || podcasterData.submitted_by === null) &&
-        (podcasterData.submitted_by_admin === undefined || podcasterData.submitted_by_admin === null)) {
+      (podcasterData.submitted_by_admin === undefined || podcasterData.submitted_by_admin === null)) {
       errors.push('Either submitted_by or submitted_by_admin must be provided');
     }
 
