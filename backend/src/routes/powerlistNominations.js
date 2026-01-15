@@ -33,6 +33,30 @@ const upload = multer({
   }
 });
 
+// CSV upload for bulk operations
+const csvUpload = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'text/csv' || require('path').extname(file.originalname).toLowerCase() === '.csv') {
+      cb(null, true);
+    } else {
+      cb(new Error('Only CSV files are allowed'));
+    }
+  },
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  }
+});
+
+// Download template (admin only)
+router.get('/template', verifyAdminToken, requireAdminPanelAccess, powerlistNominationController.downloadTemplate);
+
+// Export CSV (admin only)
+router.get('/export-csv', verifyAdminToken, requireAdminPanelAccess, powerlistNominationController.exportCSV);
+
+// Bulk upload (admin only)
+router.post('/bulk-upload', verifyAdminToken, requireAdminPanelAccess, csvUpload.single('file'), powerlistNominationController.bulkUpload);
+
 // User submission route with authentication and rate limiting handled in controller
 router.post('/submit', verifyToken, powerlistNominationController.submitValidation, powerlistNominationController.submit);
 

@@ -569,6 +569,185 @@ class PowerlistNominationController {
     }
   }
 
+  // Download CSV template for bulk upload
+  async downloadTemplate(req, res) {
+    try {
+      const headers = [
+        'publication_name',
+        'website_url',
+        'power_list_name',
+        'industry',
+        'company_or_individual',
+        'tentative_month',
+        'location_region',
+        'last_power_list_url',
+        'status'
+      ];
+
+      const dummyData = [
+        ['Tech Weekly', 'https://techweekly.com', 'Top 100 Tech Leaders', 'Technology', 'Individual', 'March', 'UAE', 'https://techweekly.com/powerlist-2024', 'pending'],
+        ['Business Today', 'https://businesstoday.com', 'Most Influential CEOs', 'Finance', 'Individual', 'June', 'USA', 'https://businesstoday.com/ceos-2024', 'pending'],
+        ['Healthcare Magazine', 'https://healthcaremag.com', 'Healthcare Innovators', 'Healthcare', 'Company', 'September', 'UK', '', 'pending']
+      ];
+
+      let csv = headers.join(',') + '\n';
+      dummyData.forEach(row => {
+        csv += row.map(val => `"${val}"`).join(',') + '\n';
+      });
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=powerlist_nominations_template.csv');
+      res.status(200).send(csv);
+    } catch (error) {
+      console.error('Download template error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Export CSV with filtering and sorting
+  async exportCSV(req, res) {
+    try {
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      const { Parser } = require('json2csv');
+      const {
+        status,
+        industry,
+        location_region,
+        company_or_individual,
+        publication_name,
+        power_list_name,
+        sortBy = 'created_at',
+        sortOrder = 'DESC'
+      } = req.query;
+
+      const filters = {};
+      if (status) filters.status = status;
+      if (industry) filters.industry = industry;
+      if (location_region) filters.location_region = location_region;
+      if (company_or_individual) filters.company_or_individual = company_or_individual;
+
+      // Add search filters
+      let searchSql = '';
+      const searchValues = [];
+      let searchParamCount = Object.keys(filters).length + 1;
+
+      if (publication_name) {
+        searchSql += ` AND publication_name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${publication_name}%`);
+        searchParamCount++;
+      }
+
+      if (power_list_name) {
+        searchSql += ` AND power_list_name ILIKE $${searchParamCount}`;
+        searchValues.push(`%${power_list_name}%`);
+        searchParamCount++;
+      }
+
+      // Fetch all matching records (no limit)
+      const nominations = await PowerlistNomination.findAll(filters, searchSql, searchValues, 100000, 0);
+
+      const fields = [
+        'id',
+        'publication_name',
+        'website_url',
+        'power_list_name',
+        'industry',
+        'company_or_individual',
+        'tentative_month',
+        'location_region',
+        'last_power_list_url',
+        'status',
+        'is_active',
+        'created_at',
+        'updated_at'
+      ];
+
+      const opts = { fields };
+      const parser = new Parser(opts);
+      const csv = parser.parse(nominations.map(n => n.toJSON()));
+
+      res.header('Content-Type', 'text/csv');
+      res.header('Content-Disposition', 'attachment; filename=powerlist_nominations_export.csv');
+      return res.send(csv);
+
+    } catch (error) {
+      console.error('Export CSV error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  // Bulk upload powerlist nominations from CSV
+  async bulkUpload(req, res) {
+    try {
+      if (!req.admin) {
+        return res.status(403).json({ error: 'Admin access required' });
+      }
+
+      if (!req.file) {
+        return res.status(400).json({ error: 'Please upload a CSV file' });
+      }
+
+      const csvParser = require('csv-parser');
+      const { Readable } = require('stream');
+
+      const results = [];
+      const stream = Readable.from(req.file.buffer.toString());
+
+      stream
+        .pipe(csvParser())
+        .on('data', (data) => results.push(data))
+        .on('end', async () => {
+          try {
+            const createdRecords = [];
+            const errors = [];
+
+            for (const [index, row] of results.entries()) {
+              try {
+                // Basic mapping and cleaning
+                const nominationData = {
+                  publication_name: row.publication_name || '',
+                  website_url: row.website_url || '',
+                  power_list_name: row.power_list_name || '',
+                  industry: row.industry || '',
+                  company_or_individual: row.company_or_individual || '',
+                  tentative_month: row.tentative_month || '',
+                  location_region: row.location_region || '',
+                  last_power_list_url: row.last_power_list_url || '',
+                  status: row.status || 'pending',
+                  is_active: true
+                };
+
+                if (!nominationData.publication_name || !nominationData.power_list_name || !nominationData.industry || !nominationData.company_or_individual) {
+                  errors.push(`Row ${index + 1}: Publication name, power list name, industry, and company/individual are required.`);
+                  continue;
+                }
+
+                const record = await PowerlistNomination.create(nominationData);
+                createdRecords.push(record);
+              } catch (err) {
+                errors.push(`Row ${index + 1}: ${err.message}`);
+              }
+            }
+
+            res.json({
+              message: `Bulk upload completed. ${createdRecords.length} records created.`,
+              count: createdRecords.length,
+              errors: errors.length > 0 ? errors : undefined
+            });
+          } catch (error) {
+            console.error('Processing batch error:', error);
+            res.status(500).json({ error: 'Error processing bulk upload' });
+          }
+        });
+    } catch (error) {
+      console.error('Bulk upload error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Email template generators
   static generateNominationSubmissionEmailTemplate(publicationName, powerListName) {
     return `
