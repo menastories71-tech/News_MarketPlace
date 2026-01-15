@@ -24,8 +24,25 @@ router.delete('/admin/:id', verifyAdminToken, requireAdminPanelAccess, radioCont
 // Image upload route
 router.post('/admin/upload-image', verifyAdminToken, requireAdminPanelAccess, upload.single('image'), radioController.uploadImage);
 
+// Configure multer for CSV uploads
+const multer = require('multer');
+const csvStorage = multer.memoryStorage();
+const csvUpload = multer({
+  storage: csvStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit for CSV
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype === 'text/csv' || file.mimetype === 'application/vnd.ms-excel' || file.originalname.endsWith('.csv')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only CSV files are allowed'));
+    }
+  }
+});
+
 // Bulk upload and CSV operations
-router.post('/admin/bulk-upload', verifyAdminToken, requireAdminPanelAccess, upload.single('file'), radioController.bulkUpload);
+router.post('/admin/bulk-upload', verifyAdminToken, requireAdminPanelAccess, csvUpload.single('file'), radioController.bulkUpload);
 router.get('/admin/template', verifyAdminToken, requireAdminPanelAccess, radioController.downloadTemplate);
 router.get('/admin/export-csv', verifyAdminToken, requireAdminPanelAccess, radioController.exportCSV);
 

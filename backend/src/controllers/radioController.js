@@ -1,8 +1,6 @@
 const Radio = require('../models/Radio');
 const { s3Service: S3Service } = require('../services/s3Service');
 const { body, validationResult } = require('express-validator');
-const csv = require('csv-parser');
-const { Parser } = require('json2csv');
 const { Readable } = require('stream');
 
 class RadioController {
@@ -285,6 +283,7 @@ class RadioController {
 
       const results = [];
       const errors = [];
+      const csv = require('csv-parser');
       const stream = Readable.from(req.file.buffer.toString());
 
       stream
@@ -344,6 +343,7 @@ class RadioController {
   // Download CSV template
   async downloadTemplate(req, res) {
     try {
+      const { Parser } = require('json2csv');
       const fields = [
         'sn',
         'group_id',
@@ -376,6 +376,7 @@ class RadioController {
   // Export CSV
   async exportCSV(req, res) {
     try {
+      const { Parser } = require('json2csv');
       const {
         group_id,
         radio_name,
