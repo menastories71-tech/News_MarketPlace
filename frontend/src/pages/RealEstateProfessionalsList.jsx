@@ -556,12 +556,12 @@ const RealEstateProfessionalsList = () => {
                               <span>{professional.current_residence_city || 'Location not specified'}</span>
                             </div>
                           </div>
-                          <div className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          <div className="w-20 h-12 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 rounded-lg p-1 shadow-sm">
                             {professional.image ? (
                               <img
                                 src={professional.image}
                                 alt={`${professional.first_name} ${professional.last_name}`}
-                                className="w-full h-full object-cover"
+                                className="max-w-full max-h-full object-contain"
                                 onError={(e) => {
                                   e.target.src = '/logo.png';
                                 }}
@@ -570,7 +570,7 @@ const RealEstateProfessionalsList = () => {
                               <img
                                 src="/logo.png"
                                 alt="Logo"
-                                className="w-8 h-8 object-contain"
+                                className="w-8 h-8 object-contain opacity-50"
                               />
                             )}
                           </div>
@@ -692,12 +692,12 @@ const RealEstateProfessionalsList = () => {
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+                                <div className="w-16 h-10 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 rounded-lg p-1">
                                   {professional.image ? (
                                     <img
                                       src={professional.image}
                                       alt={`${professional.first_name} ${professional.last_name}`}
-                                      className="w-full h-full object-cover"
+                                      className="max-w-full max-h-full object-contain"
                                       onError={(e) => {
                                         e.target.src = '/logo.png';
                                       }}
@@ -706,7 +706,7 @@ const RealEstateProfessionalsList = () => {
                                     <img
                                       src="/logo.png"
                                       alt="Logo"
-                                      className="w-6 h-6 object-contain"
+                                      className="w-6 h-6 object-contain opacity-50"
                                     />
                                   )}
                                 </div>

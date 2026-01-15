@@ -359,11 +359,11 @@ const PressPackDetailPage = () => {
                       </div>
                       {/* Pack Image on the right */}
                       <div className="flex-shrink-0 ml-4">
-                        <div className="relative w-24 h-24 rounded-lg overflow-hidden">
+                        <div className="w-32 h-20 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden p-2 shadow-sm">
                           <img
                             src={pressPack.image_logo || pressPack.image || '/logo.png'}
                             alt={pressPack.name}
-                            className="w-full h-full object-cover"
+                            className="max-w-full max-h-full object-contain"
                             onError={(e) => {
                               e.target.src = '/logo.png';
                             }}

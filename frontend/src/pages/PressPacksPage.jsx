@@ -230,9 +230,9 @@ const PressPacksPage = () => {
 
   const hasActiveFilters = () => {
     return regionFilter || industryFilter || turnaroundTimeFilter ||
-           priceRange[0] > 0 || priceRange[1] < 20000 ||
-           wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
-           contentWritingFilter;
+      priceRange[0] > 0 || priceRange[1] < 20000 ||
+      wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
+      contentWritingFilter;
   };
 
   const handleShowAuth = () => {
@@ -548,21 +548,19 @@ const PressPacksPage = () => {
                 <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'grid'
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
                         ? 'bg-white shadow-sm text-[#1976D2]'
                         : 'text-[#757575] hover:text-[#212121]'
-                    }`}
+                      }`}
                   >
                     <Grid size={16} />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'list'
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'list'
                         ? 'bg-white shadow-sm text-[#1976D2]'
                         : 'text-[#757575] hover:text-[#212121]'
-                    }`}
+                      }`}
                   >
                     <List size={16} />
                   </button>
@@ -640,11 +638,11 @@ const PressPacksPage = () => {
                           </div>
                           {/* Pack Image on the right */}
                           <div className="flex-shrink-0 ml-4">
-                            <div className="relative w-16 h-16 rounded-lg overflow-hidden">
+                            <div className="w-20 h-12 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 rounded-lg p-1 shadow-sm">
                               <img
                                 src={pack.image_logo || '/logo.png'}
                                 alt={pack.name}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                                 onError={(e) => {
                                   e.target.src = '/logo.png';
                                 }}
@@ -776,11 +774,11 @@ const PressPacksPage = () => {
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                                <div className="w-16 h-10 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 rounded-lg p-1">
                                   <img
                                     src={pack.image_logo || '/logo.png'}
                                     alt={pack.name}
-                                    className="w-full h-full object-cover"
+                                    className="max-w-full max-h-full object-contain"
                                     onError={(e) => {
                                       e.target.src = '/logo.png';
                                     }}
