@@ -4,6 +4,96 @@ import Icon from '../common/Icon';
 import Sidebar from './Sidebar';
 import api from '../../services/api';
 
+// Export Options Modal Component
+const ExportOptionsModal = ({ isOpen, onClose, onExport }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 10000,
+      padding: '20px'
+    }} onClick={onClose}>
+      <div style={{
+        background: '#fff',
+        borderRadius: '12px',
+        padding: '24px',
+        maxWidth: '400px',
+        width: '100%',
+        boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
+      }} onClick={(e) => e.stopPropagation()}>
+        <h2 style={{ marginTop: 0, marginBottom: '20px', fontSize: '20px', fontWeight: '800' }}>Export Options</h2>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <button
+            onClick={() => onExport('all')}
+            style={{
+              padding: '12px',
+              borderRadius: '8px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              border: '1px solid #e0e0e0',
+              backgroundColor: '#fff',
+              color: '#374151',
+              textAlign: 'left',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+          >
+            <Icon name="table-cells" size="sm" style={{ color: '#1976D2' }} />
+            Download All Data
+          </button>
+          <button
+            onClick={() => onExport('filtered')}
+            style={{
+              padding: '12px',
+              borderRadius: '8px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              border: '1px solid #e0e0e0',
+              backgroundColor: '#fff',
+              color: '#374151',
+              textAlign: 'left',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+          >
+            <Icon name="adjustments-horizontal" size="sm" style={{ color: '#FF9800' }} />
+            Download Filtered/Sorted Data
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '20px' }}>
+          <button
+            onClick={onClose}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              border: 'none',
+              backgroundColor: '#f3f4f6',
+              color: '#374151'
+            }}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Publication Form Modal Component
 const PublicationFormModal = ({ isOpen, onClose, publication, groups, onSave }) => {
   const [formData, setFormData] = useState({
@@ -588,6 +678,7 @@ const PublicationManagement = () => {
   const [showBulkEditModal, setShowBulkEditModal] = useState(false);
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [message, setMessage] = useState(null);
+  const [showExportModal, setShowExportModal] = useState(false);
 
   // Memoize groups map for stable reference
   const groupsMap = useMemo(() => {
@@ -596,6 +687,37 @@ const PublicationManagement = () => {
       return map;
     }, {});
   }, [groups]);
+
+  const handleExportCSV = async (type) => {
+    try {
+      const params = new URLSearchParams();
+
+      if (type === 'filtered') {
+        if (debouncedSearchTerm) params.append('publication_name', debouncedSearchTerm);
+        if (groupFilter) params.append('group_id', groupFilter);
+        if (regionFilter) params.append('region', regionFilter);
+        if (statusFilter) params.append('status', statusFilter);
+        if (showDeleted) params.append('show_deleted', 'true');
+        // Add other filters if needed
+      }
+
+      const response = await api.get(`/publications/admin/export-csv?${params.toString()}`, {
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `publications_export_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setShowExportModal(false);
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      alert('Failed to export CSV.');
+    }
+  };
 
   const handleFormSave = () => {
     fetchPublications();
@@ -625,27 +747,27 @@ const PublicationManagement = () => {
 
     try {
       setLoading(true);
-      
+
       console.log(`Attempting to bulk delete ${selectedPublications.length} publications${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
-      
+
       // Use admin bulk delete route
       await api.delete('/publications/bulk', {
         data: { ids: selectedPublications }
       });
-      
+
       setSelectedPublications([]);
       fetchPublications();
       setShowBulkDeleteModal(false);
       setMessage({ type: 'success', text: 'Publications deleted successfully!' });
     } catch (error) {
       console.error('Bulk delete error:', error);
-      
+
       // Check if it's a connection timeout error
       const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
-                                  error.message?.includes('Connection terminated unexpectedly') ||
-                                  error.message?.includes('Connection timeout') ||
-                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
-      
+        error.message?.includes('Connection terminated unexpectedly') ||
+        error.message?.includes('Connection timeout') ||
+        (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+
       // Retry on connection timeout errors
       if (isConnectionTimeout && retryCount < maxRetries) {
         console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
@@ -653,18 +775,18 @@ const PublicationManagement = () => {
           type: 'warning',
           text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
         });
-        
+
         // Wait before retrying
         setTimeout(() => {
           handleBulkDeleteConfirm(retryCount + 1);
         }, retryDelay);
-        
+
         return;
       }
-      
+
       // For all other errors or failed retries
       const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
-      
+
       if (isConnectionTimeout && retryCount >= maxRetries) {
         setMessage({
           type: 'error',
@@ -1133,9 +1255,9 @@ const PublicationManagement = () => {
 
     // Apply additional filters only if there are active filters
     const hasActiveFilters = groupFilter || regionFilter || industryFilter ||
-                           selectedStatusFilters.length > 0 || languageFilter ||
-                           sponsoredFilter !== '' || liveFilter !== '' || dofollowFilter !== '' ||
-                           tatFilter.length > 0;
+      selectedStatusFilters.length > 0 || languageFilter ||
+      sponsoredFilter !== '' || liveFilter !== '' || dofollowFilter !== '' ||
+      tatFilter.length > 0;
 
     if (!hasActiveFilters && !debouncedSearchTerm) {
       // No filters applied and no search - show all base results
@@ -1180,7 +1302,7 @@ const PublicationManagement = () => {
 
       // Debug logging for filtered results
       if (!matchesGroup || !matchesRegion || !matchesIndustry || !matchesStatus ||
-          !matchesLanguage || !matchesSponsored || !matchesLive || !matchesDofollow || !matchesTAT) {
+        !matchesLanguage || !matchesSponsored || !matchesLive || !matchesDofollow || !matchesTAT) {
         console.log('PUBLICATION FILTERED OUT:', {
           name: publication.publication_name,
           status: publication.status,
@@ -1198,7 +1320,7 @@ const PublicationManagement = () => {
 
       // Only apply the most important filters for admin view
       return matchesGroup && matchesRegion && matchesIndustry && matchesStatus &&
-             matchesLanguage && matchesSponsored && matchesLive && matchesDofollow && matchesTAT;
+        matchesLanguage && matchesSponsored && matchesLive && matchesDofollow && matchesTAT;
     });
 
     // Final debug logging
@@ -1325,22 +1447,22 @@ const PublicationManagement = () => {
 
   const hasActiveFilters = () => {
     return debouncedSearchTerm ||
-            groupFilter ||
-            regionFilter ||
-            industryFilter ||
-            selectedStatusFilters.length > 0 ||
-            priceRange[0] > 0 || priceRange[1] < 2000 ||
-            daRange[0] > 0 || daRange[1] < 100 ||
-            drRange[0] > 0 || drRange[1] < 100 ||
-            newsIndexRange[0] > 0 || newsIndexRange[1] < 100 ||
-            wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
-            imagesRange[0] > 0 || imagesRange[1] < 50 ||
-            languageFilter ||
-            tatFilter.length > 0 ||
-            sponsoredFilter !== '' ||
-            liveFilter !== '' ||
-            dofollowFilter !== '' ||
-            showDeleted;
+      groupFilter ||
+      regionFilter ||
+      industryFilter ||
+      selectedStatusFilters.length > 0 ||
+      priceRange[0] > 0 || priceRange[1] < 2000 ||
+      daRange[0] > 0 || daRange[1] < 100 ||
+      drRange[0] > 0 || drRange[1] < 100 ||
+      newsIndexRange[0] > 0 || newsIndexRange[1] < 100 ||
+      wordsLimitRange[0] > 0 || wordsLimitRange[1] < 10000 ||
+      imagesRange[0] > 0 || imagesRange[1] < 50 ||
+      languageFilter ||
+      tatFilter.length > 0 ||
+      sponsoredFilter !== '' ||
+      liveFilter !== '' ||
+      dofollowFilter !== '' ||
+      showDeleted;
   };
 
   const getPublicationStats = () => {
@@ -1577,9 +1699,9 @@ const PublicationManagement = () => {
 
     try {
       setLoading(true);
-      
+
       console.log(`Attempting to delete publication ${publicationId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
-      
+
       // Use admin route instead of user route
       await api.delete(`/publications/admin/${publicationId}`);
 
@@ -1590,13 +1712,13 @@ const PublicationManagement = () => {
       setMessage({ type: 'success', text: 'Publication deleted successfully!' });
     } catch (error) {
       console.error('Error deleting publication:', error);
-      
+
       // Check if it's a connection timeout error
       const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
-                                  error.message?.includes('Connection terminated unexpectedly') ||
-                                  error.message?.includes('Connection timeout') ||
-                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
-      
+        error.message?.includes('Connection terminated unexpectedly') ||
+        error.message?.includes('Connection timeout') ||
+        (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+
       // Retry on connection timeout errors
       if (isConnectionTimeout && retryCount < maxRetries) {
         console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
@@ -1604,18 +1726,18 @@ const PublicationManagement = () => {
           type: 'warning',
           text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
         });
-        
+
         // Wait before retrying
         setTimeout(() => {
           handleDeletePublication(publicationId, retryCount + 1);
         }, retryDelay);
-        
+
         return;
       }
-      
+
       // For all other errors or failed retries
       const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
-      
+
       if (isConnectionTimeout && retryCount >= maxRetries) {
         setMessage({
           type: 'error',
@@ -1643,9 +1765,9 @@ const PublicationManagement = () => {
 
     try {
       setLoading(true);
-      
+
       console.log(`Attempting to hard delete publication ${publicationId}${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
-      
+
       // Use admin hard delete route
       await api.delete(`/publications/admin/${publicationId}/hard`);
 
@@ -1656,13 +1778,13 @@ const PublicationManagement = () => {
       setMessage({ type: 'success', text: 'Publication permanently deleted successfully!' });
     } catch (error) {
       console.error('Error hard deleting publication:', error);
-      
+
       // Check if it's a connection timeout error
       const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
-                                  error.message?.includes('Connection terminated unexpectedly') ||
-                                  error.message?.includes('Connection timeout') ||
-                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
-      
+        error.message?.includes('Connection terminated unexpectedly') ||
+        error.message?.includes('Connection timeout') ||
+        (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+
       // Retry on connection timeout errors
       if (isConnectionTimeout && retryCount < maxRetries) {
         console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
@@ -1670,18 +1792,18 @@ const PublicationManagement = () => {
           type: 'warning',
           text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
         });
-        
+
         // Wait before retrying
         setTimeout(() => {
           handleHardDeletePublication(publicationId, retryCount + 1);
         }, retryDelay);
-        
+
         return;
       }
-      
+
       // For all other errors or failed retries
       const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
-      
+
       if (isConnectionTimeout && retryCount >= maxRetries) {
         setMessage({
           type: 'error',
@@ -1703,33 +1825,33 @@ const PublicationManagement = () => {
   // Enhanced bulk delete function with retry logic and better error handling
   const handleBulkDelete = async (retryCount = 0) => {
     if (selectedPublications.length === 0) return;
-    
+
     const maxRetries = 3;
     const retryDelay = 2000; // 2 seconds
 
     try {
       setLoading(true);
-      
+
       console.log(`Attempting to bulk delete ${selectedPublications.length} publications${retryCount > 0 ? ` (retry ${retryCount}/${maxRetries})` : ''}`);
-      
+
       // Use admin bulk delete route
       await api.delete('/publications/bulk', {
         data: { ids: selectedPublications }
       });
-      
+
       setSelectedPublications([]);
       fetchPublications();
-      
+
       setMessage({ type: 'success', text: 'Publications deleted successfully!' });
     } catch (error) {
       console.error('Error bulk deleting:', error);
-      
+
       // Check if it's a connection timeout error
       const isConnectionTimeout = error.message?.includes('Connection terminated due to connection timeout') ||
-                                  error.message?.includes('Connection terminated unexpectedly') ||
-                                  error.message?.includes('Connection timeout') ||
-                                  (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
-      
+        error.message?.includes('Connection terminated unexpectedly') ||
+        error.message?.includes('Connection timeout') ||
+        (error.response?.status === 500 && error.response?.data?.error?.includes('timeout'));
+
       // Retry on connection timeout errors
       if (isConnectionTimeout && retryCount < maxRetries) {
         console.log(`Connection timeout detected. Retrying in ${retryDelay}ms...`);
@@ -1737,18 +1859,18 @@ const PublicationManagement = () => {
           type: 'warning',
           text: `Connection timeout. Retrying in a moment... (${retryCount + 1}/${maxRetries})`
         });
-        
+
         // Wait before retrying
         setTimeout(() => {
           handleBulkDelete(retryCount + 1);
         }, retryDelay);
-        
+
         return;
       }
-      
+
       // For all other errors or failed retries
       const errorMessage = error.response?.data?.message || error.response?.data?.error || error.message;
-      
+
       if (isConnectionTimeout && retryCount >= maxRetries) {
         setMessage({
           type: 'error',
@@ -1773,14 +1895,14 @@ const PublicationManagement = () => {
       setLoading(true);
       // Use admin route for updates too
       await api.put(`/publications/admin/${publicationId}`, updateData);
-      
+
       fetchPublications();
       setMessage({ type: 'success', text: 'Publication updated successfully!' });
     } catch (error) {
       console.error('Error updating publication:', error);
-      setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Error updating publication. Please try again.' 
+      setMessage({
+        type: 'error',
+        text: error.response?.data?.message || 'Error updating publication. Please try again.'
       });
     } finally {
       setLoading(false);
@@ -2219,7 +2341,7 @@ const PublicationManagement = () => {
                           fontWeight: '500',
                           cursor: 'pointer'
                         }}
-                        onClick={() => setSelectedRegionFilters(selectedRegionFilters.filter(r => r !== region))}
+                          onClick={() => setSelectedRegionFilters(selectedRegionFilters.filter(r => r !== region))}
                         >
                           {region}
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -2286,7 +2408,7 @@ const PublicationManagement = () => {
                           fontWeight: '500',
                           cursor: 'pointer'
                         }}
-                        onClick={() => setSelectedIndustryFilters(selectedIndustryFilters.filter(i => i !== industry))}
+                          onClick={() => setSelectedIndustryFilters(selectedIndustryFilters.filter(i => i !== industry))}
                         >
                           {industry}
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -3196,7 +3318,7 @@ const PublicationManagement = () => {
                       fontWeight: '500',
                       cursor: 'pointer'
                     }}
-                    onClick={() => removeFilter(filter.type)}
+                      onClick={() => removeFilter(filter.type)}
                     >
                       {filter.label}
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -3323,54 +3445,23 @@ const PublicationManagement = () => {
                       <option value="100">100 per page</option>
                     </select>
                     <button
-                      onClick={() => {
-                        // Export filtered results as CSV
-                        const headers = ['Name', 'Website', 'SN', 'Group', 'Industry', 'Region', 'Language', 'Price', 'DA', 'DR', 'News Index', 'Words Limit', 'Images', 'Sponsored', 'Do-follow', 'Live', 'Status'];
-                        const csvData = [
-                          headers.join(','),
-                          ...filteredPublications.map(pub => [
-                            `"${pub.publication_name}"`,
-                            `"${pub.publication_website}"`,
-                            `"${pub.publication_sn}"`,
-                            `"${pub.group_name || ''}"`,
-                            `"${pub.publication_primary_industry}"`,
-                            `"${pub.publication_region}"`,
-                            `"${pub.publication_language}"`,
-                            pub.publication_price,
-                            pub.da,
-                            pub.dr,
-                            pub.website_news_index,
-                            pub.words_limit,
-                            pub.number_of_images,
-                            pub.sponsored_or_not ? 'Yes' : 'No',
-                            pub.do_follow_link ? 'Yes' : 'No',
-                            pub.live_on_platform ? 'Yes' : 'No',
-                            pub.status
-                          ].join(','))
-                        ].join('\n');
- 
-                        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-                        const link = document.createElement('a');
-                        const url = URL.createObjectURL(blob);
-                        link.setAttribute('href', url);
-                        link.setAttribute('download', `publications_export_${new Date().toISOString().split('T')[0]}.csv`);
-                        link.style.visibility = 'hidden';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
+                      onClick={() => setShowExportModal(true)}
                       style={{
                         padding: '8px 16px',
-                        backgroundColor: theme.primary,
+                        backgroundColor: theme.secondaryDark,
                         color: '#fff',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '14px',
                         cursor: 'pointer',
-                        fontWeight: '500'
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
                       }}
                     >
-                      Export CSV
+                      <Icon name="document-arrow-down" size="sm" style={{ color: '#fff' }} />
+                      Download CSV
                     </button>
                     <button
                       onClick={() => setShowDeleted(!showDeleted)}
@@ -3415,36 +3506,36 @@ const PublicationManagement = () => {
                       >
                         Group {getSortIcon('group_name')}
                       </th>
-                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Industry & Tags
-                        </th>
-                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Location
-                        </th>
-                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          SEO Scores
-                        </th>
-                        <th
-                          style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                          onClick={() => handleSort('publication_price')}
-                        >
-                          Price {getSortIcon('publication_price')}
-                        </th>
-                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          TAT
-                        </th>
-                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Features
-                        </th>
-                        <th
-                          style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
-                          onClick={() => handleSort('status')}
-                        >
-                          Status {getSortIcon('status')}
-                        </th>
-                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          Actions
-                        </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Industry & Tags
+                      </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Location
+                      </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        SEO Scores
+                      </th>
+                      <th
+                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
+                        onClick={() => handleSort('publication_price')}
+                      >
+                        Price {getSortIcon('publication_price')}
+                      </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        TAT
+                      </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Features
+                      </th>
+                      <th
+                        style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer' }}
+                        onClick={() => handleSort('status')}
+                      >
+                        Status {getSortIcon('status')}
+                      </th>
+                      <th style={{ padding: '16px', textAlign: 'left', fontWeight: '700', fontSize: '12px', color: theme.textPrimary, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        Actions
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -3454,16 +3545,16 @@ const PublicationManagement = () => {
                         backgroundColor: selectedPublications.includes(publication.id) ? '#e0f2fe' : (index % 2 === 0 ? '#ffffff' : '#fafbfc'),
                         transition: 'all 0.2s'
                       }}
-                      onMouseEnter={(e) => {
-                        if (!selectedPublications.includes(publication.id)) {
-                          e.target.closest('tr').style.backgroundColor = '#f1f5f9';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!selectedPublications.includes(publication.id)) {
-                          e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
-                        }
-                      }}
+                        onMouseEnter={(e) => {
+                          if (!selectedPublications.includes(publication.id)) {
+                            e.target.closest('tr').style.backgroundColor = '#f1f5f9';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!selectedPublications.includes(publication.id)) {
+                            e.target.closest('tr').style.backgroundColor = index % 2 === 0 ? '#ffffff' : '#fafbfc';
+                          }
+                        }}
                       >
                         <td style={{ padding: '16px' }}>
                           <input
@@ -3926,6 +4017,13 @@ const PublicationManagement = () => {
         publication={editingPublication}
         groups={groups}
         onSave={handleFormSave}
+      />
+
+      {/* Export Options Modal */}
+      <ExportOptionsModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        onExport={handleExportCSV}
       />
 
       {/* Bulk Upload Modal */}

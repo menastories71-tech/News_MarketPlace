@@ -24,6 +24,7 @@ router.delete('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPe
 // Admin routes (admins can manage all publications and perform bulk operations)
 router.get('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), publicationController.getAll);
 router.post('/admin', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), publicationController.createValidation, publicationController.create);
+router.get('/admin/export-csv', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), publicationController.exportCSV);
 router.get('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), publicationController.getById);
 router.put('/admin/:id', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), publicationController.updateValidation, publicationController.update);
 router.put('/admin/:id/approve', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('approve_publications'), publicationController.approvePublication);
