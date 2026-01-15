@@ -775,6 +775,24 @@ const PowerlistManagement = () => {
     }
   };
 
+  const handleDownloadCSV = async () => {
+    try {
+      const response = await api.get('/powerlist-nominations/export-csv', {
+        responseType: 'blob'
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'powerlist_nominations_export.csv');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error('Error downloading CSV:', error);
+      alert('Failed to download CSV.');
+    }
+  };
+
   const handleBulkUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -1028,6 +1046,13 @@ const PowerlistManagement = () => {
                 >
                   <Icon name="arrow-down-tray" size="sm" style={{ color: '#fff', marginRight: 8 }} />
                   Download Template
+                </button>
+                <button
+                  onClick={handleDownloadCSV}
+                  style={{ ...btnPrimary, backgroundColor: theme.secondaryDark, fontSize: '14px', padding: '12px 20px' }}
+                >
+                  <Icon name="document-arrow-down" size="sm" style={{ color: '#fff', marginRight: 8 }} />
+                  Download CSV
                 </button>
                 <button
                   onClick={() => fileInputRef.current.click()}
@@ -1608,10 +1633,10 @@ const PowerlistManagement = () => {
             </div>
           </main>
         </div>
-      </div>
+      </div >
 
       {/* Powerlist Nomination Form Modal */}
-      <PowerlistNominationFormModal
+      < PowerlistNominationFormModal
         isOpen={showFormModal}
         onClose={() => setShowFormModal(false)}
         nomination={editingNomination}
@@ -1619,52 +1644,54 @@ const PowerlistManagement = () => {
       />
 
       {/* Message Display */}
-      {message && (
-        <div style={{
-          position: 'fixed',
-          top: '80px',
-          right: '20px',
-          zIndex: 10001,
-          backgroundColor: message.type === 'success' ? '#4CAF50' : '#F44336',
-          color: '#fff',
-          padding: '16px 20px',
-          borderRadius: '8px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-          maxWidth: '400px'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-            <div>
-              <div style={{ fontWeight: '600', marginBottom: '4px' }}>{message.text}</div>
-              {message.errors && message.errors.length > 0 && (
-                <div style={{ fontSize: '12px', marginTop: '8px' }}>
-                  <div style={{ fontWeight: '600', marginBottom: '4px' }}>Errors:</div>
-                  <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                    {message.errors.slice(0, 5).map((err, idx) => (
-                      <li key={idx}>{err}</li>
-                    ))}
-                    {message.errors.length > 5 && <li>... and {message.errors.length - 5} more</li>}
-                  </ul>
-                </div>
-              )}
+      {
+        message && (
+          <div style={{
+            position: 'fixed',
+            top: '80px',
+            right: '20px',
+            zIndex: 10001,
+            backgroundColor: message.type === 'success' ? '#4CAF50' : '#F44336',
+            color: '#fff',
+            padding: '16px 20px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+            maxWidth: '400px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+              <div>
+                <div style={{ fontWeight: '600', marginBottom: '4px' }}>{message.text}</div>
+                {message.errors && message.errors.length > 0 && (
+                  <div style={{ fontSize: '12px', marginTop: '8px' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>Errors:</div>
+                    <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                      {message.errors.slice(0, 5).map((err, idx) => (
+                        <li key={idx}>{err}</li>
+                      ))}
+                      {message.errors.length > 5 && <li>... and {message.errors.length - 5} more</li>}
+                    </ul>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setMessage(null)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#fff',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  padding: '0',
+                  lineHeight: '1'
+                }}
+              >
+                ×
+              </button>
             </div>
-            <button
-              onClick={() => setMessage(null)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#fff',
-                fontSize: '20px',
-                cursor: 'pointer',
-                padding: '0',
-                lineHeight: '1'
-              }}
-            >
-              ×
-            </button>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
