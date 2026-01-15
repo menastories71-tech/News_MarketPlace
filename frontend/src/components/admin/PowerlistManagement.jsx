@@ -1226,42 +1226,6 @@ const PowerlistManagement = () => {
                       <option value="50">50 per page</option>
                       <option value="100">100 per page</option>
                     </select>
-                    <button
-                      onClick={() => {
-                        const headers = ['Publication Name', 'Power List Name', 'Industry', 'Status'];
-                        const csvData = [
-                          headers.join(','),
-                          ...nominations.map(nomination => [
-                            `"${nomination.publication_name}"`,
-                            `"${nomination.power_list_name}"`,
-                            `"${nomination.industry}"`,
-                            nomination.status
-                          ].join(','))
-                        ].join('\n');
-
-                        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-                        const link = document.createElement('a');
-                        const url = URL.createObjectURL(blob);
-                        link.setAttribute('href', url);
-                        link.setAttribute('download', `powerlist_nominations_export_${new Date().toISOString().split('T')[0]}.csv`);
-                        link.style.visibility = 'hidden';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                      }}
-                      style={{
-                        padding: '8px 16px',
-                        backgroundColor: theme.primary,
-                        color: '#fff',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        cursor: 'pointer',
-                        fontWeight: '500'
-                      }}
-                    >
-                      Export CSV
-                    </button>
                   </div>
                 </div>
               </div>
