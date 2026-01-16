@@ -218,7 +218,9 @@ const PrivacyPolicy = () => {
 
             </main>
 
-            <UserFooter />
+            <div className="relative z-10 bg-white">
+                <UserFooter />
+            </div>
         </div>
     );
 };
