@@ -1,88 +1,39 @@
+
 import React from 'react';
-import Icon from '../components/common/Icon';
-import UserHeader from '../components/common/UserHeader';
-import UserFooter from '../components/common/UserFooter';
+import PolicyPageLayout from '../components/common/PolicyPageLayout';
 
 const TrademarkPolicy = () => {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <UserHeader />
+    const items = [
+        {
+            title: "1. Respect for Intellectual Property",
+            content: "We respect the intellectual property rights of others and expect our users to do the same. This Trademark Policy outlines our rules regarding the use of our trademarks and the trademarks of others on our platform."
+        },
+        {
+            title: "2. Our Trademarks",
+            content: "The News Marketplace name, logo, and any other product or service names or slogans contained in our services are trademarks of News Marketplace and its suppliers or licensors, and may not be copied, imitated, or used, in whole or in part, without the prior written permission of News Marketplace or the applicable trademark holder."
+        },
+        {
+            title: "3. Third-Party Trademarks",
+            content: "All other trademarks, registered trademarks, product names, and company names or logos mentioned in our services are the property of their respective owners. Reference to any products, services, processes, or other information, by trade name, trademark, manufacturer, supplier, or otherwise does not constitute or imply endorsement, sponsorship, or recommendation thereof by us."
+        },
+        {
+            title: "4. Trademark Infringement",
+            content: "If you believe that your trademark is being used on our platform in a way that constitutes trademark infringement, please contact us with the specific details of your claim, including the trademark registration number and the location of the infringing content."
+        },
+        {
+            title: "5. Use of Our Brand Assets",
+            content: "You may use our official brand assets only with our permission and in accordance with our brand guidelines. Do not modify, alter, or distort our logos or use them in a confusing or misleading manner."
+        }
+    ];
 
-      {/* Hero Section */}
-      <section
-        className="relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(to right, #1976D2, #0D47A1)',
-          color: '#ffffff'
-        }}
-      >
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }} />
-
-        <div className="relative max-w-7xl mx-auto px-4 py-20">
-          <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
-                <Icon name="shield-check" size="lg" className="text-white" />
-              </div>
-            </div>
-
-            <div className="w-full md:flex-1 text-center md:text-left">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight" style={{ color: '#ffffff' }}>
-                Trademark and Logo Policy
-              </h1>
-              <p className="mt-3 text-base md:text-lg text-white/90 max-w-2xl">
-                Guidelines for using News Marketplace trademarks and logos.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Content Area */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-          <h2 className="heading-3 text-gray-900 mb-6">Trademark Usage Guidelines</h2>
-          <p className="body-regular text-gray-600 mb-6">
-            The News Marketplace trademarks and logos are valuable assets that help identify our brand.
-            This policy outlines the proper use of our trademarks to maintain brand integrity and legal protection.
-          </p>
-
-          <div className="space-y-6">
-            <div>
-              <h3 className="heading-4 text-gray-900 mb-3">Permitted Use</h3>
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li>Fair use in editorial content and news reporting</li>
-                <li>Referencing our services in business communications</li>
-                <li>Creating links to our website</li>
-                <li>Using our name in truthful advertising comparisons</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="heading-4 text-gray-900 mb-3">Prohibited Use</h3>
-              <ul className="list-disc list-inside space-y-2 text-gray-600">
-                <li>Using our trademarks in your company or product names</li>
-                <li>Creating confusingly similar logos or designs</li>
-                <li>Implying affiliation without permission</li>
-                <li>Using trademarks in a way that disparages our brand</li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="heading-4 text-gray-900 mb-3">Contact Information</h3>
-              <p className="body-regular text-gray-600">
-                For trademark inquiries or permissions, please contact our legal team at legal@newsmarketplace.com
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <UserFooter />
-    </div>
-  );
+    return (
+        <PolicyPageLayout
+            title="Trademark & Logo Policy"
+            subtitle="Guidelines for the use of trademarks and intellectual property."
+            lastUpdated="January 2026"
+            items={items}
+        />
+    );
 };
 
 export default TrademarkPolicy;
