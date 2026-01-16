@@ -73,7 +73,7 @@ const PrivacyPolicy = () => {
                     }
                 });
             },
-            { threshold: 0.3 }
+            { threshold: 0.5 }
         );
 
         observerRefs.current.forEach((ref) => {
@@ -105,10 +105,9 @@ const PrivacyPolicy = () => {
 
             <main className="relative z-10">
 
-                {/* Immersive Hero */}
-                <section className="min-h-[60vh] md:h-screen flex flex-col justify-center items-center text-center px-4 relative pt-20 md:pt-0">
+                {/* Immersive Hero - Reduced height and padding */}
+                <section className="min-h-[40vh] md:min-h-[50vh] flex flex-col justify-center items-center text-center px-4 relative pt-12 pb-12">
                     <div className="animate-fade-in-up max-w-4xl mx-auto">
-                        {/* Icons removed as requested */}
                         <h1 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-slate-700 to-slate-900 leading-tight">
                             Your Privacy.<br />
                             <span className="font-light italic text-slate-500">Uncompromised.</span>
@@ -126,11 +125,12 @@ const PrivacyPolicy = () => {
 
                         {/* Left Side: Sticky Navigator & Graphic (Desktop Only) */}
                         <div className="hidden lg:block relative">
-                            <div className="sticky top-1/4 h-[auto] min-h-[500px] flex flex-col justify-start gap-12">
-                                {/* Dynamic Icon Display */}
-                                <div className={`w-full aspect-square max-w-[400px] rounded-[3rem] bg-gradient-to-br ${sections[activeSection].color} shadow-2xl flex items-center justify-center transition-all duration-700 ease-out`}>
-                                    <div className="bg-white/20 backdrop-blur-xl p-12 rounded-3xl border border-white/30 text-white shadow-inner">
-                                        <Icon name={sections[activeSection].icon} size="2xl" className="w-24 h-24" />
+                            {/* Adjusted min-height to match icons */}
+                            <div className="sticky top-1/4 h-[auto] min-h-[400px] flex flex-col justify-start gap-8">
+                                {/* Dynamic Icon Display - Significantly sizes reduced */}
+                                <div className={`w-full aspect-square max-w-[250px] rounded-[2rem] bg-gradient-to-br ${sections[activeSection].color} shadow-2xl flex items-center justify-center transition-all duration-700 ease-out`}>
+                                    <div className="bg-white/20 backdrop-blur-xl p-8 rounded-2xl border border-white/30 text-white shadow-inner">
+                                        <Icon name={sections[activeSection].icon} size="xl" className="w-16 h-16" />
                                     </div>
                                 </div>
 
@@ -151,14 +151,14 @@ const PrivacyPolicy = () => {
                         </div>
 
                         {/* Right Side: Scrollable Content - Mobile Optimized Spacing */}
-                        <div className="space-y-16 md:space-y-[30vh] md:py-[10vh]">
+                        <div className="space-y-16 md:space-y-[30vh] md:py-[5vh]">
                             {sections.map((section, idx) => (
                                 <div
                                     key={idx}
                                     id={section.id}
                                     data-index={idx}
                                     ref={el => observerRefs.current[idx] = el}
-                                    className="min-h-[auto] md:min-h-[60vh] flex flex-col justify-center scroll-mt-24"
+                                    className="min-h-[auto] md:min-h-[50vh] flex flex-col justify-center scroll-mt-24"
                                 >
                                     {/* Mobile Only Header with Icon */}
                                     <div className="lg:hidden mb-6 flex items-center gap-4 sticky top-20 z-20 bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-sm border border-slate-100">
@@ -168,7 +168,7 @@ const PrivacyPolicy = () => {
                                         <h2 className="text-xl font-black text-slate-900">{section.title}</h2>
                                     </div>
 
-                                    <div className="bg-white/80 backdrop-blur-3xl p-6 md:p-12 rounded-[2rem] border border-white/50 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
+                                    <div className="bg-white/80 backdrop-blur-3xl p-6 md:p-10 rounded-[2rem] border border-white/50 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
                                         <h3 className="hidden md:block text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 mb-2 uppercase tracking-wide">
                                             {section.title}
                                         </h3>
