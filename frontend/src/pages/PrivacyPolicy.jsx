@@ -73,7 +73,7 @@ const PrivacyPolicy = () => {
                     }
                 });
             },
-            { threshold: 0.5 }
+            { threshold: 0.3 }
         );
 
         observerRefs.current.forEach((ref) => {
@@ -93,6 +93,10 @@ const PrivacyPolicy = () => {
         </div>
     );
 
+    const handlePrint = () => {
+        window.print();
+    };
+
     return (
         <div className="min-h-screen bg-white font-sans text-slate-800 selection:bg-blue-100">
             <UserHeader />
@@ -102,42 +106,36 @@ const PrivacyPolicy = () => {
             <main className="relative z-10">
 
                 {/* Immersive Hero */}
-                <section className="h-screen flex flex-col justify-center items-center text-center px-4 relative">
-                    <div className="animate-fade-in-up">
-                        <div className="inline-flex items-center justify-center p-3 mb-8 rounded-2xl bg-white/50 border border-white/60 shadow-lg backdrop-blur-md">
-                            <Icon name="lock-closed" size="md" className="text-slate-800" />
-                        </div>
-                        <h1 className="text-6xl md:text-8xl font-black tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-slate-700 to-slate-900" style={{ lineHeight: 1.1 }}>
+                <section className="min-h-[60vh] md:h-screen flex flex-col justify-center items-center text-center px-4 relative pt-20 md:pt-0">
+                    <div className="animate-fade-in-up max-w-4xl mx-auto">
+                        {/* Icons removed as requested */}
+                        <h1 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter mb-6 bg-clip-text text-transparent bg-gradient-to-br from-slate-900 via-slate-700 to-slate-900 leading-tight">
                             Your Privacy.<br />
                             <span className="font-light italic text-slate-500">Uncompromised.</span>
                         </h1>
-                        <p className="text-xl md:text-2xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed">
+                        <p className="text-lg md:text-2xl text-slate-600 max-w-2xl mx-auto font-medium leading-relaxed px-4">
                             We've redesigned our policy to be as transparent as our journalism.
-                            <br />No legalese. Just the truth.
+                            <br className="hidden md:block" />No legalese. Just the truth.
                         </p>
-                    </div>
-
-                    <div className="absolute bottom-10 animate-bounce">
-                        <Icon name="chevron-down" className="w-8 h-8 text-slate-400" />
                     </div>
                 </section>
 
                 {/* Sticky Split Layout */}
-                <div className="relative max-w-7xl mx-auto px-4 lg:px-8 pb-40">
-                    <div className="lg:grid lg:grid-cols-2 gap-20">
+                <div className="relative max-w-7xl mx-auto px-4 lg:px-8 pb-20 md:pb-40">
+                    <div className="lg:grid lg:grid-cols-2 gap-10 lg:gap-20">
 
-                        {/* Left Side: Sticky Navigator & Graphic */}
+                        {/* Left Side: Sticky Navigator & Graphic (Desktop Only) */}
                         <div className="hidden lg:block relative">
-                            <div className="sticky top-1/4 h-[60vh] flex flex-col justify-between">
+                            <div className="sticky top-1/4 h-[auto] min-h-[500px] flex flex-col justify-start gap-12">
                                 {/* Dynamic Icon Display */}
-                                <div className={`w-full aspect-square rounded-[3rem] bg-gradient-to-br ${sections[activeSection].color} shadow-2xl flex items-center justify-center transition-all duration-700 ease-out transform hover:scale-105`}>
+                                <div className={`w-full aspect-square max-w-[400px] rounded-[3rem] bg-gradient-to-br ${sections[activeSection].color} shadow-2xl flex items-center justify-center transition-all duration-700 ease-out`}>
                                     <div className="bg-white/20 backdrop-blur-xl p-12 rounded-3xl border border-white/30 text-white shadow-inner">
                                         <Icon name={sections[activeSection].icon} size="2xl" className="w-24 h-24" />
                                     </div>
                                 </div>
 
                                 {/* Section Progress */}
-                                <div className="mt-12 space-y-4">
+                                <div className="space-y-4">
                                     {sections.map((section, idx) => (
                                         <button
                                             key={idx}
@@ -152,41 +150,42 @@ const PrivacyPolicy = () => {
                             </div>
                         </div>
 
-                        {/* Right Side: Scrollable Content */}
-                        <div className="space-y-[30vh] py-[10vh]">
+                        {/* Right Side: Scrollable Content - Mobile Optimized Spacing */}
+                        <div className="space-y-16 md:space-y-[30vh] md:py-[10vh]">
                             {sections.map((section, idx) => (
                                 <div
                                     key={idx}
                                     id={section.id}
                                     data-index={idx}
                                     ref={el => observerRefs.current[idx] = el}
-                                    className="min-h-[60vh] flex flex-col justify-center"
+                                    className="min-h-[auto] md:min-h-[60vh] flex flex-col justify-center scroll-mt-24"
                                 >
-                                    {/* Mobile Only Header */}
-                                    <div className="lg:hidden mb-8 flex items-center gap-4">
-                                        <div className={`p-4 rounded-2xl bg-gradient-to-br ${section.color} text-white shadow-lg`}>
-                                            <Icon name={section.icon} size="lg" />
+                                    {/* Mobile Only Header with Icon */}
+                                    <div className="lg:hidden mb-6 flex items-center gap-4 sticky top-20 z-20 bg-white/80 backdrop-blur-md p-4 rounded-xl shadow-sm border border-slate-100">
+                                        <div className={`p-3 rounded-xl bg-gradient-to-br ${section.color} text-white shadow-md`}>
+                                            <Icon name={section.icon} size="md" />
                                         </div>
-                                        <h2 className="text-3xl font-black text-slate-900">{section.title}</h2>
+                                        <h2 className="text-xl font-black text-slate-900">{section.title}</h2>
                                     </div>
 
-                                    <div className="bg-white/80 backdrop-blur-3xl p-8 md:p-12 rounded-[2.5rem] border border-white/50 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.05)] transition-transform duration-500 hover:-translate-y-2">
-                                        <h3 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 mb-2 uppercase tracking-wide">
+                                    <div className="bg-white/80 backdrop-blur-3xl p-6 md:p-12 rounded-[2rem] border border-white/50 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
+                                        <h3 className="hidden md:block text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600 mb-2 uppercase tracking-wide">
                                             {section.title}
                                         </h3>
-                                        <h2 className="text-4xl md:text-5xl font-serif text-slate-900 mb-8 leading-tight">
+
+                                        <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 md:mb-8 leading-tight">
                                             {section.question}
                                         </h2>
-                                        <p className="text-lg md:text-xl text-slate-600 leading-relaxed mb-12">
+                                        <p className="text-lg md:text-xl text-slate-600 leading-relaxed mb-8 md:mb-12">
                                             {section.content}
                                         </p>
 
                                         {/* Data Pills */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
                                             {section.stats.map((stat, sIdx) => (
-                                                <div key={sIdx} className="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                                                <div key={sIdx} className="bg-slate-50 p-4 md:p-5 rounded-2xl border border-slate-100 flex flex-col gap-1 md:gap-2">
                                                     <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{stat.label}</span>
-                                                    <span className="text-lg font-bold text-slate-800">{stat.value}</span>
+                                                    <span className="text-base md:text-lg font-bold text-slate-800">{stat.value}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -195,13 +194,19 @@ const PrivacyPolicy = () => {
                             ))}
 
                             {/* Final CTA Card */}
-                            <div className="min-h-[40vh] flex flex-col justify-center items-center text-center">
-                                <h2 className="text-3xl font-bold text-slate-900 mb-6">Need the fine print?</h2>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <button className="px-8 py-4 bg-slate-900 text-white rounded-full font-bold hover:bg-slate-800 transition-colors shadow-xl">
-                                        Download Legal PDF
+                            <div className="min-h-[30vh] flex flex-col justify-center items-center text-center py-12">
+                                <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-8">Need the fine print?</h2>
+                                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto px-4">
+                                    <button
+                                        onClick={handlePrint}
+                                        className="px-8 py-4 bg-slate-900 text-white rounded-full font-bold hover:bg-slate-800 transition-colors shadow-xl w-full sm:w-auto"
+                                    >
+                                        Save as PDF
                                     </button>
-                                    <a href="/contact-us" className="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-full font-bold hover:bg-slate-50 transition-colors shadow-sm">
+                                    <a
+                                        href="/contact-us"
+                                        className="px-8 py-4 bg-white text-slate-900 border border-slate-200 rounded-full font-bold hover:bg-slate-50 transition-colors shadow-sm w-full sm:w-auto inline-flex justify-center items-center"
+                                    >
                                         Contact DPO
                                     </a>
                                 </div>
