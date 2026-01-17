@@ -61,7 +61,7 @@ const ResellingAgreement = () => {
         <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-slate-900 selection:text-white">
             <UserHeader />
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-24">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24">
                 <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
 
                     {/* Left Sticky Sidebar - Navigation & Header */}
