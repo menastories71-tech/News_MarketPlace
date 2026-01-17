@@ -138,118 +138,116 @@ const TermsAndConditions = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-slate-200 font-sans selection:bg-indigo-500 selection:text-white">
-      <UserHeader theme="dark" />
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
+      <UserHeader />
 
-      <div className="relative pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-10">
+      {/* Subtle Textured Background */}
+      <div className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none"
+        style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")` }}>
+      </div>
 
-        {/* Hero Section */}
-        <div className="text-center mb-16 space-y-6">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mb-4 animate-fade-in">
-            <Icon name="document-text" className="w-6 h-6" />
-          </div>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-4">
-            Terms <span className="text-indigo-500">&</span> Conditions
+      <div className="relative z-10 pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+
+        {/* Header */}
+        <div className="text-center mb-16">
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight">
+            Terms & Conditions
           </h1>
-          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
-            Transparent rules for a trustworthy partnership. <br className="hidden md:block" />Please read these guidelines carefully before proceeding.
+          <p className="text-lg text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">
+            Clear guidelines for a transparent partnership.<br className="hidden md:block" /> No hidden clauses, just straightforward business.
           </p>
 
-          {/* Search Bar */}
-          <div className="max-w-xl mx-auto relative group">
+          {/* Search Field */}
+          <div className="mt-10 max-w-lg mx-auto relative group">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Icon name="magnifying-glass" className="h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+              <Icon name="magnifying-glass" className="h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
             </div>
             <input
               type="text"
-              placeholder="Search for 'Payment', 'Refund', 'Content'..."
+              placeholder="Find a specific term..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-11 pr-4 py-4 bg-slate-800/50 border border-slate-700/50 rounded-xl text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all backdrop-blur-sm"
+              className="block w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-full text-slate-900 placeholder-slate-400 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none transition-all shadow-sm hover:shadow-md"
             />
           </div>
         </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
-
-          {/* Render Filtered Terms */}
+        {/* Editorial List Layout */}
+        <div className="space-y-8">
           {filteredTerms.map((term, index) => (
-            <div
-              key={index}
-              className="group p-6 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10 flex flex-col"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-lg font-bold text-slate-100 leading-snug group-hover:text-indigo-300 transition-colors">
-                  {term.title}
-                </h3>
-                <span className="text-xs font-mono text-slate-600 bg-slate-900 px-2 py-1 rounded group-hover:text-indigo-400 group-hover:bg-indigo-950/30 transition-colors">
-                  {(index + 1).toString().padStart(2, '0')}
-                </span>
+            <div key={index} className="group bg-white rounded-2xl p-8 shadow-sm border border-slate-100 hover:shadow-xl hover:border-blue-100 transition-all duration-300">
+              <div className="flex flex-col md:flex-row gap-6 md:gap-10">
+                {/* Left Column: Index & Title */}
+                <div className="md:w-1/3 flex-shrink-0">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-xs font-bold text-slate-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      {(index + 1)}
+                    </span>
+                    <div className="h-px flex-1 bg-slate-100 group-hover:bg-blue-100 transition-colors"></div>
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-700 transition-colors leading-tight">
+                    {term.title}
+                  </h3>
+                </div>
+
+                {/* Right Column: Content */}
+                <div className="md:w-2/3">
+                  <p className="text-slate-600 leading-relaxed text-base font-normal">
+                    {term.content}
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-slate-400 leading-relaxed font-light">
-                {term.content}
-              </p>
             </div>
           ))}
 
-          {/* No Results State */}
+          {/* Empty State */}
           {filteredTerms.length === 0 && (
-            <div className="col-span-full py-20 text-center text-slate-500">
-              <Icon name="exclamation-circle" className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg">No terms found matching "{searchQuery}"</p>
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-200">
+              <Icon name="exclamation-circle" className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+              <p className="text-slate-500 font-medium">No results found for "{searchQuery}"</p>
               <button
                 onClick={() => setSearchQuery('')}
-                className="mt-4 text-indigo-400 hover:text-indigo-300 underline"
+                className="mt-4 text-blue-600 font-bold hover:underline"
               >
-                Clear Search
+                View All Terms
               </button>
             </div>
           )}
-
-          {/* Additional Restrictions - Always visible unless searched away/filtered out logic customization. 
-                        Actually, let's keep it visible at the end or if it matches generic "Restrictions". 
-                        Since the user wants "Content is fix", I should make sure this is prominent.
-                        I will put it as a full-width block below the grid.
-                    */}
         </div>
 
-        {/* Additional Restrictions Section - Full Width */}
-        <div className="mt-12 animate-fade-in-up delay-200">
-          <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20 backdrop-blur-md">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-indigo-500 rounded-xl text-white shadow-lg shadow-indigo-500/20">
-                <Icon name="shield-check" className="w-6 h-6" />
+        {/* Additional Restrictions Section */}
+        <div className="mt-16 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-2xl shadow-slate-200">
+          <div className="flex flex-col md:flex-row gap-8 md:items-start">
+            <div className="md:w-1/3">
+              <div className="inline-block p-3 bg-white/10 rounded-xl mb-4 backdrop-blur-sm">
+                <Icon name="shield-check" className="w-6 h-6 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-white">Additional Service Restrictions</h2>
+              <h2 className="text-2xl font-bold mb-2">Service Restrictions</h2>
+              <p className="text-slate-400 text-sm">Vital limitations to be aware of before proceeding.</p>
             </div>
-            <p className="text-indigo-200 mb-6 font-medium">
-              The following restrictions apply to our services unless explicitly agreed otherwise:
-            </p>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {additionalRestrictions.map((r, i) => (
-                <li key={i} className="flex items-center gap-3 p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/10 hover:border-indigo-400/50 transition-colors">
-                  <div className="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]"></div>
-                  <span className="text-sm text-slate-300 font-medium">{r}</span>
-                </li>
-              ))}
-            </ul>
+
+            <div className="md:w-2/3">
+              <div className="grid sm:grid-cols-2 gap-4">
+                {additionalRestrictions.map((r, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <Icon name="x-circle" className="w-5 h-5 text-rose-400 flex-shrink-0 mt-0.5" />
+                    <span className="text-slate-200 text-sm font-medium">{r}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="mt-12 border-t border-slate-800 pt-8 text-center text-slate-500 text-sm">
-          <p>Last Updated: January 2026</p>
+        {/* Footer Meta */}
+        <div className="mt-16 text-center border-t border-slate-200 pt-8">
+          <p className="text-slate-400 text-sm">
+            Last effective update: <span className="text-slate-900 font-semibold">January 2026</span>
+          </p>
         </div>
-
       </div>
 
-      {/* Background Effects */}
-      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
-        <div className="absolute bottom-0 left-0 w-[50vw] h-[50vw] bg-purple-600/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
-      </div>
-
-      <div className="relative z-20">
+      <div className="relative z-20 bg-white">
         <UserFooter />
       </div>
     </div>
