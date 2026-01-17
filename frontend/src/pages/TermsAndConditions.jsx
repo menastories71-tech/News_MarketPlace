@@ -1,8 +1,11 @@
-
-import React from 'react';
-import PolicyPageLayout from '../components/common/PolicyPageLayout';
+import React, { useState } from 'react';
+import UserHeader from '../components/common/UserHeader';
+import UserFooter from '../components/common/UserFooter';
+import Icon from '../components/common/Icon';
 
 const TermsAndConditions = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const termsPoints = [
     {
       title: "Order Processing & Cancellation Policy",
@@ -128,34 +131,128 @@ const TermsAndConditions = () => {
     "Not placed in home page, place in relevant section"
   ];
 
-  // Append restrictions as a rich content section
-  const finalItems = [
-    ...termsPoints,
-    {
-      title: "Additional Service Restrictions",
-      content: (
-        <div className="space-y-4">
-          <p>The following restrictions apply to our services unless explicitly agreed otherwise:</p>
-          <ul className="grid md:grid-cols-2 gap-3">
-            {additionalRestrictions.map((r, i) => (
-              <li key={i} className="flex items-start gap-3 bg-red-50 rounded-lg p-3 border border-red-100 items-center">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
-                <span className="text-sm text-gray-700 font-medium">{r}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-  ];
+  // Search Logic
+  const filteredTerms = termsPoints.filter(term =>
+    term.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    term.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <PolicyPageLayout
-      title="Terms & Conditions"
-      subtitle="Must-Consider Points Before Placing an Order — concise, clear and actionable policies for a trusted engagement."
-      lastUpdated="January 2026"
-      items={finalItems}
-    />
+    <div className="min-h-screen bg-[#0F172A] text-slate-200 font-sans selection:bg-indigo-500 selection:text-white">
+      <UserHeader theme="dark" />
+
+      <div className="relative pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto z-10">
+
+        {/* Hero Section */}
+        <div className="text-center mb-16 space-y-6">
+          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 mb-4 animate-fade-in">
+            <Icon name="document-text" className="w-6 h-6" />
+          </div>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-4">
+            Terms <span className="text-indigo-500">&</span> Conditions
+          </h1>
+          <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
+            Transparent rules for a trustworthy partnership. <br className="hidden md:block" />Please read these guidelines carefully before proceeding.
+          </p>
+
+          {/* Search Bar */}
+          <div className="max-w-xl mx-auto relative group">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Icon name="magnifying-glass" className="h-5 w-5 text-slate-500 group-focus-within:text-indigo-400 transition-colors" />
+            </div>
+            <input
+              type="text"
+              placeholder="Search for 'Payment', 'Refund', 'Content'..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full pl-11 pr-4 py-4 bg-slate-800/50 border border-slate-700/50 rounded-xl text-slate-100 placeholder-slate-500 focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all backdrop-blur-sm"
+            />
+          </div>
+        </div>
+
+        {/* Content Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-min">
+
+          {/* Render Filtered Terms */}
+          {filteredTerms.map((term, index) => (
+            <div
+              key={index}
+              className="group p-6 rounded-2xl bg-slate-900/50 border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/80 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10 flex flex-col"
+            >
+              <div className="flex items-start justify-between mb-4">
+                <h3 className="text-lg font-bold text-slate-100 leading-snug group-hover:text-indigo-300 transition-colors">
+                  {term.title}
+                </h3>
+                <span className="text-xs font-mono text-slate-600 bg-slate-900 px-2 py-1 rounded group-hover:text-indigo-400 group-hover:bg-indigo-950/30 transition-colors">
+                  {(index + 1).toString().padStart(2, '0')}
+                </span>
+              </div>
+              <p className="text-sm text-slate-400 leading-relaxed font-light">
+                {term.content}
+              </p>
+            </div>
+          ))}
+
+          {/* No Results State */}
+          {filteredTerms.length === 0 && (
+            <div className="col-span-full py-20 text-center text-slate-500">
+              <Icon name="exclamation-circle" className="w-12 h-12 mx-auto mb-4 opacity-50" />
+              <p className="text-lg">No terms found matching "{searchQuery}"</p>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-4 text-indigo-400 hover:text-indigo-300 underline"
+              >
+                Clear Search
+              </button>
+            </div>
+          )}
+
+          {/* Additional Restrictions - Always visible unless searched away/filtered out logic customization. 
+                        Actually, let's keep it visible at the end or if it matches generic "Restrictions". 
+                        Since the user wants "Content is fix", I should make sure this is prominent.
+                        I will put it as a full-width block below the grid.
+                    */}
+        </div>
+
+        {/* Additional Restrictions Section - Full Width */}
+        <div className="mt-12 animate-fade-in-up delay-200">
+          <div className="p-8 rounded-3xl bg-gradient-to-br from-indigo-900/20 to-purple-900/20 border border-indigo-500/20 backdrop-blur-md">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="p-3 bg-indigo-500 rounded-xl text-white shadow-lg shadow-indigo-500/20">
+                <Icon name="shield-check" className="w-6 h-6" />
+              </div>
+              <h2 className="text-2xl font-bold text-white">Additional Service Restrictions</h2>
+            </div>
+            <p className="text-indigo-200 mb-6 font-medium">
+              The following restrictions apply to our services unless explicitly agreed otherwise:
+            </p>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {additionalRestrictions.map((r, i) => (
+                <li key={i} className="flex items-center gap-3 p-4 rounded-xl bg-indigo-950/40 border border-indigo-500/10 hover:border-indigo-400/50 transition-colors">
+                  <div className="w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]"></div>
+                  <span className="text-sm text-slate-300 font-medium">{r}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 border-t border-slate-800 pt-8 text-center text-slate-500 text-sm">
+          <p>Last Updated: January 2026</p>
+        </div>
+
+      </div>
+
+      {/* Background Effects */}
+      <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-[50vw] h-[50vw] bg-purple-600/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2"></div>
+      </div>
+
+      <div className="relative z-20">
+        <UserFooter />
+      </div>
+    </div>
   );
 };
 
