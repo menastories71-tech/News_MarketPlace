@@ -36,6 +36,29 @@ const ServicesOverview = () => {
     { number: '99%', label: 'Uptime', icon: 'server' }
   ];
 
+  const whyChooseFeatures = [
+    {
+      title: "AI-Powered",
+      description: "Advanced artificial intelligence for superior content creation and optimization",
+      icon: "cpu-chip",
+    },
+    {
+      title: "24/7 Support",
+      description: "Round-the-clock assistance from our expert support team worldwide",
+      icon: "users",
+    },
+    {
+      title: "Enterprise Security",
+      description: "Military-grade security protocols protecting your valuable content and data",
+      icon: "lock-closed",
+    },
+    {
+      title: "Proven Results",
+      description: "Track record of success with measurable ROI and performance improvements",
+      icon: "star",
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
       <SEO
@@ -69,10 +92,10 @@ const ServicesOverview = () => {
             {services.map((service, index) => (
               <div key={index} className="relative group">
                 {/* Step Marker */}
-                <div className="w-full flex justify-center mb-8">
-                  <div className="w-32 h-32 rounded-full bg-white border-4 border-slate-50 shadow-sm flex items-center justify-center relative z-10 group-hover:border-blue-100 group-hover:scale-110 transition-all duration-300">
-                    <div className="w-24 h-24 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
-                      <Icon name={service.icon} size="xl" />
+                <div className="w-full flex justify-center mb-6">
+                  <div className="w-28 h-28 rounded-full bg-white border-4 border-slate-50 shadow-sm flex items-center justify-center relative z-10 group-hover:border-blue-100 group-hover:scale-110 transition-all duration-300">
+                    <div className="w-20 h-20 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center">
+                      <Icon name={service.icon} size="lg" />
                     </div>
                     <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold border-2 border-white">
                       {service.step}
@@ -81,13 +104,13 @@ const ServicesOverview = () => {
                 </div>
 
                 {/* Card Content */}
-                <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 h-full text-center">
-                  <h3 className="text-2xl font-bold text-slate-900 mb-4">{service.category}</h3>
-                  <p className="text-slate-500 leading-relaxed mb-6 text-sm">
+                <div className="bg-white rounded-3xl p-6 border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-200 transition-all duration-300 text-center">
+                  <h3 className="text-xl font-bold text-slate-900 mb-3">{service.category}</h3>
+                  <p className="text-slate-500 leading-relaxed mb-5 text-sm">
                     {service.description}
                   </p>
 
-                  <div className="space-y-3 text-left bg-slate-50 rounded-2xl p-6">
+                  <div className="space-y-3 text-left bg-slate-50 rounded-2xl p-5">
                     {service.features.map((feat, i) => (
                       <div key={i} className="flex items-start gap-3">
                         <Icon name="check" className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
@@ -102,43 +125,41 @@ const ServicesOverview = () => {
         </div>
       </div>
 
-      {/* Integrated Stats & CTA */}
-      <div className="bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="bg-slate-900 rounded-[2rem] p-8 md:p-12 shadow-2xl overflow-hidden relative text-white">
-            {/* Abstract BG */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-blue-600 rounded-full blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/2"></div>
-
-            <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-              <div className="flex-1 text-center md:text-left">
-                <h2 className="text-3xl font-bold mb-6">Proven Impact</h2>
-                <div className="flex gap-8 justify-center md:justify-start">
-                  {stats.map((stat, idx) => (
-                    <div key={idx}>
-                      <div className="text-3xl font-black text-blue-400 mb-1">{stat.number}</div>
-                      <div className="text-xs text-slate-400 uppercase tracking-widest">{stat.label}</div>
-                    </div>
-                  ))}
+      {/* Integrated Stats replaced by Why Choose Us */}
+      <div className="bg-white border-t border-slate-200 py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {whyChooseFeatures.map((item, idx) => (
+              <div key={idx} className="group p-6 rounded-2xl border border-transparent hover:border-slate-100 hover:bg-slate-50 transition-all duration-300">
+                <div className="w-12 h-12 rounded-xl bg-slate-100 text-slate-900 group-hover:bg-blue-600 group-hover:text-white flex items-center justify-center mb-6 transition-colors duration-300">
+                  <Icon name={item.icon} size="md" />
                 </div>
-              </div>
-
-              <div className="h-px md:h-24 w-full md:w-px bg-slate-800"></div>
-
-              <div className="flex-1 text-center md:text-left">
-                <h2 className="text-3xl font-bold mb-4">Start Now</h2>
-                <p className="text-slate-400 mb-8 max-w-md">
-                  Join thousands of creators revolutionizing their workflow.
+                <h3 className="text-lg font-bold text-slate-900 mb-3">{item.title}</h3>
+                <p className="text-slate-500 text-sm leading-relaxed">
+                  {item.description}
                 </p>
-                <div className="flex gap-4 justify-center md:justify-start">
-                  <button className="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors">
-                    Get Started
-                  </button>
-                  <button className="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl transition-colors">
-                    View Pricing
-                  </button>
-                </div>
               </div>
-            </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Minimalist CTA */}
+      <div className="bg-slate-50 py-20 border-t border-slate-200">
+        <div className="max-w-3xl mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-6">
+            Ready to scale your content?
+          </h2>
+          <p className="text-slate-500 mb-8 max-w-xl mx-auto text-lg">
+            Join thousands of creators revolutionizing their workflow. Free to start, cancel anytime.
+          </p>
+          <div className="flex justify-center gap-4">
+            <button className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/25">
+              Start Free Trial
+            </button>
+            <button className="px-8 py-3 bg-white hover:bg-slate-50 text-slate-900 font-bold rounded-xl border border-slate-200 transition-all">
+              Talk to Sales
+            </button>
           </div>
         </div>
       </div>
