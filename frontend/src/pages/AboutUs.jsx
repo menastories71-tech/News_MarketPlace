@@ -1,371 +1,145 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Icon from '../components/common/Icon';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
+import Icon from '../components/common/Icon';
 import SEO from '../components/common/SEO';
 
-// add: lightweight real inline SVG icon mapper for this page
-const SVGIcon = ({ type, className = 'w-5 h-5', size = 20, style }) => {
-	// keep icons minimal and semantic — add more cases when needed
-	switch (type) {
-		case 'users':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-					<circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.5"/>
-					<path d="M23 21v-2a4 4 0 0 0-3-3.87" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-					<path d="M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				</svg>
-			);
-		case 'target':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-					<circle cx="12" cy="12" r="6" stroke="currentColor" strokeWidth="1.5"/>
-					<circle cx="12" cy="12" r="2" stroke="currentColor" strokeWidth="1.5"/>
-				</svg>
-			);
-		case 'lightning':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				</svg>
-			);
-		case 'globe':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5"/>
-					<path d="M2 12h20" stroke="currentColor" strokeWidth="1.5"/>
-					<path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" stroke="currentColor" strokeWidth="1.5"/>
-				</svg>
-			);
-		case 'award':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<circle cx="12" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-					<path d="M8.21 13.89L7 23l5-3 5 3-1.21-9.12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				</svg>
-			);
-		case 'chevron-right':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				</svg>
-			);
-		case 'heart':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				</svg>
-			);
-		case 'shield':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				</svg>
-			);
-		case 'chat':
-			return (
-				<svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" style={style} xmlns="http://www.w3.org/2000/svg">
-					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-				</svg>
-			);
-		default:
-			return <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.2"/></svg>;
-	}
-};
-
 const AboutUs = () => {
-  const aboutSections = [
+  const stats = [
+    { label: "Global Reach", value: "50+", suffix: "Countries" },
+    { label: "Partner Network", value: "500+", suffix: "Media Outlets" },
+    { label: "Client Satisfaction", value: "98%", suffix: "Retention Rate" },
+  ];
+
+  const values = [
     {
-      number: 1,
-      title: "Vision",
-      content: "Our goal is to become the world’s most trusted media marketplace, where high-quality services meet the best pricing. We envision a future where publishing is democratized, accessible, and profitable for all stakeholders in the media ecosystem."
+      title: "Integrity First",
+      desc: "Transparency isn't just a buzzword; it's our operating model. No hidden fees, no vague promises.",
+      icon: "shield-check",
+      bg: "bg-emerald-50",
+      color: "text-emerald-600" // Updated to standard Icon name
     },
     {
-      number: 2,
-      title: "Our Vision",
-      content: "To revolutionize visibility requirements by connecting creators, businesses, media outlets, brands, companies, influencers, and marketing professionals through innovative, transparent, and efficient platforms. VaaS Solutions bridge the gap between traditional media and modern digital needs, ensuring every voice is heard and every story is told."
+      title: "Innovation Driven",
+      desc: "We leverage AI and automation to strip away inefficiencies in the traditional PR workflow.",
+      icon: "light-bulb", // Updated to standard Icon name
+      bg: "bg-amber-50",
+      color: "text-amber-600"
     },
     {
-      number: 3,
-      title: "What VaaS Solutions Do",
-      content: "VaaS Solutions provides comprehensive omnichannel media, corporate communication, marketing, and PR solutions, including article publishing, press releases, content distribution, and digital marketing services. The platform connects clients with credible visibility solutions, ensuring maximum reach and impact for their vision and objectives."
-    },
-    {
-      number: 4,
-      title: "Why VaaS Solutions",
-      content: "With years of the founder’s experience across multiple industries, we understand the nuances of visibility. Our team comprises media professionals, content strategists, and technology experts who work together to deliver exceptional results for all the stakeholders."
-    },
-    {
-      number: 5,
-      title: "Stakeholder Commitment",
-      content: "We uphold the highest standards in service delivery, ensuring every requirement meets best-in-class benchmarks. Our commitment ensures that all partners—suppliers, clients, and collaborators—receive maximum value for their time and efforts."
-    },
-    {
-      number: 6,
-      title: "Global Network",
-      content: "VaaS Solutions’ network spans continents, connecting clients with top-tier media outlets and creators across the Middle East, North America, Europe, and Asia. This global reach ensures that our partners’ vision and mission receive the international and regional exposure they deserve."
-    },
-    {
-      number: 7,
-      title: "Innovation and Technology",
-      content: "We leverage cutting-edge technology to streamline the publishing process, from content submission to publication tracking. Our platform features real-time analytics, automated workflows, and AI-powered content optimization tools."
-    },
-    {
-      number: 8,
-      title: "Client Success",
-      content: "Our success is measured by our clients' success. We provide dedicated support, transparent communication, and measurable results. Every client relationship is built on trust, reliability, and mutual growth."
+      title: "Global Vision",
+      desc: "Connecting local stories to international audiences through a borderless media network.",
+      icon: "globe-alt", // Updated to standard Icon name
+      bg: "bg-blue-50",
+      color: "text-blue-600"
     }
   ];
 
-  const teamValues = [
-    "Integrity in all our dealings",
-    "Excellence in service delivery",
-    "Innovation in solutions",
-    "Transparency in operations",
-    "Collaboration with partners",
-    "Commitment to client success"
-  ];
-
-  // New: accordion state and toggle
-  const [openIndex, setOpenIndex] = useState(null); // start closed
-  const toggle = (i) => setOpenIndex(openIndex === i ? null : i);
-
-  // New: refs for accordion content nodes so we can use actual heights
-  const contentRefs = useRef([]);
-  useEffect(() => {
-    // Recalculate heights on resize so expanded panels size correctly
-    const onResize = () => {
-      // trigger re-render by updating state if needed, but reading scrollHeight in render is enough
-      // keep this hook so browsers recalc layout when window resizes
-      // no-op here intentionally; presence ensures cleanup below executes
-    };
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-slate-900 selection:text-white">
       <SEO
-        title="About Visibility as a Services (VaaS) Solutuions"
-        description="Discover the platform’s vision, mission, and the driving force behind the
-region’s first-of-its-kind MarTech platform for visibility services."
-        keywords="about us, news marketplace, digital publishing, media solutions, content creators, global publications"
+        title="About VaaS Solutions | The Future of Visibility"
+        description="Revolutionizing PR and Media through technology. Discover our mission to democratize global visibility."
+        keywords="VaaS, PR Tech, Media Marketplace, Visibility Services"
       />
       <UserHeader />
 
-      {/* Hero Section - clean blue hero with white text and proper alignment */}
-      <section
-        className="relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(to right, #1976D2, #0D47A1)',
-          color: '#ffffff' // ensure all text inside hero is white by default
-        }}
-      >
-        {/* subtle pattern overlay */}
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }} />
+      {/* Hero Section */}
+      <div className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
+        {/* Abstract Background */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-50 rounded-full blur-3xl opacity-60 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-50 rounded-full blur-3xl opacity-60 translate-y-1/2 -translate-x-1/2 pointer-events-none"></div>
 
-        <div className="relative max-w-7xl mx-auto px-4 py-20">
-          <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
-            {/* Icon block - aligned vertically with content */}
-            <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
-                <SVGIcon type="users" className="w-10 h-10 text-white" size={28} />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-50 border border-slate-100 text-xs font-bold tracking-widest uppercase mb-8 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+            Redefining Media
+          </div>
+          <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-slate-900 mb-8 leading-none">
+            We Are <br className="hidden md:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-br from-indigo-600 to-blue-500">
+              VaaS Solutions.
+            </span>
+          </h1>
+          <p className="text-xl md:text-2xl text-slate-500 max-w-3xl mx-auto leading-relaxed font-medium">
+            Bridging the gap between ambitious brands and global recognition. We are the engine behind the stories that shape the world.
+          </p>
+        </div>
+      </div>
+
+      {/* Stats Band */}
+      <div className="border-y border-slate-100 bg-slate-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-200">
+            {stats.map((stat, idx) => (
+              <div key={idx} className="pt-8 md:pt-0 px-4">
+                <div className="text-5xl font-black text-slate-900 mb-2">{stat.value}</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-slate-400">{stat.label}</div>
+                <div className="text-xs text-indigo-500 font-medium mt-1">{stat.suffix}</div>
               </div>
-            </div>
-
-            {/* Text block */}
-            <div className="w-full md:flex-1 text-center md:text-left">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight" style={{ color: '#ffffff' }}>
-                About Visibility as a Services (VaaS) Solutuions
-              </h1>
-              <p className="mt-3 text-base md:text-lg text-white/90 max-w-2xl">
-                Discover the platform’s vision, mission, and the driving force behind the
-region’s first-of-its-kind MarTech platform for visibility services.
-              </p>
-
-              {/* badges */}
-              <div className="mt-5 flex flex-wrap gap-3 justify-center md:justify-start">
-                <div className="inline-flex items-center gap-2 bg-white/10 text-white/95 px-3 py-1.5 rounded-md border border-white/10">
-                  <SVGIcon type="target" className="w-4 h-4 text-white/95" size={16} />
-                  <span className="text-sm">Mission-Driven</span>
-                </div>
-                <div className="inline-flex items-center gap-2 bg-white/10 text-white/95 px-3 py-1.5 rounded-md border border-white/10">
-                  <SVGIcon type="lightning" className="w-4 h-4 text-white/95" size={16} />
-                  <span className="text-sm">Innovation</span>
-                </div>
-                <div className="inline-flex items-center gap-2 bg-white/10 text-white/95 px-3 py-1.5 rounded-md border border-white/10">
-                  <SVGIcon type="globe" className="w-4 h-4 text-white/95" size={16} />
-                  <span className="text-sm">Global Reach</span>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Content Area: TOC sidebar + main accordion */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Introduction Card */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-          <div className="flex items-start space-x-4">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#E3F2FD' }}>
-              <SVGIcon type="award" className="w-6 h-6" size={20} style={{ color: '#0D47A1' }} />
-            </div>
+      {/* Mission Statement */}
+      <div className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative bg-slate-900 rounded-[2.5rem] p-10 md:p-20 overflow-hidden text-white shadow-2xl">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <div className="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <h2 className="heading-4 text-gray-900">Who We Are</h2>
-              <p className="body-regular text-gray-600 mt-1">
-                A leading digital media marketplace connecting content creators with global publications. Learn more about our journey and commitment to excellence.
+              <h3 className="text-indigo-400 text-sm font-bold uppercase tracking-widest mb-4">Our Mission</h3>
+              <h2 className="text-4xl md:text-5xl font-bold leading-tight mb-8">
+                Democratizing access to <span className="text-indigo-400">global influence.</span>
+              </h2>
+              <div className="h-1 w-20 bg-indigo-500 rounded-full mb-8"></div>
+              <p className="text-slate-300 text-lg leading-relaxed mb-8">
+                We envision a future where high-quality media exposure isn't reserved for the few.
+                By combining cutting-edge technology with deep industry relationships, we've built a
+                marketplace that makes visibility accessible, transparent, and scalable.
               </p>
+              <Link to="/contact-us" className="inline-flex items-center gap-2 text-white font-bold border-b border-indigo-500 pb-1 hover:text-indigo-400 transition-colors">
+                Join our mission <Icon name="arrow-right" className="w-4 h-4" />
+              </Link>
             </div>
-          </div>
-        </div>
-
-        {/* Grid: TOC (md+) + About Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          {/* TOC Sidebar */}
-          <aside className="hidden md:block md:col-span-3 sticky top-32 self-start"> {/* increased offset to avoid header overlap */}
-            <div className="bg-white/60 backdrop-blur-sm border border-gray-100 rounded-xl p-4">
-              <h4 className="body-small font-semibold text-gray-900 mb-3">Contents</h4>
-              <nav className="flex flex-col gap-2 text-sm">
-                {aboutSections.map((t, i) => (
-                  <a
-                    key={i}
-                    href={`#about-${i}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setOpenIndex(i);
-                      const target = document.getElementById(`about-${i}`);
-                      if (target) {
-                        // center the section in viewport so expanded content is visible
-                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                      }
-                    }}
-                    className={`block rounded-md px-3 py-2 hover:bg-gray-50 ${openIndex === i ? 'bg-gray-100 font-medium' : 'text-gray-700'}`}
-                  >
-                    <span className="inline-flex items-start gap-2">
-                      <span className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded-full text-xs text-gray-800">{t.number}</span>
-                      <span className="body-small text-gray-800 break-words">{t.title}</span> {/* allow wrapping */}
-                    </span>
-                  </a>
-                ))}
-              </nav>
-            </div>
-
-            <div className="mt-4 text-xs text-gray-500">
-              Tip: Click any item to expand. Use this panel to jump between sections.
-            </div>
-          </aside>
-
-          {/* About sections list */}
-          <main className="md:col-span-9 space-y-4">
-            {aboutSections.map((section, index) => (
-              <article id={`about-${index}`} key={index} className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
-                <header>
-                  <button
-                    onClick={() => toggle(index)}
-                    aria-expanded={openIndex === index}
-                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 focus:outline-none"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center justify-center w-10 h-10 rounded-lg font-semibold" style={{ backgroundColor: '#E3F2FD', color: '#0D47A1' }}>
-                        {section.number}
-                      </div>
-                      <div>
-                        <h3 className="heading-4 text-gray-900">{section.title}</h3>
-                        <p className="caption text-gray-500 mt-1">Learn more about our commitment</p> {/* always visible subheading */}
-                      </div>
-                    </div>
-                    <div className={`transform transition-transform ${openIndex === index ? 'rotate-90' : ''}`}>
-                      <SVGIcon type="chevron-right" className="w-4 h-4 text-gray-400" size={16} />
-                    </div>
-                  </button>
-                </header>
-
-                <div
-                  ref={(el) => (contentRefs.current[index] = el)}
-                  className={`px-5 pb-5 overflow-hidden transition-all duration-300 ${openIndex === index ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                  // measured height so content never gets clipped; fallback if ref missing
-                  style={{ maxHeight: openIndex === index ? `${contentRefs.current[index]?.scrollHeight ?? 600}px` : '0px' }}
-                  aria-hidden={openIndex !== index}
-                >
-                  <div className="prose prose-sm md:prose text-gray-700 pt-2 break-words whitespace-pre-wrap">
-                    <p>{section.content}</p>
-                  </div>
-
-                  <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-                    <div className="flex items-center gap-2">
-                      <SVGIcon type="heart" className="w-3.5 h-3.5" size={14} />
-                      <span>Part of our story</span>
-                    </div>
-                    <div>Section {section.number} of {aboutSections.length}</div>
-                  </div>
-                </div>
-              </article>
-            ))}
-
-          </main>
-        </div>
-
-        {/* Team Values - simplified list card */}
-        <div className="mt-8 bg-white rounded-xl border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-success-light rounded-lg flex items-center justify-center">
-                <SVGIcon type="shield" className="w-6 h-6 text-success" size={24} />
-              </div>
-              <div>
-                <h3 className="heading-4 text-gray-900">Our Core Values</h3>
-                <p className="body-small text-gray-500">The principles that guide everything we do</p>
-              </div>
-            </div>
-          </div>
-
-          <ul className="grid md:grid-cols-2 gap-3">
-            {teamValues.map((value, i) => (
-              <li key={i} className="flex items-start gap-3 bg-gray-50 rounded-md p-3 border border-gray-50">
-                <div className="w-6 h-6 rounded-full bg-success text-white flex items-center justify-center text-xs mt-0.5">
-                  <Icon name="check" size="xs" className="text-white" />
-                </div>
-                <div className="body-small text-gray-700">{value}</div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Contact & Support Section */}
-        <div className="mt-8 bg-gradient-to-r from-primary to-primary-dark text-white rounded-xl p-6">
-          <div className="flex flex-col md:flex-row items-center md:items-start md:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 bg-white/10 rounded-lg flex items-center justify-center">
-                <SVGIcon type="chat" className="w-6 h-6 text-white" size={24} />
-              </div>
-              <div>
-                <h4 className="heading-4">Get In Touch</h4>
-                <p className="body-small text-white/90">Ready to start your publishing journey? Our team is here to help.</p>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 w-full">
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10 w-full sm:w-auto">
-                <p className="caption text-white/90">Email</p>
-                <p className="body-small font-medium break-words">visibility@vaas.solutions</p>
-              </div>
-              <div className="bg-white/8 rounded-md px-4 py-2 border border-white/10 w-full sm:w-auto">
-                <p className="caption text-white/90">Telegram</p>
-                <a href="https://t.me/visibilityasaservice" className="body-small font-medium text-white hover:underline">@VisibilityExperts</a>
+            <div className="relative">
+              <div className="aspect-square rounded-full bg-gradient-to-tr from-indigo-600 to-blue-500 opacity-20 blur-3xl absolute inset-0"></div>
+              {/* Decorative Stylized Quotes/Text */}
+              <div className="relative space-y-6 text-center lg:text-right font-serif italic text-3xl md:text-4xl text-slate-200 opacity-90">
+                "Visibility is not just being seen. It's about being understood."
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <UserFooter />
-    </div>
+      {/* Core Values Grid */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-32">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold text-slate-900 mb-4">Driven by Principles</h2>
+          <p className="text-slate-500">The core values that define our roadmap.</p>
+        </div>
 
+        <div className="grid md:grid-cols-3 gap-8">
+          {values.map((v, i) => (
+            <div key={i} className="group p-8 rounded-[2rem] bg-white border border-slate-100 hover:border-indigo-100 hover:shadow-xl transition-all duration-300">
+              <div className={`w-14 h-14 rounded-2xl ${v.bg} ${v.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                <Icon name={v.icon} size="lg" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-900 mb-3">{v.title}</h3>
+              <p className="text-slate-500 leading-relaxed">
+                {v.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="relative z-20 bg-white">
+        <UserFooter />
+      </div>
+    </div>
   );
 };
 
