@@ -159,12 +159,18 @@ const TrademarkPolicy = () => {
                         Last Updated: <span className="text-slate-900">January 2026</span>
                     </p>
                     <div className="flex gap-4">
-                        <button className="px-6 py-2 bg-white border border-slate-200 rounded-full text-slate-900 text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors">
+                        <button
+                            onClick={() => alert("Asset download is currently unavailable. Please contact support.")}
+                            className="px-6 py-2 bg-white border border-slate-200 rounded-full text-slate-900 text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors"
+                        >
                             Download Assets
                         </button>
-                        <button className="px-6 py-2 bg-slate-900 rounded-full text-white text-sm font-bold shadow-lg hover:bg-slate-800 transition-colors">
+                        <a
+                            href="mailto:thesheikhmedia@gmail.com?subject=Trademark%20Violation%20Report"
+                            className="px-6 py-2 bg-slate-900 rounded-full text-white text-sm font-bold shadow-lg hover:bg-slate-800 transition-colors flex items-center justify-center"
+                        >
                             Report Violation
-                        </button>
+                        </a>
                     </div>
                 </div>
 
