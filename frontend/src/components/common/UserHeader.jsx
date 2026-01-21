@@ -29,7 +29,7 @@ const UserHeader = () => {
 
   const socialMediaIcons = [
     { name: 'facebook', href: 'https://vaas.solutions', label: 'Facebook', color: 'hover:text-blue-600' },
-    { name: 'x', href: 'https://vaas.solutions', label: 'X', color: 'hover:text-sky-500' },
+    { name: 'x-logo', href: 'https://vaas.solutions', label: 'X', color: 'hover:text-sky-500' },
     { name: 'linkedin', href: 'https://www.linkedin.com/company/visibilityasaservice/', label: 'LinkedIn', color: 'hover:text-blue-700' },
     { name: 'instagram', href: 'https://www.instagram.com/vaas.solutions', label: 'Instagram', color: 'hover:text-pink-600' },
     { name: 'youtube', href: 'https://vaas.solutions', label: 'YouTube', color: 'hover:text-red-600' },
@@ -74,7 +74,7 @@ const UserHeader = () => {
     {
       href: "/media-partnerships",
       text: "Media Partnerships",
-      icon: "handshake",
+      icon: "share-nodes",
       description: "Media partnership information",
       hasAuthCheck: false
     },

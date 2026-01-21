@@ -175,10 +175,16 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         </svg>
       );
 
-    case 'x':
+    case 'x-logo':
       return (
         <svg {...common} className={className} style={style} {...rest} viewBox="0 0 512 462.799">
           <path fill="currentColor" fillRule="nonzero" d="M403.229 0h78.506L310.219 196.04 512 462.799H354.002L230.261 301.007 88.669 462.799h-78.56l183.455-209.683L0 0h161.999l111.856 147.88L403.229 0zm-27.556 415.805h43.505L138.363 44.527h-46.68l283.99 371.278z" />
+        </svg>
+      );
+    case 'x':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M18 6L6 18M6 6l12 12" />
         </svg>
       );
     case 'tiktok':
@@ -262,12 +268,21 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
     case 'handshake':
       return (
         <svg {...common} className={className} style={style} {...rest}>
-          <path d="M10.5 1a.5.5 0 0 1 .5.5v3a.5.5 0 0 1-1 0v-3a.5.5 0 0 1 .5-.5z" />
-          <path d="M2 4.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
-          <path d="M2 7.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
-          <path d="M2 10.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
-          <path d="M2 13.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
-          <path d="M2 16.5a.5.5 0 0 1 .5-.5h11a.5.5 0 0 1 0 1h-11a.5.5 0 0 1-.5-.5z" />
+          <path d="m11 17 2 2 6-6" />
+          <path d="m18 14 2.5 2.5a3.37 3.37 0 0 1-4.75 4.75l-2-2" />
+          <path d="m6 20 2-2" />
+          <path d="m1 14 3-3 3.5 3.5" />
+          <path d="m10 6 3-3 3.5 3.5" />
+          <path d="m5.9 14.3 4.7-4.7" />
+          <path d="m14 10 3-3 3.5 3.5" />
+          <path d="m9.9 14.3 4.7-4.7" />
+        </svg>
+      );
+    case 'link':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
         </svg>
       );
 
@@ -279,6 +294,13 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         </svg>
       );
 
+    case 'briefcase':
+      return (
+        <svg {...common} className={className} style={style} {...rest}>
+          <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+          <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+        </svg>
+      );
     case 'plus-circle':
       return (
         <svg {...common} className={className} style={style} {...rest}>

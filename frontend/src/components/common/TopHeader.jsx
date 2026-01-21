@@ -67,7 +67,7 @@ const TopHeader = () => {
 				<div className="sm:hidden pt-2">
 					<div className="pb-2">
 						<div className="grid grid-cols-3 gap-1">
-							{mobileShowAllItems ? actionItems.map((item, index) => (
+							{actionItems.slice(0, 6).map((item, index) => (
 								<a
 									key={index}
 									href={item.href}
@@ -92,64 +92,12 @@ const TopHeader = () => {
 									<Icon
 										name={item.icon}
 										size="xs"
-										className="mb-1 text-gray-500 hover:text-blue-600 transition-colors"
+										className="text-gray-500 hover:text-blue-600 transition-colors"
 									/>
-									<span className="text-xs leading-tight truncate w-full">{item.displayName}</span>
-								</a>
-							)) : actionItems.slice(0, 5).map((item, index) => (
-								<a
-									key={index}
-									href={item.href}
-									className="flex flex-col items-center text-center p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
-									onClick={(e) => {
-										if (!isAuthenticated) {
-											e.preventDefault();
-											showAuthModal();
-										} else if (item.name === 'Submit Publication') {
-											if (isAdminAuthenticated) {
-												e.preventDefault();
-												alert(adminAlert);
-											} else if (isAuthenticated) {
-												window.location.href = '/submit-publication';
-											} else {
-												e.preventDefault();
-												showAuthModal();
-											}
-										}
-									}}
-								>
-									<Icon
-										name={item.icon}
-										size="xs"
-										className="mb-1 text-gray-500 hover:text-blue-600 transition-colors"
-									/>
-									<span className="text-xs leading-tight truncate w-full">{item.displayName}</span>
+									<span className="text-[10px] leading-tight truncate w-full">{item.displayName}</span>
 								</a>
 							))}
-							{!mobileShowAllItems && actionItems.length > 5 && (
-								<button
-									onClick={() => setMobileShowAllItems(true)}
-									className="flex flex-col items-center text-center p-1 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all duration-200"
-								>
-									<Icon
-										name="menu"
-										size="xs"
-										className="mb-1 text-gray-500 hover:text-blue-600 transition-colors"
-									/>
-									<span className="text-xs leading-tight truncate w-full">{more}</span>
-								</button>
-							)}
 						</div>
-						{mobileShowAllItems && (
-							<div className="text-center mt-2">
-								<button
-									onClick={() => setMobileShowAllItems(false)}
-									className="text-xs text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-md transition-colors"
-								>
-									{showLess}
-								</button>
-							</div>
-						)}
 					</div>
 				</div>
 
