@@ -46,70 +46,69 @@ const UserHeader = () => {
   const menuItems = [
     {
       href: "/events",
-      text: "Events",
+      text: t("Events"),
       icon: "calendar",
-      description: "Upcoming events and partnerships",
+      description: t("Upcoming events and partnerships"),
       hasAuthCheck: false
     },
     {
       href: "/services-overview",
-      text: "Services",
+      text: t("Services"),
       icon: "cog-6-tooth",
-      description: "Learn about our services",
+      description: t("Learn about our services"),
       hasAuthCheck: false
     },
     {
       href: "/how-it-works",
-      text: "How It Works",
+      text: t("How It Works"),
       icon: "question-mark-circle",
-      description: "Step-by-step platform instructions",
+      description: t("Step-by-step platform instructions"),
       hasAuthCheck: false
     },
     {
       href: "/blogs",
-      text: "Blog",
+      text: t("Blog"),
       icon: "document-text",
-      description: "Browse published articles and press releases",
+      description: t("Browse published articles and press releases"),
       hasAuthCheck: true
     },
     {
       href: "/media-partnerships",
-      text: "Media Partnerships",
+      text: t("Media Partnerships"),
       icon: "share-nodes",
-      description: "Media partnership information",
+      description: t("Media partnership information"),
       hasAuthCheck: false
     },
     {
       href: "/video-tutorials",
-      text: "Video Tutorial",
+      text: t("Video Tutorial"),
       icon: "play-circle",
-      description: "Learn how to use our platform effectively"
+      description: t("Learn how to use our platform effectively")
     },
     {
       href: "/download-center",
-      text: "PR Questionnaire",
+      text: t("PR Questionnaire"),
       icon: "document",
-      description: "Download our comprehensive PR template"
+      description: t("Download our comprehensive PR template")
     },
     {
       href: "/how-to-guides",
-      text: "How-to Guide",
+      text: t("How-to Guide"),
       icon: "question-mark-circle",
-      description: "Step-by-step platform instructions"
+      description: t("Step-by-step platform instructions")
     },
     {
       href: "/terms-and-conditions",
-      text: "Terms & Policies",
+      text: t("Terms & Policies"),
       icon: "shield-check",
-      description: "Legal information and platform policies"
+      description: t("Legal information and platform policies")
     },
     {
       href: "/orders-delivered",
-      text: "Orders Delivered",
+      text: t("Orders Delivered"),
       icon: "check-circle",
-      description: "View our success stories and published articles"
+      description: t("View our success stories and published articles")
     },
-
   ];
 
   const services = [
@@ -127,26 +126,6 @@ const UserHeader = () => {
     ...menuItems.map(item => ({ name: item.text, href: item.href, icon: item.icon })),
     ...services.map(item => ({ name: item.name, href: item.href, icon: item.icon, bypassAuth: item.bypassAuth }))
   ];
-
-  const getDisplayedServices = (breakpoint) => {
-    switch (breakpoint) {
-      case 'sm': return services.slice(0, 4);
-      case 'md': return services.slice(0, 5);
-      case 'lg': return services.slice(0, 6);
-      case 'xl': return services.slice(0, 7);
-      default: return services.slice(0, 5);
-    }
-  };
-
-  const getMoreServices = (breakpoint) => {
-    switch (breakpoint) {
-      case 'sm': return services.slice(4);
-      case 'md': return services.slice(5);
-      case 'lg': return services.slice(6);
-      case 'xl': return services.slice(7);
-      default: return services.slice(5);
-    }
-  };
 
   const languages = [
     { code: 'en', label: 'English', short: 'EN', flag: 'us' },
@@ -169,7 +148,7 @@ const UserHeader = () => {
 
   return (
     <header className="bg-white/70 backdrop-blur-md border-b border-white/20 shadow-lg sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className={`max-w-7xl mx-auto px-4 ${language === 'ar' ? 'lg:px-16 sm:px-8' : 'sm:px-6 lg:px-8'}`}>
         {/* Top Row - Reduced Height */}
         <div className="flex justify-between items-center py-2">
           {/* Left: Social Media Icons */}
@@ -188,7 +167,7 @@ const UserHeader = () => {
 
           {/* Center: Logo */}
           <Link to="/" className="flex items-center group cursor-pointer">
-            <h1 className="text-xl md:text-2xl font-bold transition-all duration-300" style={{ color: colors[colorIndex] }}>
+            <h1 className="text-xl md:text-2xl font-bold transition-all duration-300 text-center" style={{ color: colors[colorIndex] }}>
               VaaS Solutions: Vision to Visibility, Instantly.
             </h1>
           </Link>
@@ -267,7 +246,7 @@ const UserHeader = () => {
 
         {/* Bottom Row: Resources and Services */}
         <div className="hidden xl:flex justify-between items-center py-2">
-          <div className="flex items-center space-x-2 xl:space-x-3 2xl:space-x-4">
+          <div className="flex items-center gap-x-1.5 xl:gap-x-2 2xl:gap-x-3">
             {/* Services shown directly */}
             {services.map((service, index) => (
               service.onClick ? (
@@ -280,7 +259,7 @@ const UserHeader = () => {
                       service.onClick();
                     }
                   }}
-                  className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md"
+                  className="group relative flex items-center gap-x-2 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md"
                 >
                   <Icon name={service.icon} size="sm" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
                   <span className="whitespace-nowrap">{service.name}</span>
@@ -289,7 +268,7 @@ const UserHeader = () => {
                 <a
                   key={`service-${index}`}
                   href={service.href}
-                  className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md"
+                  className="group relative flex items-center gap-x-2 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md"
                   onClick={(e) => {
                     if (!isAuthenticated && !service.bypassAuth) {
                       e.preventDefault();
@@ -305,20 +284,20 @@ const UserHeader = () => {
 
             {/* More Dropdown with Resources */}
             <div className="group relative">
-              <button className="group relative flex items-center space-x-1.5 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md">
+              <button className="group relative flex items-center gap-x-2 px-2.5 xl:px-3 py-1.5 text-sm font-medium text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded-lg transition-all duration-300 border border-transparent hover:border-white/20 hover:shadow-md">
                 <Icon name="menu" size="sm" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
                 <span className="whitespace-nowrap">{t('More')}</span>
                 <Icon name="chevron-down" size="xs" className="text-gray-500 group-hover:text-[#1976D2] transition-colors" />
               </button>
-              <div className="absolute top-full right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30 max-h-[450px] overflow-y-auto custom-scrollbar">
+              <div className={`absolute top-full ${language === 'ar' ? 'left-0' : 'right-0'} mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30 max-h-[450px] overflow-y-auto custom-scrollbar`}>
                 <div className="p-4">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-3">Resources</h4>
+                  <h4 className="text-sm font-semibold text-gray-900 mb-3">{t('Resources')}</h4>
                   <div className="grid grid-cols-1 gap-2">
                     {menuItems.map((item, index) => (
                       <a
                         key={index}
                         href={item.href}
-                        className="flex items-center px-3 py-2.5 text-xs text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded transition-all duration-200"
+                        className="flex items-center gap-x-3 px-3 py-2.5 text-xs text-[#212121] hover:text-[#1976D2] hover:bg-white/50 rounded transition-all duration-200"
                         onClick={(e) => {
                           if (!isAuthenticated && !item.bypassAuth && item.hasAuthCheck !== false) {
                             e.preventDefault();
@@ -326,7 +305,7 @@ const UserHeader = () => {
                           }
                         }}
                       >
-                        <Icon name={item.icon} size="xs" className="mr-2 text-gray-500" />
+                        <Icon name={item.icon} size="xs" className="text-gray-500 flex-shrink-0" />
                         <span className="text-left">{item.text}</span>
                       </a>
                     ))}
@@ -599,8 +578,6 @@ const UserHeader = () => {
             </motion.div>
           </div>
         )}
-
-
       </div>
     </header>
   );

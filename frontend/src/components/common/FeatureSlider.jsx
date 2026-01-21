@@ -1,67 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import Icon from './Icon';
 import CosmicButton from './CosmicButton';
-import useTranslatedText from '../../hooks/useTranslatedText';
+import { useLanguage } from '../../context/LanguageContext';
 
 const FeatureSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const { language, t } = useLanguage();
 
   // Translated texts
-  const socialMediaRecoveryTitle = useTranslatedText("Social Media");
-  const socialMediaRecoverySubtitle = useTranslatedText("Digital Media Account Security, Protection, and Recovery Solutions");
-  const socialMediaRecoveryDesc = useTranslatedText("Comprehensive security and recovery solutions for all your digital media accounts. We protect against breaches, restore compromised profiles, and ensure your online presence remains safe and uninterrupted.");
+  const socialMediaRecoveryTitle = t("Social Media");
+  const socialMediaRecoverySubtitle = t("Digital Media Account Security, Protection, and Recovery Solutions");
+  const socialMediaRecoveryDesc = t("Comprehensive security and recovery solutions for all your digital media accounts. We protect against breaches, restore compromised profiles, and ensure your online presence remains safe and uninterrupted.");
 
-  const classifiedAdsTitle = useTranslatedText("Real Estate Marketing Solution");
-  const classifiedAdsSubtitle = useTranslatedText("Real Estate Virality Engine: Make Projects Go from 0 to Hero");
-  const classifiedAdsDesc = useTranslatedText("One place to access every visibility service needed to build hype, trust, and virality for any real estate project. The platform enables developers to get placements across verified news outlets, media channels, real estate influencers, power lists, awards, paparazzi buzz creators, and podcast/radio opportunities.");
+  const classifiedAdsTitle = t("Real Estate Marketing Solution");
+  const classifiedAdsSubtitle = t("Real Estate Virality Engine: Make Projects Go from 0 to Hero");
+  const classifiedAdsDesc = t("One place to access every visibility service needed to build hype, trust, and virality for any real estate project. The platform enables developers to get placements across verified news outlets, media channels, real estate influencers, power lists, awards, paparazzi buzz creators, and podcast/radio opportunities.");
 
-  const passiveIncomeTitle = useTranslatedText("Advanced writing tools");
-  const passiveIncomeSubtitle = useTranslatedText("AI-Enabled, GPT-Optimized Content Writing");
-  const passiveIncomeDesc = useTranslatedText("Write content without requiring professional writing skills, while adhering to each media platform’s guidelines to expedite publishing. The content will be optimized for generative AI engines like ChatGPT and for maximum search visibility (Search Everywhere Optimization).");
+  const passiveIncomeTitle = t("Advanced writing tools");
+  const passiveIncomeSubtitle = t("AI-Enabled, GPT-Optimized Content Writing");
+  const passiveIncomeDesc = t("Write content without requiring professional writing skills, while adhering to each media platform’s guidelines to expedite publishing. The content will be optimized for generative AI engines like ChatGPT and for maximum search visibility (Search Everywhere Optimization).");
 
-  const advancedToolsTitle = useTranslatedText("Passive Income Opportunities");
-  const advancedToolsSubtitle = useTranslatedText("Passive Income Engine – Turn Connections into Cash");
-  const advancedToolsDesc = useTranslatedText("Unlock an additional income opportunity: simply refer VaaS Solutions to your network for visibility services. Share the lead details and earn a lifetime referral bonus each time your referral places an order with VaaS Solutions.");
+  const advancedToolsTitle = t("Passive Income Opportunities");
+  const advancedToolsSubtitle = t("Passive Income Engine – Turn Connections into Cash");
+  const advancedToolsDesc = t("Unlock an additional income opportunity: simply refer VaaS Solutions to your network for visibility services. Share the lead details and earn a lifetime referral bonus each time your referral places an order with VaaS Solutions.");
 
-  const learnMoreText = useTranslatedText("Learn More");
-  const easySetupText = useTranslatedText("Easy Setup");
-  const supportText = useTranslatedText("24/7 Support");
-  const instantResultsText = useTranslatedText("Instant Results");
-  const expertRecoveryText = useTranslatedText("Write Easy Access ");
-  const reputationManagementText = useTranslatedText("Fast Result ");
-  const identityRestorationText = useTranslatedText("Hassle Free");
-  const revenueGenerationText = useTranslatedText("Best Price");
-  const smartAdvertisingText = useTranslatedText("Quick Turnaround");
-  const monetizationToolsText = useTranslatedText("Omnichannel Visibility");
-  const automatedPayoutsText = useTranslatedText("Content Brief");
-  const contentMonetizationText = useTranslatedText("Fill Details");
-  const incomeStreamsText = useTranslatedText("Boom!");
-  const professionalWorkflowsText = useTranslatedText("Recurring Income");
-  const cuttingEdgeToolsText = useTranslatedText("Instant Payout");
-  const contentCreationText = useTranslatedText("Lifetime");
-  const goToSlideText = useTranslatedText("Go to slide");
+  const learnMoreText = t("Learn More");
+  const easySetupText = t("Easy Setup");
+  const supportText = t("24/7 Support");
+  const instantResultsText = t("Instant Results");
+  const expertRecoveryText = t("Write Easy Access ");
+  const reputationManagementText = t("Fast Result ");
+  const identityRestorationText = t("Hassle Free");
+  const revenueGenerationText = t("Best Price");
+  const smartAdvertisingText = t("Quick Turnaround");
+  const monetizationToolsText = t("Omnichannel Visibility");
+  const automatedPayoutsText = t("Content Brief");
+  const contentMonetizationText = t("Fill Details");
+  const incomeStreamsText = t("Boom!");
+  const professionalWorkflowsText = t("Recurring Income");
+  const cuttingEdgeToolsText = t("Instant Payout");
+  const contentCreationText = t("Lifetime");
 
   // New Slides Translations
-  const creatorsMarketplaceTitle = useTranslatedText("Creators Marketplace");
-  const creatorsMarketplaceSubtitle = useTranslatedText("Brand-Safe Creator Partnerships. Connecting Global, Regional, National, and Local Creators with the Right Brands");
-  const creatorsMarketplaceDesc = useTranslatedText("A structured marketplace connecting celebrity, macro, micro, and women-led creators with aligned brands, using data-driven discovery to enable authentic, compliant, performance-focused collaborations across platforms and regional markets.");
-  const creatorFirstText = useTranslatedText("Creator-First");
-  const trustedText = useTranslatedText("Trusted");
-  const brandSafeText = useTranslatedText("Brand-Safe");
+  const creatorsMarketplaceTitle = t("Creators Marketplace");
+  const creatorsMarketplaceSubtitle = t("Brand-Safe Creator Partnerships. Connecting Global, Regional, National, and Local Creators with the Right Brands");
+  const creatorsMarketplaceDesc = t("A structured marketplace connecting celebrity, macro, micro, and women-led creators with aligned brands, using data-driven discovery to enable authentic, compliant, performance-focused collaborations across platforms and regional markets.");
+  const creatorFirstText = t("Creator-First");
+  const trustedText = t("Trusted");
+  const brandSafeText = t("Brand-Safe");
 
-  const influencerDistributionTitle = useTranslatedText("Influencer Distribution Network");
-  const influencerDistributionSubtitle = useTranslatedText("Region-First Content & Press Distribution");
-  const influencerDistributionDesc = useTranslatedText("A structured distribution framework enabling region-first video and editorial dissemination through bloggers, YouTubers, Instagrammers, TikTokers, vloggers, and independent creators across social media platforms. The model follows principles similar to traditional press distribution via newspapers and digital publications, adapted for influencer-led channels with regional relevance and platform adherence.");
-  const creatorsLedText = useTranslatedText("Creators Led");
-  const videoDistributionText = useTranslatedText("Video Distribution");
-  const scalableText = useTranslatedText("Scalable");
+  const influencerDistributionTitle = t("Influencer Distribution Network");
+  const influencerDistributionSubtitle = t("Region-First Content & Press Distribution");
+  const influencerDistributionDesc = t("A structured distribution framework enabling region-first video and editorial dissemination through bloggers, YouTubers, Instagrammers, TikTokers, vloggers, and independent creators across social media platforms. The model follows principles similar to traditional press distribution via newspapers and digital publications, adapted for influencer-led channels with regional relevance and platform adherence.");
+  const creatorsLedText = t("Creators Led");
+  const videoDistributionText = t("Video Distribution");
+  const scalableText = t("Scalable");
 
   const features = [
     {
       id: 101,
       title: creatorsMarketplaceTitle,
       subtitle: creatorsMarketplaceSubtitle,
-      leftText: "Creators Marketplace",
+      leftText: creatorsMarketplaceTitle,
       icon: "user-star",
       placeholderIcon: "user-star",
       color: "pink",
@@ -79,7 +79,7 @@ const FeatureSlider = () => {
       id: 102,
       title: influencerDistributionTitle,
       subtitle: influencerDistributionSubtitle,
-      leftText: "Influencer Distribution Network",
+      leftText: influencerDistributionTitle,
       icon: "share-nodes",
       placeholderIcon: "share-nodes",
       color: "cyan",
@@ -97,7 +97,7 @@ const FeatureSlider = () => {
       id: 1,
       title: socialMediaRecoveryTitle,
       subtitle: socialMediaRecoverySubtitle,
-      leftText: "Social Media",
+      leftText: socialMediaRecoveryTitle,
       icon: "share",
       placeholderIcon: "share",
       color: "teal",
@@ -115,7 +115,7 @@ const FeatureSlider = () => {
       id: 2,
       title: classifiedAdsTitle,
       subtitle: classifiedAdsSubtitle,
-      leftText: "Real Estate Marketing Solution",
+      leftText: classifiedAdsTitle,
       icon: "home",
       placeholderIcon: "home",
       color: "blue",
@@ -133,7 +133,7 @@ const FeatureSlider = () => {
       id: 3,
       title: passiveIncomeTitle,
       subtitle: passiveIncomeSubtitle,
-      leftText: "Advanced writing tools",
+      leftText: passiveIncomeTitle,
       icon: "pencil-square",
       placeholderIcon: "pencil-square",
       color: "purple",
@@ -151,7 +151,7 @@ const FeatureSlider = () => {
       id: 4,
       title: advancedToolsTitle,
       subtitle: advancedToolsSubtitle,
-      leftText: "Passive Income Opportunities",
+      leftText: advancedToolsTitle,
       icon: "currency-dollar",
       placeholderIcon: "currency-dollar",
       color: "orange",
@@ -190,17 +190,14 @@ const FeatureSlider = () => {
         }}></div>
       </div>
 
-      {/* Decorative Elements */}
-      <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-br from-[#E3F2FD] to-[#E0F2F1] rounded-full opacity-20 blur-xl"></div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 ${language === 'ar' ? 'lg:px-12' : ''}`}>
         <div className="relative">
 
           {/* Slider Container */}
           <div className="overflow-hidden rounded-2xl shadow-2xl bg-white/60 backdrop-blur-md border border-white/30">
             <div
               className="flex transition-transform duration-700 ease-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+              style={{ transform: `translateX(${language === 'ar' ? (currentSlide * 100) : -(currentSlide * 100)}%)` }}
             >
               {features.map((feature) => (
                 <div key={feature.id} className="w-full flex-shrink-0">
@@ -221,7 +218,7 @@ const FeatureSlider = () => {
                       {/* Content Section - Natural height based on content */}
                       <div className="w-full md:w-3/5 p-4 sm:p-6 md:p-8 lg:p-10 flex flex-col justify-center bg-white/10 backdrop-blur-sm">
                         <div className="flex flex-col sm:flex-row items-start sm:items-center mb-3 sm:mb-6">
-                          <div className={`p-2 sm:p-3 md:p-4 rounded-xl bg-white/20 backdrop-blur-sm mb-2 sm:mb-0 sm:mr-4 shadow-lg border border-white/30 transform hover:scale-105 transition-all duration-300`}>
+                          <div className={`p-2 sm:p-3 md:p-4 rounded-xl bg-white/20 backdrop-blur-sm mb-2 sm:mb-0 ${language === 'ar' ? 'sm:ml-4' : 'sm:mr-4'} shadow-lg border border-white/30 transform hover:scale-105 transition-all duration-300`}>
                             <Icon name={feature.icon} size="lg" className="text-white" />
                           </div>
                           <div className="flex-1">
@@ -239,7 +236,7 @@ const FeatureSlider = () => {
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 text-[10px] sm:text-sm md:text-base text-white/90 mt-1 md:mt-6">
                             {feature.highlights.map((highlight, index) => (
                               <div key={index} className="flex items-center justify-start bg-white/10 backdrop-blur-sm rounded-lg p-1 sm:p-2 border border-white/5">
-                                <Icon name={highlight.icon} size="sm" className="text-[#4CAF50] mr-1.5 flex-shrink-0" />
+                                <Icon name={highlight.icon} size="sm" className={`text-[#4CAF50] ${language === 'ar' ? 'ml-1.5' : 'mr-1.5'} flex-shrink-0`} />
                                 <span className="font-medium break-words leading-tight">{highlight.text}</span>
                               </div>
                             ))}
@@ -252,30 +249,8 @@ const FeatureSlider = () => {
               ))}
             </div>
           </div>
-
-          {/* Slide Indicators */}
-
         </div>
       </div>
-
-      <svg height={0} width={0}>
-        <filter id="handDrawnNoise">
-          <feTurbulence result="noise" numOctaves={8} baseFrequency="0.1" type="fractalNoise" />
-          <feDisplacementMap yChannelSelector="G" xChannelSelector="R" scale={3} in2="noise" in="SourceGraphic" />
-        </filter>
-        <filter id="handDrawnNoise2">
-          <feTurbulence result="noise" numOctaves={8} baseFrequency="0.1" seed={1010} type="fractalNoise" />
-          <feDisplacementMap yChannelSelector="G" xChannelSelector="R" scale={3} in2="noise" in="SourceGraphic" />
-        </filter>
-        <filter id="handDrawnNoiset">
-          <feTurbulence result="noise" numOctaves={8} baseFrequency="0.1" type="fractalNoise" />
-          <feDisplacementMap yChannelSelector="G" xChannelSelector="R" scale={6} in2="noise" in="SourceGraphic" />
-        </filter>
-        <filter id="handDrawnNoiset2">
-          <feTurbulence result="noise" numOctaves={8} baseFrequency="0.1" seed={1010} type="fractalNoise" />
-          <feDisplacementMap yChannelSelector="G" xChannelSelector="R" scale={6} in2="noise" in="SourceGraphic" />
-        </filter>
-      </svg>
     </section>
   );
 };
