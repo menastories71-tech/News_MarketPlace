@@ -9,9 +9,21 @@ import useTranslatedText from '../../hooks/useTranslatedText';
 const TopHeader = () => {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 	const [mobileShowAllItems, setMobileShowAllItems] = useState(false);
+	const [activeDropdown, setActiveDropdown] = useState(null);
 	const { isAuthenticated } = useAuth();
 	const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
 	const { showAuthModal } = useAuthModal();
+
+	const toggleDropdown = (name) => {
+		setActiveDropdown(activeDropdown === name ? null : name);
+	};
+
+	// Close dropdown when clicking outside
+	React.useEffect(() => {
+		const handleClickOutside = () => setActiveDropdown(null);
+		window.addEventListener('click', handleClickOutside);
+		return () => window.removeEventListener('click', handleClickOutside);
+	}, []);
 
 	// Translated strings
 	const agencyRegistration = useTranslatedText('Agency Registration');
@@ -124,8 +136,11 @@ const TopHeader = () => {
 
 							{/* More Actions Dropdown */}
 							{getMoreAction('sm').length > 0 && (
-								<div className="group relative flex-shrink-0">
-									<button className="flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 whitespace-nowrap">
+								<div className="relative flex-shrink-0">
+									<button
+										onClick={(e) => { e.stopPropagation(); toggleDropdown('more-sm'); }}
+										className="flex items-center space-x-1 px-2 py-1.5 text-xs font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 whitespace-nowrap"
+									>
 										<Icon
 											name="menu"
 											size="sm"
@@ -135,7 +150,10 @@ const TopHeader = () => {
 									</button>
 
 									{/* Responsive more dropdown */}
-									<div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
+									<div
+										className={`absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg transition-all duration-300 z-30 ${activeDropdown === 'more-sm' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+										onClick={(e) => e.stopPropagation()}
+									>
 										<div className="p-2">
 											<h4 className="text-sm font-semibold text-gray-900 mb-2">{moreActions}</h4>
 											<div className="grid grid-cols-1 gap-1">
@@ -186,8 +204,11 @@ const TopHeader = () => {
 
 							{/* More Dropdown */}
 							{getMoreAction('md').length > 0 && (
-								<div className="group relative">
-									<button className="flex items-center space-x-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md">
+								<div className="relative">
+									<button
+										onClick={(e) => { e.stopPropagation(); toggleDropdown('more-md'); }}
+										className="flex items-center space-x-1.5 px-2.5 py-1.5 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-300 border border-transparent hover:border-blue-200 hover:shadow-md"
+									>
 										<Icon
 											name="menu"
 											size="sm"
@@ -202,7 +223,10 @@ const TopHeader = () => {
 									</button>
 
 									{/* Tablet more dropdown */}
-									<div className="absolute top-full right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-30">
+									<div
+										className={`absolute top-full right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-lg transition-all duration-300 z-30 ${activeDropdown === 'more-md' ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+										onClick={(e) => e.stopPropagation()}
+									>
 										<div className="p-2">
 											<h4 className="text-sm font-semibold text-gray-900 mb-2">{moreActions}</h4>
 											<div className="grid grid-cols-1 gap-1">
