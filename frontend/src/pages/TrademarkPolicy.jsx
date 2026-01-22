@@ -1,47 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
+import { useLanguage } from '../context/LanguageContext';
 
 const TrademarkPolicy = () => {
+    const { t } = useLanguage();
+
     const policies = [
         {
             id: 1,
-            title: "Respect for IP",
-            content: "We respect the intellectual property rights of others and expect our users to do the same. This Trademark Policy outlines our rules regarding the use of our trademarks and the trademarks of others on our platform.",
+            title: t('trademark.sections.respect.title'),
+            content: t('trademark.sections.respect.content'),
             icon: "shield-check",
             bg: "bg-emerald-50",
             text: "text-emerald-600"
         },
         {
             id: 2,
-            title: "Our Trademarks",
-            content: "The News Marketplace name, logo, and any other product or service names or slogans contained in our services are trademarks of News Marketplace and its suppliers or licensors, and may not be copied, imitated, or used, in whole or in part, without the prior written permission of News Marketplace or the applicable trademark holder.",
+            title: t('trademark.sections.ourTrademarks.title'),
+            content: t('trademark.sections.ourTrademarks.content'),
             icon: "award",
             bg: "bg-blue-50",
             text: "text-blue-600"
         },
         {
             id: 3,
-            title: "Third-Party Trademarks",
-            content: "All other trademarks, registered trademarks, product names, and company names or logos mentioned in our services are the property of their respective owners. Reference to any products, services, processes, or other information, by trade name, trademark, manufacturer, supplier, or otherwise does not constitute or imply endorsement, sponsorship, or recommendation thereof by us.",
+            title: t('trademark.sections.thirdParty.title'),
+            content: t('trademark.sections.thirdParty.content'),
             icon: "users",
             bg: "bg-purple-50",
             text: "text-purple-600"
         },
         {
             id: 4,
-            title: "Infringement Claims",
-            content: "If you believe that your trademark is being used on our platform in a way that constitutes trademark infringement, please contact us with the specific details of your claim, including the trademark registration number and the location of the infringing content.",
+            title: t('trademark.sections.infringement.title'),
+            content: t('trademark.sections.infringement.content'),
             icon: "alert-circle",
             bg: "bg-rose-50",
             text: "text-rose-600"
         },
         {
             id: 5,
-            title: "Brand Asset Usage",
-            content: "You may use our official brand assets only with our permission and in accordance with our brand guidelines. Do not modify, alter, or distort our logos or use them in a confusing or misleading manner.",
+            title: t('trademark.sections.assets.title'),
+            content: t('trademark.sections.assets.content'),
             icon: "pencil-square",
             bg: "bg-amber-50",
             text: "text-amber-600"
@@ -64,13 +67,13 @@ const TrademarkPolicy = () => {
                 <div className="text-center mb-20 max-w-3xl mx-auto">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 text-white text-xs font-bold tracking-widest uppercase mb-6 shadow-xl shadow-slate-200">
                         <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></span>
-                        Official Policy
+                        {t('trademark.label.officialPolicy')}
                     </div>
                     <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-slate-900 mb-8">
-                        Trademark <span className="text-slate-300">&</span><br /> Logo Policy.
+                        {t('trademark.heroTitle')} <span className="text-slate-300">&</span><br /> {t('trademark.heroSubtitle')}
                     </h1>
                     <p className="text-xl text-slate-500 font-medium leading-relaxed">
-                        Protecting our brand identity and respecting the intellectual property of others. The rules of the creative road.
+                        {t('trademark.heroDesc')}
                     </p>
                 </div>
 
@@ -92,7 +95,7 @@ const TrademarkPolicy = () => {
                                         {policies[0].content}
                                     </p>
                                 </div>
-                                <div className="text-sm font-bold text-slate-300 uppercase tracking-wider">01 — Core Principle</div>
+                                <div className="text-sm font-bold text-slate-300 uppercase tracking-wider">{t('trademark.principles.core')}</div>
                             </div>
                         </div>
                     </div>
@@ -157,20 +160,20 @@ const TrademarkPolicy = () => {
                 {/* Footer Meta */}
                 <div className="mt-20 border-t border-slate-200 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
                     <p className="text-slate-400 font-medium text-sm">
-                        Last Updated: <span className="text-slate-900">January 2026</span>
+                        {t('trademark.lastUpdated')} <span className="text-slate-900">{t('trademark.date')}</span>
                     </p>
                     <div className="flex gap-4">
                         <button
                             onClick={() => alert("Asset download is currently unavailable. Please contact support.")}
                             className="px-6 py-2 bg-white border border-slate-200 rounded-full text-slate-900 text-sm font-bold shadow-sm hover:bg-slate-50 transition-colors"
                         >
-                            Download Assets
+                            {t('trademark.button.download')}
                         </button>
                         <Link
                             to="/contact-us"
                             className="px-6 py-2 bg-slate-900 rounded-full text-white text-sm font-bold shadow-lg hover:bg-slate-800 transition-colors flex items-center justify-center"
                         >
-                            Report Violation
+                            {t('trademark.button.report')}
                         </Link>
                     </div>
                 </div>

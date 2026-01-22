@@ -2,45 +2,55 @@ import React, { useState } from 'react';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
+import { useLanguage } from '../context/LanguageContext';
 
 const DataProtection = () => {
     const [openCard, setOpenCard] = useState(3); // Default open "Your Rights"
+    const { t } = useLanguage();
 
     const policies = [
         {
             id: 1,
-            title: "Data Stewardship",
-            subtitle: "The Controller",
-            content: "News Marketplace acts as the primary custodian (Data Controller) of your information. We don't just store data; we govern its ethical use, determining strictly 'why' and 'how' it serves your experience.",
+            title: t('dataProtection.sections.stewardship.title'),
+            subtitle: t('dataProtection.sections.stewardship.subtitle'),
+            content: t('dataProtection.sections.stewardship.content'),
             icon: "building"
         },
         {
             id: 2,
-            title: "Legal Framework",
-            subtitle: "Processing Basis",
-            content: "We never process data in a vacuum. Every byte processed rests on a solid legal pillar: your explicit consent, contractual necessity, statutory obligation, or a verified legitimate interest that never overrides your fundamental rights.",
+            title: t('dataProtection.sections.legal.title'),
+            subtitle: t('dataProtection.sections.legal.subtitle'),
+            content: t('dataProtection.sections.legal.content'),
             icon: "document-text"
         },
         {
             id: 3,
-            title: "Your Data Bill of Rights",
-            subtitle: "Empowerment",
-            content: "You are not a passive subject. You hold the power to Access your files, Rectify errors, Erase your history ('Right to be Forgotten'), Restrict active processing, and Port your data to other services. These aren't just features; they are your legal entitlements.",
+            title: t('dataProtection.sections.rights.title'),
+            subtitle: t('dataProtection.sections.rights.subtitle'),
+            content: t('dataProtection.sections.rights.content'),
             icon: "list-bullet",
-            isList: true
+            isList: true,
+            list: [
+                t('dataProtection.rightsList.access'),
+                t('dataProtection.rightsList.rectification'),
+                t('dataProtection.rightsList.erasure'),
+                t('dataProtection.rightsList.restrict'),
+                t('dataProtection.rightsList.object'),
+                t('dataProtection.rightsList.portability')
+            ]
         },
         {
             id: 4,
-            title: "Retention Lifecycle",
-            subtitle: "Time Limits",
-            content: "Data has an expiration date. We adhere to strict retention schedules, keeping personal information only for the exact duration required to fulfill the user's specific request or legal mandate, after which it is securely purged.",
+            title: t('dataProtection.sections.retention.title'),
+            subtitle: t('dataProtection.sections.retention.subtitle'),
+            content: t('dataProtection.sections.retention.content'),
             icon: "clock"
         },
         {
             id: 5,
-            title: "Global Transfers",
-            subtitle: "Borders",
-            content: "In a connected world, data travels. When we transfer your information across borders, we wrap it in a layer of legal protection—Standard Contractual Clauses (SCCs)—ensuring that your privacy rights remain intact, regardless of geography.",
+            title: t('dataProtection.sections.transfers.title'),
+            subtitle: t('dataProtection.sections.transfers.subtitle'),
+            content: t('dataProtection.sections.transfers.content'),
             icon: "globe-alt"
         }
     ];
@@ -59,14 +69,14 @@ const DataProtection = () => {
                     <div className="text-slate-900">
                         <div className="flex items-center gap-2 mb-4">
                             <Icon name="lock-closed" className="w-5 h-5 text-emerald-600" />
-                            <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">GDPR Compliant</span>
+                            <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">{t('dataProtection.label.gdpr')}</span>
                         </div>
                         <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-2">
-                            Data <br className="hidden md:block" />Protection.
+                            {t('dataProtection.heroTitle')}
                         </h1>
                     </div>
                     <div className="md:max-w-xs text-slate-500 text-sm mt-8 md:mt-0 font-medium leading-relaxed border-l-2 border-slate-300 pl-6">
-                        Security isn't a feature; it's our foundation. We treat your personal data with the same rigor as financial assets.
+                        {t('dataProtection.heroDesc')}
                     </div>
                 </div>
 
@@ -116,11 +126,7 @@ const DataProtection = () => {
                                             <h4 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">{policy.subtitle}</h4>
                                             {policy.isList ? (
                                                 <div className="grid sm:grid-cols-2 gap-4">
-                                                    {[
-                                                        "Right to Access", "Right to Rectification",
-                                                        "Right to Erasure", "Right to Restrict",
-                                                        "Right to Object", "Data Portability"
-                                                    ].map((right, idx) => (
+                                                    {policy.list.map((right, idx) => (
                                                         <div key={idx} className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
                                                             <Icon name="check-circle" className="w-4 h-4 text-emerald-500" />
                                                             <span className="text-slate-700 font-medium text-sm">{right}</span>
@@ -143,8 +149,8 @@ const DataProtection = () => {
                 {/* Footer Signature */}
                 <div className="mt-12 flex justify-between items-end border-t border-slate-200 pt-6">
                     <div>
-                        <p className="text-slate-400 text-sm mb-1">Last Updated</p>
-                        <p className="text-slate-900 font-bold">January 2026</p>
+                        <p className="text-slate-400 text-sm mb-1">{t('dataProtection.lastUpdated')}</p>
+                        <p className="text-slate-900 font-bold">{t('dataProtection.date')}</p>
                     </div>
                     <Icon name="shield-check" className="w-16 h-16 text-slate-200" />
                 </div>

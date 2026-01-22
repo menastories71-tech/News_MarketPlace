@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
+import { useLanguage } from '../context/LanguageContext';
 
 const ResellingAgreement = () => {
     // Scroll progress for sidebar interaction (optional visual flair)
     const [scrolled, setScrolled] = useState(0);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -22,38 +24,38 @@ const ResellingAgreement = () => {
     const agreementPoints = [
         {
             id: "01",
-            title: "Agreement Overview",
-            content: "This Reselling Agreement governs the terms under which partners, agencies, and authorized resellers may resell our publication and media services to their clients. It serves as the foundational framework for our commercial relationship."
+            title: t('reselling.points.overview.title'),
+            content: t('reselling.points.overview.content')
         },
         {
             id: "02",
-            title: "Authorized Reseller Status",
-            content: "To become an authorized reseller, you must apply and be approved by our partnership team. Resellers are independent contractors and not employees, agents, or partners of News Marketplace in a legal sense."
+            title: t('reselling.points.authorized.title'),
+            content: t('reselling.points.authorized.content')
         },
         {
             id: "03",
-            title: "Pricing and Margins",
-            content: "Resellers are provided with wholesale pricing or discount structures as defined in their partnership tier. Resellers are free to set their own retail pricing for their clients, provided they do not misrepresent the service value or features."
+            title: t('reselling.points.pricing.title'),
+            content: t('reselling.points.pricing.content')
         },
         {
             id: "04",
-            title: "White Labeling",
-            content: "Unless otherwise specified, services are provided on a white-label basis. Resellers may present the reports and proofs of publication under their own brand. However, they must not claim ownership of the underlying media outlets or trademarks belonging to the publishers."
+            title: t('reselling.points.whiteLabel.title'),
+            content: t('reselling.points.whiteLabel.content')
         },
         {
             id: "05",
-            title: "Client Confidentiality",
-            content: "We respect the reseller-client relationship. We will not solicit your clients directly. All communication regarding the order will be conducted through the reseller, ensuring complete privacy and trust in your client relationships."
+            title: t('reselling.points.confidentiality.title'),
+            content: t('reselling.points.confidentiality.content')
         },
         {
             id: "06",
-            title: "Reseller Obligations",
-            content: "Resellers are responsible for ensuring their clients comply with our Content Guidelines and Terms & Conditions. Resellers must not knowingly submit prohibited content. Resellers handle all first-line support and billing for their clients."
+            title: t('reselling.points.obligations.title'),
+            content: t('reselling.points.obligations.content')
         },
         {
             id: "07",
-            title: "Termination",
-            content: "We reserve the right to terminate the reseller agreement if the reseller violates these terms, engages in fraudulent activity, or conducts business in a way that damages our reputation or relationships with publishers."
+            title: t('reselling.points.termination.title'),
+            content: t('reselling.points.termination.content')
         }
     ];
 
@@ -69,16 +71,16 @@ const ResellingAgreement = () => {
                         <div className="sticky top-32">
                             <div className="flex items-center gap-3 mb-6">
                                 <div className="w-10 h-[2px] bg-slate-900"></div>
-                                <span className="uppercase tracking-widest text-xs font-bold text-slate-500">Partner Program</span>
+                                <span className="uppercase tracking-widest text-xs font-bold text-slate-500">{t('reselling.label.partnerProgram')}</span>
                             </div>
 
                             <h1 className="text-5xl md:text-6xl font-black tracking-tight text-slate-900 mb-8 leading-[0.9]">
-                                Reselling<br />
-                                <span className="text-slate-300">Policy.</span>
+                                {t('reselling.heroTitle')}<br />
+                                <span className="text-slate-300">{t('reselling.heroSubtitle')}</span>
                             </h1>
 
                             <p className="text-lg text-slate-600 mb-10 leading-relaxed font-medium">
-                                A comprehensive guide for agencies and partners. Clear terms for a transparent and profitable partnership.
+                                {t('reselling.heroDesc')}
                             </p>
 
                             <div className="flex flex-col gap-4 items-start">
@@ -86,7 +88,7 @@ const ResellingAgreement = () => {
                                     <span className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center group-hover:border-blue-600 group-hover:bg-blue-50 transition-all">
                                         <Icon name="chat-bubble-left" size="sm" />
                                     </span>
-                                    Contact Support
+                                    {t('reselling.button.contact')}
                                 </Link>
                             </div>
 
@@ -98,7 +100,7 @@ const ResellingAgreement = () => {
                                 ></div>
                             </div>
                             <div className="mt-2 text-xs text-slate-400 hidden lg:block font-mono">
-                                SCROLL TO READ
+                                {t('reselling.scrollRead')}
                             </div>
                         </div>
                     </div>
@@ -139,10 +141,10 @@ const ResellingAgreement = () => {
                         {/* Bottom Meta */}
                         <div className="mt-12 pt-12 border-t border-slate-900 flex justify-between items-center">
                             <span className="text-sm font-bold text-slate-900 uppercase tracking-widest">
-                                End of Document
+                                {t('reselling.endDocument')}
                             </span>
                             <span className="text-slate-400 text-sm">
-                                Last Updated: Jan 2026
+                                {t('reselling.lastUpdated')}
                             </span>
                         </div>
                     </div>
