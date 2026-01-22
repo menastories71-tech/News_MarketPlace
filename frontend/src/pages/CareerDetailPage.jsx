@@ -39,7 +39,7 @@ const theme = {
 };
 
 const CareerDetailPage = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -153,12 +153,12 @@ const CareerDetailPage = () => {
 
   const formatSalary = (salary) => {
     const numSalary = parseFloat(salary);
-    return numSalary > 0 ? `$${numSalary.toLocaleString()}` : t('careers.salaryNotSpecified', 'Salary not specified');
+    return numSalary > 0 ? `$${numSalary.toLocaleString(language)}` : t('careers.salaryNotSpecified', 'Salary not specified');
   };
 
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    return new Date(dateString).toLocaleDateString(language === 'zh-CN' ? 'zh' : language, {
       year: 'numeric',
       month: 'long',
       day: 'numeric'

@@ -43,7 +43,7 @@ const theme = {
 };
 
 const CareersPage = () => {
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
   const { isAuthenticated, hasRole, hasAnyRole, getRoleLevel } = useAuth();
   const navigate = useNavigate();
   const [careers, setCareers] = useState([]);
@@ -141,7 +141,7 @@ const CareersPage = () => {
 
   const formatSalary = (salary) => {
     const numSalary = parseFloat(salary);
-    return numSalary > 0 ? `$${numSalary.toLocaleString()}` : t('careers.salaryNotSpecified', 'Salary not specified');
+    return numSalary > 0 ? `$${numSalary.toLocaleString(language)}` : t('careers.salaryNotSpecified', 'Salary not specified');
   };
 
 

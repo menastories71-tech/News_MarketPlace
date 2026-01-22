@@ -442,7 +442,7 @@ const CareerSubmissionForm = ({ onClose, onSuccess }) => {
                   onChange={handleInputChange}
                   onFocus={() => handleFocus('type')}
                   onBlur={handleBlur}
-                  style={{...getInputStyle('type', focusedField === 'type'), cursor: 'pointer'}}
+                  style={{ ...getInputStyle('type', focusedField === 'type'), cursor: 'pointer' }}
                 >
                   <option value="">{t('careers.form.selectJobType')}</option>
                   <option value="full-time">{t('careers.form.fullTime')}</option>
@@ -495,7 +495,7 @@ const CareerSubmissionForm = ({ onClose, onSuccess }) => {
                 style={{ marginRight: '8px', cursor: 'pointer' }}
               />
               <label htmlFor="terms-career" style={{ fontSize: '14px', color: '#212121' }}>
-                {t('careers.form.terms')} <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms and Conditions</a> <span style={requiredAsterisk}>*</span>
+                {t('careers.form.terms')} <a href="/terms-and-conditions" target="_blank" rel="noopener noreferrer">{t('careers.form.termsLink')}</a> <span style={requiredAsterisk}>*</span>
               </label>
             </div>
           </div>
