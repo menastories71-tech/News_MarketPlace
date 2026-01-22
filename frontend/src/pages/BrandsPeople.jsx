@@ -2,97 +2,92 @@ import React from 'react';
 import Icon from '../components/common/Icon';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
+import SEO from '../components/common/SEO';
+import { useLanguage } from '../context/LanguageContext';
 
 const BrandsPeople = () => {
+  const { t } = useLanguage();
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
+      <SEO
+        title={t('brands.seo.title')}
+        description={t('brands.seo.desc')}
+        keywords={t('brands.seo.keywords')}
+      />
       <UserHeader />
 
       {/* Hero Section */}
-      <section
-        className="relative overflow-hidden"
-        style={{
-          background: 'linear-gradient(to right, #1976D2, #0D47A1)',
-          color: '#ffffff'
-        }}
-      >
-        <div className="absolute inset-0 opacity-10" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-        }} />
-
-        <div className="relative max-w-7xl mx-auto px-4 py-20">
-          <div className="flex flex-col md:flex-row items-center md:items-center gap-6">
-            <div className="flex-shrink-0">
-              <div className="w-20 h-20 rounded-lg bg-white/10 border border-white/10 flex items-center justify-center">
-                <Icon name="star" size="lg" className="text-white" />
-              </div>
-            </div>
-
-            <div className="w-full md:flex-1 text-center md:text-left">
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold leading-tight" style={{ color: '#ffffff' }}>
-                Brands and People Featured
-              </h1>
-              <p className="mt-3 text-base md:text-lg text-white/90 max-w-2xl">
-                Showcasing the brands and individuals who have been featured in our news coverage.
-              </p>
-            </div>
-          </div>
+      <div className="pt-20 pb-16 text-center px-4 max-w-4xl mx-auto">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm mb-6">
+          <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{t('brands.hero.title')}</span>
         </div>
-      </section>
+        <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+          {t('brands.main.title')}
+        </h1>
+        <p className="text-lg text-slate-500 leading-relaxed max-w-2xl mx-auto">
+          {t('brands.main.desc')}
+        </p>
+      </div>
 
       {/* Content Area */}
-      <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
-          <h2 className="heading-3 text-gray-900 mb-6">Featured Brands and People</h2>
-          <p className="body-regular text-gray-600 mb-6">
-            News Marketplace is proud to feature stories about innovative brands and influential people
-            who are making an impact in their industries. Our coverage highlights achievements, innovations,
-            and contributions to society.
-          </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-100">
-              <Icon name="building-office" size="lg" className="text-primary mb-4" />
-              <h3 className="heading-4 text-gray-900 mb-3">Featured Brands</h3>
-              <p className="body-small text-gray-600">
-                We showcase innovative companies and brands that are leading change in their industries,
-                from startups to established corporations making a difference.
-              </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 lg:gap-8">
+          {/* Feature Card 1 */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center mb-6">
+              <Icon name="building-office" size="lg" />
             </div>
-
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-100">
-              <Icon name="user-group" size="lg" className="text-primary mb-4" />
-              <h3 className="heading-4 text-gray-900 mb-3">Influential People</h3>
-              <p className="body-small text-gray-600">
-                Profiles of leaders, innovators, and change-makers who are shaping the future
-                of business, technology, and society.
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-100">
-              <Icon name="trophy" size="lg" className="text-primary mb-4" />
-              <h3 className="heading-4 text-gray-900 mb-3">Success Stories</h3>
-              <p className="body-small text-gray-600">
-                Inspiring stories of achievement, growth, and innovation from brands and individuals
-                who have overcome challenges and achieved remarkable success.
-              </p>
-            </div>
-
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-100">
-              <Icon name="light-bulb" size="lg" className="text-primary mb-4" />
-              <h3 className="heading-4 text-gray-900 mb-3">Innovation Spotlight</h3>
-              <p className="body-small text-gray-600">
-                Coverage of groundbreaking products, services, and ideas that are transforming industries
-                and creating new opportunities.
-              </p>
-            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">{t('brands.grid.brands.title')}</h3>
+            <p className="text-slate-600 leading-relaxed">
+              {t('brands.grid.brands.desc')}
+            </p>
           </div>
 
-          <div className="mt-8">
-            <h3 className="heading-4 text-gray-900 mb-3">Get Featured</h3>
-            <p className="body-regular text-gray-600">
-              Interested in being featured? Contact our editorial team at editorial@newsmarketplace.com
-              to learn about our submission process and coverage opportunities.
+          {/* Feature Card 2 */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+            <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center mb-6">
+              <Icon name="user-group" size="lg" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">{t('brands.grid.people.title')}</h3>
+            <p className="text-slate-600 leading-relaxed">
+              {t('brands.grid.people.desc')}
+            </p>
+          </div>
+
+          {/* Feature Card 3 */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+            <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center mb-6">
+              <Icon name="trophy" size="lg" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">{t('brands.grid.success.title')}</h3>
+            <p className="text-slate-600 leading-relaxed">
+              {t('brands.grid.success.desc')}
+            </p>
+          </div>
+
+          {/* Feature Card 4 */}
+          <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow duration-300">
+            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-6">
+              <Icon name="light-bulb" size="lg" />
+            </div>
+            <h3 className="text-xl font-bold text-slate-900 mb-3">{t('brands.grid.innovation.title')}</h3>
+            <p className="text-slate-600 leading-relaxed">
+              {t('brands.grid.innovation.desc')}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-16 bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-center text-white relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-20 -mr-16 -mt-16"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500 rounded-full blur-3xl opacity-20 -ml-16 -mb-16"></div>
+
+          <div className="relative z-10 max-w-2xl mx-auto">
+            <h3 className="text-2xl md:text-3xl font-bold mb-4">{t('brands.cta.title')}</h3>
+            <p className="text-slate-300 mb-8 leading-relaxed">
+              {t('brands.cta.desc')}
             </p>
           </div>
         </div>
