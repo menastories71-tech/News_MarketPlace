@@ -4,11 +4,16 @@ import { Search, Filter, Calendar, User, ArrowRight, Clock, Eye, MessageCircle, 
 import { Link } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslationArray } from '../hooks/useTranslation';
+
 
 const BlogListingPage = () => {
+  const { t, language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [blogs, setBlogs] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -80,15 +85,27 @@ const BlogListingPage = () => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Date not available';
+    if (!dateString) return t('blogs.dateNotAvailable', 'Date not available');
     const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Invalid Date';
-    return date.toLocaleDateString('en-US', {
+    if (isNaN(date.getTime())) return t('blogs.invalidDate', 'Invalid Date');
+    return date.toLocaleDateString(language === 'ar' ? 'ar-EG' : 'en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
   };
+
+  // Prepare blogs for translation (including excerpts)
+  const blogsForTranslation = React.useMemo(() => {
+    return blogs.map(blog => ({
+      ...blog,
+      excerpt: getExcerpt(blog.content)
+    }));
+  }, [blogs]);
+
+  // Translate blogs
+  const { translatedItems: translatedBlogs } = useTranslationArray(blogsForTranslation, ['title', 'category', 'excerpt']);
+
 
   return (
     <div className="min-h-screen bg-white">
@@ -104,10 +121,10 @@ const BlogListingPage = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Blog
+              {t('blogs.pageTitle')}
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Stay updated with the latest insights, tips, and trends in journalism and media.
+              {t('blogs.heroSubtitle')}
             </p>
           </motion.div>
         </div>
@@ -122,7 +139,7 @@ const BlogListingPage = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#757575] w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search blogs..."
+                placeholder={t('blogs.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-[#E0E0E0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-[#212121]"
@@ -136,13 +153,12 @@ const BlogListingPage = () => {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  selectedCategory === category.id
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedCategory === category.id
                     ? 'bg-[#1976D2] text-white'
                     : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
-                }`}
+                  }`}
               >
-                {category.name} ({category.count})
+                {t(`blogs.categories.${category.id}`, category.name)} ({category.count})
               </button>
             ))}
           </div>
@@ -159,7 +175,7 @@ const BlogListingPage = () => {
           ) : (
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {blogs.map((blog, index) => (
+                {translatedBlogs.map((blog, index) => (
                   <motion.div
                     key={blog.id}
                     initial={{ opacity: 0, y: 30 }}
@@ -184,7 +200,7 @@ const BlogListingPage = () => {
                             <div className="w-20 h-20 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                               <User className="w-10 h-10 text-[#1976D2]" />
                             </div>
-                            <span className="text-sm text-[#757575] font-medium">Featured Article</span>
+                            <span className="text-sm text-[#757575] font-medium">{t('articles.featured', 'Featured Article')}</span>
                           </div>
                           {/* Decorative elements */}
                           <div className="absolute top-4 right-4 w-12 h-12 bg-white/20 rounded-full backdrop-blur-sm"></div>
@@ -213,7 +229,7 @@ const BlogListingPage = () => {
                           to={`/blog/${blog.id}`}
                           className="bg-white text-[#1976D2] px-6 py-3 rounded-full font-semibold hover:bg-[#1976D2] hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg"
                         >
-                          Read Article →
+                          {t('blogs.readArticle')}
                         </Link>
                       </div>
                     </div>
@@ -225,7 +241,7 @@ const BlogListingPage = () => {
                           {blog.title}
                         </h3>
                         <p className="text-gray-600 text-sm leading-relaxed line-clamp-3 mb-4">
-                          {getExcerpt(blog.content)}
+                          {blog.excerpt}
                         </p>
                       </div>
 
@@ -260,7 +276,7 @@ const BlogListingPage = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <TrendingUp className="w-4 h-4 text-green-500" />
-                          <span className="text-xs font-medium text-green-600">Popular</span>
+                          <span className="text-xs font-medium text-green-600">{t('Popular', 'Popular')}</span>
                         </div>
                       </div>
                     </div>
@@ -268,9 +284,9 @@ const BlogListingPage = () => {
                 ))}
               </div>
 
-              {blogs.length === 0 && (
+              {translatedBlogs.length === 0 && (
                 <div className="text-center py-12">
-                  <p className="text-[#757575] text-lg">No blogs found matching your criteria.</p>
+                  <p className="text-[#757575] text-lg">{t('blogs.noBlogsFound')}</p>
                 </div>
               )}
 
@@ -289,11 +305,10 @@ const BlogListingPage = () => {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`px-4 py-2 border rounded-lg ${
-                          currentPage === page
+                        className={`px-4 py-2 border rounded-lg ${currentPage === page
                             ? 'bg-[#1976D2] text-white border-[#1976D2]'
                             : 'border-[#E0E0E0] hover:bg-[#F5F5F5]'
-                        }`}
+                          }`}
                       >
                         {page}
                       </button>

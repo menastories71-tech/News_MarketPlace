@@ -7,6 +7,9 @@ import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslationObject } from '../hooks/useTranslation';
+
 import {
   MapPin, Calendar, DollarSign, Building, User, Clock,
   CheckCircle, ExternalLink, ArrowLeft, Share, Heart
@@ -36,6 +39,7 @@ const theme = {
 };
 
 const CareerDetailPage = () => {
+  const { t } = useLanguage();
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
@@ -44,6 +48,10 @@ const CareerDetailPage = () => {
   const [showAuth, setShowAuth] = useState(false);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+
+  // Translate career details
+  const { translatedObject: translatedCareer } = useTranslationObject(career, ['title', 'description', 'company', 'location', 'type']);
+
 
   useEffect(() => {
     fetchCareerDetails();
@@ -94,7 +102,7 @@ const CareerDetailPage = () => {
       try {
         await navigator.share({
           title: title,
-          text: `Check out this job opportunity: ${career.title}`,
+          text: `Check out this job opportunity: ${translatedCareer.title}`,
           url: url,
         });
       } catch (error) {
@@ -142,8 +150,9 @@ const CareerDetailPage = () => {
 
   const formatSalary = (salary) => {
     const numSalary = parseFloat(salary);
-    return numSalary > 0 ? `$${numSalary.toLocaleString()}` : 'Salary not specified';
+    return numSalary > 0 ? `$${numSalary.toLocaleString()}` : t('careers.salaryNotSpecified', 'Salary not specified');
   };
+
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -187,10 +196,10 @@ const CareerDetailPage = () => {
               <Icon name="exclamation-triangle" size="48" style={{ color: theme.textDisabled }} />
             </div>
             <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-              Career Not Found
+              {t('careers.notFound', 'Career Not Found')}
             </h3>
             <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-              The career opportunity you're looking for doesn't exist or has been removed.
+              {t('careers.notFoundDesc', "The career opportunity you're looking for doesn't exist or has been removed.")}
             </p>
             <button
               onClick={() => navigate('/careers')}
@@ -199,7 +208,7 @@ const CareerDetailPage = () => {
               onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
               onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
             >
-              Back to Careers
+              {t('careers.backToCareers', 'Back to Careers')}
             </button>
           </div>
         </div>
@@ -222,11 +231,11 @@ const CareerDetailPage = () => {
               style={{ color: theme.textSecondary }}
             >
               <ArrowLeft size={16} />
-              <span>Careers</span>
+              <span>{t('careers.careers', 'Careers')}</span>
             </button>
             <span style={{ color: theme.textDisabled }}>/</span>
             <span style={{ color: theme.textPrimary }} className="font-medium truncate">
-              {career.title}
+              {translatedCareer.title}
             </span>
           </nav>
         </div>
@@ -246,20 +255,20 @@ const CareerDetailPage = () => {
               <div className="flex items-start justify-between mb-6">
                 <div className="flex-1">
                   <h1 className="text-3xl font-bold mb-4" style={{ color: theme.textPrimary }}>
-                    {career.title}
+                    {translatedCareer.title}
                   </h1>
                   <div className="flex flex-wrap items-center gap-4 text-sm" style={{ color: theme.textSecondary }}>
                     <div className="flex items-center space-x-2">
                       <Building size={16} />
-                      <span>{career.company || 'Company not specified'}</span>
+                      <span>{translatedCareer.company || t('careers.companyNotSpecified', 'Company not specified')}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <MapPin size={16} />
-                      <span>{career.location || 'Location not specified'}</span>
+                      <span>{translatedCareer.location || t('careers.locationNotSpecified', 'Location not specified')}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Clock size={16} />
-                      <span>{career.type || 'Type not specified'}</span>
+                      <span>{translatedCareer.type || t('careers.typeNotSpecified', 'Type not specified')}</span>
                     </div>
                   </div>
                 </div>
@@ -288,16 +297,16 @@ const CareerDetailPage = () => {
                     <span className="font-semibold" style={{ color: theme.textPrimary }}>Posted</span>
                   </div>
                   <p className="text-sm" style={{ color: theme.textSecondary }}>
-                    {formatDate(career.created_at)}
+                    {formatDate(translatedCareer.created_at)}
                   </p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center space-x-2 mb-2">
                     <CheckCircle size={18} style={{ color: theme.success }} />
-                    <span className="font-semibold" style={{ color: theme.textPrimary }}>Status</span>
+                    <span className="font-semibold" style={{ color: theme.textPrimary }}>{t('careers.status')}</span>
                   </div>
                   <p className="text-sm font-medium" style={{ color: theme.success }}>
-                    Active
+                    {t('careers.statusActive')}
                   </p>
                 </div>
               </div>
@@ -308,13 +317,13 @@ const CareerDetailPage = () => {
               {/* Description */}
               <div className="mb-8">
                 <h2 className="text-2xl font-bold mb-4" style={{ color: theme.textPrimary }}>
-                  Job Description
+                  {t('careers.jobDescription')}
                 </h2>
                 <div className="prose max-w-none" style={{ color: theme.textSecondary }}>
-                  {career.description ? (
-                    <div className="whitespace-pre-wrap">{career.description}</div>
+                  {translatedCareer.description ? (
+                    <div className="whitespace-pre-wrap">{translatedCareer.description}</div>
                   ) : (
-                    <p>No description provided.</p>
+                    <p>{t('careers.noDescription', 'No description provided.')}</p>
                   )}
                 </div>
               </div>
@@ -329,7 +338,7 @@ const CareerDetailPage = () => {
                   onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                 >
                   <ExternalLink size={18} />
-                  Apply Now
+                  {t('careers.applyNow')}
                 </button>
                 <button
                   onClick={handleShare}
@@ -337,17 +346,16 @@ const CareerDetailPage = () => {
                   style={{ color: theme.textPrimary }}
                 >
                   <Share size={18} />
-                  Share
+                  {t('careers.share')}
                 </button>
                 <button
                   onClick={handleSave}
-                  className={`px-6 py-3 border rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                    isSaved ? 'bg-red-50 border-red-300 text-red-600' : 'border-gray-300 hover:bg-gray-50'
-                  }`}
+                  className={`px-6 py-3 border rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${isSaved ? 'bg-red-50 border-red-300 text-red-600' : 'border-gray-300 hover:bg-gray-50'
+                    }`}
                   style={{ color: isSaved ? '#D32F2F' : theme.textPrimary }}
                 >
                   <Heart size={18} fill={isSaved ? 'currentColor' : 'none'} />
-                  {isSaved ? 'Saved' : 'Save'}
+                  {isSaved ? t('careers.saved') : t('careers.save')}
                 </button>
               </div>
             </div>
@@ -363,7 +371,7 @@ const CareerDetailPage = () => {
           <div className="bg-white rounded-lg max-w-md w-full p-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold" style={{ color: theme.textPrimary }}>
-                Apply for this position
+                {t('careers.applyModal.title')}
               </h3>
               <button
                 onClick={handleCloseApplyModal}
@@ -376,15 +384,15 @@ const CareerDetailPage = () => {
 
             <div className="mb-6">
               <h4 className="font-medium mb-2" style={{ color: theme.textPrimary }}>
-                {career.title}
+                {translatedCareer.title}
               </h4>
               <p className="text-sm mb-4" style={{ color: theme.textSecondary }}>
-                {career.company || 'Company not specified'} • {career.location || 'Location not specified'}
+                {translatedCareer.company || t('careers.companyNotSpecified', 'Company not specified')} • {translatedCareer.location || t('careers.locationNotSpecified', 'Location not specified')}
               </p>
 
               <div className="bg-blue-50 p-4 rounded-lg mb-4">
                 <p className="text-sm" style={{ color: theme.textSecondary }}>
-                  To apply for this position, please send your resume and cover letter to:
+                  {t('careers.applyModal.instruction')}
                 </p>
                 <p className="font-medium mt-2" style={{ color: theme.primary }}>
                   careers@newsmarketplace.com
@@ -392,7 +400,7 @@ const CareerDetailPage = () => {
               </div>
 
               <div className="text-sm" style={{ color: theme.textSecondary }}>
-                <p className="mb-2">Include the following in your application:</p>
+                <p className="mb-2">{t('careers.applyModal.include')}</p>
                 <ul className="list-disc list-inside space-y-1">
                   <li>Position title in the subject line</li>
                   <li>Your resume (PDF format preferred)</li>
@@ -408,7 +416,7 @@ const CareerDetailPage = () => {
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors"
                 style={{ color: theme.textPrimary }}
               >
-                Cancel
+                {t('careers.applyModal.cancel')}
               </button>
               <button
                 onClick={() => {
@@ -423,7 +431,7 @@ const CareerDetailPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Copy Email
+                {t('careers.applyModal.copyEmail')}
               </button>
             </div>
           </div>

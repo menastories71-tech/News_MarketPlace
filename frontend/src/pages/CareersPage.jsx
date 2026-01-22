@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '../context/LanguageContext';
+import { useTranslationArray } from '../hooks/useTranslation';
+
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
@@ -40,9 +43,11 @@ const theme = {
 };
 
 const CareersPage = () => {
+  const { t } = useLanguage();
   const { isAuthenticated, hasRole, hasAnyRole, getRoleLevel } = useAuth();
   const navigate = useNavigate();
   const [careers, setCareers] = useState([]);
+
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [locationFilter, setLocationFilter] = useState('');
@@ -91,6 +96,10 @@ const CareersPage = () => {
     }
   };
 
+  // Translate careers
+  const { translatedItems: translatedCareers } = useTranslationArray(careers, ['title', 'description', 'company', 'location', 'type']);
+
+
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       fetchCareers();
@@ -127,8 +136,9 @@ const CareersPage = () => {
 
   const formatSalary = (salary) => {
     const numSalary = parseFloat(salary);
-    return numSalary > 0 ? `$${numSalary.toLocaleString()}` : 'Salary not specified';
+    return numSalary > 0 ? `$${numSalary.toLocaleString()}` : t('careers.salaryNotSpecified', 'Salary not specified');
   };
+
 
   const handleCareerClick = (career) => {
     navigate(`/careers/${career.id}`);
@@ -169,19 +179,20 @@ const CareersPage = () => {
             className="text-center"
           >
             <h1 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: theme.textPrimary }}>
-              Career Opportunities
+              {t('careers.pageTitle')}
             </h1>
             <p className="text-lg mb-8" style={{ color: theme.textSecondary }}>
-              {careers.length} Job Openings Available
+              {careers.length} {t('careers.openings')}
             </p>
             <button
               onClick={handleShowCareerSubmission}
               className="text-white px-6 py-3 rounded-lg font-medium transition-colors"
               style={{ backgroundColor: theme.primary }}
               onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
+
               onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
             >
-              Submit Career Opportunity
+              {t('careers.submitOpportunity')}
             </button>
           </motion.div>
         </div>
@@ -208,15 +219,15 @@ const CareersPage = () => {
                 companyFilter={companyFilter}
                 onCompanyChange={setCompanyFilter}
                 companies={getUniqueCompanies()}
-                onClearFilters={() => {}}
+                onClearFilters={() => { }}
               />
             </div>
 
             {/* Main Content */}
             <div className="lg:col-span-3">
-              {careers.length > 0 ? (
+              {translatedCareers.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {careers.map((career, index) => (
+                  {translatedCareers.map((career, index) => (
                     <motion.div
                       key={career.id}
                       initial={{ opacity: 0, y: 20 }}
@@ -233,11 +244,11 @@ const CareersPage = () => {
                             </h3>
                             <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
                               <Globe size={14} className="mr-2" />
-                              <span>{career.company || 'Company not specified'}</span>
+                              <span>{career.company || t('careers.companyNotSpecified', 'Company not specified')}</span>
                             </div>
                             <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
                               <MapPin size={14} className="mr-2" />
-                              <span>{career.location || 'Location not specified'}</span>
+                              <span>{career.location || t('careers.locationNotSpecified', 'Location not specified')}</span>
                             </div>
                           </div>
                           <div
@@ -262,7 +273,7 @@ const CareersPage = () => {
 
                         {/* Description Preview */}
                         <p className="text-sm mb-4 line-clamp-3" style={{ color: theme.textSecondary }}>
-                          {career.description || 'No description available.'}
+                          {career.description || t('careers.noDescription', 'No description available.')}
                         </p>
 
                         {/* CTA Button */}
@@ -273,7 +284,7 @@ const CareersPage = () => {
                           onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                         >
                           <Eye size={16} />
-                          View Details
+                          {t('ViewDetails', 'View Details')}
                           <ExternalLink size={14} />
                         </button>
                       </div>
@@ -289,10 +300,10 @@ const CareersPage = () => {
                     <Globe size={48} style={{ color: theme.textDisabled }} />
                   </div>
                   <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                    No career opportunities found
+                    {t('careers.noCareersFound')}
                   </h3>
                   <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                    We couldn't find any career opportunities matching your search criteria.
+                    {t('careers.noCareersFoundDesc', "We couldn't find any career opportunities matching your search criteria.")}
                   </p>
                   <button
                     onClick={() => {
@@ -308,15 +319,15 @@ const CareersPage = () => {
                     onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                     onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                   >
-                    Clear All Filters
+                    {t('careers.clearFilters')}
                   </button>
                 </div>
               )}
 
               {/* Placeholder for career list */}
-              {careers.length === 0 && (
+              {translatedCareers.length === 0 && loading && (
                 <div className="text-center py-8 border-t" style={{ borderColor: theme.borderLight }}>
-                  <p className="text-sm" style={{ color: theme.textSecondary }}>Career List Placeholder</p>
+                  <p className="text-sm" style={{ color: theme.textSecondary }}>{t('loading', 'Loading...')}</p>
                 </div>
               )}
             </div>
