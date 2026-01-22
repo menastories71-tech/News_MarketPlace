@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationArray } from '../hooks/useTranslation';
+import { createSlugPath } from '../utils/slugify';
 
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -147,7 +148,7 @@ const CareersPage = () => {
 
 
   const handleCareerClick = (career) => {
-    navigate(`/careers/${career.id}`);
+    navigate(`/careers/${createSlugPath(career.title, career.id)}`);
   };
 
 

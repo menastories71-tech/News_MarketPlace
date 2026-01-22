@@ -7,6 +7,7 @@ import UserFooter from '../components/common/UserFooter';
 import Skeleton from '../components/common/Skeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationArray } from '../hooks/useTranslation';
+import { createSlugPath } from '../utils/slugify';
 
 
 const BlogListingPage = () => {
@@ -194,7 +195,7 @@ const BlogListingPage = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    onClick={() => navigate(`/blog/${blog.id}`)}
+                    onClick={() => navigate(`/blog/${createSlugPath(blog.title, blog.id)}`)}
                     className="group bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-[#1976D2]/40 transition-all duration-700 hover:-translate-y-3 relative cursor-pointer"
                   >
                     {/* Gradient Overlay */}
@@ -240,7 +241,7 @@ const BlogListingPage = () => {
                       {/* Hover Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
                         <Link
-                          to={`/blog/${blog.id}`}
+                          to={`/blog/${createSlugPath(blog.title, blog.id)}`}
                           className="bg-white text-[#1976D2] px-6 py-3 rounded-full font-semibold hover:bg-[#1976D2] hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg"
                         >
                           {t('blogs.readArticle')}

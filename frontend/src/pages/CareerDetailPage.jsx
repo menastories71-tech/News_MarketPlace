@@ -10,6 +10,7 @@ import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationObject } from '../hooks/useTranslation';
+import { getIdFromSlug } from '../utils/slugify';
 
 import {
   MapPin, Calendar, DollarSign, Building, User, Clock,
@@ -64,7 +65,8 @@ const CareerDetailPage = () => {
   const fetchCareerDetails = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/careers/${id}`);
+      const realId = getIdFromSlug(id);
+      const response = await api.get(`/careers/${realId}`);
       setCareer(response.data.career);
     } catch (error) {
       console.error('Error fetching career details:', error);

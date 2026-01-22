@@ -7,6 +7,7 @@ import UserFooter from '../components/common/UserFooter';
 import Skeleton from '../components/common/Skeleton';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationObject, useTranslationArray } from '../hooks/useTranslation';
+import { getIdFromSlug, createSlugPath } from '../utils/slugify';
 
 
 // Custom styles for blog content
@@ -123,8 +124,11 @@ const BlogDetailPage = () => {
     try {
       setLoading(true);
 
+      // Extract real ID if slug is passed
+      const realId = getIdFromSlug(id);
+
       // Fetch the specific blog
-      const blogResponse = await fetch(`/api/blogs/${id}`);
+      const blogResponse = await fetch(`/api/blogs/${realId}`);
       const blogData = await blogResponse.json();
 
       if (blogData.blog) {
@@ -384,7 +388,7 @@ const BlogDetailPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
-                  onClick={() => navigate(`/blog/${relatedBlog.id}`)}
+                  onClick={() => navigate(`/blog/${createSlugPath(relatedBlog.title, relatedBlog.id)}`)}
                   className="group bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer"
                   style={{ borderColor: '#E0E0E0' }}
                 >
@@ -428,7 +432,7 @@ const BlogDetailPage = () => {
                       </span>
                     </div>
                     <Link
-                      to={`/blog/${relatedBlog.id}`}
+                      to={`/blog/${createSlugPath(relatedBlog.title, relatedBlog.id)}`}
                       className="inline-flex items-center gap-2 font-medium text-sm transition-colors hover:opacity-80"
                       style={{
                         color: '#1976D2',
