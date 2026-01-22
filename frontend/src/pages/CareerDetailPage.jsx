@@ -285,7 +285,7 @@ const CareerDetailPage = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center space-x-2 mb-2">
                     <DollarSign size={18} style={{ color: theme.success }} />
-                    <span className="font-semibold" style={{ color: theme.textPrimary }}>Salary</span>
+                    <span className="font-semibold" style={{ color: theme.textPrimary }}>{t('careers.salary')}</span>
                   </div>
                   <p className="text-lg font-bold" style={{ color: theme.success }}>
                     {formatSalary(career.salary)}
@@ -294,7 +294,7 @@ const CareerDetailPage = () => {
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <div className="flex items-center space-x-2 mb-2">
                     <Calendar size={18} style={{ color: theme.primary }} />
-                    <span className="font-semibold" style={{ color: theme.textPrimary }}>Posted</span>
+                    <span className="font-semibold" style={{ color: theme.textPrimary }}>{t('careers.posted')}</span>
                   </div>
                   <p className="text-sm" style={{ color: theme.textSecondary }}>
                     {formatDate(translatedCareer.created_at)}

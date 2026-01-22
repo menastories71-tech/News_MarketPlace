@@ -1,5 +1,6 @@
 import { Search, X } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
+import { useTranslationArray } from '../../hooks/useTranslation';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -41,7 +42,24 @@ const CareersSidebar = ({
   companies,
   onClearFilters
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+
+  // Prepare locations for translation
+  const locationsForTranslation = locations.map(loc => ({ name: loc }));
+  const { translatedItems: translatedLocationItems } = useTranslationArray(locationsForTranslation, ['name']);
+  const translatedLocations = translatedLocationItems.map(item => ({
+    original: locations[translatedLocationItems.indexOf(item)],
+    translated: item.name
+  }));
+
+  // Prepare companies for translation
+  const companiesForTranslation = companies.map(comp => ({ name: comp }));
+  const { translatedItems: translatedCompanyItems } = useTranslationArray(companiesForTranslation, ['name']);
+  const translatedCompanies = translatedCompanyItems.map(item => ({
+    original: companies[translatedCompanyItems.indexOf(item)],
+    translated: item.name
+  }));
+
   const handleClearFilters = () => {
     onSearchChange('');
     onLocationChange('');
@@ -109,8 +127,8 @@ const CareersSidebar = ({
           style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
         >
           <option value="">{t('careers.allLocations')}</option>
-          {locations.map(location => (
-            <option key={location} value={location}>{location}</option>
+          {translatedLocations.map(({ original, translated }) => (
+            <option key={original} value={original}>{translated}</option>
           ))}
         </select>
       </div>
@@ -169,8 +187,8 @@ const CareersSidebar = ({
           style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
         >
           <option value="">{t('careers.allCompanies')}</option>
-          {companies.map(company => (
-            <option key={company} value={company}>{company}</option>
+          {translatedCompanies.map(({ original, translated }) => (
+            <option key={original} value={original}>{translated}</option>
           ))}
         </select>
       </div>

@@ -124,11 +124,13 @@ const CareersPage = () => {
     setShowCareerSubmission(false);
   };
 
+  // Get unique locations from original careers data (sidebar handles translation display)
   const getUniqueLocations = () => {
     const locations = careers.map(career => career.location).filter(Boolean);
     return [...new Set(locations)].sort();
   };
 
+  // Get unique companies from original careers data (sidebar handles translation display)
   const getUniqueCompanies = () => {
     const companies = careers.map(career => career.company).filter(Boolean);
     return [...new Set(companies)].sort();
