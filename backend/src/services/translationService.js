@@ -150,4 +150,60 @@ async function translateText(text, sourceLang, targetLang) {
   }
 }
 
-module.exports = { translateText, SUPPORTED_LANGUAGES };
+async function translateBatch(texts, sourceLang, targetLang) {
+  try {
+    // Validate input
+    if (!texts || !Array.isArray(texts) || !sourceLang || !targetLang) {
+      return { error: true, message: 'Missing required parameters: texts (array), sourceLang, targetLang' };
+    }
+
+    if (!SUPPORTED_LANGUAGES.includes(sourceLang) || !SUPPORTED_LANGUAGES.includes(targetLang)) {
+      return { error: true, message: `Unsupported language pair: ${sourceLang} → ${targetLang}` };
+    }
+
+    // Map frontend language codes to deep-translator codes
+    const deepTranslatorSource = LANGUAGE_MAP[sourceLang];
+    const deepTranslatorTarget = LANGUAGE_MAP[targetLang];
+
+    console.log(`Translating batch of ${texts.length} items from ${sourceLang} to ${targetLang}`);
+
+    // Call Python translator script with 'batch' argument
+    // Pass texts as a JSON string
+    const result = await new Promise((resolve, reject) => {
+      execFile('python', [TRANSLATOR_SCRIPT, 'batch', deepTranslatorSource, deepTranslatorTarget, JSON.stringify(texts)], {
+        timeout: 60000, // 60 second timeout for batches
+        maxBuffer: 5 * 1024 * 1024, // 5MB buffer for large batches
+        cwd: path.dirname(TRANSLATOR_SCRIPT)
+      }, (error, stdout, stderr) => {
+        if (error) {
+          console.error('Python execution error (batch):', error);
+          reject(new Error(`Python execution failed: ${error.message}`));
+          return;
+        }
+
+        try {
+          const parsed = JSON.parse(stdout.trim());
+          if (parsed.error) {
+            reject(new Error(parsed.error));
+          } else {
+            resolve(parsed);
+          }
+        } catch (parseError) {
+          console.error('JSON parse error (batch):', parseError, 'Raw output:', stdout);
+          reject(new Error(`Failed to parse Python output: ${stdout}`));
+        }
+      });
+    });
+
+    return result;
+
+  } catch (error) {
+    console.error('Batch translation error:', error.message);
+    return {
+      error: true,
+      message: `Batch translation failed: ${error.message}`
+    };
+  }
+}
+
+module.exports = { translateText, translateBatch, SUPPORTED_LANGUAGES };

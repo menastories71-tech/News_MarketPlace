@@ -256,6 +256,7 @@ app.use('/api/events', eventsRoutes);
 app.use('/api/event-applications', eventApplicationsRoutes);
 app.use('/api/otp', otpRoutes);
 app.use('/api/translations', translationsRoutes);
+app.use('/api/translation', translationsRoutes);
 app.use('/api/cookies', cookieRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/articles', articleRoutes);
