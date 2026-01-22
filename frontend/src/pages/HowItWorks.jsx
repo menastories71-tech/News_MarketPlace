@@ -25,9 +25,6 @@ const HowItWorks = () => {
       id: "02",
       title: "Browse & Discover",
       description: "Access a curated feed of verified news. Use our smart filters to find exclusive stories, breaking news, or deep-dive investigations.",
-      icon: "search-circle", // Mapped to a valid icon, search-circle isn't in list, using 'globe-alt' or 'search'
-      // Wait, I need to check valid icons. 'globe-alt' is good. Simple 'search' is not in my memory of Icon.jsx but 'globe' is.
-      // Let's use 'globe-alt' for discovery.
       icon: "globe-alt",
       details: ["Smart Filters", "Topic Cluster", "Journalist Profiles", "Live Previews"]
     },
@@ -35,7 +32,6 @@ const HowItWorks = () => {
       id: "03",
       title: "Purchase & Access",
       description: "Seamlessly unlock content with our secure payment system. Buy single articles or subscribe to your favorite creators directly.",
-      icon: "credit-card", // 'credit-card' might not be there. 'currency-dollar' is safer.
       icon: "currency-dollar",
       details: ["Secure Checkout", "One-Click Buy", "Manage Subs", "History Log"]
     },

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Filter, Calendar, User, ArrowRight, Clock, Eye, MessageCircle, TrendingUp } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import { useLanguage } from '../context/LanguageContext';
@@ -10,6 +10,7 @@ import { useTranslationArray } from '../hooks/useTranslation';
 
 const BlogListingPage = () => {
   const { t, language } = useLanguage();
+  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [blogs, setBlogs] = useState([]);
@@ -154,8 +155,8 @@ const BlogListingPage = () => {
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedCategory === category.id
-                    ? 'bg-[#1976D2] text-white'
-                    : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
+                  ? 'bg-[#1976D2] text-white'
+                  : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
                   }`}
               >
                 {t(`blogs.categories.${category.id}`, category.name)} ({category.count})
@@ -181,7 +182,8 @@ const BlogListingPage = () => {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="group bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-[#1976D2]/40 transition-all duration-700 hover:-translate-y-3 relative"
+                    onClick={() => navigate(`/blog/${blog.id}`)}
+                    className="group bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl hover:border-[#1976D2]/40 transition-all duration-700 hover:-translate-y-3 relative cursor-pointer"
                   >
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-[#1976D2]/5 via-transparent to-[#9C27B0]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
@@ -306,8 +308,8 @@ const BlogListingPage = () => {
                         key={page}
                         onClick={() => setCurrentPage(page)}
                         className={`px-4 py-2 border rounded-lg ${currentPage === page
-                            ? 'bg-[#1976D2] text-white border-[#1976D2]'
-                            : 'border-[#E0E0E0] hover:bg-[#F5F5F5]'
+                          ? 'bg-[#1976D2] text-white border-[#1976D2]'
+                          : 'border-[#E0E0E0] hover:bg-[#F5F5F5]'
                           }`}
                       >
                         {page}
@@ -326,10 +328,10 @@ const BlogListingPage = () => {
             </>
           )}
         </div>
-      </section>
+      </section >
 
       <UserFooter />
-    </div>
+    </div >
   );
 };
 

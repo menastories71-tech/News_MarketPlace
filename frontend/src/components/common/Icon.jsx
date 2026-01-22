@@ -662,13 +662,6 @@ export default function Icon({ name = '', size = 'md', className = '', style = {
         </svg>
       );
 
-    case 'x':
-      return (
-        <svg {...common} className={className} style={style} {...rest}>
-          <path d="M18 6L6 18M6 6l12 12" />
-        </svg>
-      );
-
     case 'shield':
       return (
         <svg {...common} className={className} style={style} {...rest}>

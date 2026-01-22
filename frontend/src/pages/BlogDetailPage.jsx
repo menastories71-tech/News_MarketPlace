@@ -348,7 +348,8 @@ const BlogDetailPage = () => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4 }}
-                  className="group bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-all duration-300"
+                  onClick={() => navigate(`/blog/${relatedBlog.id}`)}
+                  className="group bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-all duration-300 cursor-pointer"
                   style={{ borderColor: '#E0E0E0' }}
                 >
                   {/* Image */}
