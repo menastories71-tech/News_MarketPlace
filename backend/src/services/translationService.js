@@ -64,6 +64,9 @@ const SUPPORTED_LANGUAGES = ['en', 'ar', 'hi', 'ru', 'zh', 'fr'];
 // Path to the Python translator script
 const TRANSLATOR_SCRIPT = path.join(__dirname, '../../translator.py');
 
+// Common python command names across different systems
+const PYTHON_CMD = process.env.PYTHON_PATH || (process.platform === 'win32' ? 'python' : 'python3');
+
 async function translateText(text, sourceLang, targetLang) {
   try {
     // Validate input
@@ -100,7 +103,7 @@ async function translateText(text, sourceLang, targetLang) {
 
     // Call Python translator script
     const result = await new Promise((resolve, reject) => {
-      execFile('python', [TRANSLATOR_SCRIPT, deepTranslatorSource, deepTranslatorTarget, text], {
+      execFile(PYTHON_CMD, [TRANSLATOR_SCRIPT, deepTranslatorSource, deepTranslatorTarget, text], {
         timeout: 30000, // 30 second timeout
         maxBuffer: 1024 * 1024, // 1MB buffer
         cwd: path.dirname(TRANSLATOR_SCRIPT) // Set working directory to script location
@@ -139,7 +142,10 @@ async function translateText(text, sourceLang, targetLang) {
       console.warn('Redis cache write error:', redisError.message);
     }
 
-    return { translatedText };
+    return {
+      translation: translatedText,
+      success: true
+    };
 
   } catch (error) {
     console.error('Translation error:', error.message);
@@ -170,7 +176,7 @@ async function translateBatch(texts, sourceLang, targetLang) {
     // Call Python translator script with 'batch' argument
     // Pass texts as a JSON string
     const result = await new Promise((resolve, reject) => {
-      execFile('python', [TRANSLATOR_SCRIPT, 'batch', deepTranslatorSource, deepTranslatorTarget, JSON.stringify(texts)], {
+      execFile(PYTHON_CMD, [TRANSLATOR_SCRIPT, 'batch', deepTranslatorSource, deepTranslatorTarget, JSON.stringify(texts)], {
         timeout: 60000, // 60 second timeout for batches
         maxBuffer: 5 * 1024 * 1024, // 5MB buffer for large batches
         cwd: path.dirname(TRANSLATOR_SCRIPT)
