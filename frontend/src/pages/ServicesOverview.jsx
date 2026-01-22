@@ -4,57 +4,71 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import SEO from '../components/common/SEO';
+import { useLanguage } from '../context/LanguageContext';
 
 const ServicesOverview = () => {
+  const { t } = useLanguage();
+
   const services = [
     {
       step: "01",
-      category: 'Content Creation',
-      description: 'Professional writing and content creation services with AI assistance for superior quality.',
-      features: ['AI Writing Assistant', 'Grammar & Style Check', 'Plagiarism Detection', 'SEO Optimization'],
+      category: t('services.steps.creation.category'),
+      description: t('services.steps.creation.desc'),
+      features: [
+        t('services.steps.creation.features.0'),
+        t('services.steps.creation.features.1'),
+        t('services.steps.creation.features.2'),
+        t('services.steps.creation.features.3')
+      ],
       icon: 'document-text',
     },
     {
       step: "02",
-      category: 'Publishing Services',
-      description: 'Complete publishing and distribution solutions designed for maximum reach and engagement.',
-      features: ['Automated Scheduling', 'Social Media Integration', 'Press Release Distribution', 'Custom Branding'],
+      category: t('services.steps.publishing.category'),
+      description: t('services.steps.publishing.desc'),
+      features: [
+        t('services.steps.publishing.features.0'),
+        t('services.steps.publishing.features.1'),
+        t('services.steps.publishing.features.2'),
+        t('services.steps.publishing.features.3')
+      ],
       icon: 'share',
     },
     {
       step: "03",
-      category: 'Analytics & Insights',
-      description: 'Data-driven insights and performance tracking tools for making informed business decisions.',
-      features: ['Real-time Dashboards', 'Audience Demographics', 'Conversion Analytics', 'Custom Reports'],
+      category: t('services.steps.analytics.category'),
+      description: t('services.steps.analytics.desc'),
+      features: [
+        t('services.steps.analytics.features.0'),
+        t('services.steps.analytics.features.1'),
+        t('services.steps.analytics.features.2'),
+        t('services.steps.analytics.features.3')
+      ],
       icon: 'chart-bar',
     }
   ];
 
-  const stats = [
-    { number: '500K+', label: 'Content Pieces', icon: 'document-text' },
-    { number: '50K+', label: 'Active Users', icon: 'user-group' },
-    { number: '99%', label: 'Uptime', icon: 'check-circle' }
-  ];
+  // Stats array removed as it was unused and replaced by Why Choose Us
 
   const whyChooseFeatures = [
     {
-      title: "AI-Powered",
-      description: "Advanced artificial intelligence for superior content creation and optimization",
+      title: t('services.features.ai.title'),
+      description: t('services.features.ai.desc'),
       icon: "sparkles",
     },
     {
-      title: "24/7 Support",
-      description: "Round-the-clock assistance from our expert support team worldwide",
+      title: t('services.features.support.title'),
+      description: t('services.features.support.desc'),
       icon: "users",
     },
     {
-      title: "Enterprise Security",
-      description: "Military-grade security protocols protecting your valuable content and data",
+      title: t('services.features.security.title'),
+      description: t('services.features.security.desc'),
       icon: "lock-closed",
     },
     {
-      title: "Proven Results",
-      description: "Track record of success with measurable ROI and performance improvements",
+      title: t('services.features.results.title'),
+      description: t('services.features.results.desc'),
       icon: "star",
     }
   ];
@@ -62,9 +76,9 @@ const ServicesOverview = () => {
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-blue-100 selection:text-blue-900">
       <SEO
-        title="Services Overview | News Marketplace"
-        description="AI-powered content creation, publishing solutions, and analytics. Transform your content workflow."
-        keywords="services, ai content, publishing, analytics"
+        title={t('services.seo.title')}
+        description={t('services.seo.desc')}
+        keywords={t('services.seo.keywords')}
       />
       <UserHeader />
 
@@ -72,13 +86,13 @@ const ServicesOverview = () => {
       <div className="pt-20 pb-16 text-center px-4 max-w-4xl mx-auto">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm mb-6">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">End-to-End Platform</span>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{t('services.hero.badge')}</span>
         </div>
         <h1 className="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
-          The Content Workflow.
+          {t('services.hero.title')}
         </h1>
         <p className="text-lg text-slate-500 leading-relaxed max-w-2xl mx-auto">
-          From creation to distribution and analysis. One seamless process.
+          {t('services.hero.desc')}
         </p>
       </div>
 

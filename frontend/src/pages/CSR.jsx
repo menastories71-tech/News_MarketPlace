@@ -4,26 +4,29 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import SEO from '../components/common/SEO';
+import { useLanguage } from '../context/LanguageContext';
 
 const CSR = () => {
+  const { t } = useLanguage();
+
   const initiatives = [
     {
-      title: "Education Support",
-      description: "Programs to support journalism education and media literacy in schools.",
+      title: t('csr.initiatives.education.title'),
+      description: t('csr.initiatives.education.desc'),
       icon: "light-bulb", // Represents knowledge/ideas
       color: "bg-amber-100 text-amber-600",
       delay: 0.1
     },
     {
-      title: "Environmental Protection",
-      description: "Initiatives to reduce our carbon footprint and promote sustainable practices.",
+      title: t('csr.initiatives.environment.title'),
+      description: t('csr.initiatives.environment.desc'),
       icon: "globe", // Represents earth/environment
       color: "bg-emerald-100 text-emerald-600",
       delay: 0.2
     },
     {
-      title: "Community Support",
-      description: "Supporting local communities and promoting diversity in media.",
+      title: t('csr.initiatives.community.title'),
+      description: t('csr.initiatives.community.desc'),
       icon: "handshake", // Represents community/support
       color: "bg-indigo-100 text-indigo-600",
       delay: 0.3
@@ -33,9 +36,9 @@ const CSR = () => {
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
       <SEO
-        title="CSR | News Marketplace"
-        description="Our commitment to making a positive impact on society and the environment."
-        keywords="CSR, community, environment, education, impact"
+        title={t('csr.seo.title')}
+        description={t('csr.seo.desc')}
+        keywords={t('csr.seo.keywords')}
       />
       <UserHeader />
 
@@ -48,14 +51,14 @@ const CSR = () => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 font-bold uppercase tracking-widest text-xs mb-8">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Social Impact
+            {t('csr.hero.badge')}
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 tracking-tight">
-            Corporate Social <br className="hidden md:block" />
-            <span className="text-emerald-600">Responsibility</span>
+            {t('csr.hero.title')} <br className="hidden md:block" />
+            <span className="text-emerald-600">{t('csr.hero.subtitle')}</span>
           </h1>
           <p className="text-xl md:text-2xl text-slate-500 max-w-3xl mx-auto leading-relaxed font-medium">
-            Our commitment to making a positive impact on society and the environment.
+            {t('csr.hero.desc')}
           </p>
         </motion.div>
       </div>
@@ -63,11 +66,9 @@ const CSR = () => {
       {/* Mission Statement */}
       <div className="py-24 px-6 bg-slate-50">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8">Our Philosophy</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-8">{t('csr.philosophy.title')}</h2>
           <p className="text-lg text-slate-600 leading-loose">
-            At News Marketplace, we believe in giving back to the community and promoting sustainable practices.
-            Our Corporate Social Responsibility (CSR) initiatives focus on education, environmental protection,
-            and supporting underserved communities.
+            {t('csr.philosophy.content')}
           </p>
         </div>
       </div>

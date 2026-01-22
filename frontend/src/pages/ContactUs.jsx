@@ -67,7 +67,7 @@ const ContactUs = () => {
 
   const sendOtp = async () => {
     if (!formData.email) {
-      setErrors(prev => ({ ...prev, email: 'Email is required' }));
+      setErrors(prev => ({ ...prev, email: t('contact.form.errors.required.email') }));
       return;
     }
 
@@ -81,7 +81,7 @@ const ContactUs = () => {
 
       if (response.ok) {
         setOtpSent(prev => ({ ...prev, email: true }));
-        toast.success('OTP sent to your email!', {
+        toast.success(t('contact.form.toast.otpSent'), {
           duration: 4000,
           position: 'top-right',
           style: {
@@ -92,7 +92,7 @@ const ContactUs = () => {
       } else {
         const error = await response.json();
         setErrors(prev => ({ ...prev, email: error.message }));
-        toast.error('Failed to send OTP to email', {
+        toast.error(t('contact.form.errors.failed.email'), {
           duration: 4000,
           position: 'top-right',
           style: {
@@ -102,8 +102,8 @@ const ContactUs = () => {
         });
       }
     } catch (error) {
-      setErrors(prev => ({ ...prev, email: 'Failed to send OTP' }));
-      toast.error('Failed to send OTP. Please try again.', {
+      setErrors(prev => ({ ...prev, email: t('contact.form.errors.failed.otp') }));
+      toast.error(t('contact.form.toast.otpFail'), {
         duration: 4000,
         position: 'top-right',
         style: {
@@ -117,7 +117,7 @@ const ContactUs = () => {
 
   const verifyOtp = async () => {
     if (!otpValues.email) {
-      setErrors(prev => ({ ...prev, emailOtp: 'OTP is required' }));
+      setErrors(prev => ({ ...prev, emailOtp: t('contact.form.errors.required.otp') }));
       return;
     }
 
@@ -132,7 +132,7 @@ const ContactUs = () => {
       if (response.ok) {
         setOtpVerified(prev => ({ ...prev, email: true }));
         setErrors(prev => ({ ...prev, emailOtp: '' }));
-        toast.success('Email verified successfully!', {
+        toast.success(t('contact.form.toast.otpVerified'), {
           duration: 4000,
           position: 'top-right',
           style: {
@@ -143,7 +143,7 @@ const ContactUs = () => {
       } else {
         const error = await response.json();
         setErrors(prev => ({ ...prev, emailOtp: error.message }));
-        toast.error('Failed to verify email', {
+        toast.error(t('contact.form.errors.verify.otpValues'), {
           duration: 4000,
           position: 'top-right',
           style: {
@@ -153,8 +153,8 @@ const ContactUs = () => {
         });
       }
     } catch (error) {
-      setErrors(prev => ({ ...prev, emailOtp: 'Failed to verify OTP' }));
-      toast.error('Failed to verify OTP. Please try again.', {
+      setErrors(prev => ({ ...prev, emailOtp: t('contact.form.errors.verify.otpValues') }));
+      toast.error(t('contact.form.toast.verifyFail'), {
         duration: 4000,
         position: 'top-right',
         style: {
@@ -170,16 +170,16 @@ const ContactUs = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) newErrors.name = 'Name is required';
-    if (!formData.gender) newErrors.gender = 'Gender is required';
-    if (!formData.number) newErrors.number = 'Number is required';
-    if (!formData.email) newErrors.email = 'Email is required';
-    if (!formData.whatsapp) newErrors.whatsapp = 'WhatsApp number is required';
-    if (!formData.query) newErrors.query = 'Query type is required';
-    if (!formData.message.trim()) newErrors.message = 'Message is required';
-    if (!formData.termsAccepted) newErrors.termsAccepted = 'You must accept the terms and conditions';
-    if (!otpVerified.email) newErrors.emailOtp = 'Email must be verified';
-    if (!recaptchaToken) newErrors.captcha = 'Please complete the captcha';
+    if (!formData.name.trim()) newErrors.name = t('contact.form.errors.required.name');
+    if (!formData.gender) newErrors.gender = t('contact.form.errors.required.gender');
+    if (!formData.number) newErrors.number = t('contact.form.errors.required.number');
+    if (!formData.email) newErrors.email = t('contact.form.errors.required.email');
+    if (!formData.whatsapp) newErrors.whatsapp = t('contact.form.errors.required.whatsapp');
+    if (!formData.query) newErrors.query = t('contact.form.errors.required.query');
+    if (!formData.message.trim()) newErrors.message = t('contact.form.errors.required.message');
+    if (!formData.termsAccepted) newErrors.termsAccepted = t('contact.form.errors.required.terms');
+    if (!otpVerified.email) newErrors.emailOtp = t('contact.form.errors.verify.email');
+    if (!recaptchaToken) newErrors.captcha = t('contact.form.errors.required.captcha');
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -200,7 +200,7 @@ const ContactUs = () => {
       });
 
       if (response.ok) {
-        toast.success('Contact form submitted successfully!', {
+        toast.success(t('contact.form.toast.submitSuccess'), {
           duration: 5000,
           position: 'top-right',
           style: {
@@ -224,7 +224,7 @@ const ContactUs = () => {
         }
       } else {
         const error = await response.json();
-        toast.error(error.message || 'Failed to submit form', {
+        toast.error(error.message || t('contact.form.errors.failed.submit'), {
           duration: 5000,
           position: 'top-right',
           style: {
@@ -235,7 +235,7 @@ const ContactUs = () => {
       }
     } catch (error) {
       console.error('Form submission error:', error);
-      toast.error('Network error. Please check your connection and try again.', {
+      toast.error(t('contact.form.errors.failed.network'), {
         duration: 5000,
         position: 'top-right',
         style: {
@@ -366,7 +366,7 @@ const ContactUs = () => {
                         value={otpValues.email}
                         onChange={(e) => handleOtpChange(e.target.value)}
                         className="flex-1 px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-sm bg-[#FFFFFF] text-[#212121] placeholder-[#757575] transition-all duration-200"
-                        placeholder="Enter OTP"
+                        placeholder={t('contact.form.placeholders.enterOtp')}
                         maxLength="6"
                       />
                       <button
@@ -517,7 +517,7 @@ const ContactUs = () => {
                     value={formData.individualLinkedin}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-[#FFFFFF] text-[#212121] placeholder-[#757575] text-sm transition-all duration-200"
-                    placeholder="LinkedIn profile URL"
+                    placeholder={t('contact.form.placeholders.linkedIn')}
                   />
                 </div>
 
@@ -532,7 +532,7 @@ const ContactUs = () => {
                     value={formData.individualInstagram}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2.5 border border-[#BDBDBD] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-[#FFFFFF] text-[#212121] placeholder-[#757575] text-sm transition-all duration-200"
-                    placeholder="Instagram profile URL"
+                    placeholder={t('contact.form.placeholders.instagram')}
                   />
                 </div>
               </div>

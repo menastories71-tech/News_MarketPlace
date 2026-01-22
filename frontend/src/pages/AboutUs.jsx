@@ -3,68 +3,71 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import SEO from '../components/common/SEO';
+import { useLanguage } from '../context/LanguageContext';
 
 const AboutUs = () => {
+  const { t } = useLanguage();
+
   const aboutSections = [
     {
-      title: "Vision",
-      content: "Our goal is to become the world’s most trusted media marketplace, where high-quality services meet the best pricing. We envision a future where publishing is democratized, accessible, and profitable for all stakeholders in the media ecosystem.",
+      title: t('about.sections.vision.title'),
+      content: t('about.sections.vision.content'),
       icon: "eye",
       color: "text-blue-600",
       bg: "bg-blue-100",
       border: "border-blue-200"
     },
     {
-      title: "Our Vision",
-      content: "To revolutionize visibility requirements by connecting creators, businesses, media outlets, brands, companies, influencers, and marketing professionals through innovative, transparent, and efficient platforms. VaaS Solutions bridge the gap between traditional media and modern digital needs, ensuring every voice is heard and every story is told.",
+      title: t('about.sections.ourVision.title'),
+      content: t('about.sections.ourVision.content'),
       icon: "light-bulb",
       color: "text-amber-600",
       bg: "bg-amber-100",
       border: "border-amber-200"
     },
     {
-      title: "What VaaS Solutions Do",
-      content: "VaaS Solutions provides comprehensive omnichannel media, corporate communication, marketing, and PR solutions, including article publishing, press releases, content distribution, and digital marketing services. The platform connects clients with credible visibility solutions, ensuring maximum reach and impact for their vision and objectives.",
+      title: t('about.sections.whatWeDo.title'),
+      content: t('about.sections.whatWeDo.content'),
       icon: "chart-bar",
       color: "text-indigo-600",
       bg: "bg-indigo-100",
       border: "border-indigo-200"
     },
     {
-      title: "Why VaaS Solutions",
-      content: "With years of the founder’s experience across multiple industries, we understand the nuances of visibility. Our team comprises media professionals, content strategists, and technology experts who work together to deliver exceptional results for all the stakeholders.",
+      title: t('about.sections.whyUs.title'),
+      content: t('about.sections.whyUs.content'),
       icon: "user-group",
       color: "text-emerald-600",
       bg: "bg-emerald-100",
       border: "border-emerald-200"
     },
     {
-      title: "Stakeholder Commitment",
-      content: "We uphold the highest standards in service delivery, ensuring every requirement meets best-in-class benchmarks. Our commitment ensures that all partners—suppliers, clients, and collaborators—receive maximum value for their time and efforts.",
+      title: t('about.sections.commitment.title'),
+      content: t('about.sections.commitment.content'),
       icon: "handshake",
       color: "text-rose-600",
       bg: "bg-rose-100",
       border: "border-rose-200"
     },
     {
-      title: "Global Network",
-      content: "VaaS Solutions’ network spans continents, connecting clients with top-tier media outlets and creators across the Middle East, North America, Europe, and Asia. This global reach ensures that our partners’ vision and mission receive the international and regional exposure they deserve.",
+      title: t('about.sections.network.title'),
+      content: t('about.sections.network.content'),
       icon: "globe-alt",
       color: "text-cyan-600",
       bg: "bg-cyan-100",
       border: "border-cyan-200"
     },
     {
-      title: "Innovation and Technology",
-      content: "We leverage cutting-edge technology to streamline the publishing process, from content submission to publication tracking. Our platform features real-time analytics, automated workflows, and AI-powered content optimization tools.",
+      title: t('about.sections.tech.title'),
+      content: t('about.sections.tech.content'),
       icon: "cpu-chip",
       color: "text-purple-600",
       bg: "bg-purple-100",
       border: "border-purple-200"
     },
     {
-      title: "Client Success",
-      content: "Our success is measured by our clients' success. We provide dedicated support, transparent communication, and measurable results. Every client relationship is built on trust, reliability, and mutual growth.",
+      title: t('about.sections.success.title'),
+      content: t('about.sections.success.content'),
       icon: "trophy",
       color: "text-orange-600",
       bg: "bg-orange-100",
@@ -73,20 +76,20 @@ const AboutUs = () => {
   ];
 
   const teamValues = [
-    "Integrity in all our dealings",
-    "Excellence in service delivery",
-    "Innovation in solutions",
-    "Transparency in operations",
-    "Collaboration with partners",
-    "Commitment to client success"
+    t('about.values.0'),
+    t('about.values.1'),
+    t('about.values.2'),
+    t('about.values.3'),
+    t('about.values.4'),
+    t('about.values.5')
   ];
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100 selection:text-indigo-900">
       <SEO
-        title="About VaaS Solutions | Philosophy & Story"
-        description="Our journey to democratize publishing. Discover the vision, mission, and technologies powering VaaS Solutions."
-        keywords="about us, timeline, vision, mission, media technology"
+        title={t('about.seo.title')}
+        description={t('about.seo.desc')}
+        keywords={t('about.seo.keywords')}
       />
       <UserHeader />
 
@@ -94,13 +97,13 @@ const AboutUs = () => {
       <div className="pt-12 pb-16 text-center px-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-sm text-xs font-bold tracking-widest uppercase mb-6 text-slate-500">
           <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-          Our Manifesto
+          {t('about.manifesto')}
         </div>
         <h1 className="text-4xl md:text-6xl font-black text-slate-900 mb-6 tracking-tight">
-          Purpose & <span className="text-indigo-600">Progress.</span>
+          {t('about.hero.purpose')} <span className="text-indigo-600">{t('about.hero.progress')}</span>
         </h1>
         <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-          We are building the infrastructure for the next generation of digital visibility. Here is what drives us forward.
+          {t('about.hero.desc')}
         </p>
       </div>
 
@@ -152,7 +155,7 @@ const AboutUs = () => {
       {/* Values Grid (Bottom) */}
       <div className="bg-white border-t border-slate-100 py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-12">The Foundations of VaaS</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-12">{t('about.foundations')}</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {teamValues.map((value, idx) => (
               <div key={idx} className="p-6 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-200 transition-colors">
