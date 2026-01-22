@@ -95,8 +95,10 @@ const BlogDetailPage = () => {
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Translate main blog content
-  const { translatedObject: translatedBlog } = useTranslationObject(blog, ['title', 'content', 'category']);
+  // Translate main blog content - with null safety
+  const { translatedObject: rawTranslatedBlog } = useTranslationObject(blog, ['title', 'content', 'category']);
+  // Ensure translatedBlog is never null - fallback to original blog or empty object
+  const translatedBlog = rawTranslatedBlog || blog || {};
 
   // Prepare related blogs for translation (including excerpts)
   const relatedBlogsForTranslation = React.useMemo(() => {
