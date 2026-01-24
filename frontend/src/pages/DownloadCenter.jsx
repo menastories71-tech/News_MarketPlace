@@ -6,9 +6,10 @@ import UserFooter from '../components/common/UserFooter';
 
 
 import { useLanguage } from '../context/LanguageContext';
+import { useTranslationArray } from '../hooks/useTranslation';
 
 const DownloadCenter = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [downloadedItems, setDownloadedItems] = useState(new Set(['1', '3', '5']));
@@ -174,7 +175,17 @@ const DownloadCenter = () => {
     }
   ];
 
-  const filteredResources = resources.filter(resource => {
+  // Dynamic translation for resource content
+  const { translatedItems: translatedResources, isTranslating } = useTranslationArray(
+    resources,
+    ['title', 'description'],
+    true
+  );
+
+  // Use translated resources for display
+  const displayResources = translatedResources.length > 0 ? translatedResources : resources;
+
+  const filteredResources = displayResources.filter(resource => {
     const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
     const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       resource.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -259,8 +270,8 @@ const DownloadCenter = () => {
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedCategory === category.id
-                    ? 'bg-[#FF9800] text-white'
-                    : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
+                  ? 'bg-[#FF9800] text-white'
+                  : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
                   }`}
               >
                 {category.name} ({category.count})
@@ -332,8 +343,8 @@ const DownloadCenter = () => {
                   <button
                     onClick={() => handleDownload(resource.id)}
                     className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${isDownloaded
-                        ? 'bg-[#E0F2F1] text-[#00796B] hover:bg-[#B2DFDB] border border-[#00796B]/20'
-                        : 'bg-[#1976D2] text-white hover:bg-[#0D47A1] hover:shadow-lg'
+                      ? 'bg-[#E0F2F1] text-[#00796B] hover:bg-[#B2DFDB] border border-[#00796B]/20'
+                      : 'bg-[#1976D2] text-white hover:bg-[#0D47A1] hover:shadow-lg'
                       }`}
                   >
                     {isDownloaded ? (
@@ -374,13 +385,13 @@ const DownloadCenter = () => {
             </div>
             <div className="bg-[#E0F2F1] rounded-lg p-6 border border-[#E0E0E0]">
               <div className="text-3xl font-bold text-[#00796B] mb-2">
-                {resources.filter(r => downloadedItems.has(r.id) && r.category === 'templates').length}
+                {displayResources.filter(r => downloadedItems.has(r.id) && r.category === 'templates').length}
               </div>
               <div className="text-[#757575]">{t('downloadCenter.stats.templates')}</div>
             </div>
             <div className="bg-[#FFF3E0] rounded-lg p-6 border border-[#E0E0E0]">
               <div className="text-3xl font-bold text-[#FF9800] mb-2">
-                {resources.filter(r => downloadedItems.has(r.id) && r.category === 'guides').length}
+                {displayResources.filter(r => downloadedItems.has(r.id) && r.category === 'guides').length}
               </div>
               <div className="text-[#757575]">{t('downloadCenter.stats.guides')}</div>
             </div>
