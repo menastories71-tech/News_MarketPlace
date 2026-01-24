@@ -1346,5 +1346,110 @@
     "downloadCenter.stats.total": "Total téléchargements",
     "downloadCenter.stats.templates": "Modèles téléchargés",
     "downloadCenter.stats.guides": "Guides téléchargés",
-    "downloadCenter.noResults": "Aucune ressource trouvée."
+    "downloadCenter.noResults": "Aucune ressource trouvée.",
+    "publications": {
+        "hero": {
+            "title": "Publications",
+            "desc": "Journaux et magazines mondiaux, régionaux, nationaux et locaux. Découvrez des médias crédibles pour amplifier votre vision et atteindre votre public cible de manière efficace. Connectez-vous avec des éditeurs et des journalistes de confiance. Explorez diverses opportunités de contenu dans le monde entier."
+        },
+        "search": {
+            "placeholder": "Rechercher des publications..."
+        },
+        "filters": {
+            "title": "Filtres & Tri",
+            "basic": "Filtres de base",
+            "region": "Région",
+            "allRegions": "Toutes les régions",
+            "language": "Langue",
+            "allLanguages": "Toutes les langues",
+            "industry": "Industrie/Niche",
+            "allIndustries": "Toutes les industries/niches",
+            "priceRange": "Fourchette de prix",
+            "seoMetrics": "Métriques SEO",
+            "domainAuthority": "Domain Authority",
+            "domainRating": "Domain Rating",
+            "linkType": "Type de lien",
+            "doFollow": "Liens Do-follow",
+            "noFollow": "Liens No-follow",
+            "tat": "Délai d'exécution",
+            "clear": "Effacer tous les filtres",
+            "mobileToggle": "Filtres"
+        },
+        "results": {
+            "found": "publications trouvées",
+            "for": "pour",
+            "sortBy": "Trier par",
+            "sort": {
+                "nameAsc": "Nom (A-Z)",
+                "nameDesc": "Nom (Z-A)",
+                "priceLow": "Prix (Bas à Haut)",
+                "priceHigh": "Prix (Haut à Bas)",
+                "daHigh": "DA (Haut à Bas)",
+                "daLow": "DA (Bas à Haut)",
+                "drHigh": "DR (Haut à Bas)",
+                "drLow": "DR (Bas à Haut)",
+                "regionAsc": "Région (A-Z)",
+                "languageAsc": "Langue (A-Z)",
+                "tatFast": "Délai (Le plus rapide)",
+                "tatSlow": "Délai (Le plus lent)"
+            },
+            "readMore": "Lire la suite"
+        },
+        "noResults": {
+            "title": "Aucune publication trouvée",
+            "desc": "Essayez d'ajuster vos filtres ou votre requête de recherche pour trouver ce que vous cherchez.",
+            "clear": "Effacer les filtres"
+        },
+        "loading": "Chargement des publications..."
+    },
+    "submitArticle": {
+        "tabs": {
+            "submit": "Soumettre un article",
+            "mySubmissions": "Mes soumissions"
+        },
+        "form": {
+            "title": "Soumettre un article",
+            "subtitle": "Partagez votre article avec notre réseau de publications",
+            "publication": "Publication",
+            "searchPublication": "Rechercher et sélectionner une publication...",
+            "wordLimit": "Limite de mots",
+            "articleTitle": "Titre",
+            "articleTitlePlaceholder": "Entrez le titre de l'article (max 12 mots)",
+            "slug": "Slug URL (Généré automatiquement)",
+            "slugHint": "Ceci sera utilisé dans l'URL de l'article",
+            "subTitle": "Sous-titre",
+            "subTitlePlaceholder": "Entrez le sous-titre de l'article",
+            "byLine": "Par",
+            "byLinePlaceholder": "Entrez le nom de l'auteur",
+            "publishDate": "Date de publication provisoire",
+            "articleText": "Texte de l'article",
+            "articleTextPlaceholder": "Entrez le contenu de votre article",
+            "wordCount": "Nombre de mots",
+            "exceedsLimit": "Dépasse la limite de",
+            "image": "Image",
+            "websiteLink": "Lien site web",
+            "instagramLink": "Lien Instagram",
+            "facebookLink": "Lien Facebook",
+            "uploadDocument": "Télécharger un document",
+            "uploadDocumentHint": "Facultatif : Télécharger un document PDF ou Word",
+            "terms": "J'accepte les",
+            "termsLink": "Termes et Conditions",
+            "cancel": "Annuler",
+            "submit": "Soumettre l'article",
+            "submitting": "Soumission en cours...",
+            "notGuaranteed": "Non garanti"
+        },
+        "mySubmissions": {
+            "title": "Mes soumissions",
+            "subtitle": "Voir toutes vos soumissions d'articles et leur statut",
+            "loading": "Chargement des soumissions...",
+            "noSubmissions": "Aucune soumission trouvée",
+            "status": "Statut",
+            "date": "Date"
+        },
+        "popups": {
+            "success": "Article soumis avec succès !",
+            "error": "Échec de la soumission de l'article. Veuillez réessayer."
+        }
+    }
 }

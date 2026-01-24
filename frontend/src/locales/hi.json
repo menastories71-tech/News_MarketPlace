@@ -1382,5 +1382,110 @@
     "downloadCenter.stats.total": "कुल डाउनलोड",
     "downloadCenter.stats.templates": "टेम्प्लेट डाउनलोड किए गए",
     "downloadCenter.stats.guides": "गाइड डाउनलोड किए गए",
-    "downloadCenter.noResults": "आपके मानदंडों से मेल खाने वाला कोई संसाधन नहीं मिला।"
+    "downloadCenter.noResults": "आपके मानदंडों से मेल खाने वाला कोई संसाधन नहीं मिला।",
+    "publications": {
+        "hero": {
+            "title": "प्रकाशन",
+            "desc": "वैश्विक, क्षेत्रीय, राष्ट्रीय और स्थानीय समाचार पत्र और पत्रिकाएँ। अपनी दृष्टि को व्यापक बनाने और अपने लक्षित दर्शकों तक प्रभावी ढंग से और कुशलतापूर्वक पहुँचने के लिए विश्वसनीय मीडिया आउटलेट्स खोजें। विश्वसनीय प्रकाशकों और पत्रकारों से जुड़ें। दुनिया भर में विविध सामग्री के अवसरों का पता लगाएं।"
+        },
+        "search": {
+            "placeholder": "प्रकाशन खोजें..."
+        },
+        "filters": {
+            "title": "फिल्टर और छांटना",
+            "basic": "बुनियादी फिल्टर",
+            "region": "क्षेत्र",
+            "allRegions": "सभी क्षेत्र",
+            "language": "भाषा",
+            "allLanguages": "सभी भाषाएँ",
+            "industry": "उद्योग / क्षेत्र",
+            "allIndustries": "सभी उद्योग / क्षेत्र",
+            "priceRange": "मूल्य सीमा",
+            "seoMetrics": "एसईओ मेट्रिक्स",
+            "domainAuthority": "डोमेन अथॉरिटी (DA)",
+            "domainRating": "डोमेन रेटिंग (DR)",
+            "linkType": "लिंक प्रकार",
+            "doFollow": "Do-follow लिंक्स",
+            "noFollow": "No-follow लिंक्स",
+            "tat": "टर्नअराउंड समय",
+            "clear": "सभी फिल्टर साफ़ करें",
+            "mobileToggle": "फिल्टर"
+        },
+        "results": {
+            "found": "प्रकाशन मिले",
+            "for": "के लिए",
+            "sortBy": "क्रमबद्ध करें",
+            "sort": {
+                "nameAsc": "नाम (A-Z)",
+                "nameDesc": "नाम (Z-A)",
+                "priceLow": "मूल्य (कम से ज्यादा)",
+                "priceHigh": "मूल्य (ज्यादा से कम)",
+                "daHigh": "DA (ज्यादा से कम)",
+                "daLow": "DA (कम से ज्यादा)",
+                "drHigh": "DR (ज्यादा से कम)",
+                "drLow": "DR (कम से ज्यादा)",
+                "regionAsc": "क्षेत्र (A-Z)",
+                "languageAsc": "भाषा (A-Z)",
+                "tatFast": "समय (सबसे तेज़)",
+                "tatSlow": "समय (सबसे धीमा)"
+            },
+            "readMore": "और पढ़ें"
+        },
+        "noResults": {
+            "title": "कोई प्रकाशन नहीं मिला",
+            "desc": "आप जो खोज रहे हैं उसे खोजने के लिए अपने फिल्टर या खोज क्वेरी को समायोजित करने का प्रयास करें।",
+            "clear": "फिल्टर साफ़ करें"
+        },
+        "loading": "प्रकाशन लोड हो रहे हैं..."
+    },
+    "submitArticle": {
+        "tabs": {
+            "submit": "लेख जमा करें",
+            "mySubmissions": "मेरे जमा लेख"
+        },
+        "form": {
+            "title": "लेख जमा करें",
+            "subtitle": "अपना लेख हमारे प्रकाशन नेटवर्क के साथ साझा करें",
+            "publication": "प्रकाशन",
+            "searchPublication": "खोजें और एक प्रकाशन चुनें...",
+            "wordLimit": "शब्द सीमा",
+            "articleTitle": "शीर्षक",
+            "articleTitlePlaceholder": "लेख का शीर्षक दर्ज करें (अधिकतम 12 शब्द)",
+            "slug": "URL स्लग (स्वतः निर्मित)",
+            "slugHint": "इसका उपयोग लेख URL में किया जाएगा",
+            "subTitle": "उपशीर्षक",
+            "subTitlePlaceholder": "लेख का उपशीर्षक दर्ज करें",
+            "byLine": "द्वारा",
+            "byLinePlaceholder": "लेखक का नाम दर्ज करें",
+            "publishDate": "संभावित प्रकाशन तिथि",
+            "articleText": "लेख पाठ",
+            "articleTextPlaceholder": "अपनी लेख सामग्री दर्ज करें",
+            "wordCount": "शब्द गणना",
+            "exceedsLimit": "सीमा से अधिक है",
+            "image": "छवि",
+            "websiteLink": "वेबसाइट लिंक",
+            "instagramLink": "इंस्टाग्राम लिंक",
+            "facebookLink": "फेसबुक लिंक",
+            "uploadDocument": "दस्तावेज़ अपलोड करें",
+            "uploadDocumentHint": "वैकल्पिक: पीडीएफ या वर्ड दस्तावेज़ अपलोड करें",
+            "terms": "मैं स्वीकार करता हूँ",
+            "termsLink": "नियम और शर्तें",
+            "cancel": "रद्द करें",
+            "submit": "लेख जमा करें",
+            "submitting": "जमा किया जा रहा है...",
+            "notGuaranteed": "गारंटी नहीं है"
+        },
+        "mySubmissions": {
+            "title": "मेरे जमा लेख",
+            "subtitle": "अपने सभी लेख सबमिशन और उनकी स्थिति देखें",
+            "loading": "सबमिशन लोड हो रहे हैं...",
+            "noSubmissions": "कोई सबमिशन नहीं मिला",
+            "status": "स्थिति",
+            "date": "दिनांक"
+        },
+        "popups": {
+            "success": "लेख सफलतापूर्वक जमा किया गया!",
+            "error": "लेख जमा करने में विफल। कृपया पुन: प्रयास करें।"
+        }
+    }
 }

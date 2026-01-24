@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -31,6 +32,7 @@ const theme = {
 };
 
 const ArticleSubmissionPage = () => {
+  const { t } = useLanguage();
   const { isAuthenticated, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -349,7 +351,7 @@ const ArticleSubmissionPage = () => {
       });
 
       // Show success popup
-      setPopupMessage('Article submitted successfully! Your article has been submitted and is pending review. Confirmation emails have been sent to you and our team.');
+      setPopupMessage(t('submitArticle.popups.success'));
       setPopupType('success');
       setShowPopup(true);
       setTimeout(() => {
@@ -361,7 +363,7 @@ const ArticleSubmissionPage = () => {
       console.error('Error submitting article:', error);
       console.error('Error response:', error.response?.data);
 
-      let errorMessage = 'Failed to submit article. Please try again.';
+      let errorMessage = t('submitArticle.popups.error');
 
       if (error.response?.status === 413) {
         errorMessage = 'Upload size too large. Please reduce file sizes and try again.';
@@ -429,20 +431,20 @@ const ArticleSubmissionPage = () => {
               <button
                 onClick={() => setActiveTab('submit')}
                 className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${activeTab === 'submit'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
-                Submit Article
+                {t('submitArticle.tabs.submit')}
               </button>
               <button
                 onClick={() => setActiveTab('my-submissions')}
                 className={`px-6 py-3 font-medium text-sm border-b-2 transition-colors ${activeTab === 'my-submissions'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
-                My Submissions
+                {t('submitArticle.tabs.mySubmissions')}
               </button>
             </div>
           </div>
@@ -451,10 +453,10 @@ const ArticleSubmissionPage = () => {
             <>
               <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-4" style={{ color: theme.textPrimary }}>
-                  Submit Article
+                  {t('submitArticle.form.title')}
                 </h1>
                 <p style={{ color: theme.textSecondary }}>
-                  Share your article with our network of publications
+                  {t('submitArticle.form.subtitle')}
                 </p>
               </div>
 
@@ -463,13 +465,13 @@ const ArticleSubmissionPage = () => {
                 {/* Publication Selection */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Publication <span style={{ color: theme.danger }}>*</span>
+                    {t('submitArticle.form.publication')} <span style={{ color: theme.danger }}>*</span>
                     <Icon name="information-circle" size="sm" className="ml-1 inline" title="Select the publication you want to submit to" />
                   </label>
                   <div className="relative">
                     <input
                       type="text"
-                      placeholder="Search and select a publication..."
+                      placeholder={t('submitArticle.form.searchPublication')}
                       value={selectedPublication ? selectedPublication.publication_name : searchTerm}
                       onChange={(e) => {
                         setSearchTerm(e.target.value);
@@ -495,7 +497,7 @@ const ArticleSubmissionPage = () => {
                             }}
                           >
                             <div className="font-medium">{pub.publication_name}</div>
-                            <div className="text-sm text-gray-500">Word limit: {pub.word_limit || 500}</div>
+                            <div className="text-sm text-gray-500">{t('submitArticle.form.wordLimit')}: {pub.word_limit || 500}</div>
                           </div>
                         ))}
                       </div>
@@ -507,7 +509,7 @@ const ArticleSubmissionPage = () => {
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Title <span style={{ color: theme.danger }}>*</span>
+                    {t('submitArticle.form.articleTitle')} <span style={{ color: theme.danger }}>*</span>
                   </label>
                   <input
                     type="text"
@@ -516,7 +518,7 @@ const ArticleSubmissionPage = () => {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                     style={{ borderColor: errors.title ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
-                    placeholder="Enter article title (max 12 words)"
+                    placeholder={t('submitArticle.form.articleTitlePlaceholder')}
                   />
                   {errors.title && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.title}</div>}
                 </div>
@@ -524,7 +526,7 @@ const ArticleSubmissionPage = () => {
                 {/* Slug (Auto-generated) */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    URL Slug (Auto-generated)
+                    {t('submitArticle.form.slug')}
                   </label>
                   <input
                     type="text"
@@ -532,18 +534,18 @@ const ArticleSubmissionPage = () => {
                     readOnly
                     className="w-full px-4 py-3 border rounded-lg bg-gray-50"
                     style={{ borderColor: theme.borderLight, backgroundColor: '#f9f9f9', color: theme.textSecondary }}
-                    placeholder="Slug will be generated from title"
+                    placeholder=""
                   />
                   <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
-                    This will be used in the article URL
+                    {t('submitArticle.form.slugHint')}
                   </div>
                 </div>
 
                 {/* Subtitle */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Subtitle
-                    <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
+                    {t('submitArticle.form.subTitle')}
+                    <Icon name="information-circle" size="sm" className="ml-1 inline" title={t('submitArticle.form.notGuaranteed')} />
                   </label>
                   <input
                     type="text"
@@ -552,7 +554,7 @@ const ArticleSubmissionPage = () => {
                     onChange={handleInputChange}
                     className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                     style={{ borderColor: theme.borderLight, backgroundColor: theme.background }}
-                    placeholder="Enter article subtitle"
+                    placeholder={t('submitArticle.form.subTitlePlaceholder')}
                   />
                 </div>
 
@@ -576,8 +578,8 @@ const ArticleSubmissionPage = () => {
                 {/* Tentative Publish Date */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Tentative Publish Date
-                    <Icon name="information-circle" size="sm" className="ml-1 inline" title="Not guaranteed" />
+                    {t('submitArticle.form.publishDate')}
+                    <Icon name="information-circle" size="sm" className="ml-1 inline" title={t('submitArticle.form.notGuaranteed')} />
                   </label>
                   <input
                     type="date"
@@ -592,7 +594,7 @@ const ArticleSubmissionPage = () => {
                 {/* Article Text */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Article Text <span style={{ color: theme.danger }}>*</span>
+                    {t('submitArticle.form.articleText')} <span style={{ color: theme.danger }}>*</span>
                   </label>
                   <textarea
                     name="article_text"
@@ -601,15 +603,15 @@ const ArticleSubmissionPage = () => {
                     rows={10}
                     className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
                     style={{ borderColor: errors.article_text ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
-                    placeholder="Enter your article content"
+                    placeholder={t('submitArticle.form.articleTextPlaceholder')}
                   />
                   <div className="flex justify-between mt-2">
                     <div style={{ fontSize: '12px', color: theme.textSecondary }}>
-                      Word count: {wordCount} / {wordLimit}
+                      {t('submitArticle.form.wordCount')}: {wordCount} / {wordLimit}
                     </div>
                     {wordCount > wordLimit && (
                       <div style={{ color: theme.danger, fontSize: '12px' }}>
-                        Exceeds limit by {wordCount - wordLimit} words
+                        {t('submitArticle.form.exceedsLimit')} {wordCount - wordLimit}
                       </div>
                     )}
                   </div>
@@ -625,7 +627,7 @@ const ArticleSubmissionPage = () => {
                       return (
                         <div key={imageKey}>
                           <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                            Image {imageNum} <span style={{ color: theme.danger }}>*</span>
+                            {t('submitArticle.form.image')} {imageNum} <span style={{ color: theme.danger }}>*</span>
                             <Icon name="information-circle" size="sm" className="ml-1 inline" title="only landscape mode - portrait mode not allowed. Logos, thumbnail, icons and text in image not allowed. Restrict the size limit to 10 MB" />
                           </label>
                           <input
@@ -702,7 +704,7 @@ const ArticleSubmissionPage = () => {
                 {/* Upload Document */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Upload Document
+                    {t('submitArticle.form.uploadDocument')}
                   </label>
                   <input
                     type="file"
@@ -713,7 +715,7 @@ const ArticleSubmissionPage = () => {
                     style={{ borderColor: errors.document ? theme.danger : theme.borderLight, backgroundColor: theme.background }}
                   />
                   <div style={{ fontSize: '12px', color: theme.textSecondary, marginTop: '4px' }}>
-                    Optional: Upload a PDF or Word document
+                    {t('submitArticle.form.uploadDocumentHint')}
                   </div>
                   {errors.document && <div style={{ color: theme.danger, fontSize: '12px', marginTop: '4px' }}>{errors.document}</div>}
                 </div>
@@ -766,7 +768,7 @@ const ArticleSubmissionPage = () => {
                     style={{ borderColor: theme.borderLight, color: theme.textPrimary, backgroundColor: theme.background }}
                     disabled={loading}
                   >
-                    Cancel
+                    {t('submitArticle.form.cancel')}
                   </button>
                   <button
                     type="submit"
@@ -776,7 +778,7 @@ const ArticleSubmissionPage = () => {
                     onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                     onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                   >
-                    {loading ? 'Submitting...' : 'Submit Article'}
+                    {loading ? t('submitArticle.form.submitting') : t('submitArticle.form.submit')}
                   </button>
                 </div>
               </form>
@@ -787,22 +789,22 @@ const ArticleSubmissionPage = () => {
             <div>
               <div className="mb-8">
                 <h1 className="text-3xl font-bold mb-4" style={{ color: theme.textPrimary }}>
-                  My Submissions
+                  {t('submitArticle.mySubmissions.title')}
                 </h1>
                 <p style={{ color: theme.textSecondary }}>
-                  View all your article submissions and their status
+                  {t('submitArticle.mySubmissions.subtitle')}
                 </p>
               </div>
 
               {submissionsLoading ? (
                 <div className="flex items-center justify-center py-12">
                   <Icon name="arrow-path" size="lg" className="animate-spin text-primary mx-auto" />
-                  <span className="ml-2" style={{ color: theme.textSecondary }}>Loading submissions...</span>
+                  <span className="ml-2" style={{ color: theme.textSecondary }}>{t('submitArticle.mySubmissions.loading')}</span>
                 </div>
               ) : mySubmissions.length === 0 ? (
                 <div className="text-center py-12">
                   <Icon name="document-text" size="lg" className="mx-auto mb-4" style={{ color: theme.textDisabled }} />
-                  <h3 className="text-lg font-medium mb-2" style={{ color: theme.textPrimary }}>No submissions yet</h3>
+                  <h3 className="text-lg font-medium mb-2" style={{ color: theme.textPrimary }}>{t('submitArticle.mySubmissions.noSubmissions')}</h3>
                   <p style={{ color: theme.textSecondary }}>You haven't submitted any articles yet.</p>
                   <button
                     onClick={() => setActiveTab('submit')}
@@ -830,10 +832,10 @@ const ArticleSubmissionPage = () => {
                         <div className="ml-4">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-medium ${submission.status === 'approved'
-                                ? 'bg-green-100 text-green-800'
-                                : submission.status === 'rejected'
-                                  ? 'bg-red-100 text-red-800'
-                                  : 'bg-yellow-100 text-yellow-800'
+                              ? 'bg-green-100 text-green-800'
+                              : submission.status === 'rejected'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-yellow-100 text-yellow-800'
                               }`}
                           >
                             {submission.status.charAt(0).toUpperCase() + submission.status.slice(1)}

@@ -1346,5 +1346,110 @@
     "downloadCenter.stats.total": "إجمالي التنزيلات",
     "downloadCenter.stats.templates": "القوالب المحملة",
     "downloadCenter.stats.guides": "الأدلة المحملة",
-    "downloadCenter.noResults": "لم يتم العثور على موارد تطابق معاييرك."
+    "downloadCenter.noResults": "لم يتم العثور على موارد تطابق معاييرك.",
+    "publications": {
+        "hero": {
+            "title": "المنشورات",
+            "desc": "الصحف والمجلات العالمية والإقليمية والوطنية والمحلية. اكتشف منافذ إعلامية موثوقة لتعزيز رؤيتك والوصول إلى جمهورك المستهدف بفعالية وكفاءة. تواصل مع ناشرين وصحفيين موثوقين. اكتشف فرص محتوى متنوعة حول العالم."
+        },
+        "search": {
+            "placeholder": "البحث عن منشورات..."
+        },
+        "filters": {
+            "title": "الفلاتر والترتيب",
+            "basic": "الفلاتر الأساسية",
+            "region": "المنطقة",
+            "allRegions": "جميع المناطق",
+            "language": "اللغة",
+            "allLanguages": "جميع اللغات",
+            "industry": "الصناعة / المجال",
+            "allIndustries": "جميع الصناعات / المجالات",
+            "priceRange": "نطاق السعر",
+            "seoMetrics": "مقاييس SEO",
+            "domainAuthority": "سلطة النطاق (DA)",
+            "domainRating": "تقييم النطاق (DR)",
+            "linkType": "نوع الرابط",
+            "doFollow": "روابط Do-follow",
+            "noFollow": "روابط No-follow",
+            "tat": "وقت التنفيذ",
+            "clear": "مسح جميع الفلاتر",
+            "mobileToggle": "فلاتر"
+        },
+        "results": {
+            "found": "منشور تم العثور عليه",
+            "for": "لـ",
+            "sortBy": "ترتيب حسب",
+            "sort": {
+                "nameAsc": "الاسم (أ-ي)",
+                "nameDesc": "الاسم (ي-أ)",
+                "priceLow": "السعر (من الأقل للأعلى)",
+                "priceHigh": "السعر (من الأعلى للأقل)",
+                "daHigh": "DA (من الأعلى للأقل)",
+                "daLow": "DA (من الأقل للأعلى)",
+                "drHigh": "DR (من الأعلى للأقل)",
+                "drLow": "DR (من الأقل للأعلى)",
+                "regionAsc": "المنطقة (أ-ي)",
+                "languageAsc": "اللغة (أ-ي)",
+                "tatFast": "الوقت (الأسرع)",
+                "tatSlow": "الوقت (الأبطأ)"
+            },
+            "readMore": "قراءة المزيد"
+        },
+        "noResults": {
+            "title": "لم يتم العثور على منشورات",
+            "desc": "حاول تعديل الفلاتر أو استعلام البحث للعثور على ما تبحث عنه.",
+            "clear": "مسح الفلاتر"
+        },
+        "loading": "جاري تحميل المنشورات..."
+    },
+    "submitArticle": {
+        "tabs": {
+            "submit": "تقديم مقال",
+            "mySubmissions": "طلباتي"
+        },
+        "form": {
+            "title": "تقديم مقال",
+            "subtitle": "شارك مقالك مع شبكة منشوراتنا",
+            "publication": "جهة النشر",
+            "searchPublication": "البحث وتحديد جهة نشر...",
+            "wordLimit": "حد الكلمات",
+            "articleTitle": "العنوان",
+            "articleTitlePlaceholder": "أدخل عنوان المقال (الحد الأقصى 12 كلمة)",
+            "slug": "رابط URL (تم إنشاؤه تلقائيًا)",
+            "slugHint": "سيتم استخدام هذا في رابط المقال",
+            "subTitle": "العنوان الفرعي",
+            "subTitlePlaceholder": "أدخل العنوان الفرعي للمقال",
+            "byLine": "بقلم",
+            "byLinePlaceholder": "أدخل اسم المؤلف",
+            "publishDate": "تاريخ النشر المتوقع",
+            "articleText": "نص المقال",
+            "articleTextPlaceholder": "أدخل محتوى مقالك",
+            "wordCount": "عدد الكلمات",
+            "exceedsLimit": "يتجاوز الحد بـ",
+            "image": "صورة",
+            "websiteLink": "رابط الموقع",
+            "instagramLink": "رابط انستغرام",
+            "facebookLink": "رابط فيسبوك",
+            "uploadDocument": "تحميل مستند",
+            "uploadDocumentHint": "اختياري: تحميل مستند PDF أو Word",
+            "terms": "أوافق على",
+            "termsLink": "الشروط والأحكام",
+            "cancel": "إلغاء",
+            "submit": "تقديم المقال",
+            "submitting": "جاري التقديم...",
+            "notGuaranteed": "غير مضمون"
+        },
+        "mySubmissions": {
+            "title": "طلباتي",
+            "subtitle": "عرض جميع طلبات المقالات وحالتها",
+            "loading": "جاري تحميل الطلبات...",
+            "noSubmissions": "لم يتم العثور على طلبات",
+            "status": "الحالة",
+            "date": "التاريخ"
+        },
+        "popups": {
+            "success": "تم تقديم المقال بنجاح!",
+            "error": "فشل تقديم المقال. يرجى المحاولة مرة أخرى."
+        }
+    }
 }

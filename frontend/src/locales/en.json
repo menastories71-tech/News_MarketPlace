@@ -1390,5 +1390,110 @@
     "downloadCenter.stats.total": "Total Downloads",
     "downloadCenter.stats.templates": "Templates Downloaded",
     "downloadCenter.stats.guides": "Guides Downloaded",
-    "downloadCenter.noResults": "No resources found matching your criteria."
+    "downloadCenter.noResults": "No resources found matching your criteria.",
+    "publications": {
+        "hero": {
+            "title": "Publications",
+            "desc": "Global, Regional, National and Local Newspapers and Magazines. Discover credible media outlets to amplify your vision and reach your target audience effectively and efficiently. Connect with trusted publishers and journalists. Explore diverse content opportunities worldwide."
+        },
+        "search": {
+            "placeholder": "Search publications..."
+        },
+        "filters": {
+            "title": "Filters & Sort",
+            "basic": "Basic Filters",
+            "region": "Region",
+            "allRegions": "All Regions",
+            "language": "Language",
+            "allLanguages": "All Languages",
+            "industry": "Industry/Niche",
+            "allIndustries": "All Industries/Niches",
+            "priceRange": "Price Range",
+            "seoMetrics": "SEO Metrics",
+            "domainAuthority": "Domain Authority",
+            "domainRating": "Domain Rating",
+            "linkType": "Link Type",
+            "doFollow": "Do-follow Links",
+            "noFollow": "No-follow Links",
+            "tat": "Turnaround Time",
+            "clear": "Clear All Filters",
+            "mobileToggle": "Filters"
+        },
+        "results": {
+            "found": "publications found",
+            "for": "for",
+            "sortBy": "Sort by",
+            "sort": {
+                "nameAsc": "Name (A-Z)",
+                "nameDesc": "Name (Z-A)",
+                "priceLow": "Price (Low to High)",
+                "priceHigh": "Price (High to Low)",
+                "daHigh": "DA (High to Low)",
+                "daLow": "DA (Low to High)",
+                "drHigh": "DR (High to Low)",
+                "drLow": "DR (Low to High)",
+                "regionAsc": "Region (A-Z)",
+                "languageAsc": "Language (A-Z)",
+                "tatFast": "TAT (Fastest)",
+                "tatSlow": "TAT (Slowest)"
+            },
+            "readMore": "Read More"
+        },
+        "noResults": {
+            "title": "No publications found",
+            "desc": "Try adjusting your filters or search query to find what you're looking for.",
+            "clear": "Clear Filters"
+        },
+        "loading": "Loading publications..."
+    },
+    "submitArticle": {
+        "tabs": {
+            "submit": "Submit Article",
+            "mySubmissions": "My Submissions"
+        },
+        "form": {
+            "title": "Submit Article",
+            "subtitle": "Share your article with our network of publications",
+            "publication": "Publication",
+            "searchPublication": "Search and select a publication...",
+            "wordLimit": "Word limit",
+            "articleTitle": "Title",
+            "articleTitlePlaceholder": "Enter article title (max 12 words)",
+            "slug": "URL Slug (Auto-generated)",
+            "slugHint": "This will be used in the article URL",
+            "subTitle": "Subtitle",
+            "subTitlePlaceholder": "Enter article subtitle",
+            "byLine": "By Line",
+            "byLinePlaceholder": "Enter author name",
+            "publishDate": "Tentative Publish Date",
+            "articleText": "Article Text",
+            "articleTextPlaceholder": "Enter your article content",
+            "wordCount": "Word count",
+            "exceedsLimit": "Exceeds limit by",
+            "image": "Image",
+            "websiteLink": "Website Link",
+            "instagramLink": "Instagram Link",
+            "facebookLink": "Facebook Link",
+            "uploadDocument": "Upload Document",
+            "uploadDocumentHint": "Optional: Upload a PDF or Word document",
+            "terms": "I accept the",
+            "termsLink": "Terms and Conditions",
+            "cancel": "Cancel",
+            "submit": "Submit Article",
+            "submitting": "Submitting...",
+            "notGuaranteed": "Not guaranteed"
+        },
+        "mySubmissions": {
+            "title": "My Submissions",
+            "subtitle": "View all your article submissions and their status",
+            "loading": "Loading submissions...",
+            "noSubmissions": "No submissions found",
+            "status": "Status",
+            "date": "Date"
+        },
+        "popups": {
+            "success": "Article submitted successfully!",
+            "error": "Failed to submit article. Please try again."
+        }
+    }
 }

@@ -1389,5 +1389,110 @@
     "downloadCenter.stats.total": "Всего загрузок",
     "downloadCenter.stats.templates": "Шаблонов скачано",
     "downloadCenter.stats.guides": "Гайдов скачано",
-    "downloadCenter.noResults": "Материалы не найдены."
+    "downloadCenter.noResults": "Материалы не найдены.",
+    "publications": {
+        "hero": {
+            "title": "Публикации",
+            "desc": "Глобальные, региональные, национальные и местные газеты и журналы. Откройте для себя надежные СМИ, чтобы эффективно расширить свое видение и охватить целевую аудиторию. Общайтесь с проверенными издателями и журналистами. Исследуйте разнообразные возможности контента по всему миру."
+        },
+        "search": {
+            "placeholder": "Поиск публикаций..."
+        },
+        "filters": {
+            "title": "Фильтры и сортировка",
+            "basic": "Основные фильтры",
+            "region": "Регион",
+            "allRegions": "Все регионы",
+            "language": "Язык",
+            "allLanguages": "Все языки",
+            "industry": "Индустрия/Ниша",
+            "allIndustries": "Все индустрии/ниши",
+            "priceRange": "Диапазон цен",
+            "seoMetrics": "SEO метрики",
+            "domainAuthority": "Авторитет домена (DA)",
+            "domainRating": "Рейтинг домена (DR)",
+            "linkType": "Тип ссылки",
+            "doFollow": "Do-follow ссылки",
+            "noFollow": "No-follow ссылки",
+            "tat": "Время выполнения (TAT)",
+            "clear": "Очистить все фильтры",
+            "mobileToggle": "Фильтры"
+        },
+        "results": {
+            "found": "публикаций найдено",
+            "for": "для",
+            "sortBy": "Сортировать по",
+            "sort": {
+                "nameAsc": "Название (А-Я)",
+                "nameDesc": "Название (Я-А)",
+                "priceLow": "Цена (Низк-Выс)",
+                "priceHigh": "Цена (Выс-Низк)",
+                "daHigh": "DA (Выс-Низк)",
+                "daLow": "DA (Низк-Выс)",
+                "drHigh": "DR (Выс-Низк)",
+                "drLow": "DR (Низк-Выс)",
+                "regionAsc": "Регион (А-Я)",
+                "languageAsc": "Язык (А-Я)",
+                "tatFast": "TAT (Быстрый)",
+                "tatSlow": "TAT (Медленный)"
+            },
+            "readMore": "Читать далее"
+        },
+        "noResults": {
+            "title": "Публикации не найдены",
+            "desc": "Попробуйте изменить фильтры или поисковый запрос, чтобы найти то, что вы ищете.",
+            "clear": "Очистить фильтры"
+        },
+        "loading": "Загрузка публикаций..."
+    },
+    "submitArticle": {
+        "tabs": {
+            "submit": "Отправить статью",
+            "mySubmissions": "Мои публикации"
+        },
+        "form": {
+            "title": "Отправить статью",
+            "subtitle": "Поделитесь своей статьей с нашей сетью публикаций",
+            "publication": "Публикация",
+            "searchPublication": "Найти и выбрать публикацию...",
+            "wordLimit": "Лимит слов",
+            "articleTitle": "Заголовок",
+            "articleTitlePlaceholder": "Введите заголовок статьи (макс. 12 слов)",
+            "slug": "URL Slug (Автоматически)",
+            "slugHint": "Будет использовано в URL статьи",
+            "subTitle": "Подзаголовок",
+            "subTitlePlaceholder": "Введите подзаголовок статьи",
+            "byLine": "Автор",
+            "byLinePlaceholder": "Введите имя автора",
+            "publishDate": "Предварительная дата публикации",
+            "articleText": "Текст статьи",
+            "articleTextPlaceholder": "Введите содержание статьи",
+            "wordCount": "Количество слов",
+            "exceedsLimit": "Превышает лимит на",
+            "image": "Изображение",
+            "websiteLink": "Ссылка на веб-сайт",
+            "instagramLink": "Ссылка на Instagram",
+            "facebookLink": "Ссылка на Facebook",
+            "uploadDocument": "Загрузить документ",
+            "uploadDocumentHint": "Необязательно: Загрузите PDF или Word документ",
+            "terms": "Я принимаю",
+            "termsLink": "Условия и положения",
+            "cancel": "Отмена",
+            "submit": "Отправить статью",
+            "submitting": "Отправка...",
+            "notGuaranteed": "Не гарантируется"
+        },
+        "mySubmissions": {
+            "title": "Мои публикации",
+            "subtitle": "Просмотр всех ваших отправленных статей и их статуса",
+            "loading": "Загрузка публикаций...",
+            "noSubmissions": "Публикации не найдены",
+            "status": "Статус",
+            "date": "Дата"
+        },
+        "popups": {
+            "success": "Статья успешно отправлена!",
+            "error": "Не удалось отправить статью. Пожалуйста, попробуйте снова."
+        }
+    }
 }

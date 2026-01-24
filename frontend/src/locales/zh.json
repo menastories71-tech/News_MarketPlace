@@ -1384,5 +1384,110 @@
     "downloadCenter.stats.total": "总下载量",
     "downloadCenter.stats.templates": "模板已下载",
     "downloadCenter.stats.guides": "指南已下载",
-    "downloadCenter.noResults": "未找到匹配资源。"
+    "downloadCenter.noResults": "未找到匹配资源。",
+    "publications": {
+        "hero": {
+            "title": "出版物",
+            "desc": "全球、区域、国家和地方报纸和杂志。发现可信的媒体渠道，有效且高效地扩大您的愿景并触达您的目标受众。与值得信赖的出版商和记者联系。探索世界各地的多样化内容机会。"
+        },
+        "search": {
+            "placeholder": "搜索出版物..."
+        },
+        "filters": {
+            "title": "筛选与排序",
+            "basic": "基本筛选",
+            "region": "地区",
+            "allRegions": "所有地区",
+            "language": "语言",
+            "allLanguages": "所有语言",
+            "industry": "行业/领域",
+            "allIndustries": "所有行业/领域",
+            "priceRange": "价格范围",
+            "seoMetrics": "SEO 指标",
+            "domainAuthority": "域名权重 (DA)",
+            "domainRating": "域名评分 (DR)",
+            "linkType": "链接类型",
+            "doFollow": "Do-follow 链接",
+            "noFollow": "No-follow 链接",
+            "tat": "周转时间 (TAT)",
+            "clear": "清除所有筛选",
+            "mobileToggle": "筛选"
+        },
+        "results": {
+            "found": "个出版物",
+            "for": "对于",
+            "sortBy": "排序方式",
+            "sort": {
+                "nameAsc": "名称 (A-Z)",
+                "nameDesc": "名称 (Z-A)",
+                "priceLow": "价格 (低到高)",
+                "priceHigh": "价格 (高到低)",
+                "daHigh": "DA (高到低)",
+                "daLow": "DA (低到高)",
+                "drHigh": "DR (高到低)",
+                "drLow": "DR (低到高)",
+                "regionAsc": "地区 (A-Z)",
+                "languageAsc": "语言 (A-Z)",
+                "tatFast": "TAT (最快)",
+                "tatSlow": "TAT (最慢)"
+            },
+            "readMore": "阅读更多"
+        },
+        "noResults": {
+            "title": "未找到出版物",
+            "desc": "尝试调整您的筛选条件或搜索查询以找到您想要的内容。",
+            "clear": "清除筛选"
+        },
+        "loading": "正在加载出版物..."
+    },
+    "submitArticle": {
+        "tabs": {
+            "submit": "提交文章",
+            "mySubmissions": "我的提交"
+        },
+        "form": {
+            "title": "提交文章",
+            "subtitle": "与我们的出版网络分享您的文章",
+            "publication": "出版物",
+            "searchPublication": "搜索并选择出版物...",
+            "wordLimit": "字数限制",
+            "articleTitle": "标题",
+            "articleTitlePlaceholder": "输入文章标题 (最多 12 个字)",
+            "slug": "URL Slug (自动生成)",
+            "slugHint": "将用于文章 URL",
+            "subTitle": "副标题",
+            "subTitlePlaceholder": "输入文章副标题",
+            "byLine": "署名",
+            "byLinePlaceholder": "输入作者姓名",
+            "publishDate": "暂定发布日期",
+            "articleText": "文章内容",
+            "articleTextPlaceholder": "输入您的文章内容",
+            "wordCount": "字数",
+            "exceedsLimit": "超过限制",
+            "image": "图片",
+            "websiteLink": "网站链接",
+            "instagramLink": "Instagram 链接",
+            "facebookLink": "Facebook 链接",
+            "uploadDocument": "上传文档",
+            "uploadDocumentHint": "可选：上传 PDF 或 Word 文档",
+            "terms": "我接受",
+            "termsLink": "条款和条件",
+            "cancel": "取消",
+            "submit": "提交文章",
+            "submitting": "正在提交...",
+            "notGuaranteed": "不保证"
+        },
+        "mySubmissions": {
+            "title": "我的提交",
+            "subtitle": "查看您所有提交的文章及其状态",
+            "loading": "正在加载提交...",
+            "noSubmissions": "未找到提交",
+            "status": "状态",
+            "date": "日期"
+        },
+        "popups": {
+            "success": "文章提交成功！",
+            "error": "文章提交失败。请重试。"
+        }
+    }
 }

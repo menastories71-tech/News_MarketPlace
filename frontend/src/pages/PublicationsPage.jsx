@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -46,6 +47,7 @@ const theme = {
 };
 
 const PublicationsPage = () => {
+  const { t } = useLanguage();
   const { isAuthenticated, hasRole, hasAnyRole, getRoleLevel } = useAuth();
   const navigate = useNavigate();
   const [publications, setPublications] = useState([]);
@@ -302,7 +304,7 @@ const PublicationsPage = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading publications...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>{t('publications.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -324,10 +326,10 @@ const PublicationsPage = () => {
             className="text-center"
           >
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#212121] mb-4 tracking-tight">
-              Publications
+              {t('publications.hero.title')}
             </h1>
             <p className="text-base md:text-lg text-[#757575] max-w-2xl mx-auto leading-relaxed font-light mb-6">
-              Global, Regional, National and Local Newspapers and Magazines. Discover credible media outlets to amplify your vision and reach your target audience effectively and efficiently. Connect with trusted publishers and journalists. Explore diverse content opportunities worldwide.
+              {t('publications.hero.desc')}
             </p>
 
 
@@ -336,7 +338,7 @@ const PublicationsPage = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search publications..."
+                  placeholder={t('publications.search.placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-10 py-3 border border-[#E0E0E0] rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
@@ -372,7 +374,7 @@ const PublicationsPage = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
                 <Filter size={20} className="text-[#1976D2]" />
-                Filters & Sort
+                {t('publications.filters.title')}
               </h3>
               {isMobile && (
                 <button
@@ -389,7 +391,7 @@ const PublicationsPage = () => {
               <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E0E0E0]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <Globe size={16} className="text-[#1976D2]" />
-                  Basic Filters
+                  {t('publications.filters.basic')}
                 </h4>
 
                 {/* Filters in row-wise layout for mobile */}
@@ -397,14 +399,14 @@ const PublicationsPage = () => {
                   {/* Region Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Region
+                      {t('publications.filters.region')}
                     </label>
                     <select
                       value={regionFilter}
                       onChange={(e) => setRegionFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Regions</option>
+                      <option value="">{t('publications.filters.allRegions')}</option>
                       {getUniqueRegions().map(region => (
                         <option key={region} value={region}>{region}</option>
                       ))}
@@ -414,14 +416,14 @@ const PublicationsPage = () => {
                   {/* Language Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Language
+                      {t('publications.filters.language')}
                     </label>
                     <select
                       value={languageFilter}
                       onChange={(e) => setLanguageFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Languages</option>
+                      <option value="">{t('publications.filters.allLanguages')}</option>
                       {getUniqueLanguages().map(language => (
                         <option key={language} value={language}>{language}</option>
                       ))}
@@ -431,14 +433,14 @@ const PublicationsPage = () => {
                   {/* Industry/Niche Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Industry/Niche
+                      {t('publications.filters.industry')}
                     </label>
                     <select
                       value={focusFilter}
                       onChange={(e) => setFocusFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Industries/Niches</option>
+                      <option value="">{t('publications.filters.allIndustries')}</option>
                       {getUniqueFocus().map(focus => (
                         <option key={focus} value={focus}>{focus}</option>
                       ))}
@@ -451,11 +453,11 @@ const PublicationsPage = () => {
               <div className="bg-[#FFF8E1] rounded-lg p-4 border border-[#FF9800]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <DollarSign size={16} className="text-[#FF9800]" />
-                  Price Range
+                  {t('publications.filters.priceRange')}
                 </h4>
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Price Range: ${priceRange[0]} - ${priceRange[1]}
+                    {t('publications.filters.priceRange')}: ${priceRange[0]} - ${priceRange[1]}
                   </label>
                   <div className="space-y-2">
                     <input
@@ -484,13 +486,13 @@ const PublicationsPage = () => {
               <div className="bg-[#E3F2FD] rounded-lg p-4 border border-[#1976D2]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <BarChart3 size={16} className="text-[#1976D2]" />
-                  SEO Metrics
+                  {t('publications.filters.seoMetrics')}
                 </h4>
 
                 {/* DA Range */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Domain Authority: {daRange[0]} - {daRange[1]}
+                    {t('publications.filters.domainAuthority')}: {daRange[0]} - {daRange[1]}
                   </label>
                   <div className="space-y-2">
                     <input
@@ -515,7 +517,7 @@ const PublicationsPage = () => {
                 {/* DR Range */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Domain Rating: {drRange[0]} - {drRange[1]}
+                    {t('publications.filters.domainRating')}: {drRange[0]} - {drRange[1]}
                   </label>
                   <div className="space-y-2">
                     <input
@@ -540,7 +542,7 @@ const PublicationsPage = () => {
                 {/* Link Type */}
                 <div>
                   <label className="block text-sm font-medium mb-3" style={{ color: theme.textPrimary }}>
-                    Link Type
+                    {t('publications.filters.linkType')}
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                     <input
@@ -549,7 +551,7 @@ const PublicationsPage = () => {
                       onChange={(e) => setDofollowFilter(e.target.checked ? 'dofollow' : 'all')}
                       className="rounded accent-[#1976D2]"
                     />
-                    <span className="text-sm" style={{ color: theme.textPrimary }}>Do-follow Links</span>
+                    <span className="text-sm" style={{ color: theme.textPrimary }}>{t('publications.filters.doFollow')}</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
                     <input
@@ -558,7 +560,7 @@ const PublicationsPage = () => {
                       onChange={(e) => setDofollowFilter(e.target.checked ? 'nofollow' : 'all')}
                       className="rounded accent-[#1976D2]"
                     />
-                    <span className="text-sm" style={{ color: theme.textPrimary }}>No-follow Links</span>
+                    <span className="text-sm" style={{ color: theme.textPrimary }}>{t('publications.filters.noFollow')}</span>
                   </label>
                 </div>
               </div>
@@ -567,7 +569,7 @@ const PublicationsPage = () => {
               <div className="bg-[#FFF3E0] rounded-lg p-4 border border-[#FF9800]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <Clock size={16} className="text-[#FF9800]" />
-                  Turnaround Time
+                  {t('publications.filters.tat')}
                 </h4>
                 <div className="space-y-3">
                   {['1-5 days', '6-10 days', '2-3 weeks', '4-6 weeks'].map(tat => (
@@ -590,7 +592,7 @@ const PublicationsPage = () => {
                 onClick={clearAllFilters}
                 className="w-full px-4 py-3 rounded-lg font-medium transition-colors bg-[#F5F5F5] hover:bg-[#E0E0E0] text-[#212121] border border-[#E0E0E0]"
               >
-                Clear All Filters
+                {t('publications.filters.clear')}
               </button>
             </div>
           </div>
@@ -613,7 +615,7 @@ const PublicationsPage = () => {
                     style={{ borderColor: theme.borderLight }}
                   >
                     <Filter size={16} />
-                    <span className="text-[#212121]">Filters</span>
+                    <span className="text-[#212121]">{t('publications.filters.mobileToggle')}</span>
                   </button>
                 )}
 
@@ -640,10 +642,10 @@ const PublicationsPage = () => {
                 </div>
 
                 <span className="text-sm font-medium text-[#212121]">
-                  {totalRecords} publications found
+                  {totalRecords} {t('publications.results.found')}
                   {searchTerm && (
                     <span className="ml-2 text-[#757575]">
-                      for "{searchTerm}"
+                      {t('publications.results.for')} "{searchTerm}"
                     </span>
                   )}
                 </span>
@@ -651,7 +653,7 @@ const PublicationsPage = () => {
 
               {/* Enhanced Sort Dropdown */}
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-[#757575]">Sort by:</span>
+                <span className="text-sm font-medium text-[#757575]">{t('publications.results.sortBy')}:</span>
                 <select
                   value={`${sortField}-${sortDirection}`}
                   onChange={(e) => {
@@ -661,18 +663,18 @@ const PublicationsPage = () => {
                   }}
                   className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
-                  <option value="publication_name-asc">Name (A-Z)</option>
-                  <option value="publication_name-desc">Name (Z-A)</option>
-                  <option value="price_usd-asc">Price (Low to High)</option>
-                  <option value="price_usd-desc">Price (High to Low)</option>
-                  <option value="da-desc">DA (High to Low)</option>
-                  <option value="da-asc">DA (Low to High)</option>
-                  <option value="dr-desc">DR (High to Low)</option>
-                  <option value="dr-asc">DR (Low to High)</option>
-                  <option value="region-asc">Region (A-Z)</option>
-                  <option value="language-asc">Language (A-Z)</option>
-                  <option value="committed_tat-asc">TAT (Fastest)</option>
-                  <option value="committed_tat-desc">TAT (Slowest)</option>
+                  <option value="publication_name-asc">{t('publications.results.sort.nameAsc')}</option>
+                  <option value="publication_name-desc">{t('publications.results.sort.nameDesc')}</option>
+                  <option value="price_usd-asc">{t('publications.results.sort.priceLow')}</option>
+                  <option value="price_usd-desc">{t('publications.results.sort.priceHigh')}</option>
+                  <option value="da-desc">{t('publications.results.sort.daHigh')}</option>
+                  <option value="da-asc">{t('publications.results.sort.daLow')}</option>
+                  <option value="dr-desc">{t('publications.results.sort.drHigh')}</option>
+                  <option value="dr-asc">{t('publications.results.sort.drLow')}</option>
+                  <option value="region-asc">{t('publications.results.sort.regionAsc')}</option>
+                  <option value="language-asc">{t('publications.results.sort.languageAsc')}</option>
+                  <option value="committed_tat-asc">{t('publications.results.sort.tatFast')}</option>
+                  <option value="committed_tat-desc">{t('publications.results.sort.tatSlow')}</option>
                 </select>
               </div>
             </div>
