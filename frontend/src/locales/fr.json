@@ -2418,5 +2418,152 @@
             "success": "Commande soumise avec succès ! Vous recevrez bientôt un e-mail de confirmation.",
             "error": "Erreur lors de la soumission de la commande. Veuillez réessayer."
         }
+    },
+    "pressPacks": {
+        "title": "Services de communiqués de presse",
+        "desc": "Services professionnels de rédaction et de distribution de communiqués de presse pour maximiser votre couverture médiatique et atteindre efficacement votre public cible.",
+        "searchPlaceholder": "Rechercher des communiqués par nom, région ou niche...",
+        "loading": "Chargement des communiqués de presse...",
+        "filters": {
+            "title": "Filtres et tri",
+            "basicFilters": "Filtres de base",
+            "region": "Région",
+            "allRegions": "Toutes les régions",
+            "niche": "Niche",
+            "allNiches": "Toutes les niches",
+            "turnaroundTime": "Délai d'exécution max",
+            "anyTime": "Tout moment",
+            "daysOrLess": "jours ou moins",
+            "packageMetrics": "Métriques du forfait",
+            "priceRange": "Fourchette de prix",
+            "wordLimit": "Limite de mots",
+            "features": "Fonctionnalités",
+            "contentWritingIncluded": "Rédaction de contenu incluse",
+            "clear": "Effacer tous les filtres"
+        },
+        "controls": {
+            "found": "{{count}} communiqués trouvés",
+            "for": "pour",
+            "sortBy": "Trier par :",
+            "sortOptions": {
+                "nameAsc": "Nom (A-Z)",
+                "nameDesc": "Nom (Z-A)",
+                "priceAsc": "Prix (Croissant)",
+                "priceDesc": "Prix (Décroissant)",
+                "regionAsc": "Région (A-Z)",
+                "nicheAsc": "Niche (A-Z)",
+                "newest": "Le plus récent",
+                "oldest": "Le plus ancien"
+            }
+        },
+        "card": {
+            "mediaWebsites": "Sites médias",
+            "guaranteed": "Garanti",
+            "words": "Mots",
+            "days": "jours",
+            "contentWriting": "Rédaction",
+            "viewDetails": "Voir les détails"
+        },
+        "list": {
+            "pressRelease": "Communiqué de presse",
+            "region": "Région",
+            "niche": "Niche",
+            "price": "Prix",
+            "websites": "Sites Web",
+            "features": "Fonctionnalités",
+            "action": "Action",
+            "viewDetails": "Voir les détails"
+        }
+    },
+    "pressPackDetail": {
+        "loading": "Chargement des détails du pack presse...",
+        "notFound": {
+            "title": "Pack presse introuvable",
+            "desc": "Le pack presse que vous recherchez n'existe pas ou a été supprimé.",
+            "back": "Retour aux packs presse"
+        },
+        "breadcrumb": {
+            "back": "Retour aux packs presse",
+            "current": "Détails du pack presse"
+        },
+        "added": "Ajouté",
+        "about": "Description du communiqué de presse",
+        "overview": {
+            "title": "Aperçu du communiqué",
+            "mediaWebsites": "Sites médias",
+            "guaranteedPlacements": "Placements garantis",
+            "wordLimit": "Limite de mots"
+        },
+        "includedPublications": {
+            "title": "Publications incluses",
+            "tat": "jours (délai)",
+            "da": "DA"
+        },
+        "resources": {
+            "title": "Ressources supplémentaires",
+            "button": "Voir les ressources"
+        },
+        "disclaimer": {
+            "title": "Avis important"
+        },
+        "purchase": {
+            "title": "Acheter le forfait",
+            "oneTimePayment": "Paiement unique",
+            "mediaWebsitesDistribution": "Distribution sur sites médias",
+            "guaranteedPlacements": "Placements garantis",
+            "wordLimit": "limite de mots",
+            "flexibleWordCount": "Nombre de mots flexible",
+            "contentWritingIncluded": "Aide à la rédaction incluse",
+            "button": "Acheter le forfait",
+            "signIn": "Se connecter pour acheter"
+        },
+        "details": {
+            "title": "Détails du forfait",
+            "region": "Région",
+            "niche": "Niche",
+            "turnaroundTime": "Délai d'exécution",
+            "contentWriting": "Rédaction de contenu",
+            "included": "Inclus",
+            "notIncluded": "Non inclus"
+        },
+        "actions": {
+            "save": "Enregistrer",
+            "saved": "Enregistré",
+            "share": "Partager",
+            "linkCopied": "Lien copié dans le presse-papiers !"
+        },
+        "form": {
+            "title": "Acheter un pack presse",
+            "totalAmount": "Montant total",
+            "name": "Nom",
+            "whatsappNumber": "Numéro WhatsApp",
+            "callingNumber": "Numéro d'appel",
+            "typeLabel": "Communiqué pour entreprise/projet, individu/marque",
+            "companyProject": "Entreprise/Projet",
+            "individualBrand": "Individu/Marque",
+            "email": "E-mail",
+            "companyRegistration": "Option de téléchargement du document d'enregistrement de l'entreprise",
+            "letterOfAuthorisation": "Lettre d'autorisation",
+            "image": "Image pour le communiqué",
+            "wordPdf": "Téléchargement de document Word ou PDF",
+            "submittedBy": "Soumis par - Agence ou Entreprise directe / Individu",
+            "agency": "Agence",
+            "direct": "Entreprise directe / Individu",
+            "selection": "Sélection du communiqué",
+            "selectPressRelease": "Sélectionner un communiqué",
+            "packageSelection": "Sélection du forfait communiqué",
+            "selectPackage": "Sélectionner un forfait",
+            "message": "Message éventuel",
+            "recaptchaNote": "Complétez la vérification reCAPTCHA pour soumettre votre commande.",
+            "terms": "J'accepte les conditions générales et la politique de confidentialité",
+            "contentWritingAssistance": "Aide à la rédaction de contenu",
+            "required": "Requis",
+            "notRequired": "Non requis",
+            "cancel": "Annuler",
+            "processing": "Traitement...",
+            "submit": "Acheter le forfait",
+            "success": "Commande de pack presse soumise avec succès ! Notre équipe vous contactera bientôt.",
+            "error": "Échec de la soumission de la commande. Veuillez réessayer."
+        }
     }
 }

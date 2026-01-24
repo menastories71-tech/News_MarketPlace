@@ -2462,5 +2462,157 @@
             "success": "Order submitted successfully! You will receive a confirmation email shortly.",
             "error": "Error submitting order. Please try again."
         }
+    },
+    "pressPacks": {
+        "title": "Press Release Services",
+        "desc": "Professional press release writing and distribution services to maximize your media coverage and reach target audiences effectively.",
+        "searchPlaceholder": "Search press releases by name, region, or niche...",
+        "loading": "Loading press releases...",
+        "filters": {
+            "title": "Filters & Sort",
+            "basicFilters": "Basic Filters",
+            "region": "Region",
+            "allRegions": "All Regions",
+            "niche": "Niche",
+            "allNiches": "All Niches",
+            "turnaroundTime": "Max Turnaround Time",
+            "anyTime": "Any Time",
+            "daysOrLess": "days or less",
+            "packageMetrics": "Package Metrics",
+            "priceRange": "Price Range",
+            "wordLimit": "Word Limit",
+            "features": "Features",
+            "contentWritingIncluded": "Content Writing Included",
+            "clear": "Clear All Filters"
+        },
+        "controls": {
+            "found": "{{count}} press releases found",
+            "for": "for",
+            "sortBy": "Sort by:",
+            "sortOptions": {
+                "nameAsc": "Name (A-Z)",
+                "nameDesc": "Name (Z-A)",
+                "priceAsc": "Price (Low to High)",
+                "priceDesc": "Price (High to Low)",
+                "regionAsc": "Region (A-Z)",
+                "nicheAsc": "Niche (A-Z)",
+                "newest": "Newest First",
+                "oldest": "Oldest First"
+            }
+        },
+        "card": {
+            "mediaWebsites": "Media Websites",
+            "guaranteed": "Guaranteed",
+            "words": "Words",
+            "days": "days",
+            "contentWriting": "Content Writing",
+            "viewDetails": "View Details"
+        },
+        "list": {
+            "pressRelease": "Press Release",
+            "region": "Region",
+            "niche": "Niche",
+            "price": "Price",
+            "websites": "Websites",
+            "features": "Features",
+            "action": "Action",
+            "viewDetails": "View Details"
+        }
+    },
+    "pressPackDetail": {
+        "loading": "Loading press pack details...",
+        "contactForPricing": "Contact for pricing",
+        "notFound": {
+            "title": "Press Pack Not Found",
+            "desc": "The press pack you're looking for doesn't exist or has been removed.",
+            "back": "Back to Press Packs"
+        },
+        "breadcrumb": {
+            "back": "Back to Press Packs",
+            "current": "Press Pack Details"
+        },
+        "added": "Added",
+        "about": "Press Release Description",
+        "overview": {
+            "title": "Press Release Overview",
+            "mediaWebsites": "Media Websites",
+            "guaranteedPlacements": "Guaranteed Placements",
+            "wordLimit": "Word Limit"
+        },
+        "includedPublications": {
+            "title": "Included Publications",
+            "tat": "days TAT",
+            "da": "DA"
+        },
+        "resources": {
+            "title": "Additional Resources",
+            "button": "View Resources"
+        },
+        "disclaimer": {
+            "title": "Important Disclaimer"
+        },
+        "purchase": {
+            "title": "Purchase Package",
+            "oneTimePayment": "One-time payment",
+            "mediaWebsitesDistribution": "Media websites distribution",
+            "guaranteedPlacements": "Guaranteed placements",
+            "wordLimit": "word limit",
+            "flexibleWordCount": "Flexible word count",
+            "contentWritingIncluded": "Content writing assistance included",
+            "button": "Purchase Package",
+            "signIn": "Sign In to Purchase"
+        },
+        "details": {
+            "title": "Package Details",
+            "region": "Region",
+            "niche": "Niche",
+            "turnaroundTime": "Turnaround Time",
+            "contentWriting": "Content Writing",
+            "included": "Included",
+            "notIncluded": "Not Included"
+        },
+        "actions": {
+            "save": "Save",
+            "saved": "Saved",
+            "share": "Share",
+            "linkCopied": "Link copied to clipboard!"
+        },
+        "orderSuccess": "Press pack order submitted successfully! Our team will contact you soon.",
+        "orderFailed": "Failed to submit order request. Please try again.",
+        "form": {
+            "title": "Purchase Press Pack",
+            "totalAmount": "Total Amount",
+            "name": "Name",
+            "whatsappNumber": "Whatsapp Number",
+            "callingNumber": "Calling Number",
+            "typeLabel": "Press release for company/ Project, Individual/ Brand",
+            "companyProject": "Company/Project",
+            "individualBrand": "Individual/Brand",
+            "email": "Email",
+            "companyRegistration": "Company registration document upload option",
+            "letterOfAuthorisation": "Letter of Authorisation",
+            "image": "Image for the Press release",
+            "wordPdf": "Word or PDF Document upload",
+            "submittedBy": "Submitted by - Agency or Direct Company / Individual",
+            "agency": "Agency",
+            "direct": "Direct Company / Individual",
+            "selectionPressRelease": "Selection of Press Release",
+            "selectPressRelease": "Select Press Release",
+            "selectionPackage": "Selection of Press Release Package",
+            "selectPackage": "Select Package",
+            "message": "Any message",
+            "messagePlaceholder": "Any specific requirements or questions...",
+            "captchaHint": "Complete the reCAPTCHA verification to submit your order.",
+            "agreeTo": "I agree to the",
+            "termsAndConditions": "Terms and Conditions",
+            "and": "and",
+            "privacyPolicy": "Privacy Policy",
+            "contentWritingAssistance": "Content writing assistance",
+            "required": "Required",
+            "notRequired": "Not required",
+            "cancel": "Cancel",
+            "processing": "Processing...",
+            "submit": "Purchase Package"
+        }
     }
 }

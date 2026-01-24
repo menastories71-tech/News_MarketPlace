@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -44,6 +45,7 @@ const theme = {
 
 const PressPacksPage = () => {
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [pressPacks, setPressPacks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -259,7 +261,7 @@ const PressPacksPage = () => {
   };
 
   const formatPrice = (price) => {
-    if (!price) return 'Contact for pricing';
+    if (!price) return t('pressPackDetail.contactForPricing');
     return `$${parseFloat(price).toFixed(2)}`;
   };
 
@@ -287,7 +289,7 @@ const PressPacksPage = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 mx-auto mb-4 border-4 border-[#E0E0E0] border-t-[#1976D2]"></div>
-            <p className="text-lg text-[#757575]">Loading press releases...</p>
+            <p className="text-lg text-[#757575]">{t('pressPacks.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -309,10 +311,10 @@ const PressPacksPage = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Press Release Services
+              {t('pressPacks.title')}
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Professional press release writing and distribution services to maximize your media coverage and reach target audiences effectively.
+              {t('pressPacks.desc')}
             </p>
 
             {/* Search Bar */}
@@ -320,7 +322,7 @@ const PressPacksPage = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search press releases by name, region, or niche..."
+                  placeholder={t('pressPacks.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
@@ -356,7 +358,7 @@ const PressPacksPage = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
                 <Filter size={20} className="text-[#1976D2]" />
-                Filters & Sort
+                {t('pressPacks.filters.title')}
               </h3>
               {isMobile && (
                 <button
@@ -373,7 +375,7 @@ const PressPacksPage = () => {
               <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E0E0E0]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <Globe size={16} className="text-[#1976D2]" />
-                  Basic Filters
+                  {t('pressPacks.filters.basicFilters')}
                 </h4>
 
                 {/* Filters in row-wise layout for mobile */}
@@ -381,14 +383,14 @@ const PressPacksPage = () => {
                   {/* Region Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Region
+                      {t('pressPacks.filters.region')}
                     </label>
                     <select
                       value={regionFilter}
                       onChange={(e) => setRegionFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Regions</option>
+                      <option value="">{t('pressPacks.filters.allRegions')}</option>
                       {getUniqueRegions().map(region => (
                         <option key={region} value={region}>{region}</option>
                       ))}
@@ -398,14 +400,14 @@ const PressPacksPage = () => {
                   {/* Industry Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Niche
+                      {t('pressPacks.filters.niche')}
                     </label>
                     <select
                       value={industryFilter}
                       onChange={(e) => setIndustryFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Niches</option>
+                      <option value="">{t('pressPacks.filters.allNiches')}</option>
                       {getUniqueNiches().map(niche => (
                         <option key={niche} value={niche}>{niche}</option>
                       ))}
@@ -415,16 +417,16 @@ const PressPacksPage = () => {
                   {/* Turnaround Time Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Max Turnaround Time
+                      {t('pressPacks.filters.turnaroundTime')}
                     </label>
                     <select
                       value={turnaroundTimeFilter}
                       onChange={(e) => setTurnaroundTimeFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">Any Time</option>
+                      <option value="">{t('pressPacks.filters.anyTime')}</option>
                       {getUniqueTurnaroundTimes().map(time => (
-                        <option key={time} value={time}>{time} days or less</option>
+                        <option key={time} value={time}>{time} {t('pressPacks.filters.daysOrLess')}</option>
                       ))}
                     </select>
                   </div>
@@ -435,13 +437,13 @@ const PressPacksPage = () => {
               <div className="bg-[#E3F2FD] rounded-lg p-4 border border-[#1976D2]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <BarChart3 size={16} className="text-[#1976D2]" />
-                  Package Metrics
+                  {t('pressPacks.filters.packageMetrics')}
                 </h4>
 
                 {/* Price Range */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Price Range: ${priceRange[0]} - ${priceRange[1]}
+                    {t('pressPacks.filters.priceRange')}: ${priceRange[0]} - ${priceRange[1]}
                   </label>
                   <div className="space-y-2">
                     <input
@@ -468,7 +470,7 @@ const PressPacksPage = () => {
                 {/* Words Limit Range */}
                 <div>
                   <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                    Word Limit: {wordsLimitRange[0]} - {wordsLimitRange[1]}
+                    {t('pressPacks.filters.wordLimit')}: {wordsLimitRange[0]} - {wordsLimitRange[1]}
                   </label>
                   <div className="space-y-2">
                     <input
@@ -497,7 +499,7 @@ const PressPacksPage = () => {
               <div className="bg-[#E0F2F1] rounded-lg p-4 border border-[#00796B]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <CheckCircle size={16} className="text-[#00796B]" />
-                  Features
+                  {t('pressPacks.filters.features')}
                 </h4>
                 <div className="space-y-3">
                   <label className="flex items-center gap-3 cursor-pointer p-2 rounded hover:bg-white">
@@ -507,7 +509,7 @@ const PressPacksPage = () => {
                       onChange={(e) => setContentWritingFilter(e.target.checked ? 'true' : '')}
                       className="rounded accent-[#00796B]"
                     />
-                    <span className="text-sm" style={{ color: theme.textPrimary }}>Content Writing Included</span>
+                    <span className="text-sm" style={{ color: theme.textPrimary }}>{t('pressPacks.filters.contentWritingIncluded')}</span>
                   </label>
                 </div>
               </div>
@@ -517,7 +519,7 @@ const PressPacksPage = () => {
                 onClick={clearAllFilters}
                 className="w-full px-4 py-3 rounded-lg font-medium transition-colors bg-[#F5F5F5] hover:bg-[#E0E0E0] text-[#212121] border border-[#E0E0E0]"
               >
-                Clear All Filters
+                {t('pressPacks.filters.clear')}
               </button>
             </div>
           </div>
@@ -540,7 +542,7 @@ const PressPacksPage = () => {
                     style={{ borderColor: theme.borderLight }}
                   >
                     <Filter size={16} />
-                    <span className="text-[#212121]">Filters</span>
+                    <span className="text-[#212121]">{t('pressPacks.filters.title')}</span>
                   </button>
                 )}
 
@@ -549,8 +551,8 @@ const PressPacksPage = () => {
                   <button
                     onClick={() => setViewMode('grid')}
                     className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
-                        ? 'bg-white shadow-sm text-[#1976D2]'
-                        : 'text-[#757575] hover:text-[#212121]'
+                      ? 'bg-white shadow-sm text-[#1976D2]'
+                      : 'text-[#757575] hover:text-[#212121]'
                       }`}
                   >
                     <Grid size={16} />
@@ -558,8 +560,8 @@ const PressPacksPage = () => {
                   <button
                     onClick={() => setViewMode('list')}
                     className={`p-2 rounded-md transition-colors ${viewMode === 'list'
-                        ? 'bg-white shadow-sm text-[#1976D2]'
-                        : 'text-[#757575] hover:text-[#212121]'
+                      ? 'bg-white shadow-sm text-[#1976D2]'
+                      : 'text-[#757575] hover:text-[#212121]'
                       }`}
                   >
                     <List size={16} />
@@ -567,10 +569,10 @@ const PressPacksPage = () => {
                 </div>
 
                 <span className="text-sm font-medium text-[#212121]">
-                  {sortedPressPacks.length} press releases found
+                  {t('pressPacks.controls.found', { count: sortedPressPacks.length })}
                   {searchTerm && (
                     <span className="ml-2 text-[#757575]">
-                      for "{searchTerm}"
+                      {t('pressPacks.controls.for')} "{searchTerm}"
                     </span>
                   )}
                 </span>
@@ -578,7 +580,7 @@ const PressPacksPage = () => {
 
               {/* Enhanced Sort Dropdown */}
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-[#757575]">Sort by:</span>
+                <span className="text-sm font-medium text-[#757575]">{t('pressPacks.controls.sortBy')}</span>
                 <select
                   value={`${sortField}-${sortDirection}`}
                   onChange={(e) => {
@@ -588,14 +590,14 @@ const PressPacksPage = () => {
                   }}
                   className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
-                  <option value="name-asc">Name (A-Z)</option>
-                  <option value="name-desc">Name (Z-A)</option>
-                  <option value="price-asc">Price (Low to High)</option>
-                  <option value="price-desc">Price (High to Low)</option>
-                  <option value="region-asc">Region (A-Z)</option>
-                  <option value="niche-asc">Niche (A-Z)</option>
-                  <option value="created_at-desc">Newest First</option>
-                  <option value="created_at-asc">Oldest First</option>
+                  <option value="name-asc">{t('pressPacks.controls.sortOptions.nameAsc')}</option>
+                  <option value="name-desc">{t('pressPacks.controls.sortOptions.nameDesc')}</option>
+                  <option value="price-asc">{t('pressPacks.controls.sortOptions.priceAsc')}</option>
+                  <option value="price-desc">{t('pressPacks.controls.sortOptions.priceDesc')}</option>
+                  <option value="region-asc">{t('pressPacks.controls.sortOptions.regionAsc')}</option>
+                  <option value="niche-asc">{t('pressPacks.controls.sortOptions.nicheAsc')}</option>
+                  <option value="created_at-desc">{t('pressPacks.controls.sortOptions.newest')}</option>
+                  <option value="created_at-asc">{t('pressPacks.controls.sortOptions.oldest')}</option>
                 </select>
               </div>
             </div>
@@ -655,15 +657,15 @@ const PressPacksPage = () => {
                         <div className="grid grid-cols-3 gap-2 text-center mb-4 p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                           <div>
                             <div className="text-lg font-bold" style={{ color: theme.primary }}>{pack.distribution_media_websites || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Media Websites</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>{t('pressPacks.card.mediaWebsites')}</div>
                           </div>
                           <div>
                             <div className="text-lg font-bold" style={{ color: theme.success }}>{pack.guaranteed_media_placements || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Guaranteed</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>{t('pressPacks.card.guaranteed')}</div>
                           </div>
                           <div>
                             <div className="text-lg font-bold" style={{ color: theme.warning }}>{pack.word_limit || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Words</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>{t('pressPacks.card.words')}</div>
                           </div>
                         </div>
 
@@ -674,7 +676,7 @@ const PressPacksPage = () => {
                           </div>
                           <div className="flex items-center text-sm" style={{ color: theme.warning }}>
                             <Clock size={14} className="mr-1" />
-                            <span>{pack.turnaround_time} days</span>
+                            <span>{pack.turnaround_time} {t('pressPacks.card.days')}</span>
                           </div>
                         </div>
 
@@ -682,7 +684,7 @@ const PressPacksPage = () => {
                         <div className="flex flex-wrap gap-2 mb-4">
                           {pack.content_writing_assistance && (
                             <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E8F5E8', color: theme.success }}>
-                              Content Writing
+                              {t('pressPacks.card.contentWriting')}
                             </span>
                           )}
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF3E0', color: theme.warning }}>
@@ -698,7 +700,7 @@ const PressPacksPage = () => {
                           onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                         >
                           <Eye size={16} />
-                          View Details
+                          {t('pressPacks.card.viewDetails')}
                           <ExternalLink size={14} />
                         </button>
                       </div>
@@ -723,7 +725,7 @@ const PressPacksPage = () => {
                             onClick={() => handleSort('name')}
                           >
                             <div className="flex items-center gap-2">
-                              Press Release {getSortIcon('name')}
+                              {t('pressPacks.list.pressRelease')} {getSortIcon('name')}
                             </div>
                           </th>
                           <th
@@ -732,7 +734,7 @@ const PressPacksPage = () => {
                             onClick={() => handleSort('region')}
                           >
                             <div className="flex items-center gap-2">
-                              Region {getSortIcon('region')}
+                              {t('pressPacks.list.region')} {getSortIcon('region')}
                             </div>
                           </th>
                           <th
@@ -741,7 +743,7 @@ const PressPacksPage = () => {
                             onClick={() => handleSort('niche')}
                           >
                             <div className="flex items-center gap-2">
-                              Niche {getSortIcon('niche')}
+                              {t('pressPacks.list.niche')} {getSortIcon('niche')}
                             </div>
                           </th>
                           <th
@@ -750,17 +752,17 @@ const PressPacksPage = () => {
                             onClick={() => handleSort('price')}
                           >
                             <div className="flex items-center gap-2">
-                              Price {getSortIcon('price')}
+                              {t('pressPacks.list.price')} {getSortIcon('price')}
                             </div>
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Websites
+                            {t('pressPacks.list.websites')}
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Features
+                            {t('pressPacks.list.features')}
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Action
+                            {t('pressPacks.list.action')}
                           </th>
                         </tr>
                       </thead>
@@ -811,8 +813,8 @@ const PressPacksPage = () => {
                             </td>
                             <td className="px-6 py-4">
                               <div className="text-sm">
-                                <div style={{ color: theme.primary }}>{pack.distribution_media_websites || 0} Media Websites</div>
-                                <div style={{ color: theme.success }}>{pack.guaranteed_media_placements || 0} Guaranteed</div>
+                                <div style={{ color: theme.primary }}>{pack.distribution_media_websites || 0} {t('pressPacks.card.mediaWebsites')}</div>
+                                <div style={{ color: theme.success }}>{pack.guaranteed_media_placements || 0} {t('pressPacks.card.guaranteed')}</div>
                               </div>
                             </td>
                             <td className="px-6 py-4">
@@ -832,7 +834,7 @@ const PressPacksPage = () => {
                                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                               >
                                 <Eye size={14} className="inline mr-1" />
-                                View
+                                {t('pressPacks.list.viewDetails')}
                               </button>
                             </td>
                           </tr>
@@ -852,10 +854,10 @@ const PressPacksPage = () => {
                 <Package size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                No press releases found
+                {t('pressPacks.controls.found', { count: 0 })}
               </h3>
               <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                We couldn't find any press releases matching your search criteria.
+                {t('pressPackDetail.notFound.desc')}
               </p>
               <button
                 onClick={() => {
@@ -867,7 +869,7 @@ const PressPacksPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Clear All Filters
+                {t('pressPacks.filters.clear')}
               </button>
             </div>
           )}

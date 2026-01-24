@@ -2456,5 +2456,152 @@
             "success": "订单提交成功！您将很快收到确认邮件。",
             "error": "提交订单时出错。请重试。"
         }
+    },
+    "pressPacks": {
+        "title": "新闻稿服务",
+        "desc": "专业的新闻稿撰写和发布服务，最大限度地提高您的媒体曝光率并有效触达目标受众。",
+        "searchPlaceholder": "按名称、地区或领域搜索新闻稿...",
+        "loading": "正在加载新闻稿...",
+        "filters": {
+            "title": "筛选和排序",
+            "basicFilters": "基本筛选",
+            "region": "地区",
+            "allRegions": "所有地区",
+            "niche": "领域",
+            "allNiches": "所有领域",
+            "turnaroundTime": "最长周转时间",
+            "anyTime": "任何时间",
+            "daysOrLess": "天或更少",
+            "packageMetrics": "套餐指标",
+            "priceRange": "价格范围",
+            "wordLimit": "字数限制",
+            "features": "功能",
+            "contentWritingIncluded": "包含内容撰写",
+            "clear": "清除所有筛选"
+        },
+        "controls": {
+            "found": "找到 {{count}} 个新闻稿",
+            "for": "因为",
+            "sortBy": "排序方式：",
+            "sortOptions": {
+                "nameAsc": "名称 (A-Z)",
+                "nameDesc": "名称 (Z-A)",
+                "priceAsc": "价格 (低到高)",
+                "priceDesc": "价格 (高到低)",
+                "regionAsc": "地区 (A-Z)",
+                "nicheAsc": "领域 (A-Z)",
+                "newest": "最新优先",
+                "oldest": "最旧优先"
+            }
+        },
+        "card": {
+            "mediaWebsites": "媒体网站",
+            "guaranteed": "保证",
+            "words": "字数",
+            "days": "天",
+            "contentWriting": "内容撰写",
+            "viewDetails": "查看详情"
+        },
+        "list": {
+            "pressRelease": "新闻稿",
+            "region": "地区",
+            "niche": "领域",
+            "price": "价格",
+            "websites": "网站",
+            "features": "功能",
+            "action": "操作",
+            "viewDetails": "查看详情"
+        }
+    },
+    "pressPackDetail": {
+        "loading": "正在加载新闻稿详情...",
+        "notFound": {
+            "title": "未找到新闻包",
+            "desc": "您正在寻找的新闻包不存在或已被移除。",
+            "back": "返回新闻包"
+        },
+        "breadcrumb": {
+            "back": "返回新闻包",
+            "current": "新闻包详情"
+        },
+        "added": "已添加",
+        "about": "新闻稿描述",
+        "overview": {
+            "title": "新闻稿概览",
+            "mediaWebsites": "媒体网站",
+            "guaranteedPlacements": "保证发布",
+            "wordLimit": "字数限制"
+        },
+        "includedPublications": {
+            "title": "包含的出版物",
+            "tat": "天周转",
+            "da": "域名权重 (DA)"
+        },
+        "resources": {
+            "title": "即时资源",
+            "button": "查看资源"
+        },
+        "disclaimer": {
+            "title": "重要免责声明"
+        },
+        "purchase": {
+            "title": "购买套餐",
+            "oneTimePayment": "一次性付款",
+            "mediaWebsitesDistribution": "媒体网站发布",
+            "guaranteedPlacements": "保证发布",
+            "wordLimit": "字数限制",
+            "flexibleWordCount": "灵活字数",
+            "contentWritingIncluded": "包含内容撰写协助",
+            "button": "购买套餐",
+            "signIn": "登录以购买"
+        },
+        "details": {
+            "title": "套餐详情",
+            "region": "地区",
+            "niche": "领域",
+            "turnaroundTime": "周转时间",
+            "contentWriting": "内容撰写",
+            "included": "已包含",
+            "notIncluded": "不包含"
+        },
+        "actions": {
+            "save": "保存",
+            "saved": "已保存",
+            "share": "分享",
+            "linkCopied": "链接已复制到剪贴板！"
+        },
+        "form": {
+            "title": "购买新闻包",
+            "totalAmount": "总金额",
+            "name": "姓名",
+            "whatsappNumber": "WhatsApp 号码",
+            "callingNumber": "通话号码",
+            "typeLabel": "新闻稿对象：公司/项目，个人/品牌",
+            "companyProject": "公司/项目",
+            "individualBrand": "个人/品牌",
+            "email": "电子邮件",
+            "companyRegistration": "公司注册文件上传选项",
+            "letterOfAuthorisation": "授权书",
+            "image": "新闻稿图片",
+            "wordPdf": "Word 或 PDF 文档上传",
+            "submittedBy": "提交人 - 代理机构 或 直接公司/个人",
+            "agency": "代理机构",
+            "direct": "直接公司/个人",
+            "selection": "选择新闻稿",
+            "selectPressRelease": "选择新闻稿",
+            "packageSelection": "选择新闻稿套餐",
+            "selectPackage": "选择套餐",
+            "message": "任何留言",
+            "recaptchaNote": "完成 reCAPTCHA 验证以提交您的订单。",
+            "terms": "我同意条款和条件以及隐私政策",
+            "contentWritingAssistance": "内容撰写协助",
+            "required": "需要",
+            "notRequired": "不需要",
+            "cancel": "取消",
+            "processing": "处理中...",
+            "submit": "购买套餐",
+            "success": "新闻包订单提交成功！我们的团队将很快与您联系。",
+            "error": "提交订单请求失败。请重试。"
+        }
     }
 }

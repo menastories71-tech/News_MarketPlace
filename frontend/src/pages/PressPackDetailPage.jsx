@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
@@ -18,6 +19,7 @@ const PressPackDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const [pressPack, setPressPack] = useState(null);
   const [includedPublications, setIncludedPublications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -90,7 +92,7 @@ const PressPackDetailPage = () => {
   };
 
   const formatPrice = (price) => {
-    if (!price) return 'Contact for pricing';
+    if (!price) return t('pressPackDetail.contactForPricing');
     return `$${parseFloat(price).toFixed(2)}`;
   };
 
@@ -132,7 +134,7 @@ const PressPackDetailPage = () => {
     } else {
       // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Link copied to clipboard!');
+        alert(t('pressPackDetail.actions.linkCopied'));
       }).catch(() => {
         // Ultimate fallback
         const textArea = document.createElement('textarea');
@@ -141,7 +143,7 @@ const PressPackDetailPage = () => {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('Link copied to clipboard!');
+        alert(t('pressPackDetail.actions.linkCopied'));
       });
     }
   };
@@ -199,7 +201,7 @@ const PressPackDetailPage = () => {
       });
 
       if (response.data.success !== false) {
-        alert('Press pack order submitted successfully! Our team will contact you soon.');
+        alert(t('pressPackDetail.orderSuccess'));
         setShowPurchaseModal(false);
         setPurchaseFormData({
           name: '',
@@ -223,11 +225,11 @@ const PressPackDetailPage = () => {
         });
         setRecaptchaToken('');
       } else {
-        throw new Error(response.data.message || 'Failed to submit order');
+        throw new Error(response.data.message || t('pressPackDetail.orderFailed'));
       }
     } catch (error) {
       console.error('Error submitting press pack order:', error);
-      alert('Failed to submit order request. Please try again.');
+      alert(t('pressPackDetail.orderFailed'));
     } finally {
       setIsPurchasing(false);
     }
@@ -261,7 +263,7 @@ const PressPackDetailPage = () => {
         <div className="flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-16 w-16 mx-auto mb-4 border-4 border-[#E0E0E0] border-t-[#1976D2]"></div>
-            <p className="text-lg text-[#757575]">Loading press pack details...</p>
+            <p className="text-lg text-[#757575]">{t('pressPackDetail.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -279,10 +281,10 @@ const PressPackDetailPage = () => {
               <Package className="w-12 h-12 text-[#BDBDBD]" />
             </div>
             <h1 className="text-2xl font-semibold mb-4" style={{ color: themeColors.textPrimary }}>
-              Press Pack Not Found
+              {t('pressPackDetail.notFound.title')}
             </h1>
             <p className="mb-8" style={{ color: themeColors.textSecondary }}>
-              The press pack you're looking for doesn't exist or has been removed.
+              {t('pressPackDetail.notFound.desc')}
             </p>
             <button
               onClick={() => navigate('/press-packs')}
@@ -290,7 +292,7 @@ const PressPackDetailPage = () => {
               style={{ backgroundColor: themeColors.primary }}
             >
               <ArrowLeft size={16} />
-              Back to Press Packs
+              {t('pressPackDetail.notFound.back')}
             </button>
           </div>
         </div>
@@ -320,10 +322,10 @@ const PressPackDetailPage = () => {
               className="flex items-center gap-1 hover:opacity-80"
             >
               <ArrowLeft size={16} />
-              Back to Press Packs
+              {t('pressPackDetail.breadcrumb.back')}
             </button>
             <span>/</span>
-            <span>Press Pack Details</span>
+            <span>{t('pressPackDetail.breadcrumb.current')}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -353,7 +355,7 @@ const PressPackDetailPage = () => {
                           </div>
                           <div className="flex items-center gap-2">
                             <Calendar size={16} />
-                            <span>Added {new Date(pressPack.created_at).toLocaleDateString()}</span>
+                            <span>{t('pressPackDetail.added')} {new Date(pressPack.created_at).toLocaleDateString()}</span>
                           </div>
                         </div>
                       </div>
@@ -389,7 +391,7 @@ const PressPackDetailPage = () => {
                 {pressPack.description && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: themeColors.textPrimary }}>
-                      Press Release Description
+                      {t('pressPackDetail.about')}
                     </h3>
                     <div className="prose max-w-none" style={{ color: themeColors.textSecondary }}>
                       <p>{pressPack.description}</p>
@@ -400,26 +402,26 @@ const PressPackDetailPage = () => {
                 {/* Press Release Stats */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-4" style={{ color: themeColors.textPrimary }}>
-                    Press Release Overview
+                    {t('pressPackDetail.overview.title')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="text-center p-4 rounded-lg" style={{ backgroundColor: themeColors.backgroundSoft }}>
                       <div className="text-2xl font-bold mb-1" style={{ color: themeColors.primary }}>
                         {pressPack.distribution_media_websites || 0}
                       </div>
-                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>Media Websites</div>
+                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.overview.mediaWebsites')}</div>
                     </div>
                     <div className="text-center p-4 rounded-lg" style={{ backgroundColor: themeColors.backgroundSoft }}>
                       <div className="text-2xl font-bold mb-1" style={{ color: themeColors.success }}>
                         {pressPack.guaranteed_media_placements || 0}
                       </div>
-                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>Guaranteed Placements</div>
+                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.overview.guaranteedPlacements')}</div>
                     </div>
                     <div className="text-center p-4 rounded-lg" style={{ backgroundColor: themeColors.backgroundSoft }}>
                       <div className="text-2xl font-bold mb-1" style={{ color: themeColors.warning }}>
                         {pressPack.word_limit || 'N/A'}
                       </div>
-                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>Word Limit</div>
+                      <div className="text-sm" style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.overview.wordLimit')}</div>
                     </div>
                   </div>
                 </div>
@@ -428,7 +430,7 @@ const PressPackDetailPage = () => {
                 {includedPublications.length > 0 && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4" style={{ color: themeColors.textPrimary }}>
-                      Included Publications ({includedPublications.length})
+                      {t('pressPackDetail.includedPublications.title')} ({includedPublications.length})
                     </h3>
                     <div className="space-y-3">
                       {includedPublications.map((pub, index) => (
@@ -447,7 +449,7 @@ const PressPackDetailPage = () => {
                               <div className="flex items-center gap-4 text-sm" style={{ color: themeColors.textSecondary }}>
                                 <span>{pub.publication_region}</span>
                                 <span>{pub.publication_language}</span>
-                                <span>DA: {pub.da || 0}</span>
+                                <span>{t('pressPackDetail.includedPublications.da')}: {pub.da || 0}</span>
                               </div>
                             </div>
                           </div>
@@ -456,7 +458,7 @@ const PressPackDetailPage = () => {
                               ${pub.publication_price || 0}
                             </div>
                             <div className="text-sm" style={{ color: themeColors.textSecondary }}>
-                              {pub.agreement_tat || 0} days TAT
+                              {pub.agreement_tat || 0} {t('pressPackDetail.includedPublications.tat')}
                             </div>
                           </div>
                         </div>
@@ -469,7 +471,7 @@ const PressPackDetailPage = () => {
                 {pressPack.link && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: themeColors.textPrimary }}>
-                      Additional Resources
+                      {t('pressPackDetail.resources.title')}
                     </h3>
                     <a
                       href={pressPack.link}
@@ -479,7 +481,7 @@ const PressPackDetailPage = () => {
                       style={{ backgroundColor: themeColors.primary }}
                     >
                       <ExternalLink size={16} />
-                      View Resources
+                      {t('pressPackDetail.resources.button')}
                     </a>
                   </div>
                 )}
@@ -488,7 +490,7 @@ const PressPackDetailPage = () => {
                 {pressPack.disclaimer && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: themeColors.textPrimary }}>
-                      Important Disclaimer
+                      {t('pressPackDetail.disclaimer.title')}
                     </h3>
                     <div className="p-4 rounded-lg border-l-4" style={{ backgroundColor: themeColors.backgroundSoft, borderColor: themeColors.warning }}>
                       <p style={{ color: themeColors.textSecondary }}>{pressPack.disclaimer}</p>
@@ -503,14 +505,14 @@ const PressPackDetailPage = () => {
               {/* Purchase Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: themeColors.textPrimary }}>
-                  Purchase Package
+                  {t('pressPackDetail.purchase.title')}
                 </h3>
                 <div className="text-center mb-6">
                   <div className="text-3xl font-bold mb-2" style={{ color: themeColors.success }}>
                     {formatPrice(pressPack.price)}
                   </div>
                   <div className="text-sm" style={{ color: themeColors.textSecondary }}>
-                    One-time payment
+                    {t('pressPackDetail.purchase.oneTimePayment')}
                   </div>
                 </div>
 
@@ -518,25 +520,25 @@ const PressPackDetailPage = () => {
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle size={16} style={{ color: themeColors.success }} />
                     <span style={{ color: themeColors.textSecondary }}>
-                      {pressPack.distribution_media_websites || 0} Media websites distribution
+                      {pressPack.distribution_media_websites || 0} {t('pressPackDetail.purchase.mediaWebsitesDistribution')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle size={16} style={{ color: themeColors.success }} />
                     <span style={{ color: themeColors.textSecondary }}>
-                      {pressPack.guaranteed_media_placements || 0} Guaranteed placements
+                      {pressPack.guaranteed_media_placements || 0} {t('pressPackDetail.purchase.guaranteedPlacements')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle size={16} style={{ color: themeColors.success }} />
                     <span style={{ color: themeColors.textSecondary }}>
-                      {pressPack.word_limit ? `${pressPack.word_limit} word limit` : 'Flexible word count'}
+                      {pressPack.word_limit ? `${pressPack.word_limit} ${t('pressPackDetail.purchase.wordLimit')}` : t('pressPackDetail.purchase.flexibleWordCount')}
                     </span>
                   </div>
                   {pressPack.content_writing_assistance && (
                     <div className="flex items-center gap-2 text-sm">
                       <CheckCircle size={16} style={{ color: themeColors.success }} />
-                      <span style={{ color: themeColors.textSecondary }}>Content writing assistance included</span>
+                      <span style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.purchase.contentWritingIncluded')}</span>
                     </div>
                   )}
                 </div>
@@ -549,38 +551,38 @@ const PressPackDetailPage = () => {
                   onMouseLeave={(e) => e.target.style.backgroundColor = themeColors.primary}
                 >
                   <ShoppingCart size={16} />
-                  {isAuthenticated ? 'Purchase Package' : 'Sign In to Purchase'}
+                  {isAuthenticated ? t('pressPackDetail.purchase.button') : t('pressPackDetail.purchase.signIn')}
                 </button>
               </div>
 
               {/* Package Details */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: themeColors.textPrimary }}>
-                  Package Details
+                  {t('pressPackDetail.details.title')}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span style={{ color: themeColors.textSecondary }}>Region</span>
+                    <span style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.details.region')}</span>
                     <span style={{ color: themeColors.textPrimary }} className="font-medium">
                       {pressPack.region}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: themeColors.textSecondary }}>Niche</span>
+                    <span style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.details.niche')}</span>
                     <span style={{ color: themeColors.textPrimary }} className="font-medium">
                       {pressPack.niche}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: themeColors.textSecondary }}>Turnaround Time</span>
+                    <span style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.details.turnaroundTime')}</span>
                     <span style={{ color: themeColors.textPrimary }} className="font-medium">
-                      {pressPack.turnaround_time} days
+                      {pressPack.turnaround_time} {t('pressPacks.card.days')}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span style={{ color: themeColors.textSecondary }}>Content Writing</span>
+                    <span style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.details.contentWriting')}</span>
                     <span style={{ color: themeColors.textPrimary }} className="font-medium">
-                      {pressPack.content_writing_assistance ? 'Included' : 'Not Included'}
+                      {pressPack.content_writing_assistance ? t('pressPackDetail.details.included') : t('pressPackDetail.details.notIncluded')}
                     </span>
                   </div>
                 </div>
@@ -605,7 +607,7 @@ const PressPackDetailPage = () => {
             >
               <Heart size={16} style={{ color: isSaved ? themeColors.danger : themeColors.danger, fill: isSaved ? themeColors.danger : 'none' }} />
               <span style={{ color: isSaved ? themeColors.danger : themeColors.textSecondary }}>
-                {isSaved ? 'Saved' : 'Save'}
+                {isSaved ? t('pressPackDetail.actions.saved') : t('pressPackDetail.actions.save')}
               </span>
             </button>
             <button
@@ -617,7 +619,7 @@ const PressPackDetailPage = () => {
               }}
             >
               <Share size={16} style={{ color: themeColors.primary }} />
-              <span style={{ color: themeColors.textSecondary }}>Share</span>
+              <span style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.actions.share')}</span>
             </button>
           </div>
         </div>
@@ -656,7 +658,7 @@ const PressPackDetailPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: themeColors.textPrimary }}>
-                Purchase Press Pack
+                {t('pressPackDetail.form.title')}
               </h2>
               <button
                 onClick={() => setShowPurchaseModal(false)}
@@ -687,7 +689,7 @@ const PressPackDetailPage = () => {
                 {pressPack.name}
               </h4>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ color: themeColors.textSecondary }}>Total Amount:</span>
+                <span style={{ color: themeColors.textSecondary }}>{t('pressPackDetail.form.totalAmount')}:</span>
                 <span style={{ fontSize: '20px', fontWeight: '700', color: themeColors.success }}>
                   {formatPrice(pressPack.price)}
                 </span>
@@ -705,7 +707,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Name *
+                    {t('pressPackDetail.form.name')} *
                   </label>
                   <input
                     type="text"
@@ -726,7 +728,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Whatsapp Number *
+                    {t('pressPackDetail.form.whatsappNumber')} *
                   </label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <select
@@ -775,7 +777,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Calling Number
+                    {t('pressPackDetail.form.callingNumber')}
                   </label>
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <select
@@ -823,7 +825,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Press release for company/ Project, Individual/ Brand *
+                    {t('pressPackDetail.form.typeLabel')} *
                   </label>
                   <div className="space-y-2">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -839,7 +841,7 @@ const PressPackDetailPage = () => {
                         }}
                         required={purchaseFormData.press_release_type.length === 0}
                       />
-                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>Company/Project</span>
+                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>{t('pressPackDetail.form.companyProject')}</span>
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                       <input
@@ -854,7 +856,7 @@ const PressPackDetailPage = () => {
                         }}
                         required={purchaseFormData.press_release_type.length === 0}
                       />
-                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>Individual/Brand</span>
+                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>{t('pressPackDetail.form.individualBrand')}</span>
                     </label>
                   </div>
                 </div>
@@ -868,7 +870,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Email *
+                    {t('pressPackDetail.form.email')} *
                   </label>
                   <input
                     type="email"
@@ -889,7 +891,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Company registration document upload option *
+                    {t('pressPackDetail.form.companyRegistration')} *
                   </label>
                   <input
                     type="file"
@@ -914,7 +916,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Letter of Authorisation *
+                    {t('pressPackDetail.form.letterOfAuthorisation')} *
                   </label>
                   <input
                     type="file"
@@ -939,7 +941,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Image for the Press release
+                    {t('pressPackDetail.form.image')}
                   </label>
                   <input
                     type="file"
@@ -963,7 +965,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Word or PDF Document upload *
+                    {t('pressPackDetail.form.wordPdf')} *
                   </label>
                   <input
                     type="file"
@@ -988,7 +990,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Submitted by - Agency or Direct Company / Individual *
+                    {t('pressPackDetail.form.submittedBy')} *
                   </label>
                   <div className="space-y-2">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -1000,7 +1002,7 @@ const PressPackDetailPage = () => {
                         onChange={(e) => setPurchaseFormData({ ...purchaseFormData, submitted_by_type: e.target.value })}
                         required
                       />
-                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>Agency</span>
+                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>{t('pressPackDetail.form.agency')}</span>
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                       <input
@@ -1011,7 +1013,7 @@ const PressPackDetailPage = () => {
                         onChange={(e) => setPurchaseFormData({ ...purchaseFormData, submitted_by_type: e.target.value })}
                         required
                       />
-                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>Direct Company / Individual</span>
+                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>{t('pressPackDetail.form.direct')}</span>
                     </label>
                   </div>
                 </div>
@@ -1025,7 +1027,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Selection of Press Release *
+                    {t('pressPackDetail.form.selectionPressRelease')} *
                   </label>
                   <select
                     value={purchaseFormData.press_release_selection}
@@ -1033,7 +1035,7 @@ const PressPackDetailPage = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value="">Select Press Release</option>
+                    <option value="">{t('pressPackDetail.form.selectPressRelease')}</option>
                     {pressReleases.map(pressRelease => (
                       <option key={pressRelease.id} value={pressRelease.id}>
                         {pressRelease.name} - {pressRelease.region} - ${pressRelease.price}
@@ -1051,7 +1053,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Selection of Press Release Package *
+                    {t('pressPackDetail.form.selectionPackage')} *
                   </label>
                   <select
                     value={purchaseFormData.package_selection}
@@ -1059,7 +1061,7 @@ const PressPackDetailPage = () => {
                     required
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
-                    <option value="">Select Package</option>
+                    <option value="">{t('pressPackDetail.form.selectPackage')}</option>
                     <option value="Diamond">Diamond</option>
                     <option value="Titanium">Titanium</option>
                     <option value="Platinum">Platinum</option>
@@ -1079,14 +1081,14 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Any message
+                    {t('pressPackDetail.form.message')}
                   </label>
                   <textarea
                     value={purchaseFormData.message}
                     onChange={(e) => setPurchaseFormData({ ...purchaseFormData, message: e.target.value })}
                     rows={3}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm sm:text-base box-border bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-vertical"
-                    placeholder="Any specific requirements or questions..."
+                    placeholder={t('pressPackDetail.form.messagePlaceholder')}
                   />
                 </div>
 
@@ -1110,7 +1112,7 @@ const PressPackDetailPage = () => {
                     </div>
                   )}
                   <div style={{ fontSize: '12px', color: themeColors.textSecondary, marginTop: '8px' }}>
-                    Complete the reCAPTCHA verification to submit your order. *
+                    {t('pressPackDetail.form.captchaHint')} *
                   </div>
                 </div>
 
@@ -1125,7 +1127,7 @@ const PressPackDetailPage = () => {
                       style={{ marginTop: '2px' }}
                     />
                     <span style={{ fontSize: '14px', color: themeColors.textPrimary, lineHeight: '1.4' }}>
-                      I agree to the <a href="#" style={{ color: themeColors.primary, textDecoration: 'underline' }}>Terms and Conditions</a> and <a href="#" style={{ color: themeColors.primary, textDecoration: 'underline' }}>Privacy Policy</a> *
+                      {t('pressPackDetail.form.agreeTo')} <a href="#" style={{ color: themeColors.primary, textDecoration: 'underline' }}>{t('pressPackDetail.form.termsAndConditions')}</a> {t('pressPackDetail.form.and')} <a href="#" style={{ color: themeColors.primary, textDecoration: 'underline' }}>{t('pressPackDetail.form.privacyPolicy')}</a> *
                     </span>
                   </label>
                 </div>
@@ -1141,7 +1143,7 @@ const PressPackDetailPage = () => {
                     color: themeColors.textPrimary,
                     marginBottom: '6px'
                   }}>
-                    Content writing assistance *
+                    {t('pressPackDetail.form.contentWritingAssistance')} *
                   </label>
                   <div className="space-y-2">
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -1153,7 +1155,7 @@ const PressPackDetailPage = () => {
                         onChange={(e) => setPurchaseFormData({ ...purchaseFormData, content_writing_assistance: e.target.value })}
                         required
                       />
-                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>Required</span>
+                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>{t('pressPackDetail.form.required')}</span>
                     </label>
                     <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
                       <input
@@ -1164,7 +1166,7 @@ const PressPackDetailPage = () => {
                         onChange={(e) => setPurchaseFormData({ ...purchaseFormData, content_writing_assistance: e.target.value })}
                         required
                       />
-                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>Not required</span>
+                      <span style={{ fontSize: '14px', color: themeColors.textPrimary }}>{t('pressPackDetail.form.notRequired')}</span>
                     </label>
                   </div>
                 </div>
@@ -1177,14 +1179,14 @@ const PressPackDetailPage = () => {
                   className="px-4 py-2 sm:px-6 sm:py-3 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg font-semibold text-sm sm:text-base cursor-pointer hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isPurchasing}
                 >
-                  Cancel
+                  {t('pressPackDetail.form.cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white border border-blue-600 rounded-lg font-semibold text-sm sm:text-base cursor-pointer hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isPurchasing}
                 >
-                  {isPurchasing ? 'Processing...' : 'Purchase Package'}
+                  {isPurchasing ? t('pressPackDetail.form.processing') : t('pressPackDetail.form.submit')}
                 </button>
               </div>
             </form>

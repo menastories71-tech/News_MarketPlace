@@ -2418,5 +2418,152 @@
             "success": "تم إرسال الطلب بنجاح! ستتلقى رسالة تأكيد إلكترونية قريباً.",
             "error": "خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى."
         }
+    },
+    "pressPacks": {
+        "title": "خدمات البيانات الصحفية",
+        "desc": "خدمات كتابة وتوزيع البيانات الصحفية الاحترافية لتعظيم التغطية الإعلامية الخاصة بك والوصول إلى الجماهير المستهدفة بفعالية.",
+        "searchPlaceholder": "البحث عن البيانات الصحفية بالاسم، المنطقة، أو التخصص...",
+        "loading": "جاري تحميل البيانات الصحفية...",
+        "filters": {
+            "title": "الفلاتر والفرز",
+            "basicFilters": "الفلاتر الأساسية",
+            "region": "المنطقة",
+            "allRegions": "كل المناطق",
+            "niche": "التخصص",
+            "allNiches": "كل التخصصات",
+            "turnaroundTime": "أقصى وقت للتنفيذ",
+            "anyTime": "أي وقت",
+            "daysOrLess": "أيام أو أقل",
+            "packageMetrics": "مقاييس الباقة",
+            "priceRange": "نطاق السعر",
+            "wordLimit": "حد الكلمات",
+            "features": "المميزات",
+            "contentWritingIncluded": "كتابة المحتوى مشمولة",
+            "clear": "مسح جميع الفلاتر"
+        },
+        "controls": {
+            "found": "تم العثور على {{count}} بيان صحفي",
+            "for": "لـ",
+            "sortBy": "فرز حسب:",
+            "sortOptions": {
+                "nameAsc": "الاسم (أ-ي)",
+                "nameDesc": "الاسم (ي-أ)",
+                "priceAsc": "السعر (من الأقل إلى الأعلى)",
+                "priceDesc": "السعر (من الأعلى إلى الأقل)",
+                "regionAsc": "المنطقة (أ-ي)",
+                "nicheAsc": "التخصص (أ-ي)",
+                "newest": "الأحدث أولاً",
+                "oldest": "الأقدم أولاً"
+            }
+        },
+        "card": {
+            "mediaWebsites": "مواقع إعلامية",
+            "guaranteed": "مضمون",
+            "words": "كلمات",
+            "days": "أيام",
+            "contentWriting": "كتابة المحتوى",
+            "viewDetails": "عرض التفاصيل"
+        },
+        "list": {
+            "pressRelease": "بيان صحفي",
+            "region": "المنطقة",
+            "niche": "التخصص",
+            "price": "السعر",
+            "websites": "مواقع إلكترونية",
+            "features": "المميزات",
+            "action": "إجراء",
+            "viewDetails": "عرض التفاصيل"
+        }
+    },
+    "pressPackDetail": {
+        "loading": "جاري تحميل تفاصيل البيان الصحفي...",
+        "notFound": {
+            "title": "الحزمة الصحفية غير موجودة",
+            "desc": "الحزمة الصحفية التي تبحث عنها غير موجودة أو تمت إزالتها.",
+            "back": "العودة إلى الحزم الصحفية"
+        },
+        "breadcrumb": {
+            "back": "العودة إلى الحزم الصحفية",
+            "current": "تفاصيل الحزمة الصحفية"
+        },
+        "added": "مضاف",
+        "about": "وصف البيان الصحفي",
+        "overview": {
+            "title": "نظرة عامة على البيان الصحفي",
+            "mediaWebsites": "مواقع إعلامية",
+            "guaranteedPlacements": "تنسيقات مضمونة",
+            "wordLimit": "حد الكلمات"
+        },
+        "includedPublications": {
+            "title": "المنشورات المضمنة",
+            "tat": "أيام للتنفيذ",
+            "da": "سلطة النطاق (DA)"
+        },
+        "resources": {
+            "title": "موارد إضافية",
+            "button": "عرض الموارد"
+        },
+        "disclaimer": {
+            "title": "تنويه هام"
+        },
+        "purchase": {
+            "title": "شراء الباقة",
+            "oneTimePayment": "دفع لمرة واحدة",
+            "mediaWebsitesDistribution": "توزيع على مواقع إعلامية",
+            "guaranteedPlacements": "تنسيقات مضمونة",
+            "wordLimit": "حد الكلمات",
+            "flexibleWordCount": "عدد كلمات مرن",
+            "contentWritingIncluded": "المساعدة في كتابة المحتوى مشمولة",
+            "button": "شراء الباقة",
+            "signIn": "تسجيل الدخول للشراء"
+        },
+        "details": {
+            "title": "تفاصيل الباقة",
+            "region": "المنطقة",
+            "niche": "التخصص",
+            "turnaroundTime": "وقت التنفيذ",
+            "contentWriting": "كتابة المحتوى",
+            "included": "مشمول",
+            "notIncluded": "غير مشمول"
+        },
+        "actions": {
+            "save": "حفظ",
+            "saved": "محفوظ",
+            "share": "مشاركة",
+            "linkCopied": "تم نسخ الرابط إلى الحافظة!"
+        },
+        "form": {
+            "title": "شراء حزمة صحفية",
+            "totalAmount": "المبلغ الإجمالي",
+            "name": "الاسم",
+            "whatsappNumber": "رقم واتساب",
+            "callingNumber": "رقم الاتصال",
+            "typeLabel": "بيان صحفي لشركة/مشروع، فرد/علامة تجارية",
+            "companyProject": "شركة/مشروع",
+            "individualBrand": "فرد/علامة تجارية",
+            "email": "البريد الإلكتروني",
+            "companyRegistration": "خيار تحميل وثيقة تسجيل الشركة",
+            "letterOfAuthorisation": "خطاب تفويض",
+            "image": "صورة للبيان الصحفي",
+            "wordPdf": "تحميل مستند Word أو PDF",
+            "submittedBy": "مقدم من - وكالة أو شركة مباشرة / فرد",
+            "agency": "وكالة",
+            "direct": "شركة مباشرة / فرد",
+            "selection": "اختيار البيان الصحفي",
+            "selectPressRelease": "اختر البيان الصحفي",
+            "packageSelection": "اختيار باقة البيان الصحفي",
+            "selectPackage": "اختر الباقة",
+            "message": "أي رسالة",
+            "recaptchaNote": "أكمل التحقق من reCAPTCHA لإرسال طلبك.",
+            "terms": "أوافق على الشروط والأحكام وسياسة الخصوصية",
+            "contentWritingAssistance": "المساعدة في كتابة المحتوى",
+            "required": "مطلوب",
+            "notRequired": "غير مطلوب",
+            "cancel": "إلغاء",
+            "processing": "جاري المعالجة...",
+            "submit": "شراء الباقة",
+            "success": "تم إرسال طلب الحزمة الصحفية بنجاح! سيتصل بك فريقنا قريباً.",
+            "error": "فشل إرسال طلب الشراء. يرجى المحاولة مرة أخرى."
+        }
     }
 }
