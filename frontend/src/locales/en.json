@@ -1444,7 +1444,127 @@
             "desc": "Try adjusting your filters or search query to find what you're looking for.",
             "clear": "Clear Filters"
         },
-        "loading": "Loading publications..."
+        "loading": "Loading publications...",
+        "badges": {
+            "new": "NEW",
+            "customerChoice": "Customer Choice",
+            "bestSeller": "Best Seller",
+            "editorsPick": "Editor's Pick",
+            "trending": "Trending",
+            "featured": "Featured",
+            "wordCount": "{{count}} words",
+            "wordCountTba": "Word count TBA"
+        },
+        "table": {
+            "publication": "Publication",
+            "region": "Region",
+            "language": "Language",
+            "da": "DA",
+            "dr": "DR",
+            "price": "Price",
+            "tat": "TAT",
+            "features": "Features",
+            "action": "Action",
+            "view": "View",
+            "viewDetails": "View Details",
+            "doFollow": "Do-follow"
+        },
+        "pagination": {
+            "showing": "Showing {{start}} to {{end}} of {{total}} results",
+            "perPage": "{{count}} per page",
+            "previous": "Previous",
+            "next": "Next"
+        },
+        "empty": {
+            "title": "No publications found",
+            "desc": "We couldn't find any publications matching your search criteria."
+        }
+    },
+    "publicationDetail": {
+        "loading": "Loading publication details...",
+        "notFound": {
+            "title": "Publication Not Found",
+            "desc": "The publication you're looking for doesn't exist or has been removed."
+        },
+        "backToPublications": "Back to Publications",
+        "title": "Publication Details",
+        "addedOn": "Added {{date}}",
+        "website": "Website",
+        "about": "About This Publication",
+        "defaultDescription": "This is a premium news publication offering high-quality content distribution and PR services. With a strong focus on delivering exceptional results, we provide comprehensive media solutions for businesses and organizations.",
+        "industryFocus": "Industry Focus:",
+        "features": {
+            "title": "Features & Specifications",
+            "content": "Content",
+            "wordLimit": "Word Limit:",
+            "words": "words",
+            "na": "N/A",
+            "images": "Images:",
+            "needed": "needed",
+            "services": "Services",
+            "sponsored": "Sponsored Content",
+            "editorial": "Editorial Content",
+            "tat": "TAT:",
+            "days": "days",
+            "livePlatform": "Live Platform",
+            "standardService": "Standard Service"
+        },
+        "exampleArticle": {
+            "title": "Example Article",
+            "button": "View Example Article"
+        },
+        "socialMedia": "Social Media",
+        "tags": "Tags & Categories",
+        "guidelines": {
+            "title": "Content Guidelines",
+            "excluding": "Excluding Categories"
+        },
+        "sidebar": {
+            "startingPrice": "Starting Price",
+            "contactPricing": "Contact for Pricing",
+            "tat": "TAT",
+            "language": "Language",
+            "region": "Region",
+            "processing": "Processing...",
+            "placeOrder": "Place Order",
+            "signInOrder": "Sign In to Order"
+        },
+        "seo": {
+            "title": "SEO Metrics",
+            "da": "Domain Authority",
+            "dr": "Domain Rating",
+            "opinion": "Opinion"
+        },
+        "yes": "Yes",
+        "no": "No",
+        "quickInfo": {
+            "title": "Quick Info",
+            "grade": "Grade:",
+            "standard": "Standard",
+            "newsIndex": "News Index:",
+            "group": "Group:",
+            "independent": "Independent",
+            "sn": "SN:"
+        },
+        "actions": {
+            "saved": "Saved",
+            "save": "Save",
+            "share": "Share",
+            "linkCopied": "Link copied to clipboard!"
+        },
+        "orderModal": {
+            "title": "Place Order",
+            "totalAmount": "Total Amount:",
+            "fullName": "Full Name *",
+            "email": "Email *",
+            "phone": "Phone *",
+            "message": "Additional Message",
+            "messagePlaceholder": "Any specific requirements or questions...",
+            "cancel": "Cancel",
+            "checkout": "Checkout",
+            "success": "Call booking request submitted successfully! Our team will contact you soon.",
+            "error": "Failed to submit booking request"
+        }
     },
     "submitArticle": {
         "tabs": {

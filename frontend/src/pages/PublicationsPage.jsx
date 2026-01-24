@@ -711,6 +711,17 @@ const PublicationsPage = () => {
                             'Featured': 'linear-gradient(135deg, #FF9800 0%, #FFB74D 100%)'
                           };
 
+                          const getBadgeLabel = (type) => {
+                            switch (type) {
+                              case 'Customer Choice': return t('publications.badges.customerChoice');
+                              case 'Best Seller': return t('publications.badges.bestSeller');
+                              case 'Editor\'s Pick': return t('publications.badges.editorsPick');
+                              case 'Trending': return t('publications.badges.trending');
+                              case 'Featured': return t('publications.badges.featured');
+                              default: return type;
+                            }
+                          };
+
                           const badgeColor = badgeColors[publication.rating_type] || 'linear-gradient(135deg, #607D8B 0%, #90A4AE 100%)';
 
                           return (
@@ -721,7 +732,7 @@ const PublicationsPage = () => {
                                 boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
                               }}
                             >
-                              {publication.rating_type}
+                              {getBadgeLabel(publication.rating_type)}
                             </div>
                           );
                         }
@@ -738,7 +749,7 @@ const PublicationsPage = () => {
                               boxShadow: '0 2px 8px rgba(255, 107, 53, 0.3)'
                             }}
                           >
-                            NEW
+                            {t('publications.badges.new')}
                           </div>
                         ) : null;
                       })()}
@@ -808,7 +819,7 @@ const PublicationsPage = () => {
                         <div className="flex flex-wrap gap-2 mb-4">
                           {/* Word Limit Badge */}
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E3F2FD', color: theme.primary }}>
-                            {publication.word_limit ? `${publication.word_limit} words` : 'Word count TBA'}
+                            {publication.word_limit ? t('publications.badges.wordCount', { count: publication.word_limit }) : t('publications.badges.wordCountTba')}
                           </span>
 
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
@@ -824,7 +835,7 @@ const PublicationsPage = () => {
                           onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                         >
                           <Eye size={16} />
-                          View Details
+                          {t('publications.table.viewDetails')}
                           <ExternalLink size={14} />
                         </button>
                       </div>
@@ -849,7 +860,7 @@ const PublicationsPage = () => {
                             onClick={() => handleSort('publication_name')}
                           >
                             <div className="flex items-center gap-2">
-                              Publication {getSortIcon('publication_name')}
+                              {t('publications.table.publication')} {getSortIcon('publication_name')}
                             </div>
                           </th>
                           <th
@@ -858,7 +869,7 @@ const PublicationsPage = () => {
                             onClick={() => handleSort('region')}
                           >
                             <div className="flex items-center gap-2">
-                              Region {getSortIcon('region')}
+                              {t('publications.table.region')} {getSortIcon('region')}
                             </div>
                           </th>
                           <th
@@ -867,7 +878,7 @@ const PublicationsPage = () => {
                             onClick={() => handleSort('language')}
                           >
                             <div className="flex items-center gap-2">
-                              Language {getSortIcon('language')}
+                              {t('publications.table.language')} {getSortIcon('language')}
                             </div>
                           </th>
                           <th
@@ -876,7 +887,7 @@ const PublicationsPage = () => {
                             onClick={() => handleSort('da')}
                           >
                             <div className="flex items-center gap-2">
-                              DA {getSortIcon('da')}
+                              {t('publications.table.da')} {getSortIcon('da')}
                             </div>
                           </th>
                           <th
@@ -885,7 +896,7 @@ const PublicationsPage = () => {
                             onClick={() => handleSort('dr')}
                           >
                             <div className="flex items-center gap-2">
-                              DR {getSortIcon('dr')}
+                              {t('publications.table.dr')} {getSortIcon('dr')}
                             </div>
                           </th>
                           <th
@@ -894,7 +905,7 @@ const PublicationsPage = () => {
                             onClick={() => handleSort('price_usd')}
                           >
                             <div className="flex items-center gap-2">
-                              Price {getSortIcon('price_usd')}
+                              {t('publications.table.price')} {getSortIcon('price_usd')}
                             </div>
                           </th>
                           <th
@@ -903,14 +914,14 @@ const PublicationsPage = () => {
                             onClick={() => handleSort('committed_tat')}
                           >
                             <div className="flex items-center gap-2">
-                              TAT {getSortIcon('committed_tat')}
+                              {t('publications.table.tat')} {getSortIcon('committed_tat')}
                             </div>
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Features
+                            {t('publications.table.features')}
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Action
+                            {t('publications.table.action')}
                           </th>
                         </tr>
                       </thead>
@@ -992,7 +1003,7 @@ const PublicationsPage = () => {
                               <div className="flex flex-wrap gap-1">
                                 {publication.do_follow && (
                                   <span className="px-2 py-1 rounded-full text-xs" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
-                                    Do-follow
+                                    {t('publications.table.doFollow')}
                                   </span>
                                 )}
                               </div>
@@ -1005,7 +1016,7 @@ const PublicationsPage = () => {
                                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                               >
                                 <Eye size={14} className="inline mr-1" />
-                                View
+                                {t('publications.table.view')}
                               </button>
                             </td>
                           </tr>
@@ -1020,7 +1031,7 @@ const PublicationsPage = () => {
                 <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 bg-white p-6 rounded-xl border shadow-sm" style={{ borderColor: theme.borderLight }}>
                   <div className="flex items-center gap-4">
                     <span className="text-sm font-medium" style={{ color: theme.textSecondary }}>
-                      Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalRecords)} of {totalRecords} results
+                      {t('publications.pagination.showing', { start: ((currentPage - 1) * pageSize) + 1, end: Math.min(currentPage * pageSize, totalRecords), total: totalRecords })}
                     </span>
                     <select
                       value={pageSize}
@@ -1031,10 +1042,10 @@ const PublicationsPage = () => {
                       className="text-sm border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#1976D2] bg-white"
                       style={{ borderColor: theme.borderLight, color: theme.textPrimary }}
                     >
-                      <option value={12}>12 per page</option>
-                      <option value={24}>24 per page</option>
-                      <option value={48}>48 per page</option>
-                      <option value={96}>96 per page</option>
+                      <option value={12}>{t('publications.pagination.perPage', { count: 12 })}</option>
+                      <option value={24}>{t('publications.pagination.perPage', { count: 24 })}</option>
+                      <option value={48}>{t('publications.pagination.perPage', { count: 48 })}</option>
+                      <option value={96}>{t('publications.pagination.perPage', { count: 96 })}</option>
                     </select>
                   </div>
 
@@ -1045,7 +1056,7 @@ const PublicationsPage = () => {
                       className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${currentPage === 1 ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50 active:scale-95'}`}
                       style={{ borderColor: theme.borderLight, color: theme.textPrimary }}
                     >
-                      Previous
+                      {t('publications.pagination.previous')}
                     </button>
 
                     <div className="flex items-center gap-1">
@@ -1083,7 +1094,7 @@ const PublicationsPage = () => {
                       className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed bg-gray-50' : 'hover:bg-gray-50 active:scale-95'}`}
                       style={{ borderColor: theme.borderLight, color: theme.textPrimary }}
                     >
-                      Next
+                      {t('publications.pagination.next')}
                     </button>
                   </div>
                 </div>
@@ -1098,10 +1109,10 @@ const PublicationsPage = () => {
                 <Newspaper size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                No publications found
+                {t('publications.empty.title')}
               </h3>
               <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                We couldn't find any publications matching your search criteria.
+                {t('publications.empty.desc')}
               </p>
               <button
                 onClick={() => {
@@ -1113,7 +1124,7 @@ const PublicationsPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Clear All Filters
+                {t('publications.filters.clear')}
               </button>
             </div>
           )}

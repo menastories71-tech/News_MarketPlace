@@ -1400,7 +1400,127 @@
             "desc": "Essayez d'ajuster vos filtres ou votre requête de recherche pour trouver ce que vous cherchez.",
             "clear": "Effacer les filtres"
         },
-        "loading": "Chargement des publications..."
+        "loading": "Chargement des publications...",
+        "badges": {
+            "new": "NOUVEAU",
+            "customerChoice": "Choix du client",
+            "bestSeller": "Meilleure vente",
+            "editorsPick": "Choix de l'éditeur",
+            "trending": "Tendance",
+            "featured": "En vedette",
+            "wordCount": "{{count}} mots",
+            "wordCountTba": "Nombre de mots TBA"
+        },
+        "table": {
+            "publication": "Publication",
+            "region": "Région",
+            "language": "Langue",
+            "da": "DA",
+            "dr": "DR",
+            "price": "Prix",
+            "tat": "Délai",
+            "features": "Caractéristiques",
+            "action": "Action",
+            "view": "Voir",
+            "viewDetails": "Voir les détails",
+            "doFollow": "Do-follow"
+        },
+        "pagination": {
+            "showing": "Affichage de {{start}} à {{end}} sur {{total}} résultats",
+            "perPage": "{{count}} par page",
+            "previous": "Précédent",
+            "next": "Suivant"
+        },
+        "empty": {
+            "title": "Aucune publication trouvée",
+            "desc": "Nous n'avons trouvé aucune publication correspondant à vos critères de recherche."
+        }
+    },
+    "publicationDetail": {
+        "loading": "Chargement des détails de la publication...",
+        "notFound": {
+            "title": "Publication non trouvée",
+            "desc": "La publication que vous recherchez n'existe pas ou a été supprimée."
+        },
+        "backToPublications": "Retour aux publications",
+        "title": "Détails de la publication",
+        "addedOn": "Ajouté le {{date}}",
+        "website": "Site web",
+        "about": "À propos de cette publication",
+        "defaultDescription": "Il s'agit d'une publication d'actualités premium offrant des services de distribution de contenu et de relations publiques de haute qualité. Avec un fort accent sur la fourniture de résultats exceptionnels, nous proposons des solutions médiatiques complètes pour les entreprises et les organisations.",
+        "industryFocus": "Secteur d'activité :",
+        "features": {
+            "title": "Caractéristiques et spécifications",
+            "content": "Contenu",
+            "wordLimit": "Limite de mots :",
+            "words": "mots",
+            "na": "N/A",
+            "images": "Images :",
+            "needed": "nécessaire",
+            "services": "Services",
+            "sponsored": "Contenu sponsorisé",
+            "editorial": "Contenu éditorial",
+            "tat": "Délai :",
+            "days": "jours",
+            "livePlatform": "Plateforme en direct",
+            "standardService": "Service standard"
+        },
+        "exampleArticle": {
+            "title": "Exemple d'article",
+            "button": "Voir l'exemple d'article"
+        },
+        "socialMedia": "Réseaux sociaux",
+        "tags": "Tags et catégories",
+        "guidelines": {
+            "title": "Directives de contenu",
+            "excluding": "Catégories exclues"
+        },
+        "sidebar": {
+            "startingPrice": "Prix de départ",
+            "contactPricing": "Contactez pour le prix",
+            "tat": "Délai",
+            "language": "Langue",
+            "region": "Région",
+            "processing": "Traitement...",
+            "placeOrder": "Passer commande",
+            "signInOrder": "Connectez-vous pour commander"
+        },
+        "seo": {
+            "title": "Métriques SEO",
+            "da": "Autorité de domaine (DA)",
+            "dr": "Classement de domaine (DR)",
+            "opinion": "Opinion"
+        },
+        "yes": "Oui",
+        "no": "Non",
+        "quickInfo": {
+            "title": "Info rapide",
+            "grade": "Note :",
+            "standard": "Standard",
+            "newsIndex": "Indice d'actualités :",
+            "group": "Groupe :",
+            "independent": "Indépendant",
+            "sn": "SN :"
+        },
+        "actions": {
+            "saved": "Enregistré",
+            "save": "Enregistrer",
+            "share": "Partager",
+            "linkCopied": "Lien copié dans le presse-papiers !"
+        },
+        "orderModal": {
+            "title": "Passer commande",
+            "totalAmount": "Montant total :",
+            "fullName": "Nom complet *",
+            "email": "E-mail *",
+            "phone": "Téléphone *",
+            "message": "Message supplémentaire",
+            "messagePlaceholder": "Toutes exigences ou questions spécifiques...",
+            "cancel": "Annuler",
+            "checkout": "Payer",
+            "success": "Demande de réservation d'appel soumise avec succès ! Notre équipe vous contactera bientôt.",
+            "error": "Échec de la soumission de la demande de réservation"
+        }
     },
     "submitArticle": {
         "tabs": {

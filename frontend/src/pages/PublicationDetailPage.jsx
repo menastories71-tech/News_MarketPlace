@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
@@ -40,6 +41,7 @@ const theme = {
 const PublicationDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { isAuthenticated, hasRole, hasAnyRole } = useAuth();
   const [publication, setPublication] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -85,7 +87,7 @@ const PublicationDetailPage = () => {
 
   const formatPrice = (price) => {
     const numPrice = parseFloat(price);
-    return numPrice > 0 ? `$${numPrice.toFixed(2)}` : 'Contact for pricing';
+    return numPrice > 0 ? `$${numPrice.toFixed(2)}` : t('publicationDetail.sidebar.contactPricing');
   };
 
 
@@ -135,7 +137,7 @@ const PublicationDetailPage = () => {
     } else {
       // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Link copied to clipboard!');
+        alert(t('publicationDetail.actions.linkCopied'));
       }).catch(() => {
         // Ultimate fallback
         const textArea = document.createElement('textarea');
@@ -144,7 +146,7 @@ const PublicationDetailPage = () => {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('Link copied to clipboard!');
+        alert(t('publicationDetail.actions.linkCopied'));
       });
     }
   };
@@ -176,11 +178,11 @@ const PublicationDetailPage = () => {
       const response = await api.post('/orders', orderData);
 
       if (response.data.success) {
-        alert('Call booking request submitted successfully! Our team will contact you soon.');
+        alert(t('publicationDetail.orderModal.success'));
         setShowOrderModal(false);
         setOrderFormData({ fullName: '', email: '', phone: '', message: '' });
       } else {
-        throw new Error(response.data.message || 'Failed to submit booking request');
+        throw new Error(response.data.message || t('publicationDetail.orderModal.error'));
       }
 
     } catch (error) {
@@ -205,7 +207,7 @@ const PublicationDetailPage = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading publication details...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>{t('publicationDetail.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -226,10 +228,10 @@ const PublicationDetailPage = () => {
               <Globe size={48} style={{ color: theme.textDisabled }} />
             </div>
             <h1 className="text-2xl font-semibold mb-4" style={{ color: theme.textPrimary }}>
-              Publication Not Found
+              {t('publicationDetail.notFound.title')}
             </h1>
             <p className="mb-8" style={{ color: theme.textSecondary }}>
-              The publication you're looking for doesn't exist or has been removed.
+              {t('publicationDetail.notFound.desc')}
             </p>
             <button
               onClick={() => navigate('/publications')}
@@ -267,10 +269,11 @@ const PublicationDetailPage = () => {
               className="flex items-center gap-1 hover:opacity-80"
             >
               <ArrowLeft size={16} />
-              Back to Publications
+              <ArrowLeft size={16} />
+              {t('publicationDetail.backToPublications')}
             </button>
             <span>/</span>
-            <span>Publication Details</span>
+            <span>{t('publicationDetail.title')}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -312,7 +315,7 @@ const PublicationDetailPage = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar size={16} />
-                        <span>Added {formatDate(publication.created_at)}</span>
+                        <span>{t('publicationDetail.addedOn', { date: formatDate(publication.created_at) })}</span>
                       </div>
                     </div>
                   </div>
@@ -322,7 +325,7 @@ const PublicationDetailPage = () => {
                 {publication.publication_url && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                      Website
+                      {t('publicationDetail.website')}
                     </h3>
                     <a
                       href={publication.publication_url}
@@ -340,15 +343,15 @@ const PublicationDetailPage = () => {
                 {/* Description/About */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                    About This Publication
+                    {t('publicationDetail.about')}
                   </h3>
                   <div className="prose max-w-none" style={{ color: theme.textSecondary }}>
                     <p>
-                      {publication.other_remarks || 'This is a premium news publication offering high-quality content distribution and PR services. With a strong focus on delivering exceptional results, we provide comprehensive media solutions for businesses and organizations.'}
+                      {publication.other_remarks || t('publicationDetail.defaultDescription')}
                     </p>
                     {publication.publication_primary_focus && (
                       <p className="mt-4">
-                        <strong>Industry Focus:</strong> {publication.publication_primary_focus}
+                        <strong>{t('publicationDetail.industryFocus')}</strong> {publication.publication_primary_focus}
                       </p>
                     )}
                   </div>
@@ -357,36 +360,36 @@ const PublicationDetailPage = () => {
                 {/* Features & Specifications */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                    Features & Specifications
+                    {t('publicationDetail.features.title')}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="font-medium mb-3" style={{ color: theme.textPrimary }}>Content</h4>
+                      <h4 className="font-medium mb-3" style={{ color: theme.textPrimary }}>{t('publicationDetail.features.content')}</h4>
                       <ul className="space-y-2 text-sm" style={{ color: theme.textSecondary }}>
                         <li className="flex items-center gap-2">
                           <FileText size={14} />
-                          <span>Word Limit: {publication.word_limit ? `${publication.word_limit} words` : 'N/A'}</span>
+                          <span>{t('publicationDetail.features.wordLimit')} {publication.word_limit ? `${publication.word_limit} ${t('publicationDetail.features.words')}` : t('publicationDetail.features.na')}</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <ImageIcon size={14} />
-                          <span>Images: {publication.image_count || 0} needed</span>
+                          <span>{t('publicationDetail.features.images')} {publication.image_count || 0} {t('publicationDetail.features.needed')}</span>
                         </li>
                       </ul>
                     </div>
                     <div>
-                      <h4 className="font-medium mb-3" style={{ color: theme.textPrimary }}>Services</h4>
+                      <h4 className="font-medium mb-3" style={{ color: theme.textPrimary }}>{t('publicationDetail.features.services')}</h4>
                       <ul className="space-y-2 text-sm" style={{ color: theme.textSecondary }}>
                         <li className="flex items-center gap-2">
                           <CheckCircle size={14} style={{ color: theme.success }} />
-                          <span>{publication.sponsored_or_not ? 'Sponsored Content' : 'Editorial Content'}</span>
+                          <span>{publication.sponsored_or_not ? t('publicationDetail.features.sponsored') : t('publicationDetail.features.editorial')}</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <Clock size={14} />
-                          <span>TAT: {publication.committed_tat || 0} days</span>
+                          <span>{t('publicationDetail.features.tat')} {publication.committed_tat || 0} {t('publicationDetail.features.days')}</span>
                         </li>
                         <li className="flex items-center gap-2">
                           <Shield size={14} />
-                          <span>{publication.live_on_platform ? 'Live Platform' : 'Standard Service'}</span>
+                          <span>{publication.live_on_platform ? t('publicationDetail.features.livePlatform') : t('publicationDetail.features.standardService')}</span>
                         </li>
                       </ul>
                     </div>
@@ -397,7 +400,7 @@ const PublicationDetailPage = () => {
                 {publication.article_reference_link && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                      Example Article
+                      {t('publicationDetail.exampleArticle.title')}
                     </h3>
                     <a
                       href={publication.article_reference_link}
@@ -407,7 +410,7 @@ const PublicationDetailPage = () => {
                       style={{ backgroundColor: theme.success }}
                     >
                       <ExternalLink size={16} />
-                      View Example Article
+                      {t('publicationDetail.exampleArticle.button')}
                     </a>
                   </div>
                 )}
@@ -415,7 +418,7 @@ const PublicationDetailPage = () => {
                 {/* Social Media Links */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                    Social Media
+                    {t('publicationDetail.socialMedia')}
                   </h3>
                   <div className="flex items-center gap-2">
                     {publication.instagram && (
@@ -496,7 +499,7 @@ const PublicationDetailPage = () => {
                 {publication.tags_badges && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                      Tags & Categories
+                      {t('publicationDetail.tags')}
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {publication.tags_badges.split(',').map((tag, index) => (
@@ -516,11 +519,11 @@ const PublicationDetailPage = () => {
                 {publication.excluding_categories && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                      Content Guidelines
+                      {t('publicationDetail.guidelines.title')}
                     </h3>
                     <div className="p-4 rounded-lg border" style={{ backgroundColor: theme.backgroundSoft }}>
                       <h4 className="font-medium mb-2" style={{ color: theme.textPrimary }}>
-                        Excluding Categories
+                        {t('publicationDetail.guidelines.excluding')}
                       </h4>
                       <p style={{ color: theme.textSecondary }}>{publication.excluding_categories}</p>
                     </div>
@@ -538,25 +541,25 @@ const PublicationDetailPage = () => {
                     {formatPrice(publication.price_usd)}
                   </div>
                   <div className="text-sm" style={{ color: theme.textSecondary }}>
-                    {publication.price_usd > 0 ? 'Starting Price' : 'Contact for Pricing'}
+                    {publication.price_usd > 0 ? t('publicationDetail.sidebar.startingPrice') : t('publicationDetail.sidebar.contactPricing')}
                   </div>
                 </div>
 
                 <div className="space-y-3 mb-6">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: theme.textSecondary }}>TAT</span>
+                    <span className="text-sm" style={{ color: theme.textSecondary }}>{t('publicationDetail.sidebar.tat')}</span>
                     <span className="font-medium" style={{ color: theme.textPrimary }}>
-                      {publication.committed_tat || 0} days
+                      {publication.committed_tat || 0} {t('publicationDetail.features.days')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: theme.textSecondary }}>Language</span>
+                    <span className="text-sm" style={{ color: theme.textSecondary }}>{t('publicationDetail.sidebar.language')}</span>
                     <span className="font-medium" style={{ color: theme.textPrimary }}>
                       {publication.language}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: theme.textSecondary }}>Region</span>
+                    <span className="text-sm" style={{ color: theme.textSecondary }}>{t('publicationDetail.sidebar.region')}</span>
                     <span className="font-medium" style={{ color: theme.textPrimary }}>
                       {publication.region}
                     </span>
@@ -571,33 +574,33 @@ const PublicationDetailPage = () => {
                   onClick={handlePlaceOrder}
                   disabled={isOrdering}
                 >
-                  {isOrdering ? 'Processing...' : (isAuthenticated ? 'Place Order' : 'Sign In to Order')}
+                  {isOrdering ? t('publicationDetail.sidebar.processing') : (isAuthenticated ? t('publicationDetail.sidebar.placeOrder') : t('publicationDetail.sidebar.signInOrder'))}
                 </button>
               </div>
 
               {/* SEO Metrics */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  SEO Metrics
+                  {t('publicationDetail.seo.title')}
                 </h3>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div className="p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold mb-1" style={{ color: theme.primary }}>
                       {publication.da || 0}
                     </div>
-                    <div className="text-xs" style={{ color: theme.textSecondary }}>Domain Authority</div>
+                    <div className="text-xs" style={{ color: theme.textSecondary }}>{t('publicationDetail.seo.da')}</div>
                   </div>
                   <div className="p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold mb-1" style={{ color: theme.success }}>
                       {publication.dr || 0}
                     </div>
-                    <div className="text-xs" style={{ color: theme.textSecondary }}>Domain Rating</div>
+                    <div className="text-xs" style={{ color: theme.textSecondary }}>{t('publicationDetail.seo.dr')}</div>
                   </div>
                   <div className="p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-lg font-bold mb-1" style={{ color: publication.do_follow ? '#4CAF50' : '#F44336' }}>
-                      {publication.do_follow ? 'Yes' : 'No'}
+                      {publication.do_follow ? t('publicationDetail.yes') : t('publicationDetail.no')}
                     </div>
-                    <div className="text-xs" style={{ color: theme.textSecondary }}>Opinion</div>
+                    <div className="text-xs" style={{ color: theme.textSecondary }}>{t('publicationDetail.seo.opinion')}</div>
                   </div>
                 </div>
               </div>
@@ -605,32 +608,32 @@ const PublicationDetailPage = () => {
               {/* Quick Info */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Quick Info
+                  {t('publicationDetail.quickInfo.title')}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center gap-2">
                     <Award size={16} style={{ color: theme.info }} />
                     <span style={{ color: theme.textSecondary }}>
-                      Grade: {publication.publication_grade || 'Standard'}
+                      {t('publicationDetail.quickInfo.grade')} {publication.publication_grade || t('publicationDetail.quickInfo.standard')}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <TrendingUp size={16} style={{ color: theme.success }} />
                     <span style={{ color: theme.textSecondary }}>
-                      News Index: {publication.website_news_index || 0}
+                      {t('publicationDetail.quickInfo.newsIndex')} {publication.website_news_index || 0}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users size={16} style={{ color: theme.secondary }} />
                     <span style={{ color: theme.textSecondary }}>
-                      Group: {publication.group_name || 'Independent'}
+                      {t('publicationDetail.quickInfo.group')} {publication.group_name || t('publicationDetail.quickInfo.independent')}
                     </span>
                   </div>
                   {publication.publication_sn && (
                     <div className="flex items-center gap-2">
                       <Target size={16} style={{ color: theme.warning }} />
                       <span style={{ color: theme.textSecondary }}>
-                        SN: {publication.publication_sn}
+                        {t('publicationDetail.quickInfo.sn')} {publication.publication_sn}
                       </span>
                     </div>
                   )}
@@ -656,7 +659,7 @@ const PublicationDetailPage = () => {
             >
               <Heart size={16} style={{ color: isSaved ? theme.danger : theme.danger, fill: isSaved ? theme.danger : 'none' }} />
               <span style={{ color: isSaved ? theme.danger : theme.textSecondary }}>
-                {isSaved ? 'Saved' : 'Save'}
+                {isSaved ? t('publicationDetail.actions.saved') : t('publicationDetail.actions.save')}
               </span>
             </button>
             <button
@@ -668,7 +671,7 @@ const PublicationDetailPage = () => {
               }}
             >
               <Share size={16} style={{ color: theme.primary }} />
-              <span style={{ color: theme.textSecondary }}>Share</span>
+              <span style={{ color: theme.textSecondary }}>{t('publicationDetail.actions.share')}</span>
             </button>
           </div>
         </div>
@@ -723,7 +726,7 @@ const PublicationDetailPage = () => {
               flexShrink: 0
             }}>
               <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: theme.textPrimary }}>
-                Place Order
+                {t('publicationDetail.orderModal.title')}
               </h2>
               <button
                 onClick={() => setShowOrderModal(false)}
@@ -764,7 +767,7 @@ const PublicationDetailPage = () => {
                   {publication.publication_name}
                 </h4>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: theme.textSecondary }}>Total Amount:</span>
+                  <span style={{ color: theme.textSecondary }}>{t('publicationDetail.orderModal.totalAmount')}</span>
                   <span style={{ fontSize: '20px', fontWeight: '700', color: theme.success }}>
                     {formatPrice(publication.price_usd)}
                   </span>
@@ -781,7 +784,7 @@ const PublicationDetailPage = () => {
                       color: theme.textPrimary,
                       marginBottom: '6px'
                     }}>
-                      Full Name *
+                      {t('publicationDetail.orderModal.fullName')}
                     </label>
                     <input
                       type="text"
@@ -808,7 +811,7 @@ const PublicationDetailPage = () => {
                       color: theme.textPrimary,
                       marginBottom: '6px'
                     }}>
-                      Email *
+                      {t('publicationDetail.orderModal.email')}
                     </label>
                     <input
                       type="email"
@@ -835,7 +838,7 @@ const PublicationDetailPage = () => {
                       color: theme.textPrimary,
                       marginBottom: '6px'
                     }}>
-                      Phone *
+                      {t('publicationDetail.orderModal.phone')}
                     </label>
                     <input
                       type="tel"
@@ -862,7 +865,7 @@ const PublicationDetailPage = () => {
                       color: theme.textPrimary,
                       marginBottom: '6px'
                     }}>
-                      Additional Message
+                      {t('publicationDetail.orderModal.message')}
                     </label>
                     <textarea
                       value={orderFormData.message}
@@ -878,7 +881,7 @@ const PublicationDetailPage = () => {
                         backgroundColor: theme.background,
                         resize: 'vertical'
                       }}
-                      placeholder="Any specific requirements or questions..."
+                      placeholder={t('publicationDetail.orderModal.messagePlaceholder')}
                     />
                   </div>
                 </div>
@@ -910,7 +913,7 @@ const PublicationDetailPage = () => {
                 }}
                 disabled={isOrdering}
               >
-                Cancel
+                {t('publicationDetail.orderModal.cancel')}
               </button>
               <button
                 type="submit"
@@ -929,7 +932,7 @@ const PublicationDetailPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                {isOrdering ? 'Processing...' : 'Checkout'}
+                {isOrdering ? t('publicationDetail.sidebar.processing') : t('publicationDetail.orderModal.checkout')}
               </button>
             </div>
           </div>

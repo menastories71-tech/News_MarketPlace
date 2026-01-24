@@ -1438,7 +1438,127 @@
             "desc": "尝试调整您的筛选条件或搜索查询以找到您想要的内容。",
             "clear": "清除筛选"
         },
-        "loading": "正在加载出版物..."
+        "loading": "正在加载出版物...",
+        "badges": {
+            "new": "新",
+            "customerChoice": "客户选择",
+            "bestSeller": "畅销",
+            "editorsPick": "编辑精选",
+            "trending": "趋势",
+            "featured": "精选",
+            "wordCount": "{{count}} 字",
+            "wordCountTba": "字数待定"
+        },
+        "table": {
+            "publication": "出版物",
+            "region": "地区",
+            "language": "语言",
+            "da": "DA",
+            "dr": "DR",
+            "price": "价格",
+            "tat": "周转时间",
+            "features": "特点",
+            "action": "操作",
+            "view": "查看",
+            "viewDetails": "查看详情",
+            "doFollow": "Do-follow"
+        },
+        "pagination": {
+            "showing": "显示 {{start}} 到 {{end}} 共 {{total}} 个结果",
+            "perPage": "每页 {{count}} 条",
+            "previous": "上一页",
+            "next": "下一页"
+        },
+        "empty": {
+            "title": "未找到出版物",
+            "desc": "我们找不到符合您搜索条件的任何出版物。"
+        }
+    },
+    "publicationDetail": {
+        "loading": "正在加载出版物详情...",
+        "notFound": {
+            "title": "未找到出版物",
+            "desc": "您查找的出版物不存在或已被删除。"
+        },
+        "backToPublications": "返回出版物",
+        "title": "出版物详情",
+        "addedOn": "添加于 {{date}}",
+        "website": "网站",
+        "about": "关于此出版物",
+        "defaultDescription": "这是一家提供高质量内容分发和公关服务的高级新闻出版物。我们致力于提供卓越的成果，为企业和组织提供全面的媒体解决方案。",
+        "industryFocus": "行业重点：",
+        "features": {
+            "title": "功能与规格",
+            "content": "内容",
+            "wordLimit": "字数限制：",
+            "words": "字",
+            "na": "不适用",
+            "images": "图片：",
+            "needed": "需要",
+            "services": "服务",
+            "sponsored": "赞助内容",
+            "editorial": "编辑内容",
+            "tat": "周转时间 (TAT)：",
+            "days": "天",
+            "livePlatform": "实时平台",
+            "standardService": "标准服务"
+        },
+        "exampleArticle": {
+            "title": "示例文章",
+            "button": "查看示例文章"
+        },
+        "socialMedia": "社交媒体",
+        "tags": "标签与分类",
+        "guidelines": {
+            "title": "内容指南",
+            "excluding": "排除的类别"
+        },
+        "sidebar": {
+            "startingPrice": "起步价",
+            "contactPricing": "联系询价",
+            "tat": "周转时间",
+            "language": "语言",
+            "region": "地区",
+            "processing": "处理中...",
+            "placeOrder": "下订单",
+            "signInOrder": "登录以订购"
+        },
+        "seo": {
+            "title": "SEO 指标",
+            "da": "域名权重 (DA)",
+            "dr": "域名评分 (DR)",
+            "opinion": "意见"
+        },
+        "yes": "是",
+        "no": "否",
+        "quickInfo": {
+            "title": "快速信息",
+            "grade": "等级：",
+            "standard": "标准",
+            "newsIndex": "新闻指数：",
+            "group": "组：",
+            "independent": "独立",
+            "sn": "SN："
+        },
+        "actions": {
+            "saved": "已保存",
+            "save": "保存",
+            "share": "分享",
+            "linkCopied": "链接已复制到剪贴板！"
+        },
+        "orderModal": {
+            "title": "下订单",
+            "totalAmount": "总金额：",
+            "fullName": "全名 *",
+            "email": "电子邮件 *",
+            "phone": "电话 *",
+            "message": "附加信息",
+            "messagePlaceholder": "任何具体要求或问题...",
+            "cancel": "取消",
+            "checkout": "结账",
+            "success": "电话预订请求已成功提交！我们的团队将尽快与您联系。",
+            "error": "提交预订请求失败"
+        }
     },
     "submitArticle": {
         "tabs": {
