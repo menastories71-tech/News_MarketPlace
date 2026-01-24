@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
@@ -41,6 +42,7 @@ const PodcasterDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const [podcaster, setPodcaster] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showAuth, setShowAuth] = useState(false);
@@ -111,7 +113,7 @@ const PodcasterDetail = () => {
       navigator.share(shareData);
     } else {
       navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Link copied to clipboard!');
+        alert(t('podcasterDetail.actions.linkCopied'));
       });
     }
   };
@@ -156,7 +158,7 @@ const PodcasterDetail = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading podcaster details...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>{t('podcasterDetail.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -177,10 +179,10 @@ const PodcasterDetail = () => {
               <Mic size={48} style={{ color: theme.textDisabled }} />
             </div>
             <h1 className="text-2xl font-semibold mb-4" style={{ color: theme.textPrimary }}>
-              Podcaster Not Found
+              {t('podcasterDetail.notFound.title')}
             </h1>
             <p className="mb-8" style={{ color: theme.textSecondary }}>
-              The podcaster you're looking for doesn't exist or has been removed.
+              {t('podcasterDetail.notFound.desc')}
             </p>
             <button
               onClick={() => navigate('/podcasters')}
@@ -188,7 +190,7 @@ const PodcasterDetail = () => {
               style={{ backgroundColor: theme.primary }}
             >
               <ArrowLeft size={16} />
-              Back to Podcasters
+              {t('podcasterDetail.back')}
             </button>
           </div>
         </div>
@@ -211,10 +213,10 @@ const PodcasterDetail = () => {
               className="flex items-center gap-1 hover:opacity-80"
             >
               <ArrowLeft size={16} />
-              Back to Podcasters
+              {t('podcasterDetail.breadcrumb.back')}
             </button>
             <span>/</span>
-            <span>Podcaster Details</span>
+            <span>{t('podcasterDetail.breadcrumb.current')}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -236,7 +238,7 @@ const PodcasterDetail = () => {
                     <div className="flex flex-wrap items-center gap-6 text-sm" style={{ color: theme.textSecondary }}>
                       <div className="flex items-center gap-2">
                         <Mic size={16} />
-                        <span>Hosted by {podcaster.podcast_host || 'Unknown Host'}</span>
+                        <span>{t('podcasterDetail.host')} {podcaster.podcast_host || t('podcasters.card.unknownHost')}</span>
                       </div>
                       {podcaster.podcast_region && (
                         <div className="flex items-center gap-2">
@@ -246,7 +248,7 @@ const PodcasterDetail = () => {
                       )}
                       <div className="flex items-center gap-2">
                         <Calendar size={16} />
-                        <span>Added {formatDate(podcaster.created_at)}</span>
+                        <span>{t('podcasterDetail.added')} {formatDate(podcaster.created_at)}</span>
                       </div>
                     </div>
                   </div>
@@ -256,7 +258,7 @@ const PodcasterDetail = () => {
                 {podcaster.podcast_website && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                      Website
+                      {t('podcasterDetail.website')}
                     </h3>
                     <a
                       href={podcaster.podcast_website}
@@ -274,7 +276,7 @@ const PodcasterDetail = () => {
                 {/* Description/About */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                    About This Podcast
+                    {t('podcasterDetail.about')}
                   </h3>
                   <div className="prose max-w-none" style={{ color: theme.textSecondary }}>
                     <p>
@@ -282,12 +284,12 @@ const PodcasterDetail = () => {
                     </p>
                     {podcaster.podcast_focus_industry && (
                       <p className="mt-4">
-                        <strong>Focus Industry:</strong> {podcaster.podcast_focus_industry}
+                        <strong>{t('podcasterDetail.focus')}:</strong> {podcaster.podcast_focus_industry}
                       </p>
                     )}
                     {podcaster.podcast_target_audience && (
                       <p className="mt-4">
-                        <strong>Target Audience:</strong> {podcaster.podcast_target_audience}
+                        <strong>{t('podcasterDetail.targetAudience')}:</strong> {podcaster.podcast_target_audience}
                       </p>
                     )}
                   </div>
@@ -296,7 +298,7 @@ const PodcasterDetail = () => {
                 {/* Social Media Links */}
                 <div className="mb-8">
                   <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                    Connect & Follow
+                    {t('podcasterDetail.social')}
                   </h3>
                   <div className="flex flex-wrap gap-4">
                     {podcaster.podcast_ig && (
@@ -378,7 +380,7 @@ const PodcasterDetail = () => {
                 {podcaster.podcast_ig_username && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                      Latest from Instagram
+                      {t('podcasterDetail.instagramLatest')}
                     </h3>
                     <div className="bg-gray-100 rounded-lg p-4">
                       <blockquote
@@ -428,8 +430,8 @@ const PodcasterDetail = () => {
                         <MessageCircle className="w-6 h-6 text-blue-600" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">Want to be on this podcast?</h3>
-                        <p className="text-gray-600">Get featured on {podcaster.podcast_name} and reach their audience</p>
+                        <h3 className="text-lg font-semibold text-gray-900">{t('podcasterDetail.cta.title')}</h3>
+                        <p className="text-gray-600">{t('podcasterDetail.cta.desc', { name: podcaster.podcast_name })}</p>
                       </div>
                     </div>
                     <button
@@ -437,7 +439,7 @@ const PodcasterDetail = () => {
                       className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
                     >
                       <Mail size={18} />
-                      Contact us to be on podcast
+                      {t('podcasterDetail.cta.button')}
                     </button>
                   </div>
                 </div>
@@ -449,20 +451,20 @@ const PodcasterDetail = () => {
               {/* Stats Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Podcast Stats
+                  {t('podcasterDetail.stats.title')}
                 </h3>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div className="p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold mb-1" style={{ color: theme.primary }}>
                       {formatFollowers(podcaster.podcast_ig_followers)}
                     </div>
-                    <div className="text-xs" style={{ color: theme.textSecondary }}>Followers</div>
+                    <div className="text-xs" style={{ color: theme.textSecondary }}>{t('podcasterDetail.stats.followers')}</div>
                   </div>
                   <div className="p-3 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold mb-1" style={{ color: theme.success }}>
                       {podcaster.podcast_ig_engagement_rate ? `${podcaster.podcast_ig_engagement_rate}%` : 'N/A'}
                     </div>
-                    <div className="text-xs" style={{ color: theme.textSecondary }}>Engagement</div>
+                    <div className="text-xs" style={{ color: theme.textSecondary }}>{t('podcasterDetail.stats.engagement')}</div>
                   </div>
                 </div>
                 <div className="mt-4 text-center">
@@ -471,7 +473,7 @@ const PodcasterDetail = () => {
                     className="text-sm text-white px-4 py-2 rounded-lg transition-colors"
                     style={{ backgroundColor: theme.secondary }}
                   >
-                    View Detailed Stats
+                    {t('podcasterDetail.stats.viewDetailed')}
                   </button>
                 </div>
               </div>
@@ -479,32 +481,32 @@ const PodcasterDetail = () => {
               {/* Quick Info */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Quick Info
+                  {t('podcasterDetail.quickInfo.title')}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center gap-2">
                     <Award size={16} style={{ color: theme.info }} />
                     <span style={{ color: theme.textSecondary }}>
-                      Status: <span className="text-green-600 font-medium">Approved</span>
+                      {t('podcasterDetail.quickInfo.status')}: <span className="text-green-600 font-medium">{t('podcasterDetail.quickInfo.approved')}</span>
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Users size={16} style={{ color: theme.secondary }} />
                     <span style={{ color: theme.textSecondary }}>
-                      Host: {podcaster.podcast_host || 'N/A'}
+                      {t('podcasterDetail.quickInfo.host')}: {podcaster.podcast_host || 'N/A'}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Target size={16} style={{ color: theme.warning }} />
                     <span style={{ color: theme.textSecondary }}>
-                      Focus: {podcaster.podcast_focus_industry || 'General'}
+                      {t('podcasterDetail.quickInfo.focus')}: {podcaster.podcast_focus_industry || 'General'}
                     </span>
                   </div>
                   {podcaster.podcast_ig_prominent_guests && (
                     <div className="flex items-start gap-2">
                       <Star size={16} style={{ color: theme.primary }} />
                       <div style={{ color: theme.textSecondary }}>
-                        <div className="font-medium">Prominent Guests:</div>
+                        <div className="font-medium">{t('podcasterDetail.quickInfo.prominentGuests')}:</div>
                         <div className="text-xs mt-1">{podcaster.podcast_ig_prominent_guests}</div>
                       </div>
                     </div>
@@ -518,13 +520,13 @@ const PodcasterDetail = () => {
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-3">
                     <Mic className="w-6 h-6 text-green-600" />
                   </div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Ready to Collaborate?</h4>
-                  <p className="text-sm text-gray-600 mb-4">Join {podcaster.podcast_name} as a guest</p>
+                  <h4 className="font-semibold text-gray-900 mb-2">{t('podcasterDetail.sidebarCta.title')}</h4>
+                  <p className="text-sm text-gray-600 mb-4">{t('podcasterDetail.sidebarCta.desc', { name: podcaster.podcast_name })}</p>
                   <button
                     onClick={handleContactForPodcast}
                     className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors text-sm"
                   >
-                    Get Featured
+                    {t('podcasterDetail.sidebarCta.button')}
                   </button>
                 </div>
               </div>
@@ -548,7 +550,7 @@ const PodcasterDetail = () => {
             >
               <Heart size={16} style={{ color: isSaved ? theme.danger : theme.danger, fill: isSaved ? theme.danger : 'none' }} />
               <span style={{ color: isSaved ? theme.danger : theme.textSecondary }}>
-                {isSaved ? 'Saved' : 'Save'}
+                {isSaved ? t('podcasterDetail.actions.saved') : t('podcasterDetail.actions.save')}
               </span>
             </button>
             <button
@@ -560,7 +562,7 @@ const PodcasterDetail = () => {
               }}
             >
               <Share size={16} style={{ color: theme.primary }} />
-              <span style={{ color: theme.textSecondary }}>Share</span>
+              <span style={{ color: theme.textSecondary }}>{t('podcasterDetail.actions.share')}</span>
             </button>
           </div>
         </div>
@@ -602,7 +604,7 @@ const PodcasterDetail = () => {
           }} onClick={(e) => e.stopPropagation()}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
               <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800', color: theme.textPrimary }}>
-                Podcast Statistics
+                {t('podcasterDetail.statsModal.title')}
               </h2>
               <button
                 onClick={() => setShowStats(false)}
@@ -639,7 +641,7 @@ const PodcasterDetail = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  Total Views
+                  {t('podcasterDetail.statsModal.totalViews')}
                 </div>
               </div>
 
@@ -663,7 +665,7 @@ const PodcasterDetail = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  Monthly Listeners
+                  {t('podcasterDetail.statsModal.monthlyListeners')}
                 </div>
               </div>
 
@@ -687,7 +689,7 @@ const PodcasterDetail = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  Average Rating
+                  {t('podcasterDetail.statsModal.avgRating')}
                 </div>
               </div>
 
@@ -711,7 +713,7 @@ const PodcasterDetail = () => {
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px'
                 }}>
-                  Total Episodes
+                  {t('podcasterDetail.statsModal.totalEpisodes')}
                 </div>
               </div>
             </div>
@@ -728,15 +730,14 @@ const PodcasterDetail = () => {
                 fontWeight: '600',
                 color: theme.primary
               }}>
-                Performance Summary
+                {t('podcasterDetail.statsModal.performanceSummary')}
               </h4>
               <p style={{
                 margin: 0,
                 fontSize: '14px',
                 color: theme.textSecondary
               }}>
-                This podcast shows strong engagement with high listener retention and positive community feedback.
-                The {stats.rating}★ rating reflects excellent content quality and audience satisfaction.
+                {t('podcasterDetail.statsModal.performanceDesc', { rating: stats.rating })}
               </p>
             </div>
 
@@ -756,7 +757,7 @@ const PodcasterDetail = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Close
+                {t('podcasterDetail.statsModal.close')}
               </button>
             </div>
           </div>

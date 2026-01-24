@@ -2614,5 +2614,104 @@
             "processing": "Processing...",
             "submit": "Purchase Package"
         }
+    },
+    "podcasters": {
+        "hero": {
+            "title": "Discover Leading Podcasters",
+            "desc": "Connect with top podcasters and uncover credible voices across multiple industries. Find the perfect podcast host for your next collaboration or campaign.",
+            "disclaimer": "The current page is for representation purpose only, the comprehensive list will be live soon"
+        },
+        "searchPlaceholder": "Search podcasters by name, industry, or region...",
+        "submitPodcast": "Submit Your Podcast",
+        "wantToSubmit": "Want to submit your podcast?",
+        "loginToSubmit": "Login to submit",
+        "filters": {
+            "title": "Filters & Options",
+            "basic": "Basic Filters",
+            "industry": "Industry",
+            "allIndustries": "All Industries",
+            "myContent": "My Content",
+            "approved": "Approved Podcasters",
+            "mySubmissions": "My Submissions",
+            "clear": "Clear All Filters"
+        },
+        "controls": {
+            "found": "{{count}} podcasters found",
+            "for": "for"
+        },
+        "card": {
+            "by": "By",
+            "unknownHost": "Unknown Host",
+            "listeners": "Listeners",
+            "episodes": "Episodes",
+            "rating": "Rating",
+            "active": "Active",
+            "listenNow": "Listen Now"
+        },
+        "empty": {
+            "title": "No podcasters found",
+            "desc": "We couldn't find any podcasters matching your search criteria."
+        },
+        "loading": "Loading podcasters..."
+    },
+    "podcasterDetail": {
+        "loading": "Loading podcaster details...",
+        "notFound": {
+            "title": "Podcaster Not Found",
+            "desc": "The podcaster you're looking for doesn't exist or has been removed."
+        },
+        "back": "Back to Podcasters",
+        "breadcrumb": {
+            "back": "Back to Podcasters",
+            "current": "Podcaster Details"
+        },
+        "host": "Hosted by",
+        "added": "Added",
+        "website": "Website",
+        "about": "About This Podcast",
+        "focus": "Focus Industry",
+        "targetAudience": "Target Audience",
+        "social": "Connect & Follow",
+        "instagramLatest": "Latest from Instagram",
+        "cta": {
+            "title": "Want to be on this podcast?",
+            "desc": "Get featured on {{name}} and reach their audience",
+            "button": "Contact us to be on podcast"
+        },
+        "stats": {
+            "title": "Podcast Stats",
+            "followers": "Followers",
+            "engagement": "Engagement",
+            "viewDetailed": "View Detailed Stats"
+        },
+        "quickInfo": {
+            "title": "Quick Info",
+            "status": "Status",
+            "approved": "Approved",
+            "host": "Host",
+            "focus": "Focus",
+            "prominentGuests": "Prominent Guests"
+        },
+        "sidebarCta": {
+            "title": "Ready to Collaborate?",
+            "desc": "Join {{name}} as a guest",
+            "button": "Get Featured"
+        },
+        "actions": {
+            "save": "Save",
+            "saved": "Saved",
+            "share": "Share",
+            "linkCopied": "Link copied to clipboard!"
+        },
+        "statsModal": {
+            "title": "Podcast Statistics",
+            "totalViews": "Total Views",
+            "monthlyListeners": "Monthly Listeners",
+            "avgRating": "Average Rating",
+            "totalEpisodes": "Total Episodes",
+            "performanceSummary": "Performance Summary",
+            "performanceDesc": "This podcast shows strong engagement with high listener retention and positive community feedback. The {{rating}}★ rating reflects excellent content quality and audience satisfaction.",
+            "close": "Close"
+        }
     }
 }

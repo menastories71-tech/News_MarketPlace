@@ -2603,5 +2603,104 @@
             "success": "新闻包订单提交成功！我们的团队将很快与您联系。",
             "error": "提交订单请求失败。请重试。"
         }
+    },
+    "podcasters": {
+        "hero": {
+            "title": "发现领先的播客主",
+            "desc": "与顶级播客主联系，发现多个行业的可信声音。为您的下一次合作或活动找到完美的播客主持人。",
+            "disclaimer": "当前页面仅用于展示目的，完整列表即将上线"
+        },
+        "searchPlaceholder": "按名称、行业或地区搜索播客主...",
+        "submitPodcast": "提交您的播客",
+        "wantToSubmit": "想提交您的播客吗？",
+        "loginToSubmit": "登录以提交",
+        "filters": {
+            "title": "筛选器和选项",
+            "basic": "基本筛选器",
+            "industry": "行业",
+            "allIndustries": "所有行业",
+            "myContent": "我的内容",
+            "approved": "已批准的播客主",
+            "mySubmissions": "我的提交",
+            "clear": "清除所有筛选器"
+        },
+        "controls": {
+            "found": "找到 {{count}} 位播客主",
+            "for": "为"
+        },
+        "card": {
+            "by": "由",
+            "unknownHost": "未知主持人",
+            "listeners": "听众",
+            "episodes": "集数",
+            "rating": "评分",
+            "active": "活跃",
+            "listenNow": "立即收听"
+        },
+        "empty": {
+            "title": "未找到播客主",
+            "desc": "我们找不到符合您搜索条件的播客主。"
+        },
+        "loading": "正在加载播客主..."
+    },
+    "podcasterDetail": {
+        "loading": "正在加载播客主详情...",
+        "notFound": {
+            "title": "未找到播客主",
+            "desc": "您要查找的播客主不存在或已被删除。"
+        },
+        "back": "返回播客主",
+        "breadcrumb": {
+            "back": "返回播客主",
+            "current": "播客主详情"
+        },
+        "host": "主持人",
+        "added": "添加于",
+        "website": "网站",
+        "about": "关于此播客",
+        "focus": "重点行业",
+        "targetAudience": "目标受众",
+        "social": "连接与关注",
+        "instagramLatest": "Instagram 最新动态",
+        "cta": {
+            "title": "想参加这个播客吗？",
+            "desc": "在 {{name}} 上亮相并接触他们的受众",
+            "button": "联系我们参加播客"
+        },
+        "stats": {
+            "title": "播客统计",
+            "followers": "关注者",
+            "engagement": "互动",
+            "viewDetailed": "查看详细统计"
+        },
+        "quickInfo": {
+            "title": "快速信息",
+            "status": "状态",
+            "approved": "已批准",
+            "host": "主持人",
+            "focus": "重点",
+            "prominentGuests": "知名嘉宾"
+        },
+        "sidebarCta": {
+            "title": "准备好合作了吗？",
+            "desc": "作为嘉宾加入 {{name}}",
+            "button": "获得特色"
+        },
+        "actions": {
+            "save": "保存",
+            "saved": "已保存",
+            "share": "分享",
+            "linkCopied": "链接已复制到剪贴板！"
+        },
+        "statsModal": {
+            "title": "播客统计",
+            "totalViews": "总浏览量",
+            "monthlyListeners": "月度听众",
+            "avgRating": "平均评分",
+            "totalEpisodes": "总集数",
+            "performanceSummary": "性能摘要",
+            "performanceDesc": "这个播客显示出强劲的参与度，具有高听众保留率和积极的社区反馈。{{rating}}★ 评分反映了优秀的内容质量和观众满意度。",
+            "close": "关闭"
+        }
     }
 }

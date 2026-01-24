@@ -2565,5 +2565,104 @@
             "success": "Commande de pack presse soumise avec succès ! Notre équipe vous contactera bientôt.",
             "error": "Échec de la soumission de la commande. Veuillez réessayer."
         }
+    },
+    "podcasters": {
+        "hero": {
+            "title": "Découvrez les principaux podcasteurs",
+            "desc": "Connectez-vous avec les meilleurs podcasteurs et découvrez des voix crédibles dans plusieurs industries. Trouvez l'hôte de podcast parfait pour votre prochaine collaboration ou campagne.",
+            "disclaimer": "La page actuelle est uniquement à des fins de représentation, la liste complète sera bientôt disponible"
+        },
+        "searchPlaceholder": "Rechercher des podcasteurs par nom, industrie ou région...",
+        "submitPodcast": "Soumettre votre podcast",
+        "wantToSubmit": "Vous souhaitez soumettre votre podcast ?",
+        "loginToSubmit": "Se connecter pour soumettre",
+        "filters": {
+            "title": "Filtres et options",
+            "basic": "Filtres de base",
+            "industry": "Industrie",
+            "allIndustries": "Toutes les industries",
+            "myContent": "Mon contenu",
+            "approved": "Podcasteurs approuvés",
+            "mySubmissions": "Mes soumissions",
+            "clear": "Effacer tous les filtres"
+        },
+        "controls": {
+            "found": "{{count}} podcasteurs trouvés",
+            "for": "pour"
+        },
+        "card": {
+            "by": "Par",
+            "unknownHost": "Hôte inconnu",
+            "listeners": "Auditeurs",
+            "episodes": "Épisodes",
+            "rating": "Note",
+            "active": "Actif",
+            "listenNow": "Écouter maintenant"
+        },
+        "empty": {
+            "title": "Aucun podcasteur trouvé",
+            "desc": "Nous n'avons trouvé aucun podcasteur correspondant à vos critères de recherche."
+        },
+        "loading": "Chargement des podcasteurs..."
+    },
+    "podcasterDetail": {
+        "loading": "Chargement des détails du podcasteur...",
+        "notFound": {
+            "title": "Podcasteur non trouvé",
+            "desc": "Le podcasteur que vous recherchez n'existe pas ou a été supprimé."
+        },
+        "back": "Retour aux podcasteurs",
+        "breadcrumb": {
+            "back": "Retour aux podcasteurs",
+            "current": "Détails du podcasteur"
+        },
+        "host": "Hébergé par",
+        "added": "Ajouté",
+        "website": "Site web",
+        "about": "À propos de ce podcast",
+        "focus": "Industrie ciblée",
+        "targetAudience": "Public cible",
+        "social": "Se connecter et suivre",
+        "instagramLatest": "Dernières nouvelles d'Instagram",
+        "cta": {
+            "title": "Vous voulez participer à ce podcast ?",
+            "desc": "Soyez présenté sur {{name}} et touchez leur audience",
+            "button": "Contactez-nous pour participer au podcast"
+        },
+        "stats": {
+            "title": "Statistiques du podcast",
+            "followers": "Abonnés",
+            "engagement": "Engagement",
+            "viewDetailed": "Voir les statistiques détaillées"
+        },
+        "quickInfo": {
+            "title": "Infos rapides",
+            "status": "Statut",
+            "approved": "Approuvé",
+            "host": "Hôte",
+            "focus": "Focus",
+            "prominentGuests": "Invités éminents"
+        },
+        "sidebarCta": {
+            "title": "Prêt à collaborer ?",
+            "desc": "Rejoignez {{name}} en tant qu'invité",
+            "button": "Être présenté"
+        },
+        "actions": {
+            "save": "Enregistrer",
+            "saved": "Enregistré",
+            "share": "Partager",
+            "linkCopied": "Lien copié dans le presse-papiers !"
+        },
+        "statsModal": {
+            "title": "Statistiques du podcast",
+            "totalViews": "Vues totales",
+            "monthlyListeners": "Auditeurs mensuels",
+            "avgRating": "Note moyenne",
+            "totalEpisodes": "Épisodes totaux",
+            "performanceSummary": "Résumé des performances",
+            "performanceDesc": "Ce podcast montre un fort engagement avec une rétention élevée des auditeurs et des retours positifs de la communauté. La note de {{rating}}★ reflète une excellente qualité de contenu et la satisfaction du public.",
+            "close": "Fermer"
+        }
     }
 }

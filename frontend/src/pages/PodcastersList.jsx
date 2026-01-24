@@ -6,6 +6,7 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import PodcasterSubmissionForm from '../components/user/PodcasterSubmissionForm';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import api from '../services/api';
 
 // Global error handler for ResizeObserver
@@ -58,6 +59,7 @@ const theme = {
 
 const PodcastersList = () => {
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -198,7 +200,7 @@ const PodcastersList = () => {
   const categories = React.useMemo(() => {
     try {
       if (!Array.isArray(podcasters) || podcasters.length === 0) {
-        return [{ id: 'all', name: 'All Podcasters', count: 0 }];
+        return [{ id: 'all', name: t('podcasters.filters.allIndustries'), count: 0 }];
       }
 
       const industries = [...new Set(
@@ -208,7 +210,7 @@ const PodcastersList = () => {
       )].sort();
 
       const cats = [
-        { id: 'all', name: 'All Podcasters', count: podcasters.length },
+        { id: 'all', name: t('podcasters.filters.allIndustries'), count: podcasters.length },
       ];
 
       industries.forEach(industry => {
@@ -227,9 +229,9 @@ const PodcastersList = () => {
       return cats;
     } catch (error) {
       console.warn('Error processing categories:', error);
-      return [{ id: 'all', name: 'All Podcasters', count: 0 }];
+      return [{ id: 'all', name: t('podcasters.filters.allIndustries'), count: 0 }];
     }
-  }, [podcasters]);
+  }, [podcasters, t]);
 
   const clearAllFilters = () => {
     setSelectedCategory('all');
@@ -277,7 +279,7 @@ const PodcastersList = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading podcasters...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>{t('podcasters.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -299,13 +301,13 @@ const PodcastersList = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Discover Leading Podcasters
+              {t('podcasters.hero.title')}
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Connect with top podcasters and uncover credible voices across multiple industries. Find the perfect podcast host for your next collaboration or campaign.
+              {t('podcasters.hero.desc')}
             </p>
-  <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
-              The current page is for representation purpose only, the comprehensive list will be live soon
+            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
+              {t('podcasters.hero.disclaimer')}
             </p>
 
             {/* Search Bar */}
@@ -313,7 +315,7 @@ const PodcastersList = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search podcasters by name, industry, or region..."
+                  placeholder={t('podcasters.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
@@ -341,17 +343,17 @@ const PodcastersList = () => {
                   className="bg-[#1976D2] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#0D47A1] transition-colors shadow-lg flex items-center gap-2"
                 >
                   <Plus className="w-5 h-5" />
-                  Submit Your Podcast
+                  {t('podcasters.submitPodcast')}
                 </motion.button>
               )}
               {!isAuthenticated && (
                 <div className="text-center">
-                  <p className="text-[#757575] mb-2">Want to submit your podcast?</p>
+                  <p className="text-[#757575] mb-2">{t('podcasters.wantToSubmit')}</p>
                   <Link
                     to="/login"
                     className="text-[#1976D2] hover:text-[#0D47A1] font-medium"
                   >
-                    Login to submit
+                    {t('podcasters.loginToSubmit')}
                   </Link>
                 </div>
               )}
@@ -376,7 +378,7 @@ const PodcastersList = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
                 <Filter size={20} className="text-[#1976D2]" />
-                Filters & Options
+                {t('podcasters.filters.title')}
               </h3>
               {isMobile && (
                 <button
@@ -393,7 +395,7 @@ const PodcastersList = () => {
               <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E0E0E0]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <Globe size={16} className="text-[#1976D2]" />
-                  Basic Filters
+                  {t('podcasters.filters.basic')}
                 </h4>
 
                 {/* Filters in row-wise layout for mobile */}
@@ -401,15 +403,14 @@ const PodcastersList = () => {
                   {/* Industry Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Industry
+                      {t('podcasters.filters.industry')}
                     </label>
                     <select
                       value={selectedCategory}
                       onChange={(e) => setSelectedCategory(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="all">All Industries</option>
-                      {categories.filter(cat => cat.id !== 'all').map((category) => (
+                      {categories.map((category) => (
                         <option key={category.id} value={category.id}>{category.name} ({category.count})</option>
                       ))}
                     </select>
@@ -422,7 +423,7 @@ const PodcastersList = () => {
                 <div className="bg-[#E3F2FD] rounded-lg p-4 border border-[#1976D2]">
                   <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                     <Users size={16} className="text-[#1976D2]" />
-                    My Content
+                    {t('podcasters.filters.myContent')}
                   </h4>
                   <div className="space-y-2">
                     <button
@@ -432,7 +433,7 @@ const PodcastersList = () => {
                           : 'text-[#757575] hover:text-[#212121] hover:bg-white'
                         }`}
                     >
-                      Approved Podcasters
+                      {t('podcasters.filters.approved')}
                     </button>
                     <button
                       onClick={() => setActiveTab('my-submissions')}
@@ -441,7 +442,7 @@ const PodcastersList = () => {
                           : 'text-[#757575] hover:text-[#212121] hover:bg-white'
                         }`}
                     >
-                      My Submissions
+                      {t('podcasters.filters.mySubmissions')}
                     </button>
                   </div>
                 </div>
@@ -452,7 +453,7 @@ const PodcastersList = () => {
                 onClick={clearAllFilters}
                 className="w-full px-4 py-3 rounded-lg font-medium transition-colors bg-[#F5F5F5] hover:bg-[#E0E0E0] text-[#212121] border border-[#E0E0E0]"
               >
-                Clear All Filters
+                {t('podcasters.filters.clear')}
               </button>
             </div>
           </div>
@@ -480,10 +481,10 @@ const PodcastersList = () => {
                 )}
 
                 <span className="text-sm font-medium text-[#212121]">
-                  {filteredPodcasters.length} podcasters found
+                  {t('podcasters.controls.found', { count: filteredPodcasters.length })}
                   {searchQuery && (
                     <span className="ml-2 text-[#757575]">
-                      for "{searchQuery}"
+                      {t('podcasters.controls.for')} "{searchQuery}"
                     </span>
                   )}
                 </span>
@@ -517,7 +518,7 @@ const PodcastersList = () => {
                             </h3>
                             <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
                               <Users size={14} className="mr-2" />
-                              <span>By {podcaster.podcast_host || 'Unknown Host'}</span>
+                              <span>{t('podcasters.card.by')} {podcaster.podcast_host || t('podcasters.card.unknownHost')}</span>
                             </div>
                             <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
                               <Target size={14} className="mr-2" />
@@ -538,19 +539,19 @@ const PodcastersList = () => {
                             <div className="text-lg font-bold" style={{ color: theme.primary }}>
                               {Math.floor(Math.random() * 50) + 10}K
                             </div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Listeners</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>{t('podcasters.card.listeners')}</div>
                           </div>
                           <div>
                             <div className="text-lg font-bold" style={{ color: theme.success }}>
                               {Math.floor(Math.random() * 200) + 50}
                             </div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Episodes</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>{t('podcasters.card.episodes')}</div>
                           </div>
                           <div>
                             <div className="text-lg font-bold" style={{ color: theme.warning }}>
                               {Math.floor(Math.random() * 5) + 1}.{Math.floor(Math.random() * 9) + 1}
                             </div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Rating</div>
+                            <div className="text-xs" style={{ color: theme.textSecondary }}>{t('podcasters.card.rating')}</div>
                           </div>
                         </div>
 
@@ -577,7 +578,7 @@ const PodcastersList = () => {
                             {podcaster.podcast_region}
                           </span>
                           <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#F3E5F5', color: theme.info }}>
-                            Active
+                            {t('podcasters.card.active')}
                           </span>
                         </div>
 
@@ -589,7 +590,7 @@ const PodcastersList = () => {
                           onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                         >
                           <Play size={16} />
-                          Listen Now
+                          {t('podcasters.card.listenNow')}
                           <ExternalLink size={14} />
                         </button>
                       </div>
@@ -607,10 +608,10 @@ const PodcastersList = () => {
                 <Headphones size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                No podcasters found
+                {t('podcasters.empty.title')}
               </h3>
               <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                We couldn't find any podcasters matching your search criteria.
+                {t('podcasters.empty.desc')}
               </p>
               <button
                 onClick={() => {
@@ -622,7 +623,7 @@ const PodcastersList = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Clear All Filters
+                {t('podcasters.filters.clear')}
               </button>
             </div>
           )}
