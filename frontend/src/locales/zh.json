@@ -1489,5 +1489,129 @@
             "success": "文章提交成功！",
             "error": "文章提交失败。请重试。"
         }
+    },
+    "questionnaire": {
+        "loading": "Loading questionnaire...",
+        "hero": {
+            "title": "AI Article Questionnaire",
+            "desc": "Fill out the questionnaire below to generate an AI-powered article tailored to your needs."
+        },
+        "popup": {
+            "title": "Important Information",
+            "desc": "Please read the following instructions carefully before proceeding.",
+            "why": {
+                "title": "Why this questionnaire?",
+                "1": "It helps us understand your brand.",
+                "2": "It ensures the content meets your goals.",
+                "3": "It provides context for the AI.",
+                "4": "It saves time in the long run."
+            },
+            "download": {
+                "title": "Download Questionnaire",
+                "desc": "You can also download the questionnaire as a Word document.",
+                "button": "Download Article Questionnaire",
+                "buttonShort": "Download"
+            },
+            "submission": {
+                "title": "Submission Options",
+                "email": "Email:",
+                "emailDesc": "You can email the completed questionnaire to",
+                "upload": "Upload:"
+            },
+            "continue": "Continue to Online Form"
+        },
+        "tabs": {
+            "questionnaire": "AI Article Questionnaire",
+            "mySubmissions": "My AI Submissions"
+        },
+        "form": {
+            "format": {
+                "title": "Article Format",
+                "desc": "Please choose from one of the options below:",
+                "options": {
+                    "profile": "Profile Article",
+                    "editorial": "Editorial feature PR",
+                    "advertorial": "Advertorial / Brand Voice",
+                    "listicle": "Listicle"
+                }
+            },
+            "part1": {
+                "title": "Part 1 - About You / Your Brand",
+                "questions": {
+                    "name": "What is the name of the person(s) and/or brand these articles are for?",
+                    "preferredTitle": "Do you have a preferred title (producer, rapper, influencer, etc.) that you'd like us to use?",
+                    "background": "What is your personal background and experience related to this article?",
+                    "inspiration": "What inspired you to start your business or become involved in this industry?",
+                    "challenges": "What challenges or obstacles have you faced in your career or business, and how have you overcome them?",
+                    "uniquePerspective": "What sets you apart from others in your industry, and what unique perspective do you bring to this article?",
+                    "highlights": "What are some notable career highlights? (Awards, recognition, accomplishments, etc.)",
+                    "anecdotes": "Do you have any personal anecdotes or stories that you would like to include in this article?",
+                    "futureVision": "Where do you see yourself/your brand in a few years? What are some of your dreams and aspirations?",
+                    "additionalInfo": "Is there anything else that you think the writer should know in order to create an effective and successful article?"
+                }
+            },
+            "part2": {
+                "title": "Part 2 - Article Guidelines",
+                "questions": {
+                    "goal": "What is the main goal of this article? (e.g. to increase brand awareness, to drive traffic to a website, to generate leads)",
+                    "targetAudience": "Who is the target audience for this content piece? (e.g. age range, location, interests, job titles, industry beginners, enthusiasts)",
+                    "message": "What is the main message or theme you want in this article?",
+                    "points": "What specific points or information do you want to include in this article?",
+                    "seoKeywords": "Are there any specific SEO keywords or phrases that you want to focus on in this article?",
+                    "tone": "Are there any specific tone or style guidelines that you want the writer to follow? (if yes, please provide details)",
+                    "socialLinks": "Please provide direct links to all social media accounts (if any) you want to be included in the articles.",
+                    "references": "Are there any existing content pieces (e.g. blog posts, articles) that you want the writer to reference or link to in this article?",
+                    "titles": "Provide 2 to 3 potential title ideas if you'd like.",
+                    "exclusions": "Is there information you do NOT want to be included in the article? (if yes, please provide details)"
+                }
+            },
+            "seo": {
+                "title": "SEO Information",
+                "keywords": "Keywords",
+                "geoLocation": "Geo Location",
+                "personName": "Person Name",
+                "companyName": "Company Name",
+                "placeholder": {
+                    "keywords": "Enter SEO keywords",
+                    "geoLocation": "Enter geo location",
+                    "personName": "Enter person name",
+                    "companyName": "Enter company name"
+                }
+            },
+            "upload": {
+                "title": "Document Upload (Optional)",
+                "label": "Upload supporting documents",
+                "hint": "Accepted formats: PDF, DOC, DOCX, TXT, JPG, PNG"
+            },
+            "publication": {
+                "title": "Publication Selection",
+                "label": "Select Publication",
+                "selectPlaceholder": "Select a publication...",
+                "loading": "Loading publications...",
+                "error": "Failed to load publications.",
+                "networkError": "Network error while loading publications."
+            },
+            "submit": "Submit Questionnaire",
+            "submitting": "Submitting...",
+            "tokensExhausted": "Tokens Exhausted - Wait for Reset",
+            "required": "This field is required",
+            "minChars": "min characters",
+            "success": "Questionnaire submitted successfully! Redirecting to article generation...",
+            "fillRequired": "Please fill in all required fields",
+            "placeholder": "Enter your response here..."
+        },
+        "mySubmissions": {
+            "title": "My AI Submissions",
+            "subtitle": "View all your AI-generated article submissions and their status",
+            "loading": "Loading submissions...",
+            "noSubmissions": "No AI submissions yet",
+            "noSubmissionsDesc": "You haven't submitted any AI-generated articles yet.",
+            "createFirst": "Create Your First AI Article",
+            "viewArticle": "View Article",
+            "continueGeneration": "Continue Generation",
+            "storyType": "Story Type",
+            "publication": "Publication",
+            "submittedOn": "Submitted on"
+        }
     }
 }
