@@ -4,6 +4,7 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import { useLanguage } from '../context/LanguageContext';
+import { useTranslationArray } from '../hooks/useTranslation';
 import {
   Search, Filter, Eye, Globe, MapPin, Building,
   DollarSign, FileText, ExternalLink, Package, Grid, List,
@@ -41,7 +42,7 @@ const theme = {
 };
 
 const OrdersDeliveredPage = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPublication, setSelectedPublication] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
@@ -166,12 +167,22 @@ const OrdersDeliveredPage = () => {
     }
   ];
 
+  // Dynamic translation for orders content
+  const { translatedItems: translatedOrders, isTranslating } = useTranslationArray(
+    deliveredOrders,
+    ['title', 'excerpt'],
+    true
+  );
+
+  // Use translated orders for display
+  const displayOrders = translatedOrders.length > 0 ? translatedOrders : deliveredOrders;
+
   const getUniquePublications = () => {
-    const publications = deliveredOrders.map(order => order.publication);
+    const publications = displayOrders.map(order => order.publication);
     return ['all', ...new Set(publications)].sort();
   };
 
-  const filteredOrders = deliveredOrders.filter(order => {
+  const filteredOrders = displayOrders.filter(order => {
     const matchesSearch = searchTerm === '' ||
       order.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.publication.toLowerCase().includes(searchTerm.toLowerCase()) ||
