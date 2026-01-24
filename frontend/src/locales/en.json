@@ -1739,5 +1739,56 @@
             "publication": "Publication",
             "submittedOn": "Submitted on"
         }
+    },
+    "radio": {
+        "hero": {
+            "title": "Radio Stations",
+            "subtitle": "Explore Advertisements and Interviews opportunities Across Radio Channels in Multiple Languages. Access RJs to cover your events, product launches, press conferences, and other corporate or lifestyle occasions. Amplify your visibility through our extensive, multi-language radio network.",
+            "disclaimer": "The current page is for representation purpose only, the comprehensive list will be live soon",
+            "searchPlaceholder": "Search radio stations, frequencies, or RJ names..."
+        },
+        "filters": {
+            "title": "Filters & Sort",
+            "basic": "Basic Filters",
+            "language": "Language",
+            "allLanguages": "All Languages",
+            "emirate": "Emirate",
+            "allEmirates": "All Emirates",
+            "clear": "Clear All Filters"
+        },
+        "controls": {
+            "filters": "Filters",
+            "found": "{{count}} radio stations found",
+            "for": "for",
+            "sortBy": "Sort by:",
+            "sortOptions": {
+                "nameAsc": "Radio Name (A-Z)",
+                "nameDesc": "Radio Name (Z-A)",
+                "frequencyAsc": "Frequency (A-Z)",
+                "frequencyDesc": "Frequency (Z-A)",
+                "languageAsc": "Language (A-Z)",
+                "languageDesc": "Language (Z-A)",
+                "emirateAsc": "Emirate (A-Z)",
+                "emirateDesc": "Emirate (Z-A)"
+            }
+        },
+        "card": {
+            "broadcasting": "{{name}} broadcasting at {{frequency}}"
+        },
+        "table": {
+            "name": "Radio Name",
+            "frequency": "Frequency",
+            "language": "Language",
+            "emirate": "Emirate",
+            "popularRj": "Popular RJ",
+            "action": "Action",
+            "viewDetails": "View Details",
+            "na": "N/A"
+        },
+        "empty": {
+            "title": "No radio stations found",
+            "desc": "We couldn't find any radio stations matching your search criteria.",
+            "clear": "Clear All Filters"
+        }
     }
 }

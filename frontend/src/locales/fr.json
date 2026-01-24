@@ -1695,5 +1695,56 @@
             "publication": "Publication",
             "submittedOn": "Soumis le"
         }
+    },
+    "radio": {
+        "hero": {
+            "title": "Stations de radio",
+            "subtitle": "Explorez les opportunités de publicités et d'interviews sur les chaînes radio dans plusieurs langues. Accédez aux RJ pour couvrir vos événements, lancements de produits, conférences de presse et autres occasions d'entreprise ou de style de vie. Amplifiez votre visibilité grâce à notre vaste réseau radio multilingue.",
+            "disclaimer": "La page actuelle est à des fins de représentation uniquement, la liste complète sera bientôt en ligne",
+            "searchPlaceholder": "Rechercher des stations de radio, des fréquences ou des noms de RJ..."
+        },
+        "filters": {
+            "title": "Filtres et tri",
+            "basic": "Filtres de base",
+            "language": "Langue",
+            "allLanguages": "Toutes les langues",
+            "emirate": "Émirat",
+            "allEmirates": "Tous les émirats",
+            "clear": "Effacer tous les filtres"
+        },
+        "controls": {
+            "filters": "Filtres",
+            "found": "{{count}} stations de radio trouvées",
+            "for": "pour",
+            "sortBy": "Trier par :",
+            "sortOptions": {
+                "nameAsc": "Nom de la radio (A-Z)",
+                "nameDesc": "Nom de la radio (Z-A)",
+                "frequencyAsc": "Fréquence (A-Z)",
+                "frequencyDesc": "Fréquence (Z-A)",
+                "languageAsc": "Langue (A-Z)",
+                "languageDesc": "Langue (Z-A)",
+                "emirateAsc": "Émirat (A-Z)",
+                "emirateDesc": "Émirat (Z-A)"
+            }
+        },
+        "card": {
+            "broadcasting": "{{name}} diffusant à {{frequency}}"
+        },
+        "table": {
+            "name": "Nom de la radio",
+            "frequency": "Fréquence",
+            "language": "Langue",
+            "emirate": "Émirat",
+            "popularRj": "RJ populaire",
+            "action": "Action",
+            "viewDetails": "Voir les détails",
+            "na": "N/A"
+        },
+        "empty": {
+            "title": "Aucune station de radio trouvée",
+            "desc": "Nous n'avons trouvé aucune station de radio correspondant à vos critères de recherche.",
+            "clear": "Effacer tous les filtres"
+        }
     }
 }

@@ -29,7 +29,10 @@ const theme = {
   borderDark: '#757575'
 };
 
+import { useLanguage } from '../context/LanguageContext';
+
 const RadioPage = () => {
+  const { t } = useLanguage();
   const [radios, setRadios] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -190,13 +193,13 @@ const RadioPage = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Radio Stations
+              {t('radio.hero.title')}
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-             Explore Advertisements and Interviews opportunities Across Radio Channels in Multiple Languages. Access RJs to cover your events, product launches, press conferences, and other corporate or lifestyle occasions. Amplify your visibility through our extensive, multi-language radio network.
+              {t('radio.hero.subtitle')}
             </p>
             <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
-              The current page is for representation purpose only, the comprehensive list will be live soon
+              {t('radio.hero.disclaimer')}
             </p>
 
             {/* Search Bar */}
@@ -204,7 +207,7 @@ const RadioPage = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search radio stations, frequencies, or RJ names..."
+                  placeholder={t('radio.hero.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
@@ -240,7 +243,7 @@ const RadioPage = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
                 <Filter size={20} className="text-[#1976D2]" />
-                Filters & Sort
+                {t('radio.filters.title')}
               </h3>
               {isMobile && (
                 <button
@@ -257,7 +260,7 @@ const RadioPage = () => {
               <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E0E0E0]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <Radio size={16} className="text-[#1976D2]" />
-                  Basic Filters
+                  {t('radio.filters.basic')}
                 </h4>
 
                 {/* Filters in row-wise layout for mobile */}
@@ -265,14 +268,14 @@ const RadioPage = () => {
                   {/* Language Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Language
+                      {t('radio.filters.language')}
                     </label>
                     <select
                       value={languageFilter}
                       onChange={(e) => setLanguageFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Languages</option>
+                      <option value="">{t('radio.filters.allLanguages')}</option>
                       {getUniqueLanguages().map(language => (
                         <option key={language} value={language}>{language}</option>
                       ))}
@@ -282,14 +285,14 @@ const RadioPage = () => {
                   {/* Emirate Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Emirate
+                      {t('radio.filters.emirate')}
                     </label>
                     <select
                       value={emirateFilter}
                       onChange={(e) => setEmirateFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Emirates</option>
+                      <option value="">{t('radio.filters.allEmirates')}</option>
                       {getUniqueEmirates().map(emirate => (
                         <option key={emirate} value={emirate}>{emirate}</option>
                       ))}
@@ -303,7 +306,7 @@ const RadioPage = () => {
                 onClick={clearAllFilters}
                 className="w-full px-4 py-3 rounded-lg font-medium transition-colors bg-[#F5F5F5] hover:bg-[#E0E0E0] text-[#212121] border border-[#E0E0E0]"
               >
-                Clear All Filters
+                {t('radio.filters.clear')}
               </button>
             </div>
           </div>
@@ -326,7 +329,7 @@ const RadioPage = () => {
                     style={{ borderColor: theme.borderLight }}
                   >
                     <Filter size={16} />
-                    <span className="text-[#212121]">Filters</span>
+                    <span className="text-[#212121]">{t('radio.controls.filters')}</span>
                   </button>
                 )}
 
@@ -334,31 +337,29 @@ const RadioPage = () => {
                 <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'grid'
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
                         ? 'bg-white shadow-sm text-[#1976D2]'
                         : 'text-[#757575] hover:text-[#212121]'
-                    }`}
+                      }`}
                   >
                     <Grid size={16} />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'list'
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'list'
                         ? 'bg-white shadow-sm text-[#1976D2]'
                         : 'text-[#757575] hover:text-[#212121]'
-                    }`}
+                      }`}
                   >
                     <List size={16} />
                   </button>
                 </div>
 
                 <span className="text-sm font-medium text-[#212121]">
-                  {totalCount} radio stations found
+                  {t('radio.controls.found', { count: totalCount })}
                   {searchTerm && (
                     <span className="ml-2 text-[#757575]">
-                      for "{searchTerm}"
+                      {t('radio.controls.for')} "{searchTerm}"
                     </span>
                   )}
                 </span>
@@ -366,7 +367,7 @@ const RadioPage = () => {
 
               {/* Enhanced Sort Dropdown */}
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-[#757575]">Sort by:</span>
+                <span className="text-sm font-medium text-[#757575]">{t('radio.controls.sortBy')}</span>
                 <select
                   value={`${sortField}-${sortDirection}`}
                   onChange={(e) => {
@@ -376,14 +377,14 @@ const RadioPage = () => {
                   }}
                   className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
-                  <option value="radio_name-asc">Radio Name (A-Z)</option>
-                  <option value="radio_name-desc">Radio Name (Z-A)</option>
-                  <option value="frequency-asc">Frequency (A-Z)</option>
-                  <option value="frequency-desc">Frequency (Z-A)</option>
-                  <option value="radio_language-asc">Language (A-Z)</option>
-                  <option value="radio_language-desc">Language (Z-A)</option>
-                  <option value="emirate_state-asc">Emirate (A-Z)</option>
-                  <option value="emirate_state-desc">Emirate (Z-A)</option>
+                  <option value="radio_name-asc">{t('radio.controls.sortOptions.nameAsc')}</option>
+                  <option value="radio_name-desc">{t('radio.controls.sortOptions.nameDesc')}</option>
+                  <option value="frequency-asc">{t('radio.controls.sortOptions.frequencyAsc')}</option>
+                  <option value="frequency-desc">{t('radio.controls.sortOptions.frequencyDesc')}</option>
+                  <option value="radio_language-asc">{t('radio.controls.sortOptions.languageAsc')}</option>
+                  <option value="radio_language-desc">{t('radio.controls.sortOptions.languageDesc')}</option>
+                  <option value="emirate_state-asc">{t('radio.controls.sortOptions.emirateAsc')}</option>
+                  <option value="emirate_state-desc">{t('radio.controls.sortOptions.emirateDesc')}</option>
                 </select>
               </div>
             </div>
@@ -481,7 +482,7 @@ const RadioPage = () => {
 
                           {/* Description */}
                           <p className="text-white/90 text-sm mb-3 line-clamp-2">
-                            {radio.description || `${radio.radio_name} broadcasting at ${radio.frequency}`}
+                            {radio.description || t('radio.card.broadcasting', { name: radio.radio_name, frequency: radio.frequency })}
                           </p>
 
                           {/* Location and Type Row */}
@@ -520,7 +521,7 @@ const RadioPage = () => {
                             onClick={() => handleSort('radio_name')}
                           >
                             <div className="flex items-center gap-2">
-                              Radio Name {getSortIcon('radio_name')}
+                              {t('radio.table.name')} {getSortIcon('radio_name')}
                             </div>
                           </th>
                           <th
@@ -529,7 +530,7 @@ const RadioPage = () => {
                             onClick={() => handleSort('frequency')}
                           >
                             <div className="flex items-center gap-2">
-                              Frequency {getSortIcon('frequency')}
+                              {t('radio.table.frequency')} {getSortIcon('frequency')}
                             </div>
                           </th>
                           <th
@@ -538,7 +539,7 @@ const RadioPage = () => {
                             onClick={() => handleSort('radio_language')}
                           >
                             <div className="flex items-center gap-2">
-                              Language {getSortIcon('radio_language')}
+                              {t('radio.table.language')} {getSortIcon('radio_language')}
                             </div>
                           </th>
                           <th
@@ -547,14 +548,14 @@ const RadioPage = () => {
                             onClick={() => handleSort('emirate_state')}
                           >
                             <div className="flex items-center gap-2">
-                              Emirate {getSortIcon('emirate_state')}
+                              {t('radio.table.emirate')} {getSortIcon('emirate_state')}
                             </div>
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Popular RJ
+                            {t('radio.table.popularRj')}
                           </th>
                           <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Action
+                            {t('radio.table.action')}
                           </th>
                         </tr>
                       </thead>
@@ -607,17 +608,17 @@ const RadioPage = () => {
                               </td>
                               <td className="px-6 py-4">
                                 <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                  {radio.radio_language || 'N/A'}
+                                  {radio.radio_language || t('radio.table.na')}
                                 </span>
                               </td>
                               <td className="px-6 py-4">
                                 <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                  {radio.emirate_state || 'N/A'}
+                                  {radio.emirate_state || t('radio.table.na')}
                                 </span>
                               </td>
                               <td className="px-6 py-4">
                                 <span className="text-sm" style={{ color: theme.textPrimary }}>
-                                  {radio.radio_popular_rj || 'N/A'}
+                                  {radio.radio_popular_rj || t('radio.table.na')}
                                 </span>
                               </td>
                               <td className="px-6 py-4">
@@ -627,7 +628,7 @@ const RadioPage = () => {
                                   onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                                   onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                                 >
-                                  View Details
+                                  {t('radio.table.viewDetails')}
                                 </button>
                               </td>
                             </tr>
@@ -648,10 +649,10 @@ const RadioPage = () => {
                 <Radio size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                No radio stations found
+                {t('radio.empty.title')}
               </h3>
               <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                We couldn't find any radio stations matching your search criteria.
+                {t('radio.empty.desc')}
               </p>
               <button
                 onClick={() => {
@@ -663,7 +664,7 @@ const RadioPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Clear All Filters
+                {t('radio.empty.clear')}
               </button>
             </div>
           )}

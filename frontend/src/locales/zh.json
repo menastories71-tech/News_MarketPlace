@@ -1733,5 +1733,56 @@
             "publication": "出版物",
             "submittedOn": "提交于"
         }
+    },
+    "radio": {
+        "hero": {
+            "title": "广播电台",
+            "subtitle": "探索多种语言广播频道的广告和采访机会。通过RJ报道您的活动、产品发布、新闻发布会以及其他企业或生活方式场合。通过我们也广泛的多语言广播网络扩大您的知名度。",
+            "disclaimer": "当前页面仅供展示，完整列表即将上线",
+            "searchPlaceholder": "搜索广播电台、频率或RJ名称..."
+        },
+        "filters": {
+            "title": "筛选与排序",
+            "basic": "基本筛选",
+            "language": "语言",
+            "allLanguages": "所有语言",
+            "emirate": "酋长国",
+            "allEmirates": "所有酋长国",
+            "clear": "清除所有筛选"
+        },
+        "controls": {
+            "filters": "筛选",
+            "found": "找到 {{count}} 个广播电台",
+            "for": "关键词",
+            "sortBy": "排序方式：",
+            "sortOptions": {
+                "nameAsc": "广播名称 (A-Z)",
+                "nameDesc": "广播名称 (Z-A)",
+                "frequencyAsc": "频率 (A-Z)",
+                "frequencyDesc": "频率 (Z-A)",
+                "languageAsc": "语言 (A-Z)",
+                "languageDesc": "语言 (Z-A)",
+                "emirateAsc": "酋长国 (A-Z)",
+                "emirateDesc": "酋长国 (Z-A)"
+            }
+        },
+        "card": {
+            "broadcasting": "{{name}} 广播频率 {{frequency}}"
+        },
+        "table": {
+            "name": "广播名称",
+            "frequency": "频率",
+            "language": "语言",
+            "emirate": "酋长国",
+            "popularRj": "热门RJ",
+            "action": "操作",
+            "viewDetails": "查看详情",
+            "na": "不适用"
+        },
+        "empty": {
+            "title": "未找到广播电台",
+            "desc": "我们找不到符合您搜索条件的任何广播电台。",
+            "clear": "清除所有筛选"
+        }
     }
 }
