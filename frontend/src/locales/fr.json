@@ -1881,5 +1881,84 @@
             "bookingFailed": "Échec de la soumission de la demande de réservation",
             "bookingError": "Erreur lors de la soumission de la demande de réservation. Veuillez réessayer."
         }
+    },
+    "agencyRegistration": {
+        "title": "Inscription de l'agence",
+        "otpTitle": "Vérification OTP",
+        "disclaimer": "Nous ne contacterons aucun de vos clients, à aucun moment. Notre croissance n'est possible que si nos agences se développent constamment.",
+        "copyFields": "Copier les champs",
+        "printPage": "Imprimer la page",
+        "success": {
+            "title": "Agence enregistrée avec succès !",
+            "desc": "Votre agence a été enregistrée et est en attente d'examen. Vous serez informé une fois qu'elle sera approuvée."
+        },
+        "failed": {
+            "title": "L'inscription a échoué"
+        },
+        "form": {
+            "agencyName": "Nom de l'agence",
+            "legalEntityName": "Nom de l'entité juridique de l'agence",
+            "website": "Site Web de l'agence",
+            "ig": "Instagram de l'agence",
+            "linkedin": "LinkedIn de l'agence",
+            "facebook": "Facebook de l'agence",
+            "country": "Pays de l'agence",
+            "selectCountry": "Sélectionner un pays",
+            "city": "Ville de l'agence",
+            "address": "Adresse de l'agence",
+            "ownerName": "Nom du propriétaire de l'agence",
+            "ownerLinkedin": "LinkedIn du propriétaire",
+            "foundedYear": "Année de fondation",
+            "passportNationality": "Passeport / Nationalité du propriétaire",
+            "email": "Email de l'agence",
+            "sendOtp": "Envoyer OTP",
+            "verifyOtp": "Vérifier OTP",
+            "verified": "Vérifié",
+            "enterOtp": "Entrer OTP",
+            "alternateEmail": "Email alternatif de l'agence",
+            "contactNumber": "Numéro de contact de l'agence (WhatsApp de préférence)",
+            "alternateContactNumber": "Numéro de contact alternatif",
+            "ownerEmail": "Email du propriétaire",
+            "ownerAlternateEmail": "Email alternatif du propriétaire",
+            "ownerContactNumber": "Numéro de contact du propriétaire",
+            "ownerWhatsapp": "Numéro WhatsApp du propriétaire",
+            "telegram": "Telegram",
+            "files": {
+                "title": "Téléchargement de documents",
+                "tradeLicense": "Constitution de la société / Licence commerciale",
+                "taxDocument": "Document d'enregistrement fiscal",
+                "bankDetails": "Coordonnées bancaires de l'agence",
+                "ownerPassport": "Passeport du propriétaire",
+                "ownerPhoto": "Photo du propriétaire",
+                "uploading": "Téléchargement...",
+                "clickToUpload": "Cliquez pour télécharger"
+            },
+            "howDidYouHear": {
+                "label": "Comment avez-vous entendu parler de nous ?",
+                "google": "Recherche Google",
+                "social": "Réseaux sociaux",
+                "referral": "Ami/Parrainage",
+                "blog": "Blog/Article",
+                "other": "Autre"
+            },
+            "anythingToSay": "Quelque chose à dire ?",
+            "terms": {
+                "label": "J'accepte les ",
+                "link": "Termes et Conditions"
+            },
+            "submit": "Soumettre l'inscription",
+            "submitting": "Soumission..."
+        },
+        "errors": {
+            "required": "Ce champ est obligatoire",
+            "invalidUrl": "Veuillez entrer une URL valide commençant par http:// ou https://",
+            "invalidEmail": "Veuillez entrer une adresse email valide",
+            "invalidYear": "Veuillez entrer une année valide entre 1950 et 2026",
+            "terms": "Vous devez accepter les termes et conditions",
+            "fileRequired": "Ce fichier est requis et doit être téléchargé avec succès",
+            "maxLength": "Le message ne peut pas dépasser 500 caractères",
+            "recaptcha": "Veuillez compléter la vérification reCAPTCHA",
+            "otpRequired": "Veuillez vérifier l'OTP par email avant de soumettre"
+        }
     }
 }

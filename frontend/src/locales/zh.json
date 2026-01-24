@@ -1919,5 +1919,84 @@
             "bookingFailed": "提交预订请求失败",
             "bookingError": "提交预订请求时出错。请重试。"
         }
+    },
+    "agencyRegistration": {
+        "title": "代理注册",
+        "otpTitle": "OTP验证",
+        "disclaimer": "我们不会在任何时候接触您的任何客户，因为只有当我们的代理机构持续增长时，我们的增长才有可能。",
+        "copyFields": "复制字段",
+        "printPage": "打印页面",
+        "success": {
+            "title": "代理注册成功！",
+            "desc": "您的代理机构已注册并正在等待审核。审核通过后，我们将通知您。"
+        },
+        "failed": {
+            "title": "注册失败"
+        },
+        "form": {
+            "agencyName": "代理机构名称",
+            "legalEntityName": "代理机构法定实体名称",
+            "website": "代理机构网站",
+            "ig": "代理机构IG",
+            "linkedin": "代理机构LinkedIn",
+            "facebook": "代理机构Facebook",
+            "country": "代理机构国家",
+            "selectCountry": "选择国家",
+            "city": "代理机构城市",
+            "address": "代理机构地址",
+            "ownerName": "代理机构所有者姓名",
+            "ownerLinkedin": "代理机构所有者LinkedIn",
+            "foundedYear": "代理机构成立年份",
+            "passportNationality": "代理机构所有者护照/国籍",
+            "email": "代理机构电子邮件",
+            "sendOtp": "发送OTP",
+            "verifyOtp": "验证OTP",
+            "verified": "已验证",
+            "enterOtp": "输入OTP",
+            "alternateEmail": "代理机构备用电子邮件",
+            "contactNumber": "代理机构联系电话（首选WhatsApp）",
+            "alternateContactNumber": "代理机构备用联系电话",
+            "ownerEmail": "代理机构所有者电子邮件",
+            "ownerAlternateEmail": "代理机构所有者备用电子邮件",
+            "ownerContactNumber": "代理机构所有者联系电话",
+            "ownerWhatsapp": "代理机构所有者WhatsApp号码",
+            "telegram": "Telegram",
+            "files": {
+                "title": "文档上传",
+                "tradeLicense": "公司注册/营业执照",
+                "taxDocument": "税务登记证",
+                "bankDetails": "代理机构银行详情",
+                "ownerPassport": "代理机构所有者护照",
+                "ownerPhoto": "代理机构所有者照片",
+                "uploading": "正在上传...",
+                "clickToUpload": "点击上传"
+            },
+            "howDidYouHear": {
+                "label": "您是如何听说我们的？",
+                "google": "谷歌搜索",
+                "social": "社交媒体",
+                "referral": "朋友/推荐",
+                "blog": "博客/文章",
+                "other": "其他"
+            },
+            "anythingToSay": "有什么要说的吗？",
+            "terms": {
+                "label": "我接受",
+                "link": "条款和条件"
+            },
+            "submit": "提交注册",
+            "submitting": "正在提交..."
+        },
+        "errors": {
+            "required": "此字段为必填项",
+            "invalidUrl": "请输入有效的网址，以http://或https://开头",
+            "invalidEmail": "请输入有效的电子邮件地址",
+            "invalidYear": "请输入1950年至2026年之间的有效年份",
+            "terms": "您必须接受条款和条件",
+            "fileRequired": "此文件为必填项，必须成功上传",
+            "maxLength": "消息不能超过500个字符",
+            "recaptcha": "请完成reCAPTCHA验证",
+            "otpRequired": "提交前请验证电子邮件OTP"
+        }
     }
 }

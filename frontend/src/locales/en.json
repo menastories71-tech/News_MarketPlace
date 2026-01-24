@@ -1925,5 +1925,84 @@
             "bookingFailed": "Failed to submit booking request",
             "bookingError": "Error submitting booking request. Please try again."
         }
+    },
+    "agencyRegistration": {
+        "title": "Agency Registration",
+        "otpTitle": "OTP Verification",
+        "disclaimer": "We will not approach any of your clients, anytime, our growth is possible only when our agencies grow consistently.",
+        "copyFields": "Copy Fields",
+        "printPage": "Print Page",
+        "success": {
+            "title": "Agency Registered Successfully!",
+            "desc": "Your agency has been registered and is pending review. You will be notified once it's approved."
+        },
+        "failed": {
+            "title": "Registration Failed"
+        },
+        "form": {
+            "agencyName": "Agency Name",
+            "legalEntityName": "Agency Legal Entity Name",
+            "website": "Agency Website",
+            "ig": "Agency IG",
+            "linkedin": "Agency LinkedIn",
+            "facebook": "Agency Facebook",
+            "country": "Agency Country",
+            "selectCountry": "Select Country",
+            "city": "Agency City",
+            "address": "Agency Address",
+            "ownerName": "Agency Owner Name",
+            "ownerLinkedin": "Agency Owner LinkedIn",
+            "foundedYear": "Agency Founded Year",
+            "passportNationality": "Agency Owner Passport / Nationality",
+            "email": "Agency Email",
+            "sendOtp": "Send OTP",
+            "verifyOtp": "Verify OTP",
+            "verified": "Verified",
+            "enterOtp": "Enter OTP",
+            "alternateEmail": "Agency Alternate Email",
+            "contactNumber": "Agency Contact Number (WhatsApp Preferred)",
+            "alternateContactNumber": "Agency Alternate Contact Number",
+            "ownerEmail": "Agency Owner Email",
+            "ownerAlternateEmail": "Agency Owner Alternate Email",
+            "ownerContactNumber": "Agency Owner Contact Number",
+            "ownerWhatsapp": "Agency Owner WhatsApp Number",
+            "telegram": "Telegram",
+            "files": {
+                "title": "Documents Upload",
+                "tradeLicense": "Company Incorporation / Trade License",
+                "taxDocument": "Tax Registration Document",
+                "bankDetails": "Agency Bank Details",
+                "ownerPassport": "Agency Owner Passport",
+                "ownerPhoto": "Agency Owner Photo",
+                "uploading": "Uploading...",
+                "clickToUpload": "Click to upload"
+            },
+            "howDidYouHear": {
+                "label": "How did you hear about us?",
+                "google": "Google Search",
+                "social": "Social Media",
+                "referral": "Friend/Referral",
+                "blog": "Blog/Article",
+                "other": "Other"
+            },
+            "anythingToSay": "Anything to say?",
+            "terms": {
+                "label": "I accept the ",
+                "link": "Terms and Conditions"
+            },
+            "submit": "Submit Registration",
+            "submitting": "Submitting..."
+        },
+        "errors": {
+            "required": "This field is required",
+            "invalidUrl": "Please enter a valid URL starting with http:// or https://",
+            "invalidEmail": "Please enter a valid email address",
+            "invalidYear": "Please enter a valid year between 1950 and 2026",
+            "terms": "You must accept the terms and conditions",
+            "fileRequired": "This file is required and must be uploaded successfully",
+            "maxLength": "Message cannot exceed 500 characters",
+            "recaptcha": "Please complete the reCAPTCHA verification",
+            "otpRequired": "Please verify email OTP before submitting"
+        }
     }
 }

@@ -4,12 +4,14 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import { useNavigate } from 'react-router-dom';
 import Icon from '../common/Icon';
 import api from '../../services/api';
+import { useLanguage } from '../../context/LanguageContext';
 
 // Agency Registration Form Component
 const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
   const { isAuthenticated, user } = useAuth();
   const { isAuthenticated: isAdminAuthenticated } = useAdminAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     agency_name: '',
@@ -238,7 +240,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
 
     requiredFields.forEach(field => {
       if (!formData[field] || formData[field].toString().trim() === '') {
-        newErrors[field] = 'This field is required';
+        newErrors[field] = t('agencyRegistration.errors.required');
       }
     });
 
@@ -246,7 +248,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
     const urlFields = ['agency_website', 'agency_linkedin', 'agency_facebook', 'agency_owner_linkedin'];
     urlFields.forEach(field => {
       if (formData[field] && !formData[field].match(/^https?:\/\/.+/)) {
-        newErrors[field] = 'Please enter a valid URL starting with http:// or https://';
+        newErrors[field] = t('agencyRegistration.errors.invalidUrl');
       }
     });
 
@@ -254,36 +256,36 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
     const emailFields = ['agency_email', 'agency_owner_email'];
     emailFields.forEach(field => {
       if (formData[field] && !formData[field].match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
-        newErrors[field] = 'Please enter a valid email address';
+        newErrors[field] = t('agencyRegistration.errors.invalidEmail');
       }
     });
 
     // Number validation
     if (formData.agency_founded_year && (isNaN(formData.agency_founded_year) || parseInt(formData.agency_founded_year) < 1950 || parseInt(formData.agency_founded_year) > 2026)) {
-      newErrors.agency_founded_year = 'Please enter a valid year between 1950 and 2026';
+      newErrors.agency_founded_year = t('agencyRegistration.errors.invalidYear');
     }
 
     // Terms accepted
     if (!formData.terms_accepted) {
-      newErrors.terms_accepted = 'You must accept the terms and conditions';
+      newErrors.terms_accepted = t('agencyRegistration.errors.terms');
     }
 
     // File validations (required) - check for uploaded URLs
     const requiredFiles = ['company_incorporation_trade_license', 'agency_bank_details', 'agency_owner_passport', 'agency_owner_photo'];
     requiredFiles.forEach(field => {
       if (!files[field].url) {
-        newErrors[field] = 'This file is required and must be uploaded successfully';
+        newErrors[field] = t('agencyRegistration.errors.fileRequired');
       }
     });
 
     // Textarea limit
     if (formData.any_to_say && formData.any_to_say.length > 500) {
-      newErrors.any_to_say = 'Message cannot exceed 500 characters';
+      newErrors.any_to_say = t('agencyRegistration.errors.maxLength');
     }
 
     // reCAPTCHA
     if (!recaptchaToken) {
-      newErrors.recaptcha = 'Please complete the reCAPTCHA verification';
+      newErrors.recaptcha = t('agencyRegistration.errors.recaptcha');
     }
 
     // Note: OTP verification is now done separately and doesn't block form submission
@@ -547,17 +549,17 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
     <div style={modalStyle} onClick={onClose}>
       <div style={contentStyle} onClick={(e) => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-           <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
-             {currentStep === 'form' ? 'Agency Registration' : 'OTP Verification'}
-           </h2>
-           <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
-             ×
-           </button>
-         </div>
+          <h2 style={{ margin: 0, fontSize: '24px', fontWeight: '800' }}>
+            {currentStep === 'form' ? t('agencyRegistration.title') : t('agencyRegistration.otpTitle')}
+          </h2>
+          <button onClick={onClose} style={{ background: 'transparent', border: 'none', fontSize: '24px', cursor: 'pointer' }}>
+            ×
+          </button>
+        </div>
 
         <div style={{ backgroundColor: '#e3f2fd', padding: '16px', borderRadius: '8px', marginBottom: '24px', border: `1px solid ${theme.primaryLight}` }}>
           <p style={{ margin: 0, fontSize: '16px', color: theme.textPrimary, fontWeight: '500' }}>
-            We will not approach any of your clients, anytime, our growth is possible only when our agencies grow consistently.
+            {t('agencyRegistration.disclaimer')}
           </p>
         </div>
 
@@ -581,7 +583,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
               fontSize: '14px'
             }}
           >
-            Copy Fields
+            {t('agencyRegistration.copyFields')}
           </button>
           <button
             type="button"
@@ -594,7 +596,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
               fontSize: '14px'
             }}
           >
-            Print Page
+            {t('agencyRegistration.printPage')}
           </button>
         </div>
 
@@ -611,9 +613,9 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
           }}>
             <Icon name="check-circle" size="lg" style={{ color: theme.success }} />
             <div>
-              <div style={{ fontWeight: '600', color: theme.success }}>Agency Registered Successfully!</div>
+              <div style={{ fontWeight: '600', color: theme.success }}>{t('agencyRegistration.success.title')}</div>
               <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                Your agency has been registered and is pending review. You will be notified once it's approved.
+                {t('agencyRegistration.success.desc')}
               </div>
             </div>
           </div>
@@ -632,7 +634,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
           }}>
             <Icon name="exclamation-triangle" size="lg" style={{ color: theme.danger }} />
             <div>
-              <div style={{ fontWeight: '600', color: theme.danger }}>Registration Failed</div>
+              <div style={{ fontWeight: '600', color: theme.danger }}>{t('agencyRegistration.failed.title')}</div>
               <div style={{ fontSize: '14px', color: theme.textSecondary }}>
                 {errors.submit || 'Please check your input and try again.'}
               </div>
@@ -644,7 +646,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
           <div style={{ display: 'grid', gridTemplateColumns: window.innerWidth < 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
             <div style={formGroupStyle}>
               <label style={labelStyle}>
-                Agency Name <span style={requiredAsterisk}>*</span>
+                {t('agencyRegistration.form.agencyName')} <span style={requiredAsterisk}>*</span>
               </label>
               <input
                 type="text"
@@ -659,7 +661,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>
-                Agency Legal Entity Name <span style={requiredAsterisk}>*</span>
+                {t('agencyRegistration.form.legalEntityName')} <span style={requiredAsterisk}>*</span>
               </label>
               <input
                 type="text"
@@ -674,7 +676,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>
-                Agency Website <span style={requiredAsterisk}>*</span>
+                {t('agencyRegistration.form.website')} <span style={requiredAsterisk}>*</span>
               </label>
               <input
                 type="url"
@@ -689,7 +691,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Agency IG</label>
+              <label style={labelStyle}>{t('agencyRegistration.form.ig')}</label>
               <input
                 type="text"
                 name="agency_ig"
@@ -702,7 +704,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Agency LinkedIn</label>
+              <label style={labelStyle}>{t('agencyRegistration.form.linkedin')}</label>
               <input
                 type="url"
                 name="agency_linkedin"
@@ -715,7 +717,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={labelStyle}>Agency Facebook</label>
+              <label style={labelStyle}>{t('agencyRegistration.form.facebook')}</label>
               <input
                 type="url"
                 name="agency_facebook"
@@ -729,7 +731,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>
-                Agency Country <span style={requiredAsterisk}>*</span>
+                {t('agencyRegistration.form.country')} <span style={requiredAsterisk}>*</span>
               </label>
               <select
                 name="agency_country"
@@ -738,7 +740,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
                 style={inputStyle}
                 required
               >
-                <option value="">Select Country</option>
+                <option value="">{t('agencyRegistration.form.selectCountry')}</option>
                 <option value="Afghanistan">Afghanistan</option>
                 <option value="Albania">Albania</option>
                 <option value="Algeria">Algeria</option>
@@ -821,7 +823,7 @@ const AgencyRegistrationForm = ({ onClose, onSuccess }) => {
 
             <div style={formGroupStyle}>
               <label style={labelStyle}>
-                Agency Owner Name <span style={requiredAsterisk}>*</span>
+                {t('agencyRegistration.form.ownerName')} <span style={requiredAsterisk}>*</span>
               </label>
               <input
                 type="text"
