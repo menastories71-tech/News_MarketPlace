@@ -5,17 +5,20 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 
 
+import { useLanguage } from '../context/LanguageContext';
+
 const DownloadCenter = () => {
+  const { t } = useLanguage();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [downloadedItems, setDownloadedItems] = useState(new Set(['1', '3', '5']));
 
   const categories = [
-    { id: 'all', name: 'All Resources', count: 10 },
-    { id: 'questionnaires', name: 'PR Questionnaires', count: 2 },
-    { id: 'templates', name: 'Templates', count: 5 },
-    { id: 'guides', name: 'Guides', count: 2 },
-    { id: 'documents', name: 'Documents', count: 1 }
+    { id: 'all', name: t('downloadCenter.categories.all'), count: 10 },
+    { id: 'questionnaires', name: t('downloadCenter.categories.questionnaires'), count: 2 },
+    { id: 'templates', name: t('downloadCenter.categories.templates'), count: 5 },
+    { id: 'guides', name: t('downloadCenter.categories.guides'), count: 2 },
+    { id: 'documents', name: t('downloadCenter.categories.documents'), count: 1 }
   ];
 
   const resources = [
@@ -174,7 +177,7 @@ const DownloadCenter = () => {
   const filteredResources = resources.filter(resource => {
     const matchesCategory = selectedCategory === 'all' || resource.category === selectedCategory;
     const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         resource.description.toLowerCase().includes(searchQuery.toLowerCase());
+      resource.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -225,10 +228,10 @@ const DownloadCenter = () => {
             className="text-center"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Download Center
+              {t('downloadCenter.hero.title')}
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-              Access downloadable resources including PR questionnaires, templates, guides, and documents to enhance your work.
+              {t('downloadCenter.hero.desc')}
             </p>
           </motion.div>
         </div>
@@ -242,7 +245,7 @@ const DownloadCenter = () => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#757575] w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search resources..."
+                placeholder={t('downloadCenter.search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-[#E0E0E0] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent text-[#212121]"
@@ -255,11 +258,10 @@ const DownloadCenter = () => {
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  selectedCategory === category.id
+                className={`px-4 py-2 rounded-lg font-medium transition-colors ${selectedCategory === category.id
                     ? 'bg-[#FF9800] text-white'
                     : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
-                }`}
+                  }`}
               >
                 {category.name} ({category.count})
               </button>
@@ -275,7 +277,7 @@ const DownloadCenter = () => {
             {filteredResources.map((resource) => {
               const IconComponent = resource.icon;
               const isDownloaded = downloadedItems.has(resource.id);
-              
+
               return (
                 <motion.div
                   key={resource.id}
@@ -329,21 +331,20 @@ const DownloadCenter = () => {
 
                   <button
                     onClick={() => handleDownload(resource.id)}
-                    className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                      isDownloaded
+                    className={`w-full py-3 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${isDownloaded
                         ? 'bg-[#E0F2F1] text-[#00796B] hover:bg-[#B2DFDB] border border-[#00796B]/20'
                         : 'bg-[#1976D2] text-white hover:bg-[#0D47A1] hover:shadow-lg'
-                    }`}
+                      }`}
                   >
                     {isDownloaded ? (
                       <>
                         <CheckCircle2 className="w-5 h-5" />
-                        Downloaded
+                        {t('downloadCenter.labels.downloaded')}
                       </>
                     ) : (
                       <>
                         <Download className="w-5 h-5" />
-                        Download
+                        {t('downloadCenter.labels.download')}
                       </>
                     )}
                   </button>
@@ -354,7 +355,7 @@ const DownloadCenter = () => {
 
           {filteredResources.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-[#757575] text-lg">No resources found matching your criteria.</p>
+              <p className="text-[#757575] text-lg">{t('downloadCenter.noResults')}</p>
             </div>
           )}
         </div>
@@ -363,25 +364,25 @@ const DownloadCenter = () => {
       {/* Download Statistics */}
       <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-7xl mx-auto">
-          <h2 className="text-2xl font-semibold text-[#212121] mb-6">Your Downloads</h2>
+          <h2 className="text-2xl font-semibold text-[#212121] mb-6">{t('downloadCenter.stats.title')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-[#E3F2FD] rounded-lg p-6 border border-[#E0E0E0]">
               <div className="text-3xl font-bold text-[#1976D2] mb-2">
                 {downloadedItems.size}
               </div>
-              <div className="text-[#757575]">Total Downloads</div>
+              <div className="text-[#757575]">{t('downloadCenter.stats.total')}</div>
             </div>
             <div className="bg-[#E0F2F1] rounded-lg p-6 border border-[#E0E0E0]">
               <div className="text-3xl font-bold text-[#00796B] mb-2">
                 {resources.filter(r => downloadedItems.has(r.id) && r.category === 'templates').length}
               </div>
-              <div className="text-[#757575]">Templates Downloaded</div>
+              <div className="text-[#757575]">{t('downloadCenter.stats.templates')}</div>
             </div>
             <div className="bg-[#FFF3E0] rounded-lg p-6 border border-[#E0E0E0]">
               <div className="text-3xl font-bold text-[#FF9800] mb-2">
                 {resources.filter(r => downloadedItems.has(r.id) && r.category === 'guides').length}
               </div>
-              <div className="text-[#757575]">Guides Downloaded</div>
+              <div className="text-[#757575]">{t('downloadCenter.stats.guides')}</div>
             </div>
           </div>
         </div>

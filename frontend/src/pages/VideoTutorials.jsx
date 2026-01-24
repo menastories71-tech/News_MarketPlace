@@ -27,11 +27,11 @@ const VideoTutorials = () => {
   const [currentPlayingVideo, setCurrentPlayingVideo] = useState(null);
 
   const categories = [
-    { id: 'all', name: 'All Videos (24)', count: 24 },
-    { id: 'getting-started', name: 'Getting Started (5)', count: 5 },
-    { id: 'journalism', name: 'Journalism Basics (8)', count: 8 },
-    { id: 'content-creation', name: 'Content Creation (6)', count: 6 },
-    { id: 'marketing', name: 'Marketing & PR (5)', count: 5 }
+    { id: 'all', name: t('videoTutorials.categories.all'), count: 24 },
+    { id: 'getting-started', name: t('videoTutorials.categories.gettingStarted'), count: 5 },
+    { id: 'journalism', name: t('videoTutorials.categories.journalism'), count: 8 },
+    { id: 'content-creation', name: t('videoTutorials.categories.contentCreation'), count: 6 },
+    { id: 'marketing', name: t('videoTutorials.categories.marketing'), count: 5 }
   ];
 
   const filteredVideos = videos;
@@ -86,7 +86,7 @@ const VideoTutorials = () => {
     const stats = getCategoryStats(category.id);
     return {
       ...category,
-      name: `${category.name.split(' (')[0]} (${stats.completed}/${stats.total})`,
+      displayName: `${category.name} (${stats.completed}/${stats.total})`,
       completed: stats.completed,
       inProgress: stats.inProgress,
       completionRate: stats.completionRate
@@ -144,7 +144,7 @@ const VideoTutorials = () => {
                   : 'bg-[#F5F5F5] text-[#212121] hover:bg-[#E0E0E0]'
                   }`}
               >
-                {category.name}
+                {category.displayName}
                 {category.completionRate > 0 && (
                   <div className="absolute -top-1 -right-1 bg-[#4CAF50] text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                     {category.completionRate}%
@@ -337,7 +337,7 @@ const VideoTutorials = () => {
                     {progress > 0 && progress < 100 && (
                       <div className="mt-3">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-xs text-[#757575]">Update Progress:</span>
+                          <span className="text-xs text-[#757575]">{t('videoTutorials.labels.updateProgress')}:</span>
                           <div className="flex gap-1">
                             <button
                               onClick={() => updateVideoProgress(video.id, progress + 25)}
@@ -349,7 +349,7 @@ const VideoTutorials = () => {
                               onClick={() => updateVideoProgress(video.id, 100)}
                               className="text-xs bg-[#4CAF50] text-white px-2 py-1 rounded hover:bg-[#388E3C]"
                             >
-                              Complete
+                              {t('videoTutorials.labels.finished')}
                             </button>
                           </div>
                         </div>
@@ -363,7 +363,7 @@ const VideoTutorials = () => {
 
           {filteredVideos.length === 0 && (
             <div className="text-center py-12">
-              <p className="text-[#757575] text-lg">No videos found matching your criteria.</p>
+              <p className="text-[#757575] text-lg">{t('videoTutorials.noResults')}</p>
             </div>
           )}
         </div>
