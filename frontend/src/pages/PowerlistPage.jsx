@@ -13,6 +13,7 @@ import {
   ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, Users, MapPin, Globe, Star,
   Calendar, Award, Link as LinkIcon, Bookmark
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -45,6 +46,7 @@ const theme = {
 
 const PowerlistPage = () => {
   const { isAuthenticated } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [powerlists, setPowerlists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -249,17 +251,17 @@ const PowerlistPage = () => {
   // Image URL helper function
   const getImageUrl = (imagePath) => {
     if (!imagePath) return null;
-    
+
     // If it's already a full URL, return as is
     if (imagePath.startsWith('http')) {
       return imagePath;
     }
-    
+
     // If it's a local path, construct full URL
     if (imagePath.startsWith('/uploads/')) {
       return `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}${imagePath}`;
     }
-    
+
     return imagePath;
   };
 
@@ -267,14 +269,14 @@ const PowerlistPage = () => {
   const generateFallbackImage = (publicationName) => {
     const colors = [
       'from-blue-400 to-blue-600',
-      'from-purple-400 to-purple-600', 
+      'from-purple-400 to-purple-600',
       'from-green-400 to-green-600',
       'from-red-400 to-red-600',
       'from-yellow-400 to-yellow-600',
       'from-pink-400 to-pink-600',
       'from-indigo-400 to-indigo-600'
     ];
-    
+
     const colorIndex = publicationName.length % colors.length;
     return colors[colorIndex];
   };
@@ -296,15 +298,15 @@ const PowerlistPage = () => {
 
     const getStatusText = (status) => {
       switch (status) {
-        case 'approved': return 'Approved';
-        case 'pending': return 'Pending';
-        case 'rejected': return 'Rejected';
+        case 'approved': return t('powerlist.status.approved');
+        case 'pending': return t('powerlist.status.pending');
+        case 'rejected': return t('powerlist.status.rejected');
         default: return status;
       }
     };
 
     return (
-      <span 
+      <span
         className="px-2 py-1 rounded-full text-xs font-medium"
         style={getStatusStyle(status)}
       >
@@ -326,7 +328,7 @@ const PowerlistPage = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading powerlist nominations...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>{t('powerlist.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -347,15 +349,15 @@ const PowerlistPage = () => {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-    
+
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
-              Powerlist Nominations
+              {t('powerlist.hero.title')}
             </h1>
             <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
-            Explore our comprehensive Power List featuring the most influential organizations and leaders shaping the media and publishing landscape worldwide. Connect with industry visionaries and top performers who drive innovation in digital publishing. Discover opportunities to network with leaders from diverse backgrounds and expertise areas.
+              {t('powerlist.hero.desc')}
             </p>
             <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
-              The current page is for representation purpose only, the comprehensive list will be live soon
+              {t('powerlist.hero.disclaimer')}
             </p>
 
             {/* Search Bar */}
@@ -363,7 +365,7 @@ const PowerlistPage = () => {
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search publications, powerlist names, or industries..."
+                  placeholder={t('powerlist.hero.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
@@ -387,7 +389,7 @@ const PowerlistPage = () => {
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors bg-[#00796B] text-white hover:bg-[#004D40]"
               >
                 <User size={18} />
-                Submit Your Profile
+                {t('powerlist.hero.submitProfile')}
               </button>
             </div>
           </motion.div>
@@ -410,7 +412,7 @@ const PowerlistPage = () => {
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
                 <Filter size={20} className="text-[#1976D2]" />
-                Filters & Sort
+                {t('powerlist.filters.title')}
               </h3>
               {isMobile && (
                 <button
@@ -427,7 +429,7 @@ const PowerlistPage = () => {
               <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E0E0E0]">
                 <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
                   <Users size={16} className="text-[#1976D2]" />
-                  Basic Filters
+                  {t('powerlist.filters.basic')}
                 </h4>
 
                 {/* Filters in row-wise layout for mobile */}
@@ -435,50 +437,50 @@ const PowerlistPage = () => {
                   {/* Industry Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Industry
+                      {t('powerlist.filters.industry')}
                     </label>
                     <select
                       value={industryFilter}
                       onChange={(e) => setIndustryFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Industries</option>
+                      <option value="">{t('powerlist.filters.allIndustries')}</option>
                       {getUniqueIndustries().map(industry => (
                         <option key={industry} value={industry}>{industry}</option>
                       ))}
-                      <option value="Other">Other</option>
+                      <option value="Other">{t('powerlist.filters.other')}</option>
                     </select>
                   </div>
 
                   {/* Company/Individual Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Type
+                      {t('powerlist.filters.type')}
                     </label>
                     <select
                       value={companyOrIndividualFilter}
                       onChange={(e) => setCompanyOrIndividualFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Types</option>
+                      <option value="">{t('powerlist.filters.allTypes')}</option>
                       {getUniqueCompanyOrIndividual().map(type => (
                         <option key={type} value={type}>{type}</option>
                       ))}
-                      <option value="Other">Other</option>
+                      <option value="Other">{t('powerlist.filters.other')}</option>
                     </select>
                   </div>
 
                   {/* Location Region Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Location
+                      {t('powerlist.filters.location')}
                     </label>
                     <select
                       value={locationRegionFilter}
                       onChange={(e) => setLocationRegionFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Locations</option>
+                      <option value="">{t('powerlist.filters.allLocations')}</option>
                       {getUniqueRegions().map(region => (
                         <option key={region} value={region}>{region}</option>
                       ))}
@@ -488,14 +490,14 @@ const PowerlistPage = () => {
                   {/* Month Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Month
+                      {t('powerlist.filters.month')}
                     </label>
                     <select
                       value={monthFilter}
                       onChange={(e) => setMonthFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Months</option>
+                      <option value="">{t('powerlist.filters.allMonths')}</option>
                       {getUniqueMonths().map(month => (
                         <option key={month} value={month}>{month}</option>
                       ))}
@@ -505,14 +507,14 @@ const PowerlistPage = () => {
                   {/* Publication Filter */}
                   <div>
                     <label className="block text-sm font-medium mb-2" style={{ color: theme.textPrimary }}>
-                      Publication
+                      {t('powerlist.filters.publication')}
                     </label>
                     <select
                       value={publicationFilter}
                       onChange={(e) => setPublicationFilter(e.target.value)}
                       className="w-full px-3 py-2 border border-[#E0E0E0] rounded-lg focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2] bg-white text-[#212121]"
                     >
-                      <option value="">All Publications</option>
+                      <option value="">{t('powerlist.filters.allPublications')}</option>
                       {getUniquePublications().map(publication => (
                         <option key={publication} value={publication}>{publication}</option>
                       ))}
@@ -526,7 +528,7 @@ const PowerlistPage = () => {
                 onClick={clearAllFilters}
                 className="w-full px-4 py-3 rounded-lg font-medium transition-colors bg-[#F5F5F5] hover:bg-[#E0E0E0] text-[#212121] border border-[#E0E0E0]"
               >
-                Clear All Filters
+                {t('powerlist.filters.clear')}
               </button>
             </div>
           </div>
@@ -549,7 +551,7 @@ const PowerlistPage = () => {
                     style={{ borderColor: theme.borderLight }}
                   >
                     <Filter size={16} />
-                    <span className="text-[#212121]">Filters</span>
+                    <span className="text-[#212121]">{t('powerlist.controls.filters')}</span>
                   </button>
                 )}
 
@@ -557,31 +559,29 @@ const PowerlistPage = () => {
                 <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'grid'
-                        ? 'bg-white shadow-sm text-[#1976D2]'
-                        : 'text-[#757575] hover:text-[#212121]'
-                    }`}
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
+                      ? 'bg-white shadow-sm text-[#1976D2]'
+                      : 'text-[#757575] hover:text-[#212121]'
+                      }`}
                   >
                     <Grid size={16} />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-colors ${
-                      viewMode === 'list'
-                        ? 'bg-white shadow-sm text-[#1976D2]'
-                        : 'text-[#757575] hover:text-[#212121]'
-                    }`}
+                    className={`p-2 rounded-md transition-colors ${viewMode === 'list'
+                      ? 'bg-white shadow-sm text-[#1976D2]'
+                      : 'text-[#757575] hover:text-[#212121]'
+                      }`}
                   >
                     <List size={16} />
                   </button>
                 </div>
 
                 <span className="text-sm font-medium text-[#212121]">
-                  {totalCount} nominations found
+                  {t('powerlist.controls.found', { count: totalCount })}
                   {searchTerm && (
                     <span className="ml-2 text-[#757575]">
-                      for "{searchTerm}"
+                      {t('powerlist.controls.for')} "{searchTerm}"
                     </span>
                   )}
                 </span>
@@ -589,7 +589,7 @@ const PowerlistPage = () => {
 
               {/* Enhanced Sort Dropdown */}
               <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-[#757575]">Sort by:</span>
+                <span className="text-sm font-medium text-[#757575]">{t('powerlist.controls.sortBy')}</span>
                 <select
                   value={`${sortField}-${sortDirection}`}
                   onChange={(e) => {
@@ -599,18 +599,18 @@ const PowerlistPage = () => {
                   }}
                   className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
-                  <option value="publication_name-asc">Publication (A-Z)</option>
-                  <option value="publication_name-desc">Publication (Z-A)</option>
-                  <option value="power_list_name-asc">Power List (A-Z)</option>
-                  <option value="power_list_name-desc">Power List (Z-A)</option>
-                  <option value="industry-asc">Industry (A-Z)</option>
-                  <option value="industry-desc">Industry (Z-A)</option>
-                  <option value="company_or_individual-asc">Type (A-Z)</option>
-                  <option value="company_or_individual-desc">Type (Z-A)</option>
-                  <option value="location_region-asc">Location (A-Z)</option>
-                  <option value="location_region-desc">Location (Z-A)</option>
-                  <option value="status-asc">Status (A-Z)</option>
-                  <option value="status-desc">Status (Z-A)</option>
+                  <option value="publication_name-asc">{t('powerlist.controls.sortOptions.publicationAsc')}</option>
+                  <option value="publication_name-desc">{t('powerlist.controls.sortOptions.publicationDesc')}</option>
+                  <option value="power_list_name-asc">{t('powerlist.controls.sortOptions.powerListAsc')}</option>
+                  <option value="power_list_name-desc">{t('powerlist.controls.sortOptions.powerListDesc')}</option>
+                  <option value="industry-asc">{t('powerlist.controls.sortOptions.industryAsc')}</option>
+                  <option value="industry-desc">{t('powerlist.controls.sortOptions.industryDesc')}</option>
+                  <option value="company_or_individual-asc">{t('powerlist.controls.sortOptions.typeAsc')}</option>
+                  <option value="company_or_individual-desc">{t('powerlist.controls.sortOptions.typeDesc')}</option>
+                  <option value="location_region-asc">{t('powerlist.controls.sortOptions.locationAsc')}</option>
+                  <option value="location_region-desc">{t('powerlist.controls.sortOptions.locationDesc')}</option>
+                  <option value="status-asc">{t('powerlist.controls.sortOptions.statusAsc')}</option>
+                  <option value="status-desc">{t('powerlist.controls.sortOptions.statusDesc')}</option>
                 </select>
               </div>
             </div>
@@ -625,7 +625,7 @@ const PowerlistPage = () => {
                   {sortedPowerlists.map((nomination, index) => {
                     const imageUrl = getImageUrl(nomination.image);
                     const fallbackGradient = generateFallbackImage(nomination.publication_name);
-                    
+
                     return (
                       <motion.div
                         key={nomination.id}
@@ -673,7 +673,7 @@ const PowerlistPage = () => {
 
                           {/* Dark overlay for better text readability */}
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-  
+
                           {/* Industry Badge */}
                           <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
                             {nomination.industry && (
@@ -710,9 +710,9 @@ const PowerlistPage = () => {
                           <div className="flex items-center justify-between">
                             <div className="flex items-center text-sm text-white/80">
                               <MapPin size={14} className="mr-1" />
-                              <span>{nomination.location_region || 'Global'}</span>
+                              <span>{nomination.location_region || t('powerlist.defaults.global')}</span>
                             </div>
-                            
+
                             <div className="text-right">
                               <div className="text-sm font-medium text-white">
                                 {nomination.tentative_month && (
@@ -750,7 +750,7 @@ const PowerlistPage = () => {
                             onClick={() => handleSort('publication_name')}
                           >
                             <div className="flex items-center gap-2">
-                              Publication {getSortIcon('publication_name')}
+                              {t('powerlist.table.publication')} {getSortIcon('publication_name')}
                             </div>
                           </th>
                           <th
@@ -759,7 +759,7 @@ const PowerlistPage = () => {
                             onClick={() => handleSort('power_list_name')}
                           >
                             <div className="flex items-center gap-2">
-                              Power List {getSortIcon('power_list_name')}
+                              {t('powerlist.table.powerList')} {getSortIcon('power_list_name')}
                             </div>
                           </th>
                           <th
@@ -768,7 +768,7 @@ const PowerlistPage = () => {
                             onClick={() => handleSort('industry')}
                           >
                             <div className="flex items-center gap-2">
-                              Industry {getSortIcon('industry')}
+                              {t('powerlist.table.industry')} {getSortIcon('industry')}
                             </div>
                           </th>
                           <th
@@ -777,7 +777,7 @@ const PowerlistPage = () => {
                             onClick={() => handleSort('company_or_individual')}
                           >
                             <div className="flex items-center gap-2">
-                              Type {getSortIcon('company_or_individual')}
+                              {t('powerlist.table.type')} {getSortIcon('company_or_individual')}
                             </div>
                           </th>
                           <th
@@ -786,7 +786,7 @@ const PowerlistPage = () => {
                             onClick={() => handleSort('location_region')}
                           >
                             <div className="flex items-center gap-2">
-                              Location {getSortIcon('location_region')}
+                              {t('powerlist.table.location')} {getSortIcon('location_region')}
                             </div>
                           </th>
                           <th
@@ -795,19 +795,20 @@ const PowerlistPage = () => {
                             onClick={() => handleSort('status')}
                           >
                             <div className="flex items-center gap-2">
-                              Status {getSortIcon('status')}
+                              {t('powerlist.table.status')} {getSortIcon('status')}
                             </div>
                           </th>
-                          <th className="px-6 py-4 text-left text-sm font-semibold" style={{ color: theme.textPrimary }}>
-                            Action
+                          <th className="px-6 py-4 text-right text-sm font-semibold" style={{ color: theme.textPrimary }}>
+                            {t('powerlist.table.action')}
                           </th>
+
                         </tr>
                       </thead>
                       <tbody>
                         {sortedPowerlists.map((nomination, index) => {
                           const imageUrl = getImageUrl(nomination.image);
                           const fallbackGradient = generateFallbackImage(nomination.publication_name);
-                          
+
                           return (
                             <tr
                               key={nomination.id}
@@ -885,7 +886,7 @@ const PowerlistPage = () => {
                                   onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                                 >
                                   <Eye size={14} className="inline mr-1" />
-                                  View
+                                  {t('powerlist.table.view')}
                                 </button>
                               </td>
                             </tr>
@@ -906,10 +907,10 @@ const PowerlistPage = () => {
                 <Award size={48} style={{ color: theme.textDisabled }} />
               </div>
               <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                No nominations found
+                {t('powerlist.empty.title')}
               </h3>
               <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
-                We couldn't find any powerlist nominations matching your search criteria.
+                {t('powerlist.empty.desc')}
               </p>
               <button
                 onClick={() => {
@@ -921,7 +922,7 @@ const PowerlistPage = () => {
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
               >
-                Clear All Filters
+                {t('powerlist.empty.clear')}
               </button>
             </div>
           )}

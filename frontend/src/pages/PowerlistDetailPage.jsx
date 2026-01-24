@@ -13,6 +13,7 @@ import {
   MapPin, Calendar, Users, Zap, Eye, Heart, Share, User, Building,
   Mail, Phone, MessageSquare, Bookmark, Award as AwardIcon, ExternalLink as ExternalLinkIcon
 } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -39,6 +40,7 @@ const theme = {
 
 const PowerlistDetailPage = () => {
   const { id } = useParams();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const { isAuthenticated, hasRole, hasAnyRole } = useAuth();
   const [powerlistNomination, setPowerlistNomination] = useState(null);
@@ -128,7 +130,7 @@ const PowerlistDetailPage = () => {
     } else {
       // Fallback for browsers that don't support Web Share API
       navigator.clipboard.writeText(window.location.href).then(() => {
-        alert('Link copied to clipboard!');
+        alert(t('share.copied'));
       }).catch(() => {
         // Ultimate fallback
         const textArea = document.createElement('textarea');
@@ -137,7 +139,7 @@ const PowerlistDetailPage = () => {
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-        alert('Link copied to clipboard!');
+        alert(t('share.copied'));
       });
     }
   };
@@ -155,8 +157,8 @@ const PowerlistDetailPage = () => {
       const response = await api.post('/powerlist-nomination-submissions', submissionData);
 
       // Show success message
-      alert('Nomination successfully submitted! You will receive a confirmation email.');
-      
+      alert(t('powerlistDetail.form.success'));
+
       setNominationForm({
         full_name: '',
         email: '',
@@ -165,14 +167,14 @@ const PowerlistDetailPage = () => {
       });
     } catch (error) {
       console.error('Error submitting nomination:', error);
-      
-      let errorMessage = 'Failed to submit nomination. Please try again.';
+
+      let errorMessage = t('powerlistDetail.form.error');
       if (error.response?.data?.error) {
         errorMessage = error.response.data.error;
       } else if (error.response?.data?.details) {
         errorMessage = error.response.data.details.map(d => d.msg).join(', ');
       }
-      
+
       alert(`❌ ${errorMessage}`);
     } finally {
       setSubmittingNomination(false);
@@ -201,7 +203,7 @@ const PowerlistDetailPage = () => {
                 borderRight: `2px solid transparent`
               }}
             ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>Loading nomination details...</p>
+            <p className="text-lg" style={{ color: theme.textSecondary }}>{t('powerlistDetail.loading')}</p>
           </div>
         </div>
         <UserFooter />
@@ -222,10 +224,10 @@ const PowerlistDetailPage = () => {
               <AwardIcon size={48} style={{ color: theme.textDisabled }} />
             </div>
             <h1 className="text-2xl font-semibold mb-4" style={{ color: theme.textPrimary }}>
-              Nomination Not Found
+              {t('powerlistDetail.notFound.title')}
             </h1>
             <p className="mb-8" style={{ color: theme.textSecondary }}>
-              The powerlist nomination you're looking for doesn't exist or has been removed.
+              {t('powerlistDetail.notFound.desc')}
             </p>
             <button
               onClick={() => navigate('/power-lists')}
@@ -233,7 +235,7 @@ const PowerlistDetailPage = () => {
               style={{ backgroundColor: theme.primary }}
             >
               <ArrowLeft size={16} />
-              Back to Nominations
+              {t('powerlistDetail.notFound.back')}
             </button>
           </div>
         </div>
@@ -263,10 +265,10 @@ const PowerlistDetailPage = () => {
               className="flex items-center gap-1 hover:opacity-80"
             >
               <ArrowLeft size={16} />
-              Back to Nominations
+              {t('powerlistDetail.breadcrumb.back')}
             </button>
             <span>/</span>
-            <span>Nomination Details</span>
+            <span>{t('powerlistDetail.breadcrumb.current')}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -309,11 +311,11 @@ const PowerlistDetailPage = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <MapPin size={16} />
-                          <span>{powerlistNomination.location_region || 'Global'}</span>
+                          <span>{powerlistNomination.location_region || t('powerlistDetail.defaults.global')}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <Calendar size={16} />
-                          <span>Created {formatDate(powerlistNomination.created_at)}</span>
+                          <span>{t('powerlistDetail.meta.created', { date: formatDate(powerlistNomination.created_at) })}</span>
                         </div>
                       </div>
                     </div>
@@ -324,27 +326,27 @@ const PowerlistDetailPage = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                   <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold" style={{ color: theme.primary }}>
-                      {powerlistNomination.industry || 'General'}
+                      {powerlistNomination.industry || t('powerlistDetail.defaults.general')}
                     </div>
-                    <div className="text-sm" style={{ color: theme.textSecondary }}>Industry</div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>{t('powerlistDetail.stats.industry')}</div>
                   </div>
                   <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold" style={{ color: theme.secondary }}>
                       {powerlistNomination.company_or_individual}
                     </div>
-                    <div className="text-sm" style={{ color: theme.textSecondary }}>Type</div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>{t('powerlistDetail.stats.type')}</div>
                   </div>
                   <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold" style={{ color: theme.info }}>
-                      {powerlistNomination.location_region || 'Global'}
+                      {powerlistNomination.location_region || t('powerlistDetail.defaults.global')}
                     </div>
-                    <div className="text-sm" style={{ color: theme.textSecondary }}>Region</div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>{t('powerlistDetail.stats.region')}</div>
                   </div>
                   <div className="text-center p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
                     <div className="text-2xl font-bold" style={{ color: theme.success }}>
                       {powerlistNomination.tentative_month || 'TBD'}
                     </div>
-                    <div className="text-sm" style={{ color: theme.textSecondary }}>Timeline</div>
+                    <div className="text-sm" style={{ color: theme.textSecondary }}>{t('powerlistDetail.stats.timeline')}</div>
                   </div>
                 </div>
 
@@ -352,7 +354,7 @@ const PowerlistDetailPage = () => {
                 {(powerlistNomination.website_url || powerlistNomination.last_power_list_url) && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                      External Links
+                      {t('powerlistDetail.sections.externalLinks')}
                     </h3>
                     <div className="flex flex-wrap gap-3">
                       {powerlistNomination.website_url && (
@@ -364,7 +366,7 @@ const PowerlistDetailPage = () => {
                           style={{ backgroundColor: theme.primary, color: 'white' }}
                         >
                           <Globe size={16} />
-                          Visit Website
+                          {t('powerlistDetail.buttons.visitWebsite')}
                           <ExternalLinkIcon size={14} />
                         </a>
                       )}
@@ -377,7 +379,7 @@ const PowerlistDetailPage = () => {
                           style={{ backgroundColor: theme.secondary, color: 'white' }}
                         >
                           <BookOpen size={16} />
-                          Last Power List
+                          {t('powerlistDetail.buttons.lastPowerList')}
                           <ExternalLinkIcon size={14} />
                         </a>
                       )}
@@ -389,7 +391,7 @@ const PowerlistDetailPage = () => {
                 {powerlistNomination.message && (
                   <div className="mb-8">
                     <h3 className="text-lg font-semibold mb-3" style={{ color: theme.textPrimary }}>
-                      Additional Information
+                      {t('powerlistDetail.sections.additionalInfo')}
                     </h3>
                     <div className="p-4 rounded-lg border" style={{ backgroundColor: theme.backgroundSoft }}>
                       <p style={{ color: theme.textSecondary }}>{powerlistNomination.message}</p>
@@ -405,23 +407,23 @@ const PowerlistDetailPage = () => {
               {/* Nomination Summary Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Nomination Summary
+                  {t('powerlistDetail.sections.summary')}
                 </h3>
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center justify-between">
-                    <span style={{ color: theme.textSecondary }}>Industry</span>
-                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.industry || 'General'}</span>
+                    <span style={{ color: theme.textSecondary }}>{t('powerlistDetail.summary.industry')}</span>
+                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.industry || t('powerlistDetail.defaults.general')}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span style={{ color: theme.textSecondary }}>Type</span>
+                    <span style={{ color: theme.textSecondary }}>{t('powerlistDetail.summary.type')}</span>
                     <span style={{ color: theme.textPrimary }}>{powerlistNomination.company_or_individual}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span style={{ color: theme.textSecondary }}>Location</span>
-                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.location_region || 'Global'}</span>
+                    <span style={{ color: theme.textSecondary }}>{t('powerlistDetail.summary.location')}</span>
+                    <span style={{ color: theme.textPrimary }}>{powerlistNomination.location_region || t('powerlistDetail.defaults.global')}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span style={{ color: theme.textSecondary }}>Expected Month</span>
+                    <span style={{ color: theme.textSecondary }}>{t('powerlistDetail.summary.expectedMonth')}</span>
                     <span style={{ color: theme.textPrimary }}>{powerlistNomination.tentative_month || 'TBD'}</span>
                   </div>
                 </div>
@@ -430,7 +432,7 @@ const PowerlistDetailPage = () => {
               {/* Action Card */}
               <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Quick Actions
+                  {t('powerlistDetail.sections.quickActions')}
                 </h3>
                 <div className="space-y-3">
                   {powerlistNomination.website_url && (
@@ -444,7 +446,7 @@ const PowerlistDetailPage = () => {
                       onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                     >
                       <Globe size={16} />
-                      Visit Website
+                      {t('powerlistDetail.buttons.visitWebsite')}
                       <ExternalLinkIcon size={14} />
                     </a>
                   )}
@@ -460,7 +462,7 @@ const PowerlistDetailPage = () => {
                       onMouseLeave={(e) => e.target.style.backgroundColor = theme.secondary}
                     >
                       <BookOpen size={16} />
-                      View Last List
+                      {t('powerlistDetail.buttons.viewLastList')}
                       <ExternalLinkIcon size={14} />
                     </a>
                   )}
@@ -473,7 +475,7 @@ const PowerlistDetailPage = () => {
                     onMouseLeave={(e) => e.target.style.backgroundColor = theme.info}
                   >
                     <ArrowLeft size={16} />
-                    Back to Nominations
+                    {t('powerlistDetail.buttons.backToNominations')}
                   </button>
                 </div>
               </div>
@@ -481,18 +483,17 @@ const PowerlistDetailPage = () => {
               {/* Nomination Form */}
               <div className="bg-white rounded-lg shadow-sm border p-6">
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
-                  Submit Nomination
+                  {t('powerlistDetail.sections.submitNomination')}
                 </h3>
                 <div className="mb-4 p-3 rounded-lg" style={{ backgroundColor: '#FFEBEE', border: `1px solid ${theme.danger}` }}>
                   <p className="text-sm font-medium" style={{ color: theme.danger }}>
-                    <strong>Disclaimer:</strong> We do not guarantee or authorize inclusion in the publication. 
-                    All nominations are subject to review and editorial discretion.
+                    <strong>{t('powerlistDetail.form.disclaimer')}</strong>
                   </p>
                 </div>
                 <form onSubmit={handleNominationSubmit} className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
-                      Full Name *
+                      {t('powerlistDetail.form.fullName')}
                     </label>
                     <input
                       type="text"
@@ -506,7 +507,7 @@ const PowerlistDetailPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
-                      Email *
+                      {t('powerlistDetail.form.email')}
                     </label>
                     <input
                       type="email"
@@ -520,7 +521,7 @@ const PowerlistDetailPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
-                      Phone
+                      {t('powerlistDetail.form.phone')}
                     </label>
                     <input
                       type="tel"
@@ -533,7 +534,7 @@ const PowerlistDetailPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1" style={{ color: theme.textPrimary }}>
-                      Additional Message
+                      {t('powerlistDetail.form.message')}
                     </label>
                     <textarea
                       name="additional_message"
@@ -553,10 +554,10 @@ const PowerlistDetailPage = () => {
                     {submittingNomination ? (
                       <div className="flex items-center justify-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                        Submitting & Sending Emails...
+                        {t('powerlistDetail.form.submitting')}
                       </div>
                     ) : (
-                      'Submit Nomination'
+                      t('powerlistDetail.form.submit')
                     )}
                   </button>
                 </form>
@@ -581,7 +582,7 @@ const PowerlistDetailPage = () => {
             >
               <Heart size={16} style={{ color: isSaved ? theme.danger : theme.danger, fill: isSaved ? theme.danger : 'none' }} />
               <span style={{ color: isSaved ? theme.danger : theme.textSecondary }}>
-                {isSaved ? 'Saved' : 'Save'}
+                {isSaved ? t('powerlistDetail.buttons.saved') : t('powerlistDetail.buttons.save')}
               </span>
             </button>
             <button
@@ -593,7 +594,7 @@ const PowerlistDetailPage = () => {
               }}
             >
               <Share size={16} style={{ color: theme.primary }} />
-              <span style={{ color: theme.textSecondary }}>Share</span>
+              <span style={{ color: theme.textSecondary }}>{t('powerlistDetail.buttons.share')}</span>
             </button>
           </div>
         </div>

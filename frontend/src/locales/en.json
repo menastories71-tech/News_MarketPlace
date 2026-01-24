@@ -2126,5 +2126,128 @@
         "share": {
             "copied": "Link copied to clipboard!"
         }
+    },
+    "powerlist": {
+        "hero": {
+            "title": "Powerlist Nominations",
+            "desc": "Explore our comprehensive Power List featuring the most influential organizations and leaders shaping the media and publishing landscape worldwide. Connect with industry visionaries and top performers who drive innovation in digital publishing. Discover opportunities to network with leaders from diverse backgrounds and expertise areas.",
+            "disclaimer": "The current page is for representation purpose only, the comprehensive list will be live soon",
+            "searchPlaceholder": "Search publications, powerlist names, or industries...",
+            "submitProfile": "Submit Your Profile"
+        },
+        "filters": {
+            "title": "Filters & Sort",
+            "basic": "Basic Filters",
+            "industry": "Industry",
+            "allIndustries": "All Industries",
+            "type": "Type",
+            "allTypes": "All Types",
+            "location": "Location",
+            "allLocations": "All Locations",
+            "month": "Month",
+            "allMonths": "All Months",
+            "publication": "Publication",
+            "allPublications": "All Publications",
+            "other": "Other",
+            "clear": "Clear All Filters"
+        },
+        "controls": {
+            "filters": "Filters",
+            "found": "{{count}} nominations found",
+            "for": "for",
+            "sortBy": "Sort by:",
+            "sortOptions": {
+                "publicationAsc": "Publication (A-Z)",
+                "publicationDesc": "Publication (Z-A)",
+                "powerListAsc": "Power List (A-Z)",
+                "powerListDesc": "Power List (Z-A)",
+                "industryAsc": "Industry (A-Z)",
+                "industryDesc": "Industry (Z-A)",
+                "typeAsc": "Type (A-Z)",
+                "typeDesc": "Type (Z-A)",
+                "locationAsc": "Location (A-Z)",
+                "locationDesc": "Location (Z-A)",
+                "statusAsc": "Status (A-Z)",
+                "statusDesc": "Status (Z-A)"
+            }
+        },
+        "table": {
+            "publication": "Publication",
+            "powerList": "Power List",
+            "industry": "Industry",
+            "type": "Type",
+            "location": "Location",
+            "status": "Status",
+            "action": "Action",
+            "view": "View"
+        },
+        "status": {
+            "approved": "Approved",
+            "pending": "Pending",
+            "rejected": "Rejected"
+        },
+        "loading": "Loading powerlist nominations...",
+        "empty": {
+            "title": "No nominations found",
+            "desc": "We couldn't find any nominations matching your search criteria. Try adjusting your filters.",
+            "clear": "Clear all filters"
+        },
+        "defaults": {
+            "global": "Global"
+        }
+    },
+    "powerlistDetail": {
+        "loading": "Loading nomination details...",
+        "notFound": {
+            "title": "Nomination Not Found",
+            "desc": "The powerlist nomination you're looking for doesn't exist or has been removed.",
+            "back": "Back to Nominations"
+        },
+        "breadcrumb": {
+            "back": "Back to Nominations",
+            "current": "Nomination Details"
+        },
+        "meta": {
+            "created": "Created {{date}}"
+        },
+        "stats": {
+            "industry": "Industry",
+            "type": "Type",
+            "region": "Region",
+            "timeline": "Timeline"
+        },
+        "sections": {
+            "externalLinks": "External Links",
+            "additionalInfo": "Additional Information",
+            "summary": "Nomination Summary",
+            "quickActions": "Quick Actions",
+            "submitNomination": "Submit Nomination"
+        },
+        "buttons": {
+            "visitWebsite": "Visit Website",
+            "lastPowerList": "Last Power List",
+            "viewLastList": "View Last List",
+            "backToNominations": "Back to Nominations",
+            "save": "Save",
+            "saved": "Saved",
+            "share": "Share"
+        },
+        "summary": {
+            "industry": "Industry",
+            "type": "Type",
+            "location": "Location",
+            "expectedMonth": "Expected Month"
+        },
+        "form": {
+            "disclaimer": "Disclaimer: We do not guarantee or authorize inclusion in the publication. All nominations are subject to review and editorial discretion.",
+            "fullName": "Full Name *",
+            "email": "Email *",
+            "phone": "Phone",
+            "message": "Additional Message",
+            "submit": "Submit Nomination",
+            "submitting": "Submitting & Sending Emails...",
+            "success": "Nomination successfully submitted! You will receive a confirmation email.",
+            "error": "Failed to submit nomination. Please try again."
+        }
     }
 }

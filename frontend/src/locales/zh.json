@@ -2120,5 +2120,128 @@
         "share": {
             "copied": "链接已复制到剪贴板！"
         }
+    },
+    "powerlist": {
+        "hero": {
+            "title": "Powerlist 提名",
+            "desc": "探索我们全面的 Power List，其中包括塑造全球媒体和出版格局的各种最具影响力的组织和领导者。与推动数字出版创新的行业远见者和表现优异者联系。发现与来自不同背景和专业领域的领导者建立网络的机会。",
+            "disclaimer": "当前页面仅供演示用途，完整列表将很快上线",
+            "searchPlaceholder": "搜索出版物、Powerlist 名称或行业...",
+            "submitProfile": "提交您的个人资料"
+        },
+        "filters": {
+            "title": "筛选与排序",
+            "basic": "基本筛选",
+            "industry": "行业",
+            "allIndustries": "所有行业",
+            "type": "类型",
+            "allTypes": "所有类型",
+            "location": "位置",
+            "allLocations": "所有位置",
+            "month": "月份",
+            "allMonths": "所有月份",
+            "publication": "出版物",
+            "allPublications": "所有出版物",
+            "other": "其他",
+            "clear": "清除所有筛选"
+        },
+        "controls": {
+            "filters": "筛选",
+            "found": "找到 {{count}} 个提名",
+            "for": "为",
+            "sortBy": "排序方式：",
+            "sortOptions": {
+                "publicationAsc": "出版物 (A-Z)",
+                "publicationDesc": "出版物 (Z-A)",
+                "powerListAsc": "Power List (A-Z)",
+                "powerListDesc": "Power List (Z-A)",
+                "industryAsc": "行业 (A-Z)",
+                "industryDesc": "行业 (Z-A)",
+                "typeAsc": "类型 (A-Z)",
+                "typeDesc": "类型 (Z-A)",
+                "locationAsc": "位置 (A-Z)",
+                "locationDesc": "位置 (Z-A)",
+                "statusAsc": "状态 (A-Z)",
+                "statusDesc": "状态 (Z-A)"
+            }
+        },
+        "table": {
+            "publication": "出版物",
+            "powerList": "Power List",
+            "industry": "行业",
+            "type": "类型",
+            "location": "位置",
+            "status": "状态",
+            "action": "操作",
+            "view": "查看"
+        },
+        "status": {
+            "approved": "已批准",
+            "pending": "待定",
+            "rejected": "已拒绝"
+        },
+        "loading": "正在加载 Powerlist 提名...",
+        "empty": {
+            "title": "未找到提名",
+            "desc": "我们找不到符合您搜索条件的任何提名。请尝试调整您的筛选。",
+            "clear": "清除所有筛选"
+        },
+        "defaults": {
+            "global": "全球"
+        }
+    },
+    "powerlistDetail": {
+        "loading": "正在加载提名详情...",
+        "notFound": {
+            "title": "未找到提名",
+            "desc": "您查找的 Powerlist 提名不存在或已被移除。",
+            "back": "返回提名列表"
+        },
+        "breadcrumb": {
+            "back": "返回提名列表",
+            "current": "提名详情"
+        },
+        "meta": {
+            "created": "创建于 {{date}}"
+        },
+        "stats": {
+            "industry": "行业",
+            "type": "类型",
+            "region": "区域",
+            "timeline": "时间表"
+        },
+        "sections": {
+            "externalLinks": "外部链接",
+            "additionalInfo": "附加信息",
+            "summary": "提名摘要",
+            "quickActions": "快速操作",
+            "submitNomination": "提交提名"
+        },
+        "buttons": {
+            "visitWebsite": "访问网站",
+            "lastPowerList": "上期 Power List",
+            "viewLastList": "查看上期列表",
+            "backToNominations": "返回提名列表",
+            "save": "保存",
+            "saved": "已保存",
+            "share": "分享"
+        },
+        "summary": {
+            "industry": "行业",
+            "type": "类型",
+            "location": "位置",
+            "expectedMonth": "预期月份"
+        },
+        "form": {
+            "disclaimer": "免责声明：我们不保证或授权列入出版物。所有提名均需经过审查和编辑决定。",
+            "fullName": "全名 *",
+            "email": "电子邮件 *",
+            "phone": "电话",
+            "message": "附加信息",
+            "submit": "提交提名",
+            "submitting": "正在提交并发送邮件...",
+            "success": "提名提交成功！您将收到一封确认邮件。",
+            "error": "提交提名失败。请重试。"
+        }
     }
 }

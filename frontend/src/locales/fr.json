@@ -2082,5 +2082,128 @@
         "share": {
             "copied": "Lien copié dans le presse-papiers !"
         }
+    },
+    "powerlist": {
+        "hero": {
+            "title": "Nominations Powerlist",
+            "desc": "Découvrez notre Power List complète regroupant les organisations et les dirigeants les plus influents qui façonnent le paysage des médias et de l'édition dans le monde entier. Connectez-vous avec les visionnaires de l'industrie et les meilleurs performeurs qui stimulent l'innovation dans l'édition numérique. Découvrez des opportunités de réseautage avec des leaders aux parcours et aux expertises variés.",
+            "disclaimer": "La page actuelle est à des fins de représentation uniquement, la liste complète sera bientôt en ligne",
+            "searchPlaceholder": "Rechercher des publications, des noms de powerlist ou des secteurs...",
+            "submitProfile": "Soumettre votre profil"
+        },
+        "filters": {
+            "title": "Filtres et tri",
+            "basic": "Filtres de base",
+            "industry": "Secteur",
+            "allIndustries": "Tous les secteurs",
+            "type": "Type",
+            "allTypes": "Tous les types",
+            "location": "Emplacement",
+            "allLocations": "Tous les emplacements",
+            "month": "Mois",
+            "allMonths": "Tous les mois",
+            "publication": "Publication",
+            "allPublications": "Toutes les publications",
+            "other": "Autre",
+            "clear": "Effacer tous les filtres"
+        },
+        "controls": {
+            "filters": "Filtres",
+            "found": "{{count}} nominations trouvées",
+            "for": "pour",
+            "sortBy": "Trier par :",
+            "sortOptions": {
+                "publicationAsc": "Publication (A-Z)",
+                "publicationDesc": "Publication (Z-A)",
+                "powerListAsc": "Power List (A-Z)",
+                "powerListDesc": "Power List (Z-A)",
+                "industryAsc": "Secteur (A-Z)",
+                "industryDesc": "Secteur (Z-A)",
+                "typeAsc": "Type (A-Z)",
+                "typeDesc": "Type (Z-A)",
+                "locationAsc": "Emplacement (A-Z)",
+                "locationDesc": "Emplacement (Z-A)",
+                "statusAsc": "Statut (A-Z)",
+                "statusDesc": "Statut (Z-A)"
+            }
+        },
+        "table": {
+            "publication": "Publication",
+            "powerList": "Power List",
+            "industry": "Secteur",
+            "type": "Type",
+            "location": "Emplacement",
+            "status": "Statut",
+            "action": "Action",
+            "view": "Voir"
+        },
+        "status": {
+            "approved": "Approuvé",
+            "pending": "En attente",
+            "rejected": "Rejeté"
+        },
+        "loading": "Chargement des nominations powerlist...",
+        "empty": {
+            "title": "Aucune nomination trouvée",
+            "desc": "Nous n'avons trouvé aucune nomination correspondant à vos critères de recherche. Essayez d'ajuster vos filtres.",
+            "clear": "Effacer tous les filtres"
+        },
+        "defaults": {
+            "global": "Mondial"
+        }
+    },
+    "powerlistDetail": {
+        "loading": "Chargement des détails de la nomination...",
+        "notFound": {
+            "title": "Nomination non trouvée",
+            "desc": "La nomination powerlist que vous recherchez n'existe pas ou a été supprimée.",
+            "back": "Retour aux nominations"
+        },
+        "breadcrumb": {
+            "back": "Retour aux nominations",
+            "current": "Détails de la nomination"
+        },
+        "meta": {
+            "created": "Créé le {{date}}"
+        },
+        "stats": {
+            "industry": "Secteur",
+            "type": "Type",
+            "region": "Région",
+            "timeline": "Calendrier"
+        },
+        "sections": {
+            "externalLinks": "Liens externes",
+            "additionalInfo": "Informations supplémentaires",
+            "summary": "Résumé de la nomination",
+            "quickActions": "Actions rapides",
+            "submitNomination": "Soumettre une nomination"
+        },
+        "buttons": {
+            "visitWebsite": "Visiter le site web",
+            "lastPowerList": "Dernière Power List",
+            "viewLastList": "Voir la dernière liste",
+            "backToNominations": "Retour aux nominations",
+            "save": "Enregistrer",
+            "saved": "Enregistré",
+            "share": "Partager"
+        },
+        "summary": {
+            "industry": "Secteur",
+            "type": "Type",
+            "location": "Emplacement",
+            "expectedMonth": "Mois prévu"
+        },
+        "form": {
+            "disclaimer": "Avis de non-responsabilité : Nous ne garantissons ni n'autorisons l'inclusion dans la publication. Toutes les nominations sont soumises à examen et à la discrétion éditoriale.",
+            "fullName": "Nom complet *",
+            "email": "Email *",
+            "phone": "Téléphone",
+            "message": "Message supplémentaire",
+            "submit": "Soumettre la nomination",
+            "submitting": "Soumission et envoi d'emails...",
+            "success": "Nomination soumise avec succès ! Vous recevrez un email de confirmation.",
+            "error": "Échec de la soumission de la nomination. Veuillez réessayer."
+        }
     }
 }
