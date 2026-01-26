@@ -171,10 +171,13 @@ const UserHeader = () => {
           </div>
 
           {/* Center: Logo */}
-          <Link to="/" className="flex items-center group cursor-pointer">
-            <h1 className="text-xl md:text-2xl font-bold transition-all duration-300 text-center" style={{ color: colors[colorIndex] }}>
-              VaaS Solutions: Vision to Visibility, Instantly.
+          <Link to="/" className="flex flex-col items-center group cursor-pointer">
+            <h1 className="text-xl md:text-2xl font-extrabold tracking-tight transition-all duration-300 bg-gradient-to-r from-[#1976D2] via-[#42A5F5] to-[#1976D2] bg-[length:200%_auto] bg-clip-text text-transparent animate-gradient-x group-hover:scale-105">
+              VaaS Solutions
             </h1>
+            <span className="text-[10px] md:text-xs font-medium text-gray-500 tracking-[0.2em] uppercase mt-0.5 opacity-80 group-hover:opacity-100 transition-opacity">
+              Vision to Visibility, Instantly
+            </span>
           </Link>
 
           {/* Right: Language & Contact Icons */}

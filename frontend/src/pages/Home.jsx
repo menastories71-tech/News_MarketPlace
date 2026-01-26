@@ -61,8 +61,10 @@ const Home = () => {
       />
       <Schema type="organization" />
 
-      <div className="w-full h-full relative">
-        <FloatingLines />
+      <div className="w-full relative">
+        <div className="absolute inset-0 h-[100vh] -z-10 pointer-events-none">
+          <FloatingLines />
+        </div>
 
         {/* Header and Ticker */}
         <UserHeader onShowAuth={handleShowAuth} />

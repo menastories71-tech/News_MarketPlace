@@ -666,3 +666,20 @@ html, body {
 .animation-delay-4000 {
   animation-delay: 4s;
 }
+
+/* Gradient Animation */
+@keyframes animate-gradient-x {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient-x {
+  animation: animate-gradient-x 3s ease infinite;
+}
