@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import axios from 'axios';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,14 +12,20 @@ async function generateFiles() {
         console.log('🚀 Starting SEO file regeneration...');
 
         // 1. Fetch Dynamic Data
-        // 1. Fetch Dynamic Data
-        // Helper to fetch safe
-        const fetchSafe = (url, label) => axios.get(url)
-            .then(res => res.data[label] || res.data.nominations || res.data.eventCreations || [])
-            .catch(err => {
+        // Helper to fetch safe using native fetch (Node 18+)
+        const fetchSafe = async (url, label) => {
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP status ${response.status}`);
+                }
+                const data = await response.json();
+                return data[label] || data.nominations || data.eventCreations || [];
+            } catch (err) {
                 console.error(`⚠️ Failed to fetch ${label}: ${err.message}`);
                 return [];
-            });
+            }
+        };
 
         const [publications, blogs, events, powerlists, eventCreations] = await Promise.all([
             fetchSafe(`${API_URL}/publications/public`, 'publications'),
@@ -81,7 +86,8 @@ async function generateFiles() {
         rss += `  <description>Latest premium publications and media news.</description>\n`;
 
         blogs.slice(0, 10).forEach(blog => {
-            rss += `  <item>\n    <title>${blog.title}</title>\n    <link>${SITE_URL}/blogs/${blog.id}</link>\n    <description>${blog.excerpt || ''}</description>\n    <pubDate>${new Date(blog.createdAt).toUTCString()}</pubDate>\n  </item>\n`;
+            const slug = (blog.title || '').toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+            rss += `  <item>\n    <title>${blog.title}</title>\n    <link>${SITE_URL}/blog/${slug}-${blog.id}</link>\n    <description>${blog.excerpt || ''}</description>\n    <pubDate>${new Date(blog.createdAt).toUTCString()}</pubDate>\n  </item>\n`;
         });
 
         rss += `</channel>\n</rss>`;
