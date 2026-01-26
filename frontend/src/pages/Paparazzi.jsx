@@ -6,6 +6,7 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { createSlugPath } from '../utils/slugify';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationArray } from '../hooks/useTranslation';
 
@@ -106,8 +107,8 @@ const PaparazziPage = () => {
   const categories = ['all', ...new Set(translatedPaparazzi.map(p => p.category).filter(Boolean))];
   const locations = ['all', ...new Set(translatedPaparazzi.map(p => p.region_focused).filter(Boolean))];
 
-  const handleCardClick = (paparazziId) => {
-    navigate(`/paparazzi/${paparazziId}`);
+  const handleCardClick = (paparazzi) => {
+    navigate(`/paparazzi/${createSlugPath(paparazzi.instagram_page_name, paparazzi.id)}`);
   };
 
   const handleSubmitNew = () => {
@@ -386,7 +387,7 @@ const PaparazziPage = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4 }}
                       className="bg-white rounded-lg shadow-sm border border-[#E0E0E0] overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => handleCardClick(p.id)}
+                      onClick={() => handleCardClick(p)}
                     >
                       <div className="p-6">
                         <div className="flex items-center justify-between mb-4">
@@ -479,7 +480,7 @@ const PaparazziPage = () => {
                             key={p.id}
                             className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
                             style={{ borderColor: theme.borderLight }}
-                            onClick={() => handleCardClick(p.id)}
+                            onClick={() => handleCardClick(p)}
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">

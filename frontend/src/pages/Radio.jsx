@@ -6,6 +6,7 @@ import UserHeader from '../components/common/UserHeader';
 import UserFooter from '../components/common/UserFooter';
 import Skeleton from '../components/common/Skeleton';
 import api from '../services/api';
+import { createSlugPath } from '../utils/slugify';
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -183,7 +184,7 @@ const RadioPage = () => {
   }, [translatedRadios]);
 
   const handleRadioClick = (radio) => {
-    navigate(`/radio/${radio.id}`);
+    navigate(`/radio/${createSlugPath(radio.radio_name, radio.id)}`);
   };
 
   if (loading && radios.length === 0) {

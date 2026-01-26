@@ -7,6 +7,7 @@ import UserFooter from '../components/common/UserFooter';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/auth/AuthModal';
+import { getIdFromSlug } from '../utils/slugify';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -60,7 +61,8 @@ const RadioDetails = () => {
   const fetchRadioDetails = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/radios/${id}`);
+      const realId = getIdFromSlug(id);
+      const response = await api.get(`/radios/${realId}`);
       setRadio(response.data.radio);
     } catch (err) {
       console.error('Error fetching radio details:', err);

@@ -8,6 +8,7 @@ import UserFooter from '../components/common/UserFooter';
 import Icon from '../components/common/Icon';
 import api from '../services/api';
 import AuthModal from '../components/auth/AuthModal';
+import { createSlugPath } from '../utils/slugify';
 import PublicationSubmissionForm from '../components/user/PublicationSubmissionForm';
 import {
   Search, Filter, Eye, Heart, Share, Grid, List, Star, Clock,
@@ -258,7 +259,7 @@ const PublicationsPage = () => {
   };
 
   const handlePublicationClick = (publication) => {
-    navigate(`/publications/${publication.id}`);
+    navigate(`/publications/${createSlugPath(publication.publication_name, publication.id)}`);
   };
 
   // Get unique values for filter options

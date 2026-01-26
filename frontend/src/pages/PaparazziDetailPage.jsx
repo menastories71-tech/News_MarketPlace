@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationObject } from '../hooks/useTranslation';
+import { getIdFromSlug } from '../utils/slugify';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -74,9 +75,10 @@ const PaparazziDetailPage = () => {
   const fetchPaparazziDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching paparazzi details for ID:', id);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching paparazzi details for ID:', realId);
 
-      const response = await api.get(`/admin/paparazzi-creations/public/${id}`);
+      const response = await api.get(`/admin/paparazzi-creations/public/${realId}`);
       console.log('Paparazzi details response:', response.data);
 
       setPaparazzi(response.data.paparazziCreation || response.data);

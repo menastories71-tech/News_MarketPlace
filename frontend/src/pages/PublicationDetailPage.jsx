@@ -14,6 +14,7 @@ import {
   MapPin, Calendar, Users, Zap, Eye, Heart, Share,
   Instagram, Facebook, Twitter, Linkedin
 } from 'lucide-react';
+import { getIdFromSlug } from '../utils/slugify';
 
 // Updated theme colors matching the color pal
 const theme = {
@@ -65,9 +66,10 @@ const PublicationDetailPage = () => {
   const fetchPublicationDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching publication details for ID:', id);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching publication details for ID:', realId);
 
-      const response = await api.get(`/admin/publication-management/${id}`);
+      const response = await api.get(`/admin/publication-management/${realId}`);
       console.log('Publication details response:', response.data);
 
       setPublication(response.data.publication || response.data);
