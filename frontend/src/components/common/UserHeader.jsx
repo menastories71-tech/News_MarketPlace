@@ -157,7 +157,7 @@ const UserHeader = () => {
         {/* Top Row - Reduced Height */}
         <div className="flex justify-between items-center py-2">
           {/* Left: Social Media Icons */}
-          <div className="hidden md:flex items-center space-x-2">
+          <div className="hidden xl:flex items-center space-x-2">
             {socialMediaIcons.map((icon) => (
               <a
                 key={icon.name}
@@ -184,7 +184,7 @@ const UserHeader = () => {
           {/* Right: Language & Contact Icons */}
           <div className="flex items-center space-x-3">
             {/* Custom Language Selector */}
-            <div className="relative hidden md:block" onClick={(e) => e.stopPropagation()}>
+            <div className="relative hidden xl:block" onClick={(e) => e.stopPropagation()}>
               <button
                 onClick={() => setIsLangOpen(!isLangOpen)}
                 className="flex items-center space-x-2 bg-white/60 hover:bg-white/80 backdrop-blur-sm text-[#212121] text-xs py-1.5 px-3 border border-white/30 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md"
@@ -229,7 +229,7 @@ const UserHeader = () => {
             </div>
 
             {/* Contact Icons */}
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden xl:flex items-center space-x-1">
               {contactIcons.map((icon) => (
                 <a
                   key={icon.name}
@@ -475,7 +475,7 @@ const UserHeader = () => {
             </div>
 
             {/* Language and Contact Icons */}
-            <div className="bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/20 md:hidden">
+            <div className="bg-white/40 backdrop-blur-md rounded-xl p-3 border border-white/20">
               <div className="mb-4">
                 <div className="flex flex-wrap justify-center gap-2">
                   {languages.map((lang) => (
