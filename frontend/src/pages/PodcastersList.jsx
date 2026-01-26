@@ -9,6 +9,7 @@ import PodcasterSubmissionForm from '../components/user/PodcasterSubmissionForm'
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import api from '../services/api';
+import { createSlugPath } from '../utils/slugify';
 
 // Global error handler for ResizeObserver
 const resizeObserverErrHandler = (error) => {
@@ -542,7 +543,7 @@ const PodcastersList = () => {
               {/* Enhanced Grid View */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredPodcasters.map((podcaster, index) => (
-                  <Link key={podcaster.id} to={`/podcasters/${podcaster.id}`}>
+                  <Link key={podcaster.id} to={`/podcasters/${createSlugPath(podcaster.podcast_name, podcaster.id)}`}>
                     <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}

@@ -14,10 +14,10 @@ import {
   Link as LinkIcon, Image as ImageIcon, FileText, CheckCircle,
   DollarSign, Clock, BarChart3, Target, Award, TrendingUp,
   MapPin, Calendar, Users, Zap, Eye, Heart, Share,
-  Instagram, Facebook, Twitter, Linkedin, Youtube, MessageCircle,
   Languages, Building, UserCheck, Crown
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getIdFromSlug } from '../utils/slugify';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -93,9 +93,10 @@ const RealEstateProfessionalDetail = () => {
   const fetchProfessionalDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching professional details for ID:', id);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching professional details for ID:', realId);
 
-      const response = await api.get(`/real-estate-professionals/${id}`);
+      const response = await api.get(`/real-estate-professionals/${realId}`);
       console.log('Professional details response:', response.data);
 
       setProfessional(response.data.professional || response.data);

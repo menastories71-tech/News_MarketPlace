@@ -177,7 +177,7 @@ const ThemesPage = () => {
   };
 
   const handleThemeClick = (theme) => {
-    navigate(`/themes/${createSlugPath(theme.theme_name, theme.id)}`);
+    navigate(`/themes/${createSlugPath(theme.page_name, theme.id)}`);
   };
 
   const handlePageChange = (page) => {

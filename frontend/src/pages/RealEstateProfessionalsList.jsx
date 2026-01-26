@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import Skeleton from '../components/common/Skeleton';
 import { useLanguage } from '../context/LanguageContext';
+import { createSlugPath } from '../utils/slugify';
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -226,7 +227,7 @@ const RealEstateProfessionalsList = () => {
   };
 
   const handleProfessionalClick = (professional) => {
-    navigate(`/real-estate-professionals/${professional.id}`);
+    navigate(`/real-estate-professionals/${createSlugPath(`${professional.first_name} ${professional.last_name}`, professional.id)}`);
   };
 
 

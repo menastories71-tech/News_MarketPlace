@@ -14,6 +14,7 @@ import {
   Eye, Heart, Share, Instagram, Youtube, Twitter, Facebook,
   MessageCircle, Mail
 } from 'lucide-react';
+import { getIdFromSlug } from '../utils/slugify';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -64,7 +65,10 @@ const PodcasterDetail = () => {
   const fetchPodcasterDetails = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/podcasters/approved/${id}`);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching podcaster details for ID:', realId);
+
+      const response = await api.get(`/podcasters/approved/${realId}`);
       setPodcaster(response.data.podcaster || response.data);
     } catch (error) {
       console.error('Error fetching podcaster details:', error);

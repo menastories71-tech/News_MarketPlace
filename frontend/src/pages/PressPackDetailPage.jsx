@@ -14,6 +14,7 @@ import {
   FileText, ExternalLink, CheckCircle, ShoppingCart,
   Eye, Star, Calendar, Users, Heart, Share
 } from 'lucide-react';
+import { getIdFromSlug } from '../utils/slugify';
 
 const PressPackDetailPage = () => {
   const { id } = useParams();
@@ -62,9 +63,10 @@ const PressPackDetailPage = () => {
   const fetchPressPackDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching press pack details for ID:', id);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching press pack details for ID:', realId);
 
-      const response = await api.get(`/admin/press-releases/${id}`);
+      const response = await api.get(`/admin/press-releases/${realId}`);
       console.log('Press release details response:', response.data);
 
       setPressPack(response.data.pressRelease || response.data);

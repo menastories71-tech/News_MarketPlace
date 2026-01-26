@@ -14,6 +14,7 @@ import {
   Newspaper
 } from 'lucide-react';
 import Skeleton from '../components/common/Skeleton';
+import { createSlugPath } from '../utils/slugify';
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -266,8 +267,8 @@ const PressPacksPage = () => {
     return `$${parseFloat(price).toFixed(2)}`;
   };
 
-  const handlePackClick = (packId) => {
-    navigate(`/press-packs/${packId}`);
+  const handlePackClick = (pack) => {
+    navigate(`/press-packs/${createSlugPath(pack.name, pack.id)}`);
   };
 
   const handlePageChange = (page) => {
@@ -672,7 +673,7 @@ const PressPacksPage = () => {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.4, delay: index * 0.1 }}
-                      onClick={() => handlePackClick(pack.id)}
+                      onClick={() => handlePackClick(pack)}
                       className="bg-white rounded-lg shadow-lg border hover:shadow-xl transition-all duration-300 cursor-pointer group overflow-hidden"
                       style={{
                         borderColor: theme.borderLight,
@@ -829,7 +830,7 @@ const PressPacksPage = () => {
                             key={pack.id}
                             className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
                             style={{ borderColor: theme.borderLight }}
-                            onClick={() => handlePackClick(pack.id)}
+                            onClick={() => handlePackClick(pack)}
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
