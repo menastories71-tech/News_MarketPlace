@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import Skeleton from '../components/common/Skeleton';
+import { createSlugPath } from '../utils/slugify';
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -246,7 +247,7 @@ const PowerlistPage = () => {
   };
 
   const handlePowerlistClick = (powerlist) => {
-    navigate(`/power-lists/${powerlist.id}`);
+    navigate(`/power-lists/${createSlugPath(powerlist.power_list_name, powerlist.id)}`);
   };
 
   // Image URL helper function

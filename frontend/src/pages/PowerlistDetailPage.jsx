@@ -14,6 +14,7 @@ import {
   Mail, Phone, MessageSquare, Bookmark, Award as AwardIcon, ExternalLink as ExternalLinkIcon
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getIdFromSlug } from '../utils/slugify';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -64,9 +65,10 @@ const PowerlistDetailPage = () => {
   const fetchPowerlistNominationDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching powerlist nomination details for ID:', id);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching powerlist nomination details for ID:', realId);
 
-      const response = await api.get(`/powerlist-nominations/public/${id}`);
+      const response = await api.get(`/powerlist-nominations/public/${realId}`);
       console.log('Powerlist nomination details response:', response.data);
 
       setPowerlistNomination(response.data.nomination || response.data);

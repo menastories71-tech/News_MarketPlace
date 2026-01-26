@@ -16,6 +16,7 @@ import {
   Mail, Phone, MessageSquare
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getIdFromSlug } from '../utils/slugify';
 
 const AwardDetailPage = () => {
   const { id } = useParams();
@@ -36,9 +37,10 @@ const AwardDetailPage = () => {
   const fetchAwardDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching award details for ID:', id);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching award details for ID:', realId);
 
-      const response = await api.get(`/awards/${id}`);
+      const response = await api.get(`/awards/${realId}`);
       console.log('Award details response:', response.data);
 
       setAward(response.data.award || response.data);

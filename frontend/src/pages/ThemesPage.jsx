@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { createSlugPath } from '../utils/slugify';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
@@ -175,8 +176,8 @@ const ThemesPage = () => {
     }
   };
 
-  const handleThemeClick = (themeId) => {
-    navigate(`/themes/${themeId}`);
+  const handleThemeClick = (theme) => {
+    navigate(`/themes/${createSlugPath(theme.theme_name, theme.id)}`);
   };
 
   const handlePageChange = (page) => {
@@ -566,10 +567,7 @@ const ThemesPage = () => {
                   {sortedThemes.map((theme, index) => (
                     <motion.div
                       key={theme.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      onClick={() => handleThemeClick(theme.id)}
+                      onClick={() => handleThemeClick(theme)}
                       className="bg-white rounded-2xl shadow-lg border hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden relative"
                       style={{
                         borderColor: theme.borderLight,
@@ -736,7 +734,7 @@ const ThemesPage = () => {
                             key={theme.id}
                             className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
                             style={{ borderColor: theme.borderLight }}
-                            onClick={() => handleThemeClick(theme.id)}
+                            onClick={() => handleThemeClick(theme)}
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
@@ -784,7 +782,7 @@ const ThemesPage = () => {
                                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleThemeClick(theme.id);
+                                  handleThemeClick(theme);
                                 }}
                               >
                                 <Eye size={14} className="inline mr-1" />

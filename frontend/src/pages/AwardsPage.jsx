@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import { createSlugPath } from '../utils/slugify';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import UserHeader from '../components/common/UserHeader';
@@ -186,7 +187,7 @@ const AwardsPage = () => {
   };
 
   const handleAwardClick = (award) => {
-    navigate(`/awards/${award.id}`);
+    navigate(`/awards/${createSlugPath(award.award_name, award.id)}`);
   };
 
   const handlePageChange = (page) => {

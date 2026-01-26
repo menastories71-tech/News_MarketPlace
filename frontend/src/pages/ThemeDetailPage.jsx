@@ -12,6 +12,7 @@ import {
   Calendar, Eye, Heart, Share
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { getIdFromSlug } from '../utils/slugify';
 
 const ThemeDetailPage = () => {
   const { id } = useParams();
@@ -48,9 +49,10 @@ const ThemeDetailPage = () => {
   const fetchThemeDetails = async () => {
     try {
       setLoading(true);
-      console.log('Fetching theme details for ID:', id);
+      const realId = getIdFromSlug(id);
+      console.log('Fetching theme details for ID:', realId);
 
-      const response = await api.get(`/themes/${id}`);
+      const response = await api.get(`/themes/${realId}`);
       console.log('Theme details response:', response.data);
 
       setTheme(response.data.theme || response.data);
