@@ -13,12 +13,21 @@ async function generateFiles() {
         console.log('🚀 Starting SEO file regeneration...');
 
         // 1. Fetch Dynamic Data
+        // 1. Fetch Dynamic Data
+        // Helper to fetch safe
+        const fetchSafe = (url, label) => axios.get(url)
+            .then(res => res.data[label] || res.data.nominations || res.data.eventCreations || [])
+            .catch(err => {
+                console.error(`⚠️ Failed to fetch ${label}: ${err.message}`);
+                return [];
+            });
+
         const [publications, blogs, events, powerlists, eventCreations] = await Promise.all([
-            axios.get(`${API_URL}/publications/public`).then(res => res.data.publications || []),
-            axios.get(`${API_URL}/blogs`).then(res => res.data.blogs || []),
-            axios.get(`${API_URL}/events`).then(res => res.data.events || []),
-            axios.get(`${API_URL}/powerlist-nominations/public`).then(res => res.data.nominations || []),
-            axios.get(`${API_URL}/admin/event-creations/public`).then(res => res.data.eventCreations || [])
+            fetchSafe(`${API_URL}/publications/public`, 'publications'),
+            fetchSafe(`${API_URL}/blogs`, 'blogs'),
+            fetchSafe(`${API_URL}/events`, 'events'),
+            fetchSafe(`${API_URL}/powerlist-nominations/public`, 'nominations'),
+            fetchSafe(`${API_URL}/admin/event-creations/public`, 'eventCreations')
         ]);
 
         const lastMod = new Date().toISOString().split('T')[0];
