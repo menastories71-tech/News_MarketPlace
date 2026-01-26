@@ -336,26 +336,33 @@ const OrdersDeliveredPage = () => {
 
         {/* Articles Display */}
         {isTranslating ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-pulse">
             {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden animate-pulse">
+              <div key={i} className="bg-white rounded-lg border border-[#E0E0E0] overflow-hidden">
                 <div className="h-48 bg-slate-100" />
-                <div className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
+                <div className="p-6 space-y-6">
+                  <div className="flex items-center gap-3">
                     <div className="w-8 h-6 bg-slate-100 rounded" />
-                    <div className="space-y-1">
-                      <div className="w-24 h-3 bg-slate-100 rounded" />
-                      <div className="w-16 h-2 bg-slate-50 rounded" />
+                    <div className="flex-1 space-y-2">
+                      <div className="w-24 h-3 bg-slate-200 rounded" />
+                      <div className="w-16 h-2 bg-slate-100 rounded" />
                     </div>
                   </div>
-                  <div className="w-full h-5 bg-slate-100 rounded mb-3" />
-                  <div className="w-full h-5 bg-slate-100 rounded mb-4" />
-                  <div className="h-20 bg-slate-50 rounded-lg mb-4" />
-                  <div className="flex justify-between mb-4">
-                    <div className="w-16 h-3 bg-slate-100 rounded" />
-                    <div className="w-16 h-3 bg-slate-100 rounded" />
+                  <div className="space-y-3">
+                    <div className="w-full h-5 bg-slate-200 rounded" />
+                    <div className="w-full h-5 bg-slate-200 rounded" />
                   </div>
-                  <div className="h-10 bg-slate-200 rounded-lg" />
+                  <div className="h-20 bg-slate-50 rounded-lg" />
+                  <div className="grid grid-cols-3 gap-2">
+                    {[1, 2, 3].map(j => (
+                      <div key={j} className="h-4 bg-slate-100 rounded" />
+                    ))}
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="h-4 w-24 bg-slate-100 rounded" />
+                    <div className="h-4 w-16 bg-slate-100 rounded" />
+                  </div>
+                  <div className="h-10 w-full bg-slate-200 rounded-lg" />
                 </div>
               </div>
             ))}

@@ -337,15 +337,38 @@ const PaparazziPage = () => {
 
           {/* Paparazzi Display */}
           {loading ? (
-            <div className="text-center py-12">
-              <div
-                className="animate-spin rounded-full h-12 w-12 mx-auto mb-4"
-                style={{
-                  borderBottom: `2px solid ${theme.primary}`,
-                  borderRight: `2px solid transparent`
-                }}
-              ></div>
-              <p className="text-lg" style={{ color: theme.textSecondary }}>Loading paparazzi...</p>
+            <div className="animate-pulse space-y-8">
+              {/* Search Bar Skeleton */}
+              <div className="max-w-2xl mx-auto h-14 bg-slate-100 rounded-lg mb-8" />
+
+              {/* Controls Bar Skeleton */}
+              <div className="bg-white rounded-lg border p-6 mb-6 flex justify-between items-center">
+                <div className="h-8 w-32 bg-slate-100 rounded" />
+                <div className="h-8 w-24 bg-slate-50 rounded" />
+              </div>
+
+              {/* Grid Skeleton */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <div key={i} className="bg-white rounded-lg border p-6 space-y-6">
+                    <div className="flex justify-between items-center">
+                      <div className="w-12 h-12 bg-slate-100 rounded-full" />
+                      <div className="h-6 w-20 bg-blue-50 rounded-full" />
+                    </div>
+                    <div className="space-y-3">
+                      <div className="h-6 w-3/4 bg-slate-200 rounded" />
+                      <div className="space-y-2">
+                        <div className="h-4 w-1/2 bg-slate-100 rounded" />
+                        <div className="h-4 w-1/4 bg-slate-100 rounded" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                      <div className="h-4 bg-slate-50 rounded" />
+                      <div className="h-4 bg-slate-50 rounded" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ) : error ? (
             <div className="text-center py-12">

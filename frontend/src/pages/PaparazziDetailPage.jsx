@@ -251,52 +251,71 @@ const PaparazziDetailPage = () => {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
         <UserHeader onShowAuth={handleShowAuth} />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <Skeleton className="h-6 w-48 mb-6" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+          {/* Breadcrumb Skeleton */}
+          <div className="h-4 w-64 bg-slate-200 rounded mb-8" />
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg border p-8 space-y-8">
-                <div className="flex gap-6">
-                  <Skeleton className="h-20 w-20 rounded-xl" />
-                  <div className="flex-1 space-y-4">
-                    <Skeleton className="h-10 w-3/4" />
-                    <div className="flex gap-4">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-4 w-24" />
+              <div className="bg-white rounded-lg border p-8 space-y-10">
+                <div className="flex items-start gap-6">
+                  <div className="w-20 h-20 bg-slate-100 rounded-xl" />
+                  <div className="flex-1 space-y-6">
+                    <div className="space-y-3">
+                      <div className="h-10 w-3/4 bg-slate-200 rounded" />
+                      <div className="flex gap-4">
+                        {[1, 2, 3, 4].map(i => (
+                          <div key={i} className="h-4 w-24 bg-slate-100 rounded" />
+                        ))}
+                      </div>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <Skeleton className="h-6 w-32" />
-                  <Skeleton className="h-10 w-40" />
+                  <div className="h-6 w-32 bg-slate-200 rounded" />
+                  <div className="h-10 w-48 bg-slate-50 rounded-lg" />
                 </div>
                 <div className="space-y-4">
-                  <Skeleton className="h-6 w-32" />
-                  <Skeleton className="h-24 w-full" />
+                  <div className="h-6 w-32 bg-slate-200 rounded" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-full bg-slate-50 rounded" />
+                    <div className="h-4 w-5/6 bg-slate-50 rounded" />
+                    <div className="h-4 w-4/6 bg-slate-50 rounded" />
+                  </div>
                 </div>
                 <div className="space-y-4 text-center">
-                  <Skeleton className="h-6 w-32 mx-auto" />
-                  <Skeleton className="h-32 w-32 rounded-full mx-auto" />
+                  <div className="h-6 w-32 bg-slate-200 rounded mx-auto" />
+                  <div className="w-32 h-32 bg-slate-100 rounded-full mx-auto border-4 border-slate-50 shadow-sm" />
                 </div>
               </div>
             </div>
             <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white rounded-lg border p-6 space-y-8">
+                <div className="text-center space-y-3">
+                  <div className="h-10 w-1/2 mx-auto bg-slate-200 rounded" />
+                  <div className="h-4 w-3/4 mx-auto bg-slate-100 rounded" />
+                </div>
+                <div className="space-y-4 pt-4 border-t">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex justify-between">
+                      <div className="h-4 w-20 bg-slate-100 rounded" />
+                      <div className="h-4 w-16 bg-slate-200 rounded" />
+                    </div>
+                  ))}
+                </div>
+                <div className="h-12 w-full bg-slate-200 rounded-lg" />
+              </div>
               <div className="bg-white rounded-lg border p-6 space-y-6">
-                <div className="text-center space-y-2">
-                  <Skeleton className="h-10 w-24 mx-auto" />
-                  <Skeleton className="h-4 w-20 mx-auto" />
-                </div>
-                <div className="space-y-3">
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-4 w-full" />
-                </div>
-                <Skeleton className="h-12 w-full" />
+                <div className="h-6 w-1/2 bg-slate-200 rounded" />
+                <div className="w-24 h-24 rounded-full bg-slate-100 mx-auto" />
               </div>
               <div className="bg-white rounded-lg border p-6 space-y-4">
-                <Skeleton className="h-6 w-32" />
-                <Skeleton className="h-24 w-24 rounded-full mx-auto" />
+                <div className="h-6 w-1/2 bg-slate-200 rounded" />
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-4 w-full bg-slate-50 rounded" />
+                  ))}
+                </div>
               </div>
             </div>
           </div>

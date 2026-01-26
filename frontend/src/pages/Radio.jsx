@@ -190,37 +190,41 @@ const RadioPage = () => {
     return (
       <div className="min-h-screen bg-white">
         <UserHeader />
-        <section className="py-8 md:py-12 px-4 bg-gradient-to-b from-[#E3F2FD] to-white">
-          <div className="max-w-7xl mx-auto text-center">
-            <Skeleton className="h-16 w-3/4 mx-auto mb-6" />
-            <Skeleton className="h-10 w-1/2 mx-auto mb-8" />
-            <Skeleton className="h-14 w-full max-w-2xl mx-auto rounded-lg" />
+        <section className="py-8 md:py-12 px-4 bg-gradient-to-b from-[#E3F2FD] to-white animate-pulse">
+          <div className="max-w-7xl mx-auto text-center space-y-6">
+            <div className="h-16 w-3/4 bg-slate-200 rounded mx-auto" />
+            <div className="h-6 w-1/2 bg-slate-100 rounded mx-auto" />
+            <div className="h-14 w-full max-w-2xl bg-white border border-slate-200 rounded-lg mx-auto" />
           </div>
         </section>
-        <div className="flex max-w-7xl mx-auto p-6 gap-6">
-          <aside className="w-1/4 hidden md:block">
-            <Skeleton className="h-10 w-1/2 mb-6" />
-            <div className="space-y-6">
-              <div className="p-4 border rounded-lg space-y-4">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-              <Skeleton className="h-12 w-full" />
+        <div className="flex flex-col md:flex-row max-w-7xl mx-auto p-6 gap-6 animate-pulse">
+          <aside className="w-full md:w-80 space-y-6">
+            <div className="h-8 w-1/2 bg-slate-100 rounded" />
+            <div className="bg-slate-50 border border-slate-100 rounded-lg p-4 space-y-4">
+              <div className="h-4 w-3/4 bg-slate-200 rounded" />
+              <div className="h-10 w-full bg-white border border-slate-200 rounded" />
+              <div className="h-10 w-full bg-white border border-slate-200 rounded" />
             </div>
+            <div className="h-12 w-full bg-slate-100 rounded-lg" />
           </aside>
           <main className="flex-1">
-            <Skeleton className="h-20 w-full mb-6" />
+            <div className="bg-white rounded-lg border p-6 mb-6 flex justify-between items-center">
+              <div className="h-8 w-32 bg-slate-100 rounded" />
+              <div className="h-8 w-40 bg-slate-100 rounded" />
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-white rounded-2xl border p-6 h-80 flex flex-col justify-end">
-                  <div className="space-y-3">
-                    <Skeleton className="h-8 w-3/4" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <div className="flex justify-between">
-                      <Skeleton className="h-4 w-1/4" />
-                      <Skeleton className="h-4 w-1/4" />
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-slate-100 rounded-2xl h-80 relative overflow-hidden">
+                  <div className="absolute top-4 left-4 flex flex-col gap-2">
+                    <div className="h-6 w-16 bg-blue-100 rounded-full" />
+                    <div className="h-6 w-20 bg-green-100 rounded-full" />
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 p-5 space-y-3 bg-gradient-to-t from-white/20 to-transparent">
+                    <div className="h-6 w-3/4 bg-white/40 rounded" />
+                    <div className="h-4 w-full bg-white/40 rounded" />
+                    <div className="flex justify-between items-center">
+                      <div className="h-4 w-24 bg-white/40 rounded" />
+                      <div className="h-4 w-16 bg-white/40 rounded" />
                     </div>
                   </div>
                 </div>
