@@ -250,12 +250,58 @@ const ThemeDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA]">
+      <div className="min-h-screen" style={{ backgroundColor: themeColors.backgroundAlt }}>
         <UserHeader onShowAuth={handleShowAuth} />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 mx-auto mb-4 border-4 border-[#E0E0E0] border-t-[#1976D2]"></div>
-            <p className="text-lg text-[#757575]">{t('themeDetails.loading')}</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+          {/* Breadcrumb Skeleton */}
+          <div className="flex items-center gap-2 mb-6">
+            <div className="h-4 w-24 bg-slate-200 rounded" />
+            <div className="h-4 w-4 bg-slate-100 rounded" />
+            <div className="h-4 w-32 bg-slate-100 rounded" />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg border p-8 space-y-8">
+                <div className="flex items-start gap-6">
+                  <div className="w-20 h-20 bg-slate-100 rounded-xl" />
+                  <div className="flex-1 space-y-4">
+                    <div className="flex gap-2">
+                      <div className="h-6 w-20 bg-blue-50 rounded-full" />
+                      <div className="h-6 w-24 bg-orange-50 rounded-full" />
+                    </div>
+                    <div className="h-10 w-3/4 bg-slate-200 rounded" />
+                    <div className="h-6 w-1/4 bg-slate-100 rounded" />
+                    <div className="flex gap-6">
+                      <div className="h-4 w-24 bg-slate-100 rounded" />
+                      <div className="h-4 w-32 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="h-6 w-32 bg-slate-200 rounded" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {[1, 2, 3, 4, 5, 6].map(i => (
+                      <div key={i} className="h-20 bg-slate-50 rounded-lg border border-slate-100" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white rounded-lg border p-6 space-y-6">
+                <div className="space-y-2 text-center">
+                  <div className="h-10 w-1/2 mx-auto bg-slate-200 rounded" />
+                  <div className="h-4 w-1/3 mx-auto bg-slate-100 rounded" />
+                </div>
+                <div className="space-y-3">
+                  <div className="h-10 w-full bg-slate-100 rounded" />
+                  <div className="h-10 w-full bg-slate-100 rounded" />
+                  <div className="h-10 w-full bg-slate-100 rounded" />
+                </div>
+                <div className="h-12 w-full bg-slate-200 rounded-lg" />
+              </div>
+            </div>
           </div>
         </div>
         <UserFooter />

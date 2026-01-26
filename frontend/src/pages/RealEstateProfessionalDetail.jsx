@@ -332,16 +332,78 @@ const RealEstateProfessionalDetail = () => {
     return (
       <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
         <UserHeader onShowAuth={handleShowAuth} />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div
-              className="animate-spin rounded-full h-16 w-16 mx-auto mb-4"
-              style={{
-                borderBottom: `2px solid ${theme.primary}`,
-                borderRight: `2px solid transparent`
-              }}
-            ></div>
-            <p className="text-lg" style={{ color: theme.textSecondary }}>{t('realEstateProfessionalDetail.loading')}</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+          {/* Breadcrumb Skeleton */}
+          <div className="h-4 w-64 bg-slate-200 rounded mb-8" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg border p-8 space-y-10">
+                <div className="flex items-start gap-8">
+                  <div className="w-32 h-20 bg-slate-100 rounded-xl" />
+                  <div className="flex-1 space-y-6">
+                    <div className="space-y-3">
+                      <div className="h-10 w-3/4 bg-slate-200 rounded" />
+                      <div className="flex gap-4">
+                        <div className="h-4 w-32 bg-slate-100 rounded" />
+                        <div className="h-4 w-40 bg-slate-100 rounded" />
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <div className="h-8 w-28 bg-blue-50 rounded-full" />
+                      <div className="h-8 w-28 bg-teal-50 rounded-full" />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="h-6 w-32 bg-slate-200 rounded" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-full bg-slate-100 rounded" />
+                    <div className="h-4 w-5/6 bg-slate-100 rounded" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-8 pt-6 border-t">
+                  <div className="space-y-4">
+                    <div className="h-6 w-32 bg-slate-200 rounded" />
+                    <div className="space-y-3">
+                      <div className="h-4 w-3/4 bg-slate-50 rounded" />
+                      <div className="h-4 w-1/2 bg-slate-50 rounded" />
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="h-6 w-32 bg-slate-200 rounded" />
+                    <div className="space-y-3">
+                      <div className="h-4 w-3/4 bg-slate-50 rounded" />
+                      <div className="h-4 w-1/2 bg-slate-50 rounded" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white rounded-lg border p-6 space-y-8">
+                <div className="text-center space-y-3">
+                  <div className="h-10 w-1/2 mx-auto bg-slate-200 rounded" />
+                  <div className="h-4 w-3/4 mx-auto bg-slate-100 rounded" />
+                </div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="flex justify-between">
+                      <div className="h-4 w-20 bg-slate-100 rounded" />
+                      <div className="h-4 w-16 bg-slate-200 rounded" />
+                    </div>
+                  ))}
+                </div>
+                <div className="h-12 w-full bg-slate-200 rounded-lg" />
+              </div>
+              <div className="bg-white rounded-lg border p-6 space-y-4">
+                <div className="h-6 w-1/2 bg-slate-200 rounded" />
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="h-16 bg-slate-50 rounded-lg" />
+                  <div className="h-16 bg-slate-50 rounded-lg" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <UserFooter />

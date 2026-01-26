@@ -234,57 +234,58 @@ const ThemesPage = () => {
 
   if (loading && themes.length === 0) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA]">
+      <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
         <UserHeader onShowAuth={handleShowAuth} />
-        <section className="py-8 md:py-12 px-4 bg-gradient-to-b from-[#E3F2FD] to-white">
-          <div className="max-w-7xl mx-auto text-center space-y-6">
-            <Skeleton className="h-16 w-3/4 mx-auto" />
-            <Skeleton className="h-6 w-1/2 mx-auto" />
-            <Skeleton className="h-14 w-full max-w-2xl mx-auto rounded-lg" />
+        <section className="relative py-8 md:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white border-b border-[#E0E0E0]">
+          <div className="max-w-7xl mx-auto text-center space-y-6 animate-pulse">
+            <div className="h-16 w-3/4 mx-auto bg-slate-200 rounded-lg" />
+            <div className="h-6 w-1/2 mx-auto bg-slate-100 rounded" />
+            <div className="h-14 w-full max-w-2xl mx-auto bg-white border border-slate-200 rounded-lg" />
           </div>
         </section>
         <div className="flex max-w-7xl mx-auto p-6 gap-6">
           <aside className="w-1/4 hidden md:block">
-            <Skeleton className="h-10 w-1/2 mb-6" />
-            <div className="space-y-6">
-              <div className="p-4 border rounded-lg space-y-4">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-10 w-full" />
+            <div className="p-6 h-full bg-white rounded-lg border border-slate-200 animate-pulse">
+              <div className="h-10 w-1/2 mb-6 bg-slate-200 rounded" />
+              <div className="space-y-6">
+                <div className="p-4 bg-slate-50 rounded-lg space-y-4">
+                  <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                  <div className="h-10 w-full bg-white border border-slate-200 rounded" />
+                  <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                  <div className="h-10 w-full bg-white border border-slate-200 rounded" />
+                </div>
+                <div className="h-12 w-full bg-slate-100 rounded-lg" />
               </div>
-              <div className="p-4 border border-orange-100 rounded-lg space-y-4">
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-              <Skeleton className="h-12 w-full" />
             </div>
           </aside>
           <main className="flex-1">
-            <Skeleton className="h-20 w-full mb-6" />
+            <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-6 animate-pulse">
+              <div className="flex justify-between items-center">
+                <div className="h-8 w-48 bg-slate-100 rounded" />
+                <div className="h-8 w-32 bg-slate-100 rounded" />
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="bg-white p-6 border rounded-2xl space-y-6">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div key={i} className="bg-white p-6 border border-slate-200 rounded-2xl space-y-6 animate-pulse">
                   <div className="flex justify-between">
-                    <Skeleton className="h-8 w-24 rounded-full" />
-                    <Skeleton className="h-8 w-8 rounded-full" />
+                    <div className="h-8 w-24 bg-slate-100 rounded-full" />
+                    <div className="h-8 w-8 bg-slate-100 rounded-full" />
                   </div>
-                  <div className="text-center space-y-2">
-                    <Skeleton className="h-16 w-16 mx-auto rounded-full" />
-                    <Skeleton className="h-6 w-3/4 mx-auto" />
-                    <Skeleton className="h-4 w-1/2 mx-auto" />
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-slate-200 rounded-full" />
+                    <div className="h-6 w-3/4 mx-auto bg-slate-200 rounded" />
+                    <div className="h-4 w-1/2 mx-auto bg-slate-100 rounded" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <Skeleton className="h-16 w-full rounded-xl" />
-                    <Skeleton className="h-16 w-full rounded-xl" />
+                    <div className="h-16 w-full bg-slate-50 rounded-xl" />
+                    <div className="h-16 w-full bg-slate-50 rounded-xl" />
                   </div>
-                  <div className="flex justify-between">
-                    <Skeleton className="h-4 w-20" />
-                    <Skeleton className="h-6 w-16 rounded-full" />
+                  <div className="flex justify-between border-t border-slate-50 pt-4">
+                    <div className="h-4 w-20 bg-slate-100 rounded" />
+                    <div className="h-6 w-16 bg-slate-100 rounded-full" />
                   </div>
-                  <Skeleton className="h-12 w-full rounded-xl" />
+                  <div className="h-12 w-full bg-slate-200 rounded-xl" />
                 </div>
               ))}
             </div>

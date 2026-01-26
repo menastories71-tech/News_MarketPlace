@@ -258,12 +258,65 @@ const PressPackDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA]">
+      <div className="min-h-screen" style={{ backgroundColor: themeColors.backgroundAlt }}>
         <UserHeader onShowAuth={handleShowAuth} />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 mx-auto mb-4 border-4 border-[#E0E0E0] border-t-[#1976D2]"></div>
-            <p className="text-lg text-[#757575]">{t('pressPackDetail.loading')}</p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
+          {/* Breadcrumb Skeleton */}
+          <div className="h-4 w-64 bg-slate-200 rounded mb-8" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-lg border p-8 space-y-10">
+                <div className="flex justify-between items-start">
+                  <div className="flex-1 space-y-4">
+                    <div className="h-10 w-3/4 bg-slate-200 rounded" />
+                    <div className="flex gap-6">
+                      <div className="h-4 w-24 bg-slate-100 rounded" />
+                      <div className="h-4 w-24 bg-slate-100 rounded" />
+                      <div className="h-4 w-24 bg-slate-100 rounded" />
+                    </div>
+                  </div>
+                  <div className="w-32 h-20 bg-slate-100 rounded-xl" />
+                </div>
+                <div className="h-64 w-full bg-slate-100 rounded-lg" />
+                <div className="space-y-4">
+                  <div className="h-6 w-32 bg-slate-200 rounded" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-full bg-slate-50 rounded" />
+                    <div className="h-4 w-5/6 bg-slate-50 rounded" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-20 bg-slate-50 rounded-lg" />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+              <div className="bg-white rounded-lg border p-6 space-y-8">
+                <div className="h-6 w-1/2 bg-slate-200 rounded" />
+                <div className="text-center space-y-3">
+                  <div className="h-10 w-1/2 mx-auto bg-slate-200 rounded" />
+                  <div className="h-4 w-3/4 mx-auto bg-slate-100 rounded" />
+                </div>
+                <div className="space-y-3">
+                  {[1, 2, 3, 4].map(i => (
+                    <div key={i} className="h-4 w-full bg-slate-50 rounded" />
+                  ))}
+                </div>
+                <div className="h-12 w-full bg-slate-200 rounded-lg" />
+              </div>
+              <div className="bg-white rounded-lg border p-6 space-y-3">
+                <div className="h-6 w-1/2 bg-slate-200 rounded mb-4" />
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="flex justify-between">
+                    <div className="h-4 w-20 bg-slate-100 rounded" />
+                    <div className="h-4 w-16 bg-slate-200 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
         <UserFooter />
