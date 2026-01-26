@@ -1,11 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import Icon from './Icon';
 import CosmicButton from './CosmicButton';
+import Skeleton from './Skeleton';
 import { useLanguage } from '../../context/LanguageContext';
 
-const FeatureSlider = () => {
+const FeatureSlider = ({ loading = false }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const { language, t } = useLanguage();
+
+  if (loading) {
+    return (
+      <section className="pb-4 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="overflow-hidden rounded-2xl shadow-2xl bg-white/60 backdrop-blur-md border border-white/30 h-[300px] sm:h-[400px] md:h-[350px]">
+            <div className="flex flex-col md:flex-row h-full">
+              <div className="w-full md:w-2/5 bg-gray-200 animate-pulse"></div>
+              <div className="w-full md:w-3/5 p-8 flex flex-col justify-center">
+                <div className="flex items-center mb-6">
+                  <Skeleton className="w-12 h-12 rounded-xl mr-4" />
+                  <div className="flex-1">
+                    <Skeleton className="h-8 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                </div>
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3 mb-6" />
+                <div className="grid grid-cols-3 gap-4">
+                  <Skeleton className="h-8 rounded-lg" />
+                  <Skeleton className="h-8 rounded-lg" />
+                  <Skeleton className="h-8 rounded-lg" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   // Translated texts
   const socialMediaRecoveryTitle = t("Social Media");
@@ -258,3 +290,4 @@ const FeatureSlider = () => {
 };
 
 export default FeatureSlider;
+

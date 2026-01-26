@@ -1,15 +1,39 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Icon from '../components/common/Icon';
-// import UserHeader from '../components/common/UserHeader';
-// import UserFooter from '../components/common/UserFooter';
+import Skeleton from '../components/common/Skeleton';
 import { useLanguage } from '../context/LanguageContext';
 
-const FAQ = () => {
+const FAQ = ({ loading = false }) => {
   const { t, language } = useLanguage();
   const [openItems, setOpenItems] = useState(new Set());
   const contentRefs = useRef([]);
 
   const isRTL = language === 'ar';
+
+  if (loading) {
+    return (
+      <div className={`min-h-[400px] bg-[#E3F2FD] ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+        <section className="py-10">
+          <div className="max-w-7xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <Skeleton className="h-12 w-3/4 mx-auto mb-6" />
+              <Skeleton className="h-6 w-2/3 mx-auto mb-4" />
+              <div className="mt-8 md:mt-10 flex justify-center space-x-4 md:space-x-6">
+                <Skeleton className="w-16 h-1.5 md:w-20 rounded-full" />
+                <Skeleton className="w-8 h-1.5 md:w-10 rounded-full" />
+                <Skeleton className="w-4 h-1.5 md:w-6 rounded-full" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-20 w-full rounded-xl" />
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   // FAQ questions and answers
   const faqData = [
@@ -100,8 +124,6 @@ const FAQ = () => {
 
   return (
     <div className={`min-h-screen bg-[#E3F2FD] ${isRTL ? 'text-right' : 'text-left'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* <UserHeader /> */}
-
       {/* FAQ Content */}
       <section className="py-10">
         <div className="max-w-7xl mx-auto px-4">
@@ -242,8 +264,6 @@ const FAQ = () => {
           </div>
         </div>
       </section>
-
-      {/* <UserFooter /> */}
     </div>
   );
 };

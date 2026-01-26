@@ -1,16 +1,40 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import CosmicButton from './CosmicButton';
-// import useTranslatedText from '../../hooks/useTranslatedText';
+import Skeleton from './Skeleton';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthModal } from '../../App';
 import { useLanguage } from '../../context/LanguageContext';
 
-const AboutSimplified = () => {
+const AboutSimplified = ({ loading = false }) => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const { showAuthModal } = useAuthModal();
   const { t } = useLanguage();
+
+  if (loading) {
+    return (
+      <section className="py-4 md:py-6 lg:py-8 bg-[#E3F2FD] relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-4 md:mb-6 lg:mb-8">
+            <Skeleton className="h-10 w-3/4 mx-auto mb-4" />
+            <Skeleton className="h-4 w-5/6 mx-auto mb-2" />
+            <Skeleton className="h-4 w-2/3 mx-auto" />
+            <div className="mt-4 md:mt-6 flex justify-center space-x-2 md:space-x-3">
+              <Skeleton className="w-16 h-1.5 md:w-20 rounded-full" />
+              <Skeleton className="w-8 h-1.5 md:w-10 rounded-full" />
+              <Skeleton className="w-4 h-1.5 md:w-6 rounded-full" />
+            </div>
+          </div>
+          <div className="bg-white/20 rounded-3xl p-8 shadow-xl border border-white/30 h-48 animate-pulse">
+            <Skeleton className="h-6 w-1/4 mx-auto mb-4 bg-white/40" />
+            <Skeleton className="h-4 w-3/4 mx-auto mb-6 bg-white/40" />
+            <Skeleton className="h-10 w-32 mx-auto rounded-full bg-white/40" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   // Translated texts
   const aboutText = t('home.about');

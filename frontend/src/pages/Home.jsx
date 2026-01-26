@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import TopHeader from '../components/common/TopHeader';
 import Ticker from '../components/common/Ticker';
 import UserHeader from '../components/common/UserHeader';
@@ -18,18 +18,13 @@ import AwardsSimplified from '../components/common/AwardsSimplified';
 import FAQ from './FAQ';
 import UserFooter from '../components/common/UserFooter';
 import AuthModal from '../components/auth/AuthModal';
-import Loader from '../components/common/Loader';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
-// import useTranslatedText from '../hooks/useTranslatedText';
 import { useLanguage } from '../context/LanguageContext';
 
 const Home = () => {
   const [showAuth, setSowAuth] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [transitioning, setTransitioning] = useState(false);
-  const [hasTransitioned, setHasTransitioned] = useState(false);
-  const { scrollYProgress } = useScroll();
   const { t } = useLanguage();
 
   // Translated texts
@@ -41,26 +36,13 @@ const Home = () => {
   const backgroundColor = '#E3F2FD';
 
   useEffect(() => {
-    if (loading) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-
+    // Reveal the page content after a short delay to show skeletons
     const timer = setTimeout(() => {
-      setTransitioning(true);
-      setHasTransitioned(true);
-      setTimeout(() => {
-        setLoading(false);
-        setTransitioning(false);
-      }, 1000); // Transition duration
-    }, 3000); // Show loader for 3 seconds
+      setLoading(false);
+    }, 1500);
 
-    return () => {
-      clearTimeout(timer);
-      document.body.style.overflow = 'auto'; // cleanup
-    };
-  }, [loading]);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleShowAuth = () => {
     setShowAuth(true);
@@ -71,66 +53,65 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor, overflow: loading ? 'hidden' : 'auto' }}>
+    <div className="min-h-screen" style={{ backgroundColor }}>
       <SEO
         title={homeTitle}
         description={homeDescription}
         keywords={homeKeywords}
       />
       <Schema type="organization" />
-      {loading && !transitioning && <Loader />}
-      <motion.div
-        initial={{ x: '-100%' }}
-        animate={{ x: hasTransitioned ? 0 : '-100%' }}
-        transition={{ duration: 1, ease: 'easeInOut' }}
-      >
-        {/* Top Header */}
 
-        {/* Main Header */}
+      <div className="w-full h-full relative">
+        <FloatingLines />
+
+        {/* Header and Ticker */}
         <UserHeader onShowAuth={handleShowAuth} />
         <TopHeader />
         <Ticker />
-        <FeatureSlider />
+
+        {/* Main Sections with Skeleton Loading support */}
+        <FeatureSlider loading={loading} />
 
         {/* Articles Section */}
-        {/* <Articles /> */}
+        <Articles />
 
         {/* About Section */}
-        <AboutSimplified />
+        <AboutSimplified loading={loading} />
 
         {/* Publications Section */}
-        <PublicationsSimplified />
+        <PublicationsSimplified loading={loading} />
 
         {/* Paparazzi Section */}
-        <PaparazziSimplified />
+        <PaparazziSimplified loading={loading} />
 
         {/* Events Section */}
-        <EventsSimplified />
+        <EventsSimplified loading={loading} />
 
         {/* Radio Section */}
-        <RadioSimplified />
+        <RadioSimplified loading={loading} />
 
         {/* Theme Section */}
-        <ThemeSimplified />
+        <ThemeSimplified loading={loading} />
 
         {/* Real Estate Section */}
-        <RealEstateSimplified />
+        <RealEstateSimplified loading={loading} />
 
         {/* Power List Section */}
-        <PowerListSimplified />
+        <PowerListSimplified loading={loading} />
 
         {/* Awards Section */}
-        <AwardsSimplified />
+        <AwardsSimplified loading={loading} />
 
         {/* FAQ Section */}
-        <FAQ />
+        {/* Pass loading to FAQ if modified to support it, otherwise it's fine */}
+        <FAQ loading={loading} />
 
         {/* Footer */}
         <UserFooter />
 
         {/* Auth Modal */}
         <AuthModal isOpen={showAuth} onClose={handleCloseAuth} />
-      </motion.div>
+      </div>
     </div>
   );
 };
