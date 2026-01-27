@@ -205,19 +205,23 @@ app.get([
   '/press-packs/:id'
 ], async (req, res, next) => {
   const userAgent = req.headers['user-agent'] || '';
-  const isCrawler = /facebookexternalhit|Facebot|LinkedIn|LinkedInBot|Twitterbot|WhatsApp|Slackbot|Discordbot|TelegramBot|Pinterest|Googlebot|bingbot|Applebot/i.test(userAgent);
+  // Extremely permissive bot check for sharing debugging
+  const isBotLike = /facebookexternalhit|Facebot|LinkedIn|LinkedInBot|Twitterbot|WhatsApp|Slackbot|Discordbot|TelegramBot|Pinterest|Googlebot|bingbot|Applebot|bot|crawler|spider/i.test(userAgent);
 
-  // Extra check: if it's hit via Nginx proxy but somehow UA is missing, we still serve it
-  // because these routes shouldn't be reached by humans directly in the backend anyway
+  const route = req.path.split('/')[1];
+  const id = req.params.id;
+
+  // LOG ALL HITS TO THIS ROUTE FOR DEBUGGING
+  console.log(`[SHARE-DEBUG] Hit at ${new Date().toISOString()} | Path: ${req.path} | Likely Bot: ${isBotLike} | UA: ${userAgent}`);
+
   try {
-    const route = req.path.split('/')[1];
-    const id = req.params.id;
-    console.log(`[Metadata] Request for ${route}/${id} from UA: ${userAgent}`);
-
     const html = await getMetaData(route, id);
+    // Add custom headers to verify it's the metadata service responding
+    res.set('X-VaaS-Source', 'metadata-service');
+    res.set('Content-Type', 'text/html; charset=utf-8');
     return res.send(html);
   } catch (error) {
-    console.error('[Metadata] Error serving metadata:', error);
+    console.error(`[SHARE-ERROR] Failed to serve metadata for ${req.path}:`, error);
     next();
   }
 });

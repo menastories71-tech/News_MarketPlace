@@ -187,6 +187,12 @@ const getMetaData = async (route, idOrSlug) => {
     else if (image.toLowerCase().endsWith('.gif')) imageType = 'image/gif';
     else if (image.toLowerCase().endsWith('.webp')) imageType = 'image/webp';
 
+    // Determine Open Graph type
+    let ogType = 'website';
+    if (['publications', 'blog', 'blogs'].includes(route)) {
+        ogType = 'article';
+    }
+
     return `
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
@@ -197,7 +203,7 @@ const getMetaData = async (route, idOrSlug) => {
     <meta name="description" content="${metaDescription}">
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="${ogType}">
     <meta property="og:url" content="${url}">
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${metaDescription}">
@@ -221,12 +227,17 @@ const getMetaData = async (route, idOrSlug) => {
     <link rel="canonical" href="${url}">
 
     <!-- Redirect for humans -->
+    <script>
+        // Only redirect if not a known bot
+        const ua = navigator.userAgent;
+        const isBot = /bot|crawler|spider|facebookexternalhit|LinkedInBot/i.test(ua);
+        if (!isBot) {
+            window.location.replace("${url}");
+        }
+    </script>
     <noscript>
         <meta http-equiv="refresh" content="0;url=${url}">
     </noscript>
-    <script>
-        window.location.href = "${url}";
-    </script>
 </head>
 <body style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
     <div style="max-width: 600px; width: 90%; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;">
