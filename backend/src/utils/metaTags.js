@@ -16,8 +16,10 @@ const pool = new Pool({
  */
 const getIdFromSlug = (slugId) => {
     if (!slugId) return null;
-    if (!isNaN(slugId)) return slugId; // If it's just a number
-    const parts = slugId.split('-');
+    // Remove trailing slash if present
+    const cleanId = slugId.endsWith('/') ? slugId.slice(0, -1) : slugId;
+    if (!isNaN(cleanId)) return cleanId; // If it's just a number
+    const parts = cleanId.split('-');
     return parts[parts.length - 1];
 };
 
@@ -169,18 +171,6 @@ const getMetaData = async (route, idOrSlug) => {
         image = 'https://vaas.solutions/logo.png';
     }
 
-    // Sanitize description (remove HTML tags and newlines)
-    const cleanDescription = description ? description
-        .replace(/<[^>]*>?/gm, '')
-        .replace(/\n/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim() : 'Your one-stop destination for news and industry insights.';
-
-    let metaDescription = cleanDescription;
-    if (metaDescription.length > 200) {
-        metaDescription = metaDescription.substring(0, 197) + '...';
-    }
-
     // Determine image type
     let imageType = 'image/jpeg';
     if (image.toLowerCase().endsWith('.png')) imageType = 'image/png';
@@ -193,44 +183,62 @@ const getMetaData = async (route, idOrSlug) => {
         ogType = 'article';
     }
 
+    // Ensure we don't return the same title as index.html to help debugging
+    const finalTitle = title === 'News Marketplace' ? 'News Marketplace - Industry Insights' : title;
+
+    // Sanitize description
+    const cleanDescription = description ? description
+        .replace(/<[^>]*>?/gm, '')
+        .replace(/\n/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim() : 'Your one-stop destination for news and industry insights.';
+
+    let metaDescription = cleanDescription;
+    if (metaDescription.length > 250) {
+        metaDescription = metaDescription.substring(0, 247) + '...';
+    }
+
     return `
 <!DOCTYPE html>
 <html lang="en" prefix="og: http://ogp.me/ns#">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title} | News Marketplace</title>
+    <title>${finalTitle} | VaaS Solutions</title>
     <meta name="description" content="${metaDescription}">
+
+    <!-- Primary Meta Tags -->
+    <meta name="title" content="${finalTitle} | VaaS Solutions">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="${ogType}">
     <meta property="og:url" content="${url}">
-    <meta property="og:title" content="${title}">
+    <meta property="og:title" content="${finalTitle}">
     <meta property="og:description" content="${metaDescription}">
     <meta property="og:image" content="${image}">
     <meta property="og:image:secure_url" content="${image}">
     <meta property="og:image:type" content="${imageType}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="${title}">
+    <meta property="og:image:alt" content="${finalTitle}">
     <meta property="og:site_name" content="VaaS Solutions">
     <meta property="og:locale" content="en_US">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="${url}">
-    <meta name="twitter:title" content="${title}">
+    <meta name="twitter:title" content="${finalTitle}">
     <meta name="twitter:description" content="${metaDescription}">
     <meta name="twitter:image" content="${image}">
-    <meta name="twitter:image:alt" content="${title}">
+    <meta name="twitter:image:alt" content="${finalTitle}">
 
     <link rel="canonical" href="${url}">
 
     <!-- Redirect for humans -->
     <script>
-        // Only redirect if not a known bot
+        // Only redirect if not a bot
         const ua = navigator.userAgent;
-        const isBot = /bot|crawler|spider|facebookexternalhit|LinkedInBot/i.test(ua);
+        const isBot = /bot|crawler|spider|facebookexternalhit|LinkedInBot|Twitterbot|WhatsApp/i.test(ua);
         if (!isBot) {
             window.location.replace("${url}");
         }
@@ -241,8 +249,8 @@ const getMetaData = async (route, idOrSlug) => {
 </head>
 <body style="margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; min-height: 100vh;">
     <div style="max-width: 600px; width: 90%; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;">
-        <img src="${image}" alt="${title}" style="max-width: 240px; height: auto; margin-bottom: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-        <h1 style="color: #212121; font-size: 24px; margin-bottom: 16px;">${title}</h1>
+        <img src="${image}" alt="${finalTitle}" style="max-width: 240px; height: auto; margin-bottom: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
+        <h1 style="color: #212121; font-size: 24px; margin-bottom: 16px;">${finalTitle}</h1>
         <p style="color: #757575; line-height: 1.6; font-size: 16px; margin-bottom: 32px;">${metaDescription}</p>
         <a href="${url}" style="display: inline-block; background-color: #1976D2; color: white; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; transition: background-color 0.2s;">
             Continue to Site
