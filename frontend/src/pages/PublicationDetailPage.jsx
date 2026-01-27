@@ -262,17 +262,16 @@ const PublicationDetailPage = () => {
       <section className="px-4 sm:px-6 lg:px-8 py-8 border-b" style={{ backgroundColor: theme.background }}>
         <div className="max-w-7xl mx-auto">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm mb-6" style={{ color: theme.textSecondary }}>
+          <div className="flex items-center gap-2 text-sm mb-6 flex-wrap" style={{ color: theme.textSecondary }}>
             <button
               onClick={() => navigate('/publications')}
-              className="flex items-center gap-1 hover:opacity-80"
+              className="flex items-center gap-1 hover:text-[#1976D2] transition-colors"
             >
-              <ArrowLeft size={16} />
               <ArrowLeft size={16} />
               {t('publicationDetail.backToPublications')}
             </button>
-            <span>/</span>
-            <span>{t('publicationDetail.title')}</span>
+            <span className="opacity-40">/</span>
+            <span className="font-medium">{t('publicationDetail.title')}</span>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -280,11 +279,11 @@ const PublicationDetailPage = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm border p-8">
                 {/* Publication Header */}
-                <div className="flex items-start gap-6 mb-8">
-                  <div className="w-32 h-20 bg-gray-50 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden p-2">
+                <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
+                  <div className="w-40 h-28 bg-white rounded-2xl flex items-center justify-center flex-shrink-0 overflow-hidden p-3 border border-gray-100 shadow-inner">
                     {publication.image ? (
                       <img
-                        src={publication.image}
+                        src={publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`}
                         alt={publication.publication_name}
                         className="max-w-full max-h-full object-contain"
                         onError={(e) => {
@@ -295,26 +294,26 @@ const PublicationDetailPage = () => {
                       <img
                         src="/logo.png"
                         alt="Logo"
-                        className="w-12 h-12 object-contain opacity-50"
+                        className="w-16 h-16 object-contain opacity-30"
                       />
                     )}
                   </div>
-                  <div className="flex-1">
-                    <h1 className="text-3xl font-bold mb-3" style={{ color: theme.textPrimary }}>
+                  <div className="flex-1 text-center md:text-left">
+                    <h1 className="text-3xl md:text-4xl font-black mb-4 tracking-tight leading-tight" style={{ color: theme.textPrimary }}>
                       {publication.publication_name}
                     </h1>
-                    <div className="flex flex-wrap items-center gap-6 text-sm" style={{ color: theme.textSecondary }}>
-                      <div className="flex items-center gap-2">
-                        <MapPin size={16} />
-                        <span>{publication.region}</span>
+                    <div className="flex flex-wrap items-center justify-center md:justify-start gap-y-3 gap-x-6 text-sm" style={{ color: theme.textSecondary }}>
+                      <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+                        <MapPin size={16} className="text-[#1976D2]" />
+                        <span className="font-medium">{publication.region}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <BookOpen size={16} />
-                        <span>{publication.language}</span>
+                      <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+                        <BookOpen size={16} className="text-[#1976D2]" />
+                        <span className="font-medium">{publication.language}</span>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Calendar size={16} />
-                        <span>{t('publicationDetail.addedOn', { date: formatDate(publication.created_at) })}</span>
+                      <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-100">
+                        <Calendar size={16} className="text-[#1976D2]" />
+                        <span className="font-medium">{t('publicationDetail.addedOn', { date: formatDate(publication.created_at) })}</span>
                       </div>
                     </div>
                   </div>
@@ -609,29 +608,37 @@ const PublicationDetailPage = () => {
                 <h3 className="text-lg font-semibold mb-4" style={{ color: theme.textPrimary }}>
                   {t('publicationDetail.quickInfo.title')}
                 </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Award size={16} style={{ color: theme.info }} />
-                    <span style={{ color: theme.textSecondary }}>
+                <div className="space-y-4 text-sm">
+                  <div className="flex items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0 gap-3">
+                    <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center flex-shrink-0">
+                      <Award size={16} style={{ color: theme.info }} />
+                    </div>
+                    <span className="font-medium" style={{ color: theme.textSecondary }}>
                       {t('publicationDetail.quickInfo.grade')} {publication.publication_grade || t('publicationDetail.quickInfo.standard')}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <TrendingUp size={16} style={{ color: theme.success }} />
-                    <span style={{ color: theme.textSecondary }}>
+                  <div className="flex items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0 gap-3">
+                    <div className="w-8 h-8 rounded-full bg-green-50 flex items-center justify-center flex-shrink-0">
+                      <TrendingUp size={16} style={{ color: theme.success }} />
+                    </div>
+                    <span className="font-medium" style={{ color: theme.textSecondary }}>
                       {t('publicationDetail.quickInfo.newsIndex')} {publication.website_news_index || 0}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Users size={16} style={{ color: theme.secondary }} />
-                    <span style={{ color: theme.textSecondary }}>
+                  <div className="flex items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0 gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center flex-shrink-0">
+                      <Users size={16} style={{ color: theme.secondary }} />
+                    </div>
+                    <span className="font-medium" style={{ color: theme.textSecondary }}>
                       {t('publicationDetail.quickInfo.group')} {publication.group_name || t('publicationDetail.quickInfo.independent')}
                     </span>
                   </div>
                   {publication.publication_sn && (
-                    <div className="flex items-center gap-2">
-                      <Target size={16} style={{ color: theme.warning }} />
-                      <span style={{ color: theme.textSecondary }}>
+                    <div className="flex items-center border-b border-gray-50 pb-3 last:border-0 last:pb-0 gap-3">
+                      <div className="w-8 h-8 rounded-full bg-orange-50 flex items-center justify-center flex-shrink-0">
+                        <Target size={16} style={{ color: theme.warning }} />
+                      </div>
+                      <span className="font-medium" style={{ color: theme.textSecondary }}>
                         {t('publicationDetail.quickInfo.sn')} {publication.publication_sn}
                       </span>
                     </div>
@@ -644,28 +651,32 @@ const PublicationDetailPage = () => {
       </section>
 
       {/* Social Actions */}
-      <section className="px-4 sm:px-6 lg:px-8 py-6" style={{ backgroundColor: theme.background }}>
+      <section className="px-4 sm:px-6 lg:px-8 py-8 mb-12" style={{ backgroundColor: 'transparent' }}>
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={handleSave}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-3 rounded-xl border-2 transition-all duration-200 font-bold"
               style={{
                 borderColor: isSaved ? theme.danger : theme.borderLight,
-                backgroundColor: isSaved ? theme.danger + '20' : 'transparent',
-                color: isSaved ? theme.danger : theme.textSecondary
+                backgroundColor: isSaved ? theme.danger + '10' : 'white',
+                color: isSaved ? theme.danger : theme.textSecondary,
+                boxShadow: isSaved ? `0 4px 12px ${theme.danger}20` : 'none'
               }}
             >
-              <Heart size={16} style={{ color: isSaved ? theme.danger : theme.danger, fill: isSaved ? theme.danger : 'none' }} />
-              <span style={{ color: isSaved ? theme.danger : theme.textSecondary }}>
+              <Heart size={20} style={{ color: isSaved ? theme.danger : theme.danger, fill: isSaved ? theme.danger : 'none' }} />
+              <span>
                 {isSaved ? t('publicationDetail.actions.saved') : t('publicationDetail.actions.save')}
               </span>
             </button>
-            <ShareButtons
-              url={window.location.href}
-              title={publication.publication_name}
-              description={publication.other_remarks}
-            />
+            <div className="w-full sm:w-auto flex justify-center bg-white p-1 rounded-xl border-2 border-gray-100 shadow-sm">
+              <ShareButtons
+                url={window.location.href}
+                title={publication.publication_name}
+                description={publication.other_remarks}
+                variant="ghost"
+              />
+            </div>
           </div>
         </div>
       </section>

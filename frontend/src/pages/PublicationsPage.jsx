@@ -432,16 +432,17 @@ const PublicationsPage = () => {
       </section>
 
       {/* Main Content with Enhanced Layout */}
-      <div className={`${isMobile ? 'flex flex-col' : 'flex'}`}>
-        {/* Enhanced Filters Sidebar - 25% width */}
-        <aside className={`${sidebarOpen ? (isMobile ? 'w-full' : 'w-80') : 'w-0'} transition-all duration-300 bg-white shadow-lg overflow-hidden ${isMobile ? 'order-2' : ''}`} style={{
+      <div className={`max-w-[1600px] mx-auto ${isMobile ? 'flex flex-col' : 'flex'}`}>
+        {/* Enhanced Filters Sidebar */}
+        <aside className={`${sidebarOpen ? (isMobile ? 'block' : 'block') : 'hidden'} transition-all duration-300 bg-white shadow-lg overflow-hidden ${isMobile ? 'order-2' : ''}`} style={{
           minHeight: isMobile ? 'auto' : 'calc(100vh - 200px)',
           position: isMobile ? 'static' : 'sticky',
           top: isMobile ? 'auto' : '80px',
           zIndex: 10,
           borderRight: isMobile ? 'none' : `1px solid ${theme.borderLight}`,
           borderTop: isMobile ? `1px solid ${theme.borderLight}` : 'none',
-          width: isMobile ? '100%' : '25%'
+          width: isMobile ? '100%' : '300px',
+          flexShrink: 0
         }}>
           <div className="p-6 h-full overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
@@ -758,7 +759,7 @@ const PublicationsPage = () => {
             <>
               {/* Enhanced Grid View */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {publications.map((publication, index) => (
                     <motion.div
                       key={publication.id}
@@ -828,25 +829,25 @@ const PublicationsPage = () => {
                       })()}
 
                       {/* Enhanced Publication Header */}
-                      <div className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:text-[#1976D2] transition-colors" style={{ color: theme.textPrimary }}>
+                      <div className="p-5 flex flex-col h-full">
+                        <div className="flex items-start justify-between mb-4 min-h-[80px]">
+                          <div className="flex-1 pr-2">
+                            <h3 className="text-lg font-bold mb-1 line-clamp-2 group-hover:text-[#1976D2] transition-colors leading-tight" style={{ color: theme.textPrimary }}>
                               {publication.publication_name}
                             </h3>
-                            <div className="flex items-center text-sm mb-2" style={{ color: theme.textSecondary }}>
-                              <Globe size={14} className="mr-2" />
+                            <div className="flex items-center text-xs mb-1" style={{ color: theme.textSecondary }}>
+                              <Globe size={12} className="mr-1" />
                               <span>{publication.region}</span>
                             </div>
-                            <div className="flex items-center text-sm mb-3" style={{ color: theme.textSecondary }}>
-                              <BookOpen size={14} className="mr-2" />
+                            <div className="flex items-center text-xs" style={{ color: theme.textSecondary }}>
+                              <BookOpen size={12} className="mr-1" />
                               <span>{publication.language}</span>
                             </div>
                           </div>
-                          <div className="w-20 h-12 flex items-center justify-center flex-shrink-0 overflow-hidden bg-gray-50 rounded-lg p-1">
+                          <div className="w-16 h-10 flex items-center justify-center flex-shrink-0 bg-gray-50 rounded border border-gray-100 p-1">
                             {publication.image ? (
                               <img
-                                src={publication.image}
+                                src={publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`}
                                 alt={publication.publication_name}
                                 className="max-w-full max-h-full object-contain"
                                 onError={(e) => {
@@ -857,53 +858,52 @@ const PublicationsPage = () => {
                               <img
                                 src="/logo.png"
                                 alt="Logo"
-                                className="w-8 h-8 object-contain opacity-50"
+                                className="w-6 h-6 object-contain opacity-40"
                               />
                             )}
                           </div>
                         </div>
 
                         {/* Enhanced SEO Metrics */}
-                        <div className="grid grid-cols-3 gap-2 text-center mb-4 p-4 rounded-lg" style={{ backgroundColor: theme.backgroundSoft }}>
+                        <div className="grid grid-cols-3 gap-1 text-center mb-4 p-3 rounded-lg border border-gray-100" style={{ backgroundColor: theme.backgroundSoft }}>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: theme.primary }}>{publication.da || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>DA</div>
+                            <div className="text-base font-bold" style={{ color: theme.primary }}>{publication.da || 0}</div>
+                            <div className="text-[10px] font-medium" style={{ color: theme.textSecondary }}>DA</div>
                           </div>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: theme.success }}>{publication.dr || 0}</div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>DR</div>
+                            <div className="text-base font-bold" style={{ color: theme.success }}>{publication.dr || 0}</div>
+                            <div className="text-[10px] font-medium" style={{ color: theme.textSecondary }}>DR</div>
                           </div>
                           <div>
-                            <div className="text-lg font-bold" style={{ color: publication.do_follow ? '#4CAF50' : '#F44336' }}>
+                            <div className="text-base font-bold" style={{ color: publication.do_follow ? theme.success : theme.danger }}>
                               {publication.do_follow ? 'Do' : 'No'}
                             </div>
-                            <div className="text-xs" style={{ color: theme.textSecondary }}>Follow</div>
+                            <div className="text-[10px] font-medium" style={{ color: theme.textSecondary }}>Follow</div>
                           </div>
                         </div>
 
                         {/* Enhanced Price */}
-                        <div className="flex items-center justify-center mb-4">
-                          <div className="text-xl font-bold" style={{ color: theme.success }}>
+                        <div className="text-center mb-4">
+                          <div className="text-2xl font-black" style={{ color: theme.success }}>
                             {formatPrice(publication.price_usd)}
                           </div>
                         </div>
 
-                        {/* Rating Type Badges */}
-                        <div className="flex flex-wrap gap-2 mb-4">
-                          {/* Word Limit Badge */}
-                          <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#E3F2FD', color: theme.primary }}>
+                        {/* Badges Section */}
+                        <div className="flex flex-wrap items-center justify-center gap-2 mb-5">
+                          <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: '#E3F2FD', color: theme.primary }}>
                             {publication.word_limit ? t('publications.badges.wordCount', { count: publication.word_limit }) : t('publications.badges.wordCountTba')}
                           </span>
-
-                          <span className="px-2 py-1 rounded-full text-xs font-medium" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
+                          <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
+                            <Clock size={10} className="inline mr-1" />
                             {formatTAT(publication.committed_tat)}
                           </span>
                         </div>
 
                         {/* Enhanced CTA Button */}
-                        <div className="flex gap-2 items-center">
+                        <div className="mt-auto flex gap-2 items-center pt-2">
                           <button
-                            className="flex-1 text-white font-medium py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2"
+                            className="flex-1 text-white font-bold py-2.5 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-sm hover:shadow-md"
                             style={{ backgroundColor: theme.primary }}
                             onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                             onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
@@ -915,13 +915,14 @@ const PublicationsPage = () => {
                             <Eye size={16} />
                             {t('publications.table.viewDetails')}
                           </button>
-                          <div onClick={(e) => e.stopPropagation()}>
+                          <div onClick={(e) => e.stopPropagation()} className="flex">
                             <ShareButtons
                               url={window.location.origin + `/publications/${createSlugPath(publication.publication_name, publication.id)}`}
                               title={publication.publication_name}
                               description={publication.publication_primary_focus}
                               showLabel={false}
                               variant="outline"
+                              size="sm"
                             />
                           </div>
                         </div>

@@ -9,19 +9,33 @@ const pool = new Pool({
     password: process.env.DB_PASSWORD,
 });
 
-const getMetaData = async (route, id) => {
+/**
+ * Extracts the ID from a slug-id string
+ * @param {string} slugId - The slug combined with ID (e.g. "my-title-123")
+ * @returns {string|null} - The ID part
+ */
+const getIdFromSlug = (slugId) => {
+    if (!slugId) return null;
+    if (!isNaN(slugId)) return slugId; // If it's just a number
+    const parts = slugId.split('-');
+    return parts[parts.length - 1];
+};
+
+const getMetaData = async (route, idOrSlug) => {
     let title = 'News Marketplace';
     let description = 'Your one-stop destination for news and industry insights.';
     let image = 'https://vaas.solutions/logo.png'; // Default logo
-    let url = `https://vaas.solutions/${route}/${id}`;
+    const id = getIdFromSlug(idOrSlug);
+    let url = `https://vaas.solutions/${route}/${idOrSlug}`;
 
     try {
         switch (route) {
             case 'publications': {
-                const res = await pool.query('SELECT publication_name, other_remarks FROM publications WHERE id = $1', [id]);
+                const res = await pool.query('SELECT publication_name, remarks, image FROM publication_managements WHERE id = $1', [id]);
                 if (res.rows[0]) {
                     title = res.rows[0].publication_name;
-                    description = res.rows[0].other_remarks || description;
+                    description = res.rows[0].remarks || description;
+                    image = res.rows[0].image || image;
                 }
                 break;
             }
@@ -45,10 +59,10 @@ const getMetaData = async (route, id) => {
                 break;
             }
             case 'careers': {
-                const res = await pool.query('SELECT job_title, job_description FROM careers WHERE id = $1', [id]);
+                const res = await pool.query('SELECT title, description FROM careers WHERE id = $1', [id]);
                 if (res.rows[0]) {
-                    title = res.rows[0].job_title;
-                    description = res.rows[0].job_description || description;
+                    title = res.rows[0].title;
+                    description = res.rows[0].description || description;
                 }
                 break;
             }
@@ -62,29 +76,28 @@ const getMetaData = async (route, id) => {
                 break;
             }
             case 'power-lists': {
-                const res = await pool.query('SELECT list_title, list_description, list_image FROM powerlists WHERE id = $1', [id]);
+                const res = await pool.query('SELECT nomination_name, company_name, description FROM powerlist_nominations WHERE id = $1', [id]);
                 if (res.rows[0]) {
-                    title = res.rows[0].list_title;
-                    description = res.rows[0].list_description || description;
-                    image = res.rows[0].list_image || image;
+                    title = `${res.rows[0].nomination_name} - ${res.rows[0].company_name}`;
+                    description = res.rows[0].description || description;
                 }
                 break;
             }
             case 'paparazzi': {
-                const res = await pool.query('SELECT title, description, image FROM paparazzi WHERE id = $1', [id]);
+                const res = await pool.query('SELECT instagram_page_name, category, profile_dp_logo FROM paparazzi_creations WHERE id = $1', [id]);
                 if (res.rows[0]) {
-                    title = res.rows[0].title;
-                    description = res.rows[0].description || description;
-                    image = res.rows[0].image || image;
+                    title = res.rows[0].instagram_page_name;
+                    description = `Social Media Page - Category: ${res.rows[0].category}` || description;
+                    image = res.rows[0].profile_dp_logo || image;
                 }
                 break;
             }
             case 'awards': {
-                const res = await pool.query('SELECT award_name, award_description, award_image FROM awards WHERE id = $1', [id]);
+                const res = await pool.query('SELECT award_name, industry, image FROM award_creations WHERE id = $1', [id]);
                 if (res.rows[0]) {
                     title = res.rows[0].award_name;
-                    description = res.rows[0].award_description || description;
-                    image = res.rows[0].award_image || image;
+                    description = res.rows[0].industry || description;
+                    image = res.rows[0].image || image;
                 }
                 break;
             }
@@ -126,11 +139,24 @@ const getMetaData = async (route, id) => {
             }
         }
     } catch (error) {
-        console.error('Error fetching metadata:', error);
+        console.error('Error fetching metadata (db):', error);
     }
 
-    // Sanitize description (remove HTML tags if any)
-    description = description.replace(/<[^>]*>?/gm, '').substring(0, 160);
+    // Ensure absolute image URL
+    if (image && !image.startsWith('http')) {
+        image = `https://vaas.solutions${image.startsWith('/') ? '' : '/'}${image}`;
+    }
+
+    // Sanitize description (remove HTML tags and newlines)
+    description = description ? description
+        .replace(/<[^>]*>?/gm, '')
+        .replace(/\n/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim() : 'Your one-stop destination for news and industry insights.';
+
+    if (description.length > 160) {
+        description = description.substring(0, 157) + '...';
+    }
 
     return `
 <!DOCTYPE html>
@@ -138,7 +164,7 @@ const getMetaData = async (route, id) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
+    <title>${title} | News Marketplace</title>
     <meta name="description" content="${description}">
 
     <!-- Open Graph / Facebook -->
@@ -147,6 +173,7 @@ const getMetaData = async (route, id) => {
     <meta property="og:title" content="${title}">
     <meta property="og:description" content="${description}">
     <meta property="og:image" content="${image}">
+    <meta property="og:site_name" content="VaaS Solutions">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
@@ -157,13 +184,18 @@ const getMetaData = async (route, id) => {
 
     <!-- Redirect to actual page for humans -->
     <script>
-        window.location.href = "${url}";
+        setTimeout(function() {
+            window.location.href = "${url}";
+        }, 500);
     </script>
 </head>
 <body>
-    <h1>${title}</h1>
-    <p>${description}</p>
-    <img src="${image}" alt="${title}">
+    <div style="font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; text-align: center;">
+        <img src="${image}" alt="${title}" style="max-width: 200px; height: auto; margin-bottom: 20px; border-radius: 8px;">
+        <h1 style="color: #1a1a1a;">${title}</h1>
+        <p style="color: #666; line-height: 1.6;">${description}</p>
+        <p style="margin-top: 30px;"><a href="${url}" style="color: #1976D2; text-decoration: none; font-weight: bold;">Loading content...</a></p>
+    </div>
 </body>
 </html>
   `;
