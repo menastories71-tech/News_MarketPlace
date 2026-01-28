@@ -16,14 +16,19 @@ const pool = new Pool({
  */
 const getIdFromSlug = (slugId) => {
     if (!slugId) return null;
+    if (typeof slugId !== 'string') return isNaN(slugId) ? null : parseInt(slugId);
+
     // Remove trailing slash if present
-    const cleanId = typeof slugId === 'string' && slugId.endsWith('/') ? slugId.slice(0, -1) : slugId;
-    if (!isNaN(cleanId)) return parseInt(cleanId); // If it's just a number
-    if (typeof cleanId === 'string' && cleanId.includes('-')) {
-        const parts = cleanId.split('-');
-        const lastPart = parts[parts.length - 1];
-        if (!isNaN(lastPart)) return parseInt(lastPart);
-    }
+    const cleanId = slugId.endsWith('/') ? slugId.slice(0, -1) : slugId;
+
+    // If it's just a number
+    if (!isNaN(cleanId) && !cleanId.includes('-')) return parseInt(cleanId);
+
+    // If it's a slug like "title-123"
+    const parts = cleanId.split('-');
+    const lastPart = parts[parts.length - 1];
+    if (!isNaN(lastPart)) return parseInt(lastPart);
+
     return null;
 };
 
@@ -34,21 +39,23 @@ const getMetaData = async (route, idOrSlug) => {
     const id = getIdFromSlug(idOrSlug);
     let url = `https://vaas.solutions/${route}/${idOrSlug}`;
 
+    // Serve correct dynamic URL
+    url = `https://vaas.solutions/${route}/${idOrSlug}`;
+
     // Improve fallback title from slug
     if (idOrSlug && typeof idOrSlug === 'string') {
         let slugPart = idOrSlug;
         if (slugPart.includes('-')) {
             const parts = slugPart.split('-');
             if (!isNaN(parts[parts.length - 1])) {
-                parts.pop(); // Remove the ID if it's a number
+                parts.pop();
             }
             slugPart = parts.join(' ');
         }
-        const slugTitle = slugPart
+        title = slugPart
             .split(' ')
             .map(p => p.charAt(0).toUpperCase() + p.slice(1))
             .join(' ');
-        if (slugTitle) title = slugTitle;
     }
 
     try {
