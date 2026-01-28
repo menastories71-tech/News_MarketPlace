@@ -234,7 +234,9 @@ const getMetaData = async (route, idOrSlug) => {
 
     <!-- Primary Meta Tags -->
     <meta name="title" content="${finalTitle} | VaaS Solutions">
+    <meta name="description" content="${metaDescription}">
     <meta name="image" property="og:image" content="${image}">
+    <link rel="image_src" href="${image}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="${ogType}">
