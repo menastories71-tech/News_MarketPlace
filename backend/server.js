@@ -309,8 +309,28 @@ app.use('/api/admin/role-permissions', rolePermissionsRoutes);
 app.use('/api/events', eventsRoutes);
 app.use('/api/event-applications', eventApplicationsRoutes);
 app.use('/api/otp', otpRoutes);
-// app.use('/api/translations', translationsRoutes);
-// app.use('/api/translation', translationsRoutes);
+// --- TRANSLATION SAFETY NET ---
+// This ensures /api/translation works even if Nginx misroutes it to Express (Port 3000)
+const axios = require('axios');
+app.use(['/api/translation', '/api/translations'], async (req, res) => {
+  console.log(`[TRANSLATION-PROXY] Forwarding ${req.method} ${req.url} to Port 5005`);
+  try {
+    const response = await axios({
+      method: req.method,
+      url: `http://127.0.0.1:5005${req.url}`,
+      data: req.body,
+      headers: { 'Content-Type': 'application/json' },
+      timeout: 30000 // 30s timeout
+    });
+    return res.status(response.status).json(response.data);
+  } catch (error) {
+    console.error(`[TRANSLATION-PROXY-ERROR] ${error.message}`);
+    return res.status(error.response?.status || 500).json(
+      error.response?.data || { error: 'Translation proxy failure', details: error.message }
+    );
+  }
+});
+
 app.use('/api/cookies', cookieRoutes);
 // app.use('/api/users', userRoutes);
 // app.use('/api/articles', articleRoutes);

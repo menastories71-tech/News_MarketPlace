@@ -1,18 +1,22 @@
 #!/usr/bin/env python3
-# backend/translator.py - Universal Hybrid Version 2.1
-# Supports both Flask API service and Direct CLI execution
-from flask import Flask, request, jsonify
+# backend/translator.py - Universal Hybrid Version 2.2 (Robust Edition)
+from flask import Flask, request, jsonify, make_response
 from deep_translator import GoogleTranslator
 import os, sys, json, logging
 
-# Configure logging
+# Configure logging to show up in PM2 logs clearly
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
 )
 logger = logging.getLogger("translator")
 
 app = Flask(__name__)
+
+# Log every single request that hits Flask to help with PM2 debugging
+@app.before_request
+def log_request_info():
+    logger.info(f"---> FLASK REQUEST: {request.method} {request.path} | Args: {request.args.to_dict()}")
 
 def translate_logic(text, target_lang, source_lang='auto'):
     if not text or not isinstance(text, str) or len(text.strip()) == 0:
@@ -21,6 +25,9 @@ def translate_logic(text, target_lang, source_lang='auto'):
         return {"error": "Text too long (max 5000 characters)", "success": False}
     
     try:
+        # Map common code mismatches
+        if target_lang == 'zh': target_lang = 'zh-CN'
+        
         translator = GoogleTranslator(source=source_lang, target=target_lang)
         translation = translator.translate(text)
         return {
@@ -35,6 +42,17 @@ def translate_logic(text, target_lang, source_lang='auto'):
         return {"error": str(e), "success": False}
 
 # --- FLASK ROUTES ---
+
+# Global JSON 404 handler - prevents HTML 404s ever reaching the frontend
+@app.errorhandler(404)
+def handle_404(e):
+    logger.warning(f"!!! 404 ERROR: No route matches {request.path} [{request.method}]")
+    return make_response(jsonify({
+        "error": "Route not found in translator.py",
+        "requested_path": request.path,
+        "method": request.method,
+        "hint": "Ensure the path starts with /translate or /api/translation/translate"
+    }), 404)
 
 @app.route('/translate', methods=['POST'])
 @app.route('/api/translation/translate', methods=['POST'])
@@ -56,12 +74,14 @@ def translate():
 
 @app.route('/translate/batch', methods=['POST'])
 @app.route('/api/translation/translate/batch', methods=['POST'])
+@app.route('/api/translation/batch', methods=['POST']) # Resilient alias
 def translate_batch():
     try:
         data = request.get_json()
         if not data:
             return jsonify({"error": "No JSON payload"}), 400
 
+        # Support both naming conventions
         target_lang = data.get('target_lang') or data.get('target_language')
         texts = data.get('translations') or data.get('texts')
         
@@ -69,6 +89,8 @@ def translate_batch():
             logger.error(f"Invalid batch request payload: {data}")
             return jsonify({"error": "Missing target_lang or translations array"}), 400
 
+        logger.info(f"Processing batch of {len(texts)} items for language: {target_lang}")
+        
         results = []
         for text in texts:
             res = translate_logic(text, target_lang)
@@ -86,35 +108,14 @@ def translate_batch():
 
 @app.route('/health', methods=['GET'])
 @app.route('/api/translation/health', methods=['GET'])
+@app.route('/ping', methods=['GET'])
 def health():
     return jsonify({
         "status": "healthy", 
-        "version": "2.1-hybrid-ready",
-        "service": "translator"
+        "version": "2.2-robust-edition",
+        "service": "translator",
+        "environment": "production"
     })
-
-# Final catch-all for any method to help with diagnostics
-@app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
-@app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
-def catch_all(path):
-    logger.warning(f"CATCH-ALL hit: {request.method} /{path}")
-    return jsonify({
-        "error": "Path not found in translator",
-        "method": request.method,
-        "path": f"/{path}",
-        "full_url": request.url,
-        "suggestion": "Check Nginx proxy_pass trailing slash or use /translate/batch"
-    }), 404
-
-@app.errorhandler(404)
-def handle_404(e):
-    logger.warning(f"404 Not Found: {request.path} [{request.method}]")
-    return jsonify({
-        "error": "Route not found in translator.py", 
-        "path": request.path,
-        "method": request.method,
-        "hint": "Try /translate/batch or /translate"
-    }), 404
 
 # --- CLI EXECUTION LOGIC (for Node.js execFile) ---
 
@@ -157,5 +158,5 @@ if __name__ == "__main__":
     else:
         # Flask mode
         port = int(os.environ.get('PORT', 5005))
-        logger.info(f"Starting Translator (V2.1) on port {port}")
+        logger.info(f"Starting Translator (V2.2) on port {port}")
         app.run(host='0.0.0.0', port=port, debug=False)
