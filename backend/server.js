@@ -190,22 +190,23 @@ app.get('/simple-test', (req, res) => {
 const { getMetaData } = require('./src/utils/metaTags');
 
 app.get([
-  '/publications/:id',
-  '/events/:id',
-  '/blog/:id',
-  '/blogs/:id',
-  '/careers/:id',
-  '/themes/:id',
-  '/power-lists/:id',
-  '/paparazzi/:id',
-  '/awards/:id',
-  '/real-estate-professionals/:id',
-  '/radio/:id',
-  '/podcasters/:id',
-  '/press-packs/:id'
+  '/publications', '/publications/:id',
+  '/events', '/events/:id',
+  '/blog', '/blog/:id',
+  '/blogs', '/blogs/:id',
+  '/careers', '/careers/:id',
+  '/themes', '/themes/:id',
+  '/power-lists', '/power-lists/:id',
+  '/paparazzi', '/paparazzi/:id',
+  '/awards', '/awards/:id',
+  '/real-estate-professionals', '/real-estate-professionals/:id',
+  '/radio', '/radio/:id',
+  '/podcasters', '/podcasters/:id',
+  '/press-packs', '/press-packs/:id',
+  '/published-works', '/published-works/:id'
 ], async (req, res, next) => {
   const userAgent = req.headers['user-agent'] || '';
-  const isBotLike = /bot|crawler|spider|facebookexternalhit|Facebot|LinkedIn|LinkedInBot|Twitterbot|WhatsApp|Slackbot|Discordbot|TelegramBot|Pinterest|Googlebot|bingbot|Applebot/i.test(userAgent);
+  const isBotLike = /bot|crawler|spider|facebook|linkedin|twitter|whatsapp|slack|discord|pinterest|google|bing|apple|telegram/i.test(userAgent);
 
   const route = req.path.split('/')[1];
   const idOrSlug = req.params.id;

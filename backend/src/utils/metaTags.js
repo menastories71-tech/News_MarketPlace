@@ -41,12 +41,36 @@ const getIdFromSlug = (slugId) => {
 
 const getMetaData = async (route, idOrSlug) => {
     let title = 'News Marketplace';
-    let description = 'Your one-stop destination for news and industry insights.';
+    let description = 'VaaS Solutions is your one-stop destination for news, industry insights, publications, events, and professional networking. Explore blogs, awards, careers, and more with our global marketplace.';
     let image = 'https://vaas.solutions/logo.png'; // Default logo
     const id = getIdFromSlug(idOrSlug);
-    let url = `https://vaas.solutions/${route}/${idOrSlug}`;
+    let url = `https://vaas.solutions/${route}/${idOrSlug || ''}`;
 
-    // Improve fallback title from slug if possible
+    // Improve fallback title based on route (for listing pages)
+    if (!idOrSlug) {
+        const routeTitles = {
+            'publications': 'Verified Media Publications',
+            'events': 'Industry Events & Networking',
+            'blog': 'Marketplace Insights & Blogs',
+            'blogs': 'Marketplace Insights & Blogs',
+            'careers': 'Career Opportunities in Media',
+            'themes': 'Media Themes & Curated Lists',
+            'power-lists': 'Power Lists & Industry Leaders',
+            'paparazzi': 'Influencer & Social Media Pages',
+            'awards': 'Awards & Recognitions',
+            'real-estate-professionals': 'Real Estate Experts Directory',
+            'radio': 'Radio Stations & Broadcasters',
+            'podcasters': 'Top Podcasters Directory',
+            'press-packs': 'Media Press Packs',
+            'published-works': 'Our Published Media Works'
+        };
+        if (routeTitles[route]) {
+            title = routeTitles[route];
+            description = `Explore the best ${routeTitles[route]} on VaaS Solutions. Connect with industry leaders and grow your presence.`;
+        }
+    }
+
+    // Improve fallback title from slug if possible (for detail pages)
     if (idOrSlug && typeof idOrSlug === 'string') {
         let slugPart = idOrSlug;
         if (slugPart.includes('-')) {
@@ -183,6 +207,14 @@ const getMetaData = async (route, idOrSlug) => {
                         }
                         break;
                     }
+                    case 'published-works': {
+                        const res = await pool.query('SELECT publication_name, description FROM published_works WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].publication_name;
+                            description = res.rows[0].description || description;
+                        }
+                        break;
+                    }
                 }
             } else {
                 console.error('[META-ERROR] Pool is not initialized correctly');
@@ -219,7 +251,7 @@ const getMetaData = async (route, idOrSlug) => {
 
     // Determine Open Graph type
     let ogType = 'website';
-    if (['publications', 'blog', 'blogs'].includes(route)) {
+    if (['publications', 'blog', 'blogs', 'published-works'].includes(route)) {
         ogType = 'article';
     }
 
@@ -301,7 +333,7 @@ const getMetaData = async (route, idOrSlug) => {
     <script>
         // Only redirect if not a bot
         const ua = navigator.userAgent;
-        const isBot = /bot|crawler|spider|facebook|linkedin|twitter|whatsapp|slack|discord/i.test(ua);
+        const isBot = /bot|crawler|spider|facebook|linkedin|twitter|whatsapp|slack|discord|telegram/i.test(ua);
         if (!isBot) {
             window.location.replace("${url}");
         }
