@@ -338,8 +338,8 @@ const PodcastersList = () => {
   return (
     <div className="min-h-screen bg-white">
       <SEO
-        title={t('podcasters.seo.title', 'Top Podcast Hosts & Influencers | News Marketplace')}
-        description={t('podcasters.seo.desc', 'Discover and connect with top podcast hosts across various industries for high-impact media placements.')}
+        title="Top Podcast Hosts & Influencers | Global Reach"
+        description="Discover and connect with top podcast hosts and influencers across various industries for high-impact media placements on VaaS Solutions."
       />
       <Schema
         type="collection"

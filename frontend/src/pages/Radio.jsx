@@ -7,6 +7,8 @@ import UserFooter from '../components/common/UserFooter';
 import Skeleton from '../components/common/Skeleton';
 import api from '../services/api';
 import { createSlugPath } from '../utils/slugify';
+import SEO from '../components/common/SEO';
+import ShareButtons from '../components/common/ShareButtons';
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -240,46 +242,70 @@ const RadioPage = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title="Radio Stations & Broadcasters | Global Media Directory"
+        description="Explore the best Radio Stations & Broadcasters on VaaS Solutions. Connect with industry leaders and grow your presence."
+      />
       <UserHeader />
 
       {/* Enhanced Hero Section */}
-      <section className="relative py-8 md:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white border-b border-[#E0E0E0]">
+      <section className="relative py-8 md:py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-blue-50 border-b border-blue-100 overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full -z-10 opacity-40">
+          <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-200 rounded-full blur-[120px]"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-100 rounded-full blur-[120px]"></div>
+        </div>
+
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#212121] mb-4 sm:mb-6 tracking-tight">
               {t('radio.hero.title')}
             </h1>
-            <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-base sm:text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light px-4">
               {t('radio.hero.subtitle')}
             </p>
-            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
+            <p className="text-[10px] sm:text-xs md:text-sm text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-semibold mt-3 sm:mt-4 bg-orange-50 inline-block px-3 py-1 rounded-full border border-orange-100 uppercase tracking-wider">
               {t('radio.hero.disclaimer')}
             </p>
 
-            {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mt-8">
-              <div className="relative">
+            {/* Search Bar & Share Buttons */}
+            <div className="max-w-4xl mx-auto mt-6 sm:mt-10 flex flex-col items-stretch gap-4 px-2">
+              <div className="relative flex-1 group">
                 <input
                   type="text"
                   placeholder={t('radio.hero.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
+                  className="w-full pl-12 pr-12 py-3.5 sm:py-4 border border-[#E0E0E0] rounded-xl text-base sm:text-lg focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#1976D2] bg-white shadow-lg shadow-blue-900/5 transition-all"
                 />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: theme.textSecondary }} />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 group-focus-within:text-[#1976D2] transition-colors" size={20} style={{ color: theme.textSecondary }} />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#757575] hover:text-[#212121] transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#757575] hover:text-[#212121] transition-colors bg-gray-100 rounded-full w-6 h-6 flex items-center justify-center"
                   >
                     ×
                   </button>
                 )}
+              </div>
+
+              <div className="flex flex-row items-center justify-between sm:justify-center gap-3 bg-white/80 backdrop-blur-sm p-2 sm:p-3 rounded-xl border border-blue-50 shadow-sm self-center">
+                <div className="flex items-center gap-2">
+                  <div className="w-1.5 h-6 bg-blue-500 rounded-full"></div>
+                  <span className="text-xs sm:text-sm font-bold text-[#757575] uppercase tracking-wider">{t('common.share', 'Share Directory')}:</span>
+                </div>
+                <ShareButtons
+                  url={window.location.href}
+                  title="Radio Stations & Broadcasters | Global Media Directory"
+                  description="Explore the best Radio Stations & Broadcasters on VaaS Solutions."
+                  showLabel={false}
+                  variant="ghost"
+                  size="sm"
+                />
               </div>
             </div>
           </motion.div>
@@ -296,7 +322,7 @@ const RadioPage = () => {
           zIndex: 10,
           borderRight: isMobile ? 'none' : `1px solid ${theme.borderLight}`,
           borderTop: isMobile ? `1px solid ${theme.borderLight}` : 'none',
-          width: isMobile ? '100%' : '25%'
+          width: sidebarOpen ? (isMobile ? '100%' : '25%') : '0'
         }}>
           <div className="p-6 h-full overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
@@ -463,7 +489,7 @@ const RadioPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.4, delay: index * 0.1 }}
                         onClick={() => handleRadioClick(radio)}
-                        className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden h-80"
+                        className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden h-72 sm:h-80"
                         style={{
                           boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
                         }}

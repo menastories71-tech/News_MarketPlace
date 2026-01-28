@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/auth/AuthModal';
 import { getIdFromSlug } from '../utils/slugify';
 import ShareButtons from '../components/common/ShareButtons';
+import SEO from '../components/common/SEO';
 
 // Updated theme colors matching the color palette from PDF
 const theme = {
@@ -169,23 +170,29 @@ const RadioDetails = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO
+        title={`${translatedRadio.radio_name} | Radio Station Broadcaster`}
+        description={translatedRadio.description || `Listen to ${translatedRadio.radio_name} (${translatedRadio.frequency}) on VaaS Solutions. Discover top radio stations and broadcasters.`}
+        image={translatedRadio.image_url || 'https://vaas.solutions/logo.png'}
+        type="article"
+      />
       <UserHeader />
 
       {/* Back Button */}
-      <section className="py-4 px-4 sm:px-6 lg:px-8 bg-white border-b border-[#E0E0E0]">
+      <section className="py-3 px-4 sm:px-6 lg:px-8 bg-white border-b border-[#E0E0E0]">
         <div className="max-w-7xl mx-auto">
           <button
             onClick={handleBack}
-            className="flex items-center gap-2 text-[#1976D2] hover:text-[#1565C0] transition-colors"
+            className="flex items-center gap-2 text-[#1976D2] hover:text-[#1565C0] transition-colors text-sm sm:text-base font-medium"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             {t('radioDetails.backToStations')}
           </button>
         </div>
       </section>
 
       {/* Hero Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -193,39 +200,42 @@ const RadioDetails = () => {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#212121] mb-4">
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-[#212121] mb-4">
               {translatedRadio.radio_name}
             </h1>
             <div className="flex justify-center mb-6">
-              <span className="text-xl font-medium text-[#1976D2] bg-[#E3F2FD] px-6 py-2 rounded-full">
+              <span className="text-lg sm:text-xl font-medium text-[#1976D2] bg-[#E3F2FD] px-6 py-2 rounded-full border border-blue-100">
                 {translatedRadio.frequency}
               </span>
             </div>
             <div className="flex justify-center">
-              <img
-                src={translatedRadio.image_url || "/logo.png"}
-                alt={translatedRadio.radio_name}
-                className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-                onError={(e) => {
-                  e.target.src = "/logo.png";
-                }}
-              />
+              <div className="relative">
+                <div className="absolute inset-0 bg-blue-400/20 rounded-full blur-2xl -z-10 animate-pulse"></div>
+                <img
+                  src={translatedRadio.image_url || "/logo.png"}
+                  alt={translatedRadio.radio_name}
+                  className="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-xl"
+                  onError={(e) => {
+                    e.target.src = "/logo.png";
+                  }}
+                />
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
       {/* Details Section */}
-      <section className="py-12 px-4 sm:px-6 lg:px-8 bg-white">
+      <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Content */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-lg shadow-sm border p-8">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 sm:p-8">
                 {/* Frequency and Basic Info */}
                 <div className="mb-8">
-                  <h2 className="text-2xl font-semibold text-[#212121] mb-6 flex items-center gap-2">
-                    <Radio className="w-6 h-6 text-[#1976D2]" />
+                  <h2 className="text-xl sm:text-2xl font-bold text-[#212121] mb-6 flex items-center gap-2">
+                    <Radio className="w-5 h-5 sm:w-6 sm:h-6 text-[#1976D2]" />
                     {t('radioDetails.stationDetails')}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -321,22 +331,22 @@ const RadioDetails = () => {
             </div>
 
             {/* Sidebar */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 flex flex-col gap-6">
               {/* Station Summary Card */}
-              <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-                <h3 className="text-lg font-semibold mb-4 text-[#212121]">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 order-2 lg:order-1">
+                <h3 className="text-lg font-bold mb-4 text-[#212121]">
                   {t('radioDetails.summary')}
                 </h3>
-                <div className="space-y-3 text-sm">
-                  <div className="flex items-center justify-between">
+                <div className="space-y-4 text-sm">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-50">
                     <span className="text-[#757575]">{t('radioDetails.frequency')}</span>
-                    <span className="font-medium text-[#212121]">{translatedRadio.frequency}</span>
+                    <span className="font-semibold text-[#212121] bg-blue-50 px-2 py-0.5 rounded text-xs">{translatedRadio.frequency}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-50">
                     <span className="text-[#757575]">{t('radioDetails.language')}</span>
                     <span className="font-medium text-[#212121]">{translatedRadio.radio_language}</span>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-50">
                     <span className="text-[#757575]">{t('radioDetails.emirate')}</span>
                     <span className="font-medium text-[#212121]">{translatedRadio.emirate_state}</span>
                   </div>
@@ -348,13 +358,13 @@ const RadioDetails = () => {
               </div>
 
               {/* Action Card */}
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h3 className="text-lg font-semibold mb-4 text-[#212121]">
+              <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 order-1 lg:order-2 ring-2 ring-blue-500/5">
+                <h3 className="text-lg font-bold mb-4 text-[#212121]">
                   {t('radioDetails.quickActions')}
                 </h3>
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <button
-                    className="w-full text-white font-medium py-3 px-4 rounded-lg transition-colors"
+                    className="w-full text-white font-bold py-4 px-4 rounded-xl transition-all duration-300 shadow-lg shadow-blue-500/20 active:scale-95"
                     style={{ backgroundColor: theme.primary }}
                     onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                     onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
@@ -364,7 +374,8 @@ const RadioDetails = () => {
                     {isOrdering ? t('radioDetails.processing') : (isAuthenticated ? t('radioDetails.checkout') : t('radioDetails.signInOrder'))}
                   </button>
 
-                  <div className="flex justify-center">
+                  <div className="flex flex-col items-center gap-3 py-2">
+                    <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Share Station</span>
                     <ShareButtons
                       url={window.location.href}
                       title={translatedRadio?.radio_name || 'Radio Station'}
@@ -374,7 +385,7 @@ const RadioDetails = () => {
 
                   <button
                     onClick={handleBack}
-                    className="w-full flex items-center justify-center gap-2 text-white font-medium py-3 px-4 rounded-lg transition-colors bg-[#757575] hover:bg-[#616161]"
+                    className="w-full flex items-center justify-center gap-2 text-slate-600 font-semibold py-3 px-4 rounded-xl transition-all duration-300 border border-slate-200 hover:bg-slate-50 active:scale-95"
                   >
                     <ArrowLeft size={16} />
                     {t('radioDetails.backToStations')}

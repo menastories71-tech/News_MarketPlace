@@ -267,9 +267,9 @@ const PodcasterDetail = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
       <SEO
-        title={`${podcaster.podcast_name} - ${podcaster.podcast_host}`}
-        description={podcaster.cta || t('podcasterDetail.about')}
-        image={podcaster.image} // Assuming podcaster object has an image property, otherwise fallback or remove
+        title={`${podcaster.podcast_name} | Podcast Host`}
+        description={podcaster.cta || `Connect with ${podcaster.podcast_host}, host of ${podcaster.podcast_name}, on VaaS Solutions. Explore top podcasts and media influencers.`}
+        image={podcaster.image || 'https://vaas.solutions/logo.png'}
         url={window.location.href}
         type="profile"
       />

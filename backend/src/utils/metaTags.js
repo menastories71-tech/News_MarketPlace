@@ -183,17 +183,17 @@ const getMetaData = async (route, idOrSlug) => {
                     case 'radio': {
                         const res = await pool.query('SELECT station_name, description, logo FROM radios WHERE id = $1', [id]);
                         if (res.rows[0]) {
-                            title = res.rows[0].station_name;
-                            description = res.rows[0].description || description;
+                            title = `${res.rows[0].station_name} | Radio Station Broadcaster`;
+                            description = res.rows[0].description || `Listen to ${res.rows[0].station_name} on VaaS Solutions. Explore top radio stations and broadcasters globally.`;
                             image = res.rows[0].logo || image;
                         }
                         break;
                     }
                     case 'podcasters': {
-                        const res = await pool.query('SELECT name, description, image FROM podcasters WHERE id = $1', [id]);
+                        const res = await pool.query('SELECT podcast_name as name, podcast_host as host, cta as description, image FROM podcasters WHERE id = $1', [id]);
                         if (res.rows[0]) {
-                            title = res.rows[0].name;
-                            description = res.rows[0].description || description;
+                            title = `${res.rows[0].name} | Podcast Host`;
+                            description = res.rows[0].description || `Connect with ${res.rows[0].host}, host of ${res.rows[0].name}, on VaaS Solutions. Explore top podcasts and media influencers.`;
                             image = res.rows[0].image || image;
                         }
                         break;
