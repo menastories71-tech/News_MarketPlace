@@ -205,28 +205,36 @@ app.get([
   '/press-packs/:id'
 ], async (req, res, next) => {
   const userAgent = req.headers['user-agent'] || '';
-  // Extremely permissive bot check for sharing debugging
   const isBotLike = /bot|crawler|spider|facebookexternalhit|Facebot|LinkedIn|LinkedInBot|Twitterbot|WhatsApp|Slackbot|Discordbot|TelegramBot|Pinterest|Googlebot|bingbot|Applebot/i.test(userAgent);
 
   const route = req.path.split('/')[1];
-  const id = req.params.id;
+  const idOrSlug = req.params.id;
 
-  // LOG ALL HITS TO THIS ROUTE FOR DEBUGGING
-  console.log(`[SHARE-DEBUG] Hit at ${new Date().toISOString()} | Path: ${req.path} | Likely Bot: ${isBotLike} | UA: ${userAgent}`);
+  // IMPORTANT: Only serve metadata to bots. 
+  // For humans, call next() so they get the standard React app.
+  if (!isBotLike) {
+    return next();
+  }
+
+  // If we can't get an ID or slug part, let the SPA handle it
+  if (!idOrSlug) {
+    return next();
+  }
+
+  console.log(`[SHARE-BOT-HIT] Path: ${req.path} | UA: ${userAgent}`);
 
   try {
-    const html = await getMetaData(route, id);
+    const html = await getMetaData(route, idOrSlug);
     const body = Buffer.from(html, 'utf-8');
 
-    // Explicit headers to prevent 206 Partial Content issues
-    res.set('X-VaaS-Source', 'metadata-service');
+    res.set('X-VaaS-Source', 'metadata-bot-service');
     res.set('Content-Type', 'text/html; charset=utf-8');
     res.set('Content-Length', body.length);
     res.set('Cache-Control', 'public, max-age=3600');
 
     return res.status(200).send(body);
   } catch (error) {
-    console.error(`[SHARE-ERROR] Failed to serve metadata for ${req.path}:`, error);
+    console.error(`[SHARE-ERROR] Bot metadata failure for ${req.path}:`, error);
     next();
   }
 });

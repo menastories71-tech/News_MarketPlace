@@ -1,13 +1,21 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const pool = new Pool({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    database: process.env.DB_NAME,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-});
+let pool;
+try {
+    pool = new Pool({
+        host: process.env.DB_HOST,
+        port: process.env.DB_PORT,
+        database: process.env.DB_NAME,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+    });
+    pool.on('error', (err) => {
+        console.error('[META-POOL-ERROR] Unexpected error on idle client', err);
+    });
+} catch (e) {
+    console.error('[META-INIT-ERROR] Failed to initialize PG pool:', e);
+}
 
 /**
  * Extracts the ID from a slug-id string
@@ -57,8 +65,10 @@ const getMetaData = async (route, idOrSlug) => {
             .join(' ');
     }
 
+    console.log(`[META-DEBUG] Generating tags for Route: ${route}, Slug: ${idOrSlug}, Extracted ID: ${id}`);
+
     try {
-        if (id) {
+        if (id && pool) {
             switch (route) {
                 case 'publications': {
                     const res = await pool.query('SELECT publication_name, remarks, image FROM publication_managements WHERE id = $1', [id]);
@@ -177,8 +187,7 @@ const getMetaData = async (route, idOrSlug) => {
             }
         }
     } catch (error) {
-        console.error('Error fetching metadata (db query failed):', error);
-        // We catch the error locally to ensure the rest of the function proceeds with generated fallbacks
+        console.error('[META-ERROR] Database query failed:', error);
     }
 
     // Ensure absolute image URL with improved logic
@@ -211,7 +220,8 @@ const getMetaData = async (route, idOrSlug) => {
     }
 
     // Ensure we don't return the same title as index.html to help debugging
-    const finalTitle = title === 'News Marketplace' ? 'News Marketplace - Industry Insights' : title;
+    // This helps us confirm if LinkedIn is seeing our dynamic tag or the static index.html
+    const finalTitle = title === 'News Marketplace' ? 'News Marketplace - Dynamic' : title;
 
     // Sanitize description
     const cleanDescription = description ? description
