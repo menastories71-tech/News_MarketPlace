@@ -259,21 +259,21 @@ const PowerlistDetailPage = () => {
   return (
     <div className="min-h-screen" style={{ backgroundColor: theme.backgroundAlt }}>
       <SEO
-        title={`${nomination.publication_name} - Media Power List Profile | News Marketplace`}
-        description={nomination.description || `View the profile of ${nomination.publication_name} in the ${nomination.power_list_name} group.`}
-        image={nomination.image}
+        title={`${powerlistNomination.publication_name} - Media Power List Profile | News Marketplace`}
+        description={powerlistNomination.description || `View the profile of ${powerlistNomination.publication_name} in the ${powerlistNomination.power_list_name} group.`}
+        image={powerlistNomination.image}
         type="profile"
       />
       <Schema
         type="service"
         data={{
-          name: nomination.publication_name,
-          description: nomination.description,
-          areaServed: nomination.location_region,
-          catalogName: nomination.power_list_name,
+          name: powerlistNomination.publication_name,
+          description: powerlistNomination.description,
+          areaServed: powerlistNomination.location_region,
+          catalogName: powerlistNomination.power_list_name,
           services: [
-            { name: nomination.industry },
-            { name: nomination.company_or_individual }
+            { name: powerlistNomination.industry },
+            { name: powerlistNomination.company_or_individual }
           ]
         }}
       />

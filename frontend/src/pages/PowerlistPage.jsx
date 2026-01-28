@@ -707,7 +707,6 @@ const PowerlistPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedPowerlists.map((nomination, index) => {
                     const imageUrl = getImageUrl(nomination.image);
-                    const fallbackGradient = generateFallbackImage(nomination.publication_name);
 
                     return (
                       <motion.div
@@ -802,7 +801,7 @@ const PowerlistPage = () => {
                                   showLabel={false}
                                   variant="ghost"
                                   size="sm"
-                                  iconColor="white"
+                                  className="!p-1 text-white hover:text-blue-300 hover:bg-white/10"
                                 />
                               </div>
                               <div className="text-right">
@@ -900,7 +899,6 @@ const PowerlistPage = () => {
                       <tbody>
                         {sortedPowerlists.map((nomination, index) => {
                           const imageUrl = getImageUrl(nomination.image);
-                          const fallbackGradient = generateFallbackImage(nomination.publication_name);
 
                           return (
                             <tr
