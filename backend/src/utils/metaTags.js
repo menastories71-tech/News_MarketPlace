@@ -16,18 +16,17 @@ const pool = new Pool({
  */
 const getIdFromSlug = (slugId) => {
     if (!slugId) return null;
-    if (typeof slugId !== 'string') return isNaN(slugId) ? null : parseInt(slugId);
+    const s = String(slugId).trim();
 
-    // Remove trailing slash if present
-    const cleanId = slugId.endsWith('/') ? slugId.slice(0, -1) : slugId;
+    // Remove trailing slash
+    const clean = s.endsWith('/') ? s.slice(0, -1) : s;
 
-    // If it's just a number
-    if (!isNaN(cleanId) && !cleanId.includes('-')) return parseInt(cleanId);
+    // Check if it's a numeric ID already or a slug like "some-title-123"
+    // Use regex to find the last numeric part after a hyphen or the whole string if numeric
+    if (/^\d+$/.test(clean)) return parseInt(clean, 10);
 
-    // If it's a slug like "title-123"
-    const parts = cleanId.split('-');
-    const lastPart = parts[parts.length - 1];
-    if (!isNaN(lastPart)) return parseInt(lastPart);
+    const match = clean.match(/-(\d+)$/);
+    if (match) return parseInt(match[1], 10);
 
     return null;
 };
@@ -235,6 +234,7 @@ const getMetaData = async (route, idOrSlug) => {
 
     <!-- Primary Meta Tags -->
     <meta name="title" content="${finalTitle} | VaaS Solutions">
+    <meta name="image" property="og:image" content="${image}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="${ogType}">
@@ -243,6 +243,7 @@ const getMetaData = async (route, idOrSlug) => {
     <meta property="og:description" content="${metaDescription}">
     <meta property="og:image" content="${image}">
     <meta property="og:image:secure_url" content="${image}">
+    <meta property="og:image:url" content="${image}">
     <meta property="og:image:type" content="${imageType}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
