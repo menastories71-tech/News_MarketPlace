@@ -232,15 +232,17 @@ const getMetaData = async (route, idOrSlug) => {
     <title>${finalTitle} | VaaS Solutions</title>
     <meta name="description" content="${metaDescription}">
 
+    <link rel="canonical" href="${url}">
+    
     <!-- Primary Meta Tags -->
     <meta name="title" content="${finalTitle} | VaaS Solutions">
     <meta name="description" content="${metaDescription}">
-    <meta name="image" property="og:image" content="${image}">
     <link rel="image_src" href="${image}">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="${ogType}">
     <meta property="og:url" content="${url}">
+    <meta property="og:site_name" content="VaaS Solutions">
     <meta property="og:title" content="${finalTitle}">
     <meta property="og:description" content="${metaDescription}">
     <meta property="og:image" content="${image}">
@@ -250,7 +252,6 @@ const getMetaData = async (route, idOrSlug) => {
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="${finalTitle}">
-    <meta property="og:site_name" content="VaaS Solutions">
     <meta property="og:locale" content="en_US">
 
     <!-- Twitter -->
@@ -260,8 +261,27 @@ const getMetaData = async (route, idOrSlug) => {
     <meta name="twitter:description" content="${metaDescription}">
     <meta name="twitter:image" content="${image}">
     <meta name="twitter:image:alt" content="${finalTitle}">
+    <meta name="twitter:site" content="@vaassolutions">
 
-    <link rel="canonical" href="${url}">
+    <!-- Schema.org for Google -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "${ogType === 'article' ? 'NewsArticle' : 'WebPage'}",
+      "headline": "${finalTitle.replace(/"/g, '\\"')}",
+      "image": ["${image}"],
+      "url": "${url}",
+      "description": "${metaDescription.replace(/"/g, '\\"')}",
+      "publisher": {
+        "@type": "Organization",
+        "name": "VaaS Solutions",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://vaas.solutions/logo.png"
+        }
+      }
+    }
+    </script>
 
     <!-- Redirect for humans -->
     <script>
