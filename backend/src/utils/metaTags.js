@@ -46,10 +46,7 @@ const getMetaData = async (route, idOrSlug) => {
     const id = getIdFromSlug(idOrSlug);
     let url = `https://vaas.solutions/${route}/${idOrSlug}`;
 
-    // Serve correct dynamic URL
-    url = `https://vaas.solutions/${route}/${idOrSlug}`;
-
-    // Improve fallback title from slug
+    // Improve fallback title from slug if possible
     if (idOrSlug && typeof idOrSlug === 'string') {
         let slugPart = idOrSlug;
         if (slugPart.includes('-')) {
@@ -69,141 +66,148 @@ const getMetaData = async (route, idOrSlug) => {
 
     try {
         if (id && pool) {
-            switch (route) {
-                case 'publications': {
-                    const res = await pool.query('SELECT publication_name, remarks, image FROM publication_managements WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].publication_name;
-                        description = res.rows[0].remarks || description;
-                        image = res.rows[0].image || image;
-                    } else {
-                        // Fallback to publications table
-                        const resPub = await pool.query('SELECT publication_name, other_remarks FROM publications WHERE id = $1', [id]);
-                        if (resPub.rows[0]) {
-                            title = resPub.rows[0].publication_name;
-                            description = resPub.rows[0].other_remarks || description;
+            // Check if we are connected to the pool
+            if (typeof pool.query === 'function') {
+                switch (route) {
+                    case 'publications': {
+                        const res = await pool.query('SELECT publication_name, remarks, image FROM publication_managements WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].publication_name;
+                            description = res.rows[0].remarks || description;
+                            image = res.rows[0].image || image;
+                        } else {
+                            // Fallback to publications table
+                            const resPub = await pool.query('SELECT publication_name, other_remarks FROM publications WHERE id = $1', [id]);
+                            if (resPub.rows[0]) {
+                                title = resPub.rows[0].publication_name;
+                                description = resPub.rows[0].other_remarks || description;
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
-                case 'events': {
-                    const res = await pool.query('SELECT event_name, event_description, event_image FROM events WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].event_name;
-                        description = res.rows[0].event_description || description;
-                        image = res.rows[0].event_image || image;
+                    case 'events': {
+                        const res = await pool.query('SELECT event_name, event_description, event_image FROM events WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].event_name;
+                            description = res.rows[0].event_description || description;
+                            image = res.rows[0].event_image || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'blog':
-                case 'blogs': {
-                    const res = await pool.query('SELECT title, content, image FROM blogs WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].title;
-                        description = res.rows[0].content ? res.rows[0].content.substring(0, 160) : description;
-                        image = res.rows[0].image || image;
+                    case 'blog':
+                    case 'blogs': {
+                        const res = await pool.query('SELECT title, content, image FROM blogs WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].title;
+                            description = res.rows[0].content ? res.rows[0].content.substring(0, 160) : description;
+                            image = res.rows[0].image || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'careers': {
-                    const res = await pool.query('SELECT title, description FROM careers WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].title;
-                        description = res.rows[0].description || description;
+                    case 'careers': {
+                        const res = await pool.query('SELECT title, description FROM careers WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].title;
+                            description = res.rows[0].description || description;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'themes': {
-                    const res = await pool.query('SELECT theme_name, theme_description, theme_image FROM themes WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].theme_name;
-                        description = res.rows[0].theme_description || description;
-                        image = res.rows[0].theme_image || image;
+                    case 'themes': {
+                        const res = await pool.query('SELECT theme_name, theme_description, theme_image FROM themes WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].theme_name;
+                            description = res.rows[0].theme_description || description;
+                            image = res.rows[0].theme_image || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'power-lists': {
-                    const res = await pool.query('SELECT nomination_name, company_name, description FROM powerlist_nominations WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = `${res.rows[0].nomination_name} - ${res.rows[0].company_name}`;
-                        description = res.rows[0].description || description;
+                    case 'power-lists': {
+                        const res = await pool.query('SELECT nomination_name, company_name, description FROM powerlist_nominations WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = `${res.rows[0].nomination_name} - ${res.rows[0].company_name}`;
+                            description = res.rows[0].description || description;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'paparazzi': {
-                    const res = await pool.query('SELECT instagram_page_name, category, profile_dp_logo FROM paparazzi_creations WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].instagram_page_name;
-                        description = `Social Media Page - Category: ${res.rows[0].category}`;
-                        image = res.rows[0].profile_dp_logo || image;
+                    case 'paparazzi': {
+                        const res = await pool.query('SELECT instagram_page_name, category, profile_dp_logo FROM paparazzi_creations WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].instagram_page_name;
+                            description = `Social Media Page - Category: ${res.rows[0].category}`;
+                            image = res.rows[0].profile_dp_logo || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'awards': {
-                    const res = await pool.query('SELECT award_name, industry, image FROM award_creations WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].award_name;
-                        description = res.rows[0].industry || description;
-                        image = res.rows[0].image || image;
+                    case 'awards': {
+                        const res = await pool.query('SELECT award_name, industry, image FROM award_creations WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].award_name;
+                            description = res.rows[0].industry || description;
+                            image = res.rows[0].image || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'real-estate-professionals': {
-                    const res = await pool.query('SELECT full_name, bio, profile_image FROM real_estate_professionals WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].full_name;
-                        description = res.rows[0].bio || description;
-                        image = res.rows[0].profile_image || image;
+                    case 'real-estate-professionals': {
+                        const res = await pool.query('SELECT full_name, bio, profile_image FROM real_estate_professionals WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].full_name;
+                            description = res.rows[0].bio || description;
+                            image = res.rows[0].profile_image || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'radio': {
-                    const res = await pool.query('SELECT station_name, description, logo FROM radios WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].station_name;
-                        description = res.rows[0].description || description;
-                        image = res.rows[0].logo || image;
+                    case 'radio': {
+                        const res = await pool.query('SELECT station_name, description, logo FROM radios WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].station_name;
+                            description = res.rows[0].description || description;
+                            image = res.rows[0].logo || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'podcasters': {
-                    const res = await pool.query('SELECT name, description, image FROM podcasters WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].name;
-                        description = res.rows[0].description || description;
-                        image = res.rows[0].image || image;
+                    case 'podcasters': {
+                        const res = await pool.query('SELECT name, description, image FROM podcasters WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].name;
+                            description = res.rows[0].description || description;
+                            image = res.rows[0].image || image;
+                        }
+                        break;
                     }
-                    break;
-                }
-                case 'press-packs': {
-                    const res = await pool.query('SELECT pack_name, description, image FROM press_packs WHERE id = $1', [id]);
-                    if (res.rows[0]) {
-                        title = res.rows[0].pack_name;
-                        description = res.rows[0].description || description;
-                        image = res.rows[0].image || image;
+                    case 'press-packs': {
+                        const res = await pool.query('SELECT pack_name, description, image FROM press_packs WHERE id = $1', [id]);
+                        if (res.rows[0]) {
+                            title = res.rows[0].pack_name;
+                            description = res.rows[0].description || description;
+                            image = res.rows[0].image || image;
+                        }
+                        break;
                     }
-                    break;
                 }
+            } else {
+                console.error('[META-ERROR] Pool is not initialized correctly');
             }
+        } else {
+            console.log(`[META-INFO] Skipping DB query - ID: ${id}, Pool exists: ${!!pool}`);
         }
     } catch (error) {
-        console.error('[META-ERROR] Database query failed:', error);
+        console.error('[META-ERROR] Database query or switch logic failed:', error);
     }
 
-    // Ensure absolute image URL with improved logic
+    // Ensure absolute image URL logic
     if (image && typeof image === 'string' && image.length > 0) {
         if (!image.startsWith('http')) {
-            // Handle protocol-relative URLs (//example.com)
             if (image.startsWith('//')) {
                 image = `https:${image}`;
             } else {
-                // Remove leading slash if present to avoid double slashes
                 const cleanSource = image.startsWith('/') ? image.substring(1) : image;
                 image = `https://vaas.solutions/${cleanSource}`;
             }
         }
-    } else {
-        // Fallback to high-resolution logo if possible, or standard logo
+    }
+
+    // Final image fallback
+    if (!image || typeof image !== 'string' || image.trim().length === 0) {
         image = 'https://vaas.solutions/logo.png';
     }
 
@@ -219,8 +223,6 @@ const getMetaData = async (route, idOrSlug) => {
         ogType = 'article';
     }
 
-    // Ensure we don't return the same title as index.html to help debugging
-    // This helps us confirm if LinkedIn is seeing our dynamic tag or the static index.html
     const finalTitle = title === 'News Marketplace' ? 'News Marketplace - Dynamic' : title;
 
     // Sanitize description
@@ -299,7 +301,7 @@ const getMetaData = async (route, idOrSlug) => {
     <script>
         // Only redirect if not a bot
         const ua = navigator.userAgent;
-        const isBot = /bot|crawler|spider|facebookexternalhit|LinkedInBot|Twitterbot|WhatsApp/i.test(ua);
+        const isBot = /bot|crawler|spider|facebook|linkedin|twitter|whatsapp|slack|discord/i.test(ua);
         if (!isBot) {
             window.location.replace("${url}");
         }
