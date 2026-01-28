@@ -240,7 +240,7 @@ const PublicationDetailPage = () => {
       <SEO
         title={`${publication.publication_name} - News Marketplace`}
         description={publication.other_remarks || `Publish on ${publication.publication_name} with News Marketplace.`}
-        image={publication.image}
+        image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
         type="product"
       />
       <Schema
@@ -673,7 +673,8 @@ const PublicationDetailPage = () => {
               <ShareButtons
                 url={window.location.href}
                 title={publication.publication_name}
-                description={publication.remarks}
+                description={publication.remarks || publication.other_remarks}
+                image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
                 variant="outline"
                 fullWidth={true}
               />

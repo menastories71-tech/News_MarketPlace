@@ -949,6 +949,7 @@ const PublicationsPage = () => {
                               url={window.location.origin + `/publications/${createSlugPath(publication.publication_name, publication.id)}`}
                               title={publication.publication_name}
                               description={publication.publication_primary_focus}
+                              image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
                               showLabel={false}
                               variant="outline"
                               size="sm"
@@ -1060,7 +1061,7 @@ const PublicationsPage = () => {
                                 <div className="w-16 h-10 rounded shadow-sm bg-gray-50 flex items-center justify-center overflow-hidden p-1">
                                   {publication.image ? (
                                     <img
-                                      src={publication.image}
+                                      src={publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`}
                                       alt={publication.publication_name}
                                       className="max-w-full max-h-full object-contain"
                                       onError={(e) => {
@@ -1150,6 +1151,7 @@ const PublicationsPage = () => {
                                     url={window.location.origin + `/publications/${createSlugPath(publication.publication_name, publication.id)}`}
                                     title={publication.publication_name}
                                     description={publication.publication_primary_focus}
+                                    image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
                                     showLabel={false}
                                     variant="outline"
                                   />

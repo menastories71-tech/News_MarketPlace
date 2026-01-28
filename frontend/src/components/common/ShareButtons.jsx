@@ -29,7 +29,7 @@ const TelegramIcon = ({ size = 20 }) => (
     </svg>
 );
 
-const ShareButtons = ({ url, title, description, variant = 'default', showLabel = true, className = "", fullWidth = false }) => {
+const ShareButtons = ({ url, title, description, image, variant = 'default', showLabel = true, className = "", fullWidth = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [copied, setCopied] = useState(false);
 
@@ -44,7 +44,7 @@ const ShareButtons = ({ url, title, description, variant = 'default', showLabel 
             name: 'WhatsApp',
             icon: <WhatsAppIcon size={22} />,
             color: '#25D366',
-            link: `https://api.whatsapp.com/send?text=${encodeURIComponent(title + ' ' + url)}`
+            link: `https://api.whatsapp.com/send?text=${encodeURIComponent(title + (image ? '\n' + image : '') + '\n\n' + url)}`
         },
         {
             name: 'Facebook',
@@ -56,7 +56,7 @@ const ShareButtons = ({ url, title, description, variant = 'default', showLabel 
             name: 'Email',
             icon: <Mail size={20} />,
             color: '#EA4335',
-            link: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(description + '\n\n' + url)}`
+            link: `mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(description + '\n\n' + url + (image ? '\n\nSource: ' + image : ''))}`
         },
         {
             name: 'X',
