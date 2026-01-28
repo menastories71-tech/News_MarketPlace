@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# backend/translator.py - Universal Hybrid Version 2.2 (Robust Edition)
+# backend/translator.py - Universal Hybrid Version 2.3 (Diagnostic Edition)
 from flask import Flask, request, jsonify, make_response
 from deep_translator import GoogleTranslator
 import os, sys, json, logging
@@ -7,26 +7,26 @@ import os, sys, json, logging
 # Configure logging to show up in PM2 logs clearly
 logging.basicConfig(
     level=logging.INFO,
-    format='[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    format='[%(asctime)s] %(levelname)s: %(message)s'
 )
 logger = logging.getLogger("translator")
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False # Be indifferent to trailing slashes
 
-# Log every single request that hits Flask to help with PM2 debugging
-@app.before_request
-def log_request_info():
-    logger.info(f"---> FLASK REQUEST: {request.method} {request.path} | Args: {request.args.to_dict()}")
+@app.after_request
+def add_header(response):
+    response.headers['X-Translator-Version'] = '2.3-diagnostic'
+    return response
 
 def translate_logic(text, target_lang, source_lang='auto'):
     if not text or not isinstance(text, str) or len(text.strip()) == 0:
         return {"error": "Empty text provided", "success": False}
-    if len(text) > 5000:
-        return {"error": "Text too long (max 5000 characters)", "success": False}
     
     try:
-        # Map common code mismatches
-        if target_lang == 'zh': target_lang = 'zh-CN'
+        # Standardize language codes
+        lang_map = {'zh': 'zh-CN', 'zh-cn': 'zh-CN', 'tw': 'zh-TW'}
+        target_lang = lang_map.get(target_lang.lower(), target_lang)
         
         translator = GoogleTranslator(source=source_lang, target=target_lang)
         translation = translator.translate(text)
@@ -34,129 +34,70 @@ def translate_logic(text, target_lang, source_lang='auto'):
             "translation": translation,
             "source_lang": source_lang,
             "target_lang": target_lang,
-            "original_text": text,
             "success": True
         }
     except Exception as e:
-        logger.error(f"Translation logic error: {str(e)}")
+        logger.error(f"Logic Error: {str(e)}")
         return {"error": str(e), "success": False}
 
-# --- FLASK ROUTES ---
-
-# Global JSON 404 handler - prevents HTML 404s ever reaching the frontend
-@app.errorhandler(404)
-def handle_404(e):
-    logger.warning(f"!!! 404 ERROR: No route matches {request.path} [{request.method}]")
-    return make_response(jsonify({
-        "error": "Route not found in translator.py",
-        "requested_path": request.path,
-        "method": request.method,
-        "hint": "Ensure the path starts with /translate or /api/translation/translate"
-    }), 404)
+# --- ROUTES ---
 
 @app.route('/translate', methods=['POST'])
 @app.route('/api/translation/translate', methods=['POST'])
 def translate():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON payload"}), 400
-            
-        result = translate_logic(
-            data.get('text'), 
-            data.get('target_lang'), 
-            data.get('source_lang', 'auto')
-        )
-        return jsonify(result), 200 if result["success"] else 400
-    except Exception as e:
-        logger.error(f"Internal error in /translate: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+    data = request.get_json() or {}
+    result = translate_logic(data.get('text'), data.get('target_lang'), data.get('source_lang', 'auto'))
+    return jsonify(result), 200 if result["success"] else 400
 
 @app.route('/translate/batch', methods=['POST'])
 @app.route('/api/translation/translate/batch', methods=['POST'])
-@app.route('/api/translation/batch', methods=['POST']) # Resilient alias
+@app.route('/api/translation/batch', methods=['POST'])
 def translate_batch():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No JSON payload"}), 400
+    data = request.get_json() or {}
+    target_lang = data.get('target_lang') or data.get('target_language')
+    texts = data.get('translations') or data.get('texts')
+    
+    if not target_lang or not texts or not isinstance(texts, list):
+        return jsonify({"error": "Missing target_lang or translations array"}), 400
 
-        # Support both naming conventions
-        target_lang = data.get('target_lang') or data.get('target_language')
-        texts = data.get('translations') or data.get('texts')
-        
-        if not target_lang or not texts or not isinstance(texts, list):
-            logger.error(f"Invalid batch request payload: {data}")
-            return jsonify({"error": "Missing target_lang or translations array"}), 400
+    results = []
+    for text in texts:
+        res = translate_logic(text, target_lang)
+        results.append({
+            "success": res["success"],
+            "translation": res.get("translation", ""),
+            "original": text
+        })
 
-        logger.info(f"Processing batch of {len(texts)} items for language: {target_lang}")
-        
-        results = []
-        for text in texts:
-            res = translate_logic(text, target_lang)
-            results.append({
-                "success": res["success"],
-                "translation": res.get("translation", ""),
-                "original": text,
-                "error": res.get("error")
-            })
-
-        return jsonify({"results": results, "success": True})
-    except Exception as e:
-        logger.error(f"Internal error in /translate/batch: {str(e)}")
-        return jsonify({"error": str(e)}), 500
+    return jsonify({"results": results, "success": True})
 
 @app.route('/health', methods=['GET'])
 @app.route('/api/translation/health', methods=['GET'])
-@app.route('/ping', methods=['GET'])
 def health():
+    return jsonify({"status": "healthy", "version": "2.3", "engine": "google-translate"})
+
+@app.errorhandler(404)
+def handle_404(e):
+    logger.warning(f"404 NOT FOUND: {request.method} {request.path}")
     return jsonify({
-        "status": "healthy", 
-        "version": "2.2-robust-edition",
-        "service": "translator",
-        "environment": "production"
-    })
+        "error": "Route not found",
+        "path": request.path,
+        "valid_routes": ["/translate/batch", "/translate", "/health"]
+    }), 404
 
-# --- CLI EXECUTION LOGIC (for Node.js execFile) ---
-
-def run_cli():
-    # Usage: script.py <source> <target> <text>
-    # Usage: script.py batch <source> <target> <json_texts>
-    if len(sys.argv) < 4:
-        print(json.dumps({"error": "Insufficient arguments", "usage": "source target text OR batch source target json_texts"}))
-        sys.exit(1)
-
-    if sys.argv[1] == 'batch':
-        # Batch mode
-        source_lang = sys.argv[2]
-        target_lang = sys.argv[3]
-        try:
-            texts = json.loads(sys.argv[4])
-            results = []
-            for text in texts:
-                res = translate_logic(text, target_lang, source_lang)
-                results.append({
-                    "success": res["success"],
-                    "translation": res.get("translation", ""),
-                    "original": text
-                })
-            print(json.dumps({"results": results, "success": True}))
-        except Exception as e:
-            print(json.dumps({"error": str(e), "success": False}))
-    else:
-        # Single mode
-        source_lang = sys.argv[1]
-        target_lang = sys.argv[2]
-        text = sys.argv[3]
-        result = translate_logic(text, target_lang, source_lang)
-        print(json.dumps(result))
-
+# --- CLI MODE ---
 if __name__ == "__main__":
-    if len(sys.argv) > 1 and sys.argv[1] != 'run':
-        # If arguments provided (and first isn't 'run'), assume CLI mode
-        run_cli()
+    if len(sys.argv) > 1 and sys.argv[1] not in ['run', 'serve']:
+        # Direct CLI execution for Node.js
+        if sys.argv[1] == 'batch':
+            # Usage: translator.py batch en fr '["hello","world"]'
+            source, target, texts = sys.argv[2], sys.argv[3], json.loads(sys.argv[4])
+            res = [{"translation": translate_logic(t, target, source)["translation"], "original": t} for t in texts]
+            print(json.dumps({"results": res, "success": True}))
+        else:
+            # Usage: translator.py en fr "hello"
+            print(json.dumps(translate_logic(sys.argv[3], sys.argv[2], sys.argv[1])))
     else:
-        # Flask mode
         port = int(os.environ.get('PORT', 5005))
-        logger.info(f"Starting Translator (V2.2) on port {port}")
-        app.run(host='0.0.0.0', port=port, debug=False)
+        logger.info(f"Translator V2.3 starting on port {port}")
+        app.run(host='0.0.0.0', port=port)

@@ -310,23 +310,29 @@ app.use('/api/events', eventsRoutes);
 app.use('/api/event-applications', eventApplicationsRoutes);
 app.use('/api/otp', otpRoutes);
 // --- TRANSLATION SAFETY NET ---
-// This ensures /api/translation works even if Nginx misroutes it to Express (Port 3000)
 const axios = require('axios');
 app.use(['/api/translation', '/api/translations'], async (req, res) => {
-  console.log(`[TRANSLATION-PROXY] Forwarding ${req.method} ${req.url} to Port 5005`);
+  // Extract the part of the URL after /api/translation
+  // e.g., if req.originalUrl is /api/translation/translate/batch, path is /translate/batch
+  let targetPath = req.originalUrl.replace(/^\/api\/translations?/, '');
+  if (!targetPath.startsWith('/')) targetPath = '/' + targetPath;
+
+  const targetUrl = `http://127.0.0.1:5005${targetPath}`;
+  console.log(`[SAFETY-NET] 🔄 Forwarding ${req.method} to: ${targetUrl}`);
+
   try {
     const response = await axios({
       method: req.method,
-      url: `http://127.0.0.1:5005${req.url}`,
+      url: targetUrl,
       data: req.body,
       headers: { 'Content-Type': 'application/json' },
-      timeout: 30000 // 30s timeout
+      timeout: 30000
     });
     return res.status(response.status).json(response.data);
   } catch (error) {
-    console.error(`[TRANSLATION-PROXY-ERROR] ${error.message}`);
+    console.error(`[SAFETY-NET-ERROR] ❌ ${error.message}`);
     return res.status(error.response?.status || 500).json(
-      error.response?.data || { error: 'Translation proxy failure', details: error.message }
+      error.response?.data || { error: 'Translation safety-net failure', details: error.message }
     );
   }
 });
