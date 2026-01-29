@@ -393,7 +393,7 @@ const PublicationsPage = () => {
       <UserHeader onShowAuth={handleShowAuth} />
 
       {/* Enhanced Hero Section */}
-      <section className="relative py-4 md:py-6 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white border-b border-[#E0E0E0]">
+      <section className="relative py-6 md:py-10 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] via-[#F8FAFC] to-white border-b border-blue-100/50">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -401,38 +401,38 @@ const PublicationsPage = () => {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#212121] mb-4 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-6xl font-black text-slate-900 mb-4 tracking-tight">
               {t('publications.hero.title')}
             </h1>
-            <p className="text-base md:text-lg text-[#757575] max-w-2xl mx-auto leading-relaxed font-light mb-6">
+            <p className="text-sm sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed font-medium mb-8">
               {t('publications.hero.desc')}
             </p>
 
-
             {/* Search Bar & Share Button */}
-            <div className="max-w-4xl mx-auto mt-6 flex flex-col md:flex-row items-center gap-4">
-              <div className="relative flex-1 w-full">
+            <div className="max-w-4xl mx-auto mt-2 flex flex-col md:flex-row items-stretch md:items-center gap-3">
+              <div className="relative flex-1">
                 <input
                   type="text"
                   placeholder={t('publications.search.placeholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-11 pr-11 py-3.5 sm:py-4 border border-[#E0E0E0] rounded-xl text-base focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#1976D2] bg-white shadow-lg shadow-blue-900/5 transition-all"
+                  className="w-full pl-12 pr-12 py-3.5 sm:py-4 border-2 border-slate-100 rounded-2xl text-base focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-500 bg-white shadow-xl shadow-blue-900/5 transition-all text-slate-900 font-medium"
                 />
-                <div className="absolute left-3.5 top-1/2 -translate-y-1/2">
-                  <Icon name="search" size="xs" className="text-gray-400" />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                  <Icon name="search" size="sm" className="text-blue-500" />
                 </div>
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#757575] hover:text-[#212121] transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
                   >
                     ×
                   </button>
                 )}
               </div>
-              <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-sm flex items-center gap-2">
-                <span className="text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
+
+              <div className="flex items-center justify-center p-2 px-4 rounded-2xl bg-white border-2 border-slate-100 shadow-lg shadow-blue-900/5 gap-3">
+                <span className="text-sm font-bold text-slate-500">{t('common.share', 'Share')}:</span>
                 <ShareButtons
                   url={window.location.href}
                   title={t('publications.hero.title')}
@@ -440,6 +440,7 @@ const PublicationsPage = () => {
                   showLabel={false}
                   variant="ghost"
                   size="sm"
+                  align={isMobile ? "center" : "right"}
                 />
               </div>
             </div>
@@ -448,21 +449,23 @@ const PublicationsPage = () => {
       </section>
 
       {/* Main Content with Enhanced Layout */}
-      <div className={`max-w-[1600px] mx-auto flex flex-col lg:flex-row relative`}>
+      <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row relative px-2 sm:px-4 lg:px-6 py-4 sm:py-8">
         {/* Enhanced Filters Sidebar - Slide over on Mobile/Tablet, Sticky on Desktop */}
         <div
-          className={`fixed inset-0 bg-black/50 transition-opacity duration-300 lg:hidden ${sidebarOpen ? 'opacity-100 z-[100]' : 'opacity-0 pointer-events-none z-[-1]'}`}
+          className={`fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${sidebarOpen ? 'opacity-100 z-[100]' : 'opacity-0 pointer-events-none z-[-1]'}`}
           onClick={() => setSidebarOpen(false)}
         />
 
         <aside
           className={`
-            fixed lg:sticky lg:top-20 top-0 left-0 h-full lg:h-[calc(100vh-80px)] 
-            bg-white shadow-2xl lg:shadow-none z-[110] lg:z-40
-            transition-transform duration-300 ease-in-out
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:hidden'}
-            w-[280px] sm:w-[320px] lg:w-[300px] flex-shrink-0
-            border-r border-gray-100
+            fixed lg:sticky lg:top-24 top-0 left-0 h-full lg:h-[calc(100vh-120px)] 
+            w-full sm:w-[320px] lg:w-[350px]
+            bg-white z-[110] lg:z-10
+            transform transition-transform duration-300 ease-in-out
+            lg:transform-none
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            overflow-y-auto lg:overflow-visible
+            flex flex-col border-r lg:border-none shadow-2xl lg:shadow-none
           `}
         >
           <div className="p-6 h-full overflow-y-auto">
@@ -694,31 +697,28 @@ const PublicationsPage = () => {
         </aside>
 
         {/* Main Content - Enhanced */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8 min-w-0">
           {/* Enhanced Controls Bar */}
-          <div className="bg-white rounded-lg shadow-lg border p-6 mb-6" style={{
+          <div className="bg-white rounded-2xl shadow-sm border p-4 sm:p-6 mb-6" style={{
             borderColor: theme.borderLight,
-            boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
           }}>
-            <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-4">
-                {/* Mobile Filter Toggle */}
+            {/* Header with View Toggle and Results */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+              <div className="flex items-center gap-3 w-full sm:w-auto">
                 {isMobile && (
                   <button
-                    onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-[#F5F5F5] hover:bg-[#E0E0E0] transition-colors"
+                    onClick={() => setSidebarOpen(true)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-white shadow-sm hover:bg-gray-50 transition-colors"
                     style={{ borderColor: theme.borderLight }}
                   >
-                    <Icon name="filter" size={16} />
-                    <span className="text-[#212121]">{t('publications.filters.mobileToggle')}</span>
+                    <Icon name="filter" size={16} className="text-[#1976D2]" />
+                    <span className="text-xs font-bold text-[#212121] uppercase tracking-wider">{t('publications.filters.mobileToggle')}</span>
                   </button>
                 )}
-
-                {/* View Toggle */}
-                <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
+                <div className="flex items-center bg-gray-100/50 p-1 rounded-lg border border-gray-200">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
+                    className={`p-1.5 rounded-md transition-all ${viewMode === 'grid'
                       ? 'bg-white shadow-sm text-[#1976D2]'
                       : 'text-[#757575] hover:text-[#212121]'
                       }`}
@@ -727,7 +727,7 @@ const PublicationsPage = () => {
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-colors ${viewMode === 'list'
+                    className={`p-1.5 rounded-md transition-all ${viewMode === 'list'
                       ? 'bg-white shadow-sm text-[#1976D2]'
                       : 'text-[#757575] hover:text-[#212121]'
                       }`}
@@ -735,20 +735,14 @@ const PublicationsPage = () => {
                     <Icon name="list" size={16} />
                   </button>
                 </div>
-
-                <span className="text-sm font-medium text-[#212121]">
+                <span className="text-xs sm:text-sm font-bold text-[#757575] whitespace-nowrap">
                   {totalRecords} {t('publications.results.found')}
-                  {searchTerm && (
-                    <span className="ml-2 text-[#757575]">
-                      {t('publications.results.for')} "{searchTerm}"
-                    </span>
-                  )}
                 </span>
               </div>
 
-              {/* Enhanced Sort Dropdown */}
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-[#757575]">{t('publications.results.sortBy')}:</span>
+              {/* Sort Controls */}
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <span className="text-xs sm:text-sm font-bold text-[#757575] hidden xs:inline">{t('publications.results.sortBy')}:</span>
                 <select
                   value={`${sortField}-${sortDirection}`}
                   onChange={(e) => {
@@ -756,21 +750,21 @@ const PublicationsPage = () => {
                     setSortField(field);
                     setSortDirection(direction);
                   }}
-                  className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  className="flex-1 sm:flex-none px-3 py-2 bg-white border border-[#E0E0E0] rounded-lg text-xs sm:text-sm font-bold focus:ring-2 focus:ring-[#1976D2]/20 focus:border-[#1976D2] outline-none"
                 >
+                  <option value="created_at-desc">{t('publications.results.sort.newest')}</option>
                   <option value="publication_name-asc">{t('publications.results.sort.nameAsc')}</option>
-                  <option value="publication_name-desc">{t('publications.results.sort.nameDesc')}</option>
-                  <option value="price_usd-asc">{t('publications.results.sort.priceLow')}</option>
-                  <option value="price_usd-desc">{t('publications.results.sort.priceHigh')}</option>
+                  <option value="published_price-asc">{t('publications.results.sort.priceLow')}</option>
+                  <option value="published_price-desc">{t('publications.results.sort.priceHigh')}</option>
                   <option value="da-desc">{t('publications.results.sort.daHigh')}</option>
-                  <option value="da-asc">{t('publications.results.sort.daLow')}</option>
                   <option value="dr-desc">{t('publications.results.sort.drHigh')}</option>
-                  <option value="dr-asc">{t('publications.results.sort.drLow')}</option>
-                  <option value="region-asc">{t('publications.results.sort.regionAsc')}</option>
-                  <option value="language-asc">{t('publications.results.sort.languageAsc')}</option>
-                  <option value="committed_tat-asc">{t('publications.results.sort.tatFast')}</option>
-                  <option value="committed_tat-desc">{t('publications.results.sort.tatSlow')}</option>
                 </select>
+                <button
+                  onClick={() => setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')}
+                  className="p-2 bg-white border border-[#E0E0E0] rounded-lg hover:bg-gray-50 transition-colors shadow-sm"
+                >
+                  {getSortIcon(sortField)}
+                </button>
               </div>
             </div>
           </div>
@@ -780,20 +774,18 @@ const PublicationsPage = () => {
             <>
               {/* Enhanced Grid View */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
                   {publications.map((publication, index) => (
                     <motion.div
-                      key={publication.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
+                      key={publication.id || index}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.3, delay: index * 0.05 }}
                       onClick={() => handlePublicationClick(publication)}
                       onMouseEnter={() => setActiveCardId(publication.id)}
                       onMouseLeave={() => setActiveCardId(null)}
-                      className="bg-white rounded-lg shadow-lg border hover:shadow-xl transition-all duration-300 cursor-pointer group relative h-full flex flex-col"
+                      className="bg-white rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)] transition-all duration-300 border border-slate-100 overflow-hidden group flex flex-col relative h-full"
                       style={{
-                        borderColor: theme.borderLight,
-                        boxShadow: '0 8px 20px rgba(2,6,23,0.06)',
                         zIndex: activeCardId === publication.id ? 100 : 1
                       }}
                     >
@@ -889,36 +881,36 @@ const PublicationsPage = () => {
                         </div>
 
                         {/* Enhanced SEO Metrics */}
-                        <div className="grid grid-cols-3 gap-1 text-center mb-4 p-3 rounded-lg border border-gray-100" style={{ backgroundColor: theme.backgroundSoft }}>
-                          <div>
-                            <div className="text-base font-bold" style={{ color: theme.primary }}>{publication.da || 0}</div>
-                            <div className="text-[10px] font-medium" style={{ color: theme.textSecondary }}>DA</div>
+                        <div className="grid grid-cols-3 gap-0.5 sm:gap-1 text-center mb-3 sm:mb-4 p-2 sm:p-3 rounded-xl border border-gray-100" style={{ backgroundColor: theme.backgroundSoft }}>
+                          <div className="flex flex-col items-center">
+                            <div className="text-sm sm:text-base font-black" style={{ color: theme.primary }}>{publication.da || 0}</div>
+                            <div className="text-[9px] font-bold uppercase tracking-wider opacity-60">DA</div>
                           </div>
-                          <div>
-                            <div className="text-base font-bold" style={{ color: theme.success }}>{publication.dr || 0}</div>
-                            <div className="text-[10px] font-medium" style={{ color: theme.textSecondary }}>DR</div>
+                          <div className="flex flex-col items-center border-x border-gray-200/50 px-1">
+                            <div className="text-sm sm:text-base font-black" style={{ color: theme.success }}>{publication.dr || 0}</div>
+                            <div className="text-[9px] font-bold uppercase tracking-wider opacity-60">DR</div>
                           </div>
-                          <div>
-                            <div className="text-base font-bold" style={{ color: publication.do_follow ? theme.success : theme.danger }}>
+                          <div className="flex flex-col items-center">
+                            <div className="text-sm sm:text-base font-black" style={{ color: publication.do_follow ? theme.success : theme.danger }}>
                               {publication.do_follow ? 'Do' : 'No'}
                             </div>
-                            <div className="text-[10px] font-medium" style={{ color: theme.textSecondary }}>Follow</div>
+                            <div className="text-[9px] font-bold uppercase tracking-wider opacity-60">Follow</div>
                           </div>
                         </div>
 
                         {/* Enhanced Price */}
-                        <div className="text-center mb-4">
-                          <div className="text-2xl font-black" style={{ color: theme.success }}>
+                        <div className="text-center mb-3 sm:mb-4">
+                          <div className="text-xl sm:text-2xl font-black tracking-tight" style={{ color: theme.success }}>
                             {formatPrice(publication.price_usd)}
                           </div>
                         </div>
 
                         {/* Badges Section */}
-                        <div className="flex flex-wrap items-center justify-center gap-2 mb-5">
-                          <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: '#E3F2FD', color: theme.primary }}>
+                        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-4 sm:mb-5">
+                          <span className="px-2 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-blue-100" style={{ backgroundColor: '#E3F2FD', color: theme.primary }}>
                             {publication.word_limit ? t('publications.badges.wordCount', { count: publication.word_limit }) : t('publications.badges.wordCountTba')}
                           </span>
-                          <span className="px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
+                          <span className="px-2 py-0.5 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider border border-amber-100" style={{ backgroundColor: '#FFF8E1', color: theme.warning }}>
                             <Icon name="clock" size={10} className="inline mr-1" />
                             {formatTAT(publication.committed_tat)}
                           </span>
@@ -1265,27 +1257,31 @@ const PublicationsPage = () => {
             </div>
           )}
         </main>
-      </div>
+      </div >
 
       <UserFooter />
 
       {/* Publication Submission Form Modal */}
-      {showSubmissionForm && (
-        <PublicationSubmissionForm
-          onClose={() => setShowSubmissionForm(false)}
-          onSuccess={() => setShowSubmissionForm(false)}
-        />
-      )}
+      {
+        showSubmissionForm && (
+          <PublicationSubmissionForm
+            onClose={() => setShowSubmissionForm(false)}
+            onSuccess={() => setShowSubmissionForm(false)}
+          />
+        )
+      }
 
       {/* Auth Modal */}
-      {showAuth && (
-        <AuthModal
-          isOpen={showAuth}
-          onClose={handleCloseAuth}
-          onLoginSuccess={handleCloseAuth}
-        />
-      )}
-    </div>
+      {
+        showAuth && (
+          <AuthModal
+            isOpen={showAuth}
+            onClose={handleCloseAuth}
+            onLoginSuccess={handleCloseAuth}
+          />
+        )
+      }
+    </div >
   );
 };
 
