@@ -67,6 +67,17 @@ const PowerlistPage = () => {
   const [activeShareId, setActiveShareId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
 
+  // Close share menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (activeShareId && !e.target.closest('.share-menu-container')) {
+        setActiveShareId(null);
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [activeShareId]);
+
   const handleCopy = (url, id) => {
     navigator.clipboard.writeText(url);
     setCopiedId(id);
@@ -74,7 +85,6 @@ const PowerlistPage = () => {
   };
 
   const sharePlatforms = [
-    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
     { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
     { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
     { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
@@ -89,34 +99,39 @@ const PowerlistPage = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 sm:p-4 
+        exit={{ opacity: 0, scale: 0.9, y: 10 }}
+        className={`absolute bottom-full mb-2 z-[9999] bg-white rounded-xl shadow-2xl border border-slate-200/80 p-2.5 share-menu-container
           ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
-        style={{ width: isMobile ? '260px' : '300px' }}
+        style={{ minWidth: '180px', maxWidth: '220px' }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+        <div className="flex items-center justify-center gap-2 flex-wrap">
           {sharePlatforms.map((p) => (
             <a
               key={p.name}
               href={p.link(url, title)}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              onClick={(e) => e.stopPropagation()}
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-white transition-all hover:scale-110 active:scale-95 shadow-sm hover:shadow-md"
               style={{ backgroundColor: p.color }}
               title={p.name}
             >
-              <Icon name={p.icon} size={isMobile ? 16 : 18} />
+              <Icon name={p.icon} size={16} />
             </a>
           ))}
           <button
-            onClick={() => handleCopy(url, id)}
-            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all shadow-sm ${
-              copiedId === id
-                ? 'bg-emerald-500 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCopy(url, id);
+            }}
+            className={`w-9 h-9 rounded-lg flex items-center justify-center transition-all shadow-sm ${copiedId === id
+              ? 'bg-emerald-500 text-white'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
             title={copiedId === id ? 'Copied!' : 'Copy link'}
           >
-            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={isMobile ? 16 : 18} />
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={16} />
           </button>
         </div>
       </motion.div>
@@ -507,13 +522,17 @@ const PowerlistPage = () => {
                   </button>
                 )}
               </div>
-              <div className="bg-white p-2 px-3 sm:px-4 rounded-lg border border-[#E0E0E0] shadow-md shadow-slate-200/50 flex items-center gap-2 relative">
+              <div className="bg-white p-2 px-3 sm:px-4 rounded-lg border border-[#E0E0E0] shadow-md shadow-slate-200/50 flex items-center gap-2 relative share-menu-container">
                 <span className="hidden sm:inline text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
                 <button
-                  onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
-                  className="p-1 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setActiveShareId(activeShareId === 'hero' ? null : 'hero');
+                  }}
+                  className="p-1.5 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors flex items-center justify-center"
+                  title="Share this page"
                 >
-                  <Icon name="share" size={isMobile ? 16 : 18} />
+                  <Icon name="share" size={16} />
                 </button>
                 {renderShareMenu(window.location.href, t('powerlist.hero.title'), 'hero')}
               </div>
@@ -763,7 +782,7 @@ const PowerlistPage = () => {
             <>
               {/* Enhanced Grid View with Image Backgrounds */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 sm:gap-6">
                   {sortedPowerlists.map((nomination, index) => {
                     const imageUrl = getImageUrl(nomination.image);
 
@@ -772,9 +791,9 @@ const PowerlistPage = () => {
                         key={nomination.id}
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.4, delay: index * 0.1 }}
+                        transition={{ duration: 0.4, delay: Math.min(index * 0.05, 0.3) }}
                         onClick={() => handlePowerlistClick(nomination)}
-                        className="relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden h-80"
+                        className="relative bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group overflow-hidden h-64 sm:h-72 lg:h-80"
                         style={{
                           boxShadow: '0 8px 20px rgba(2,6,23,0.06)'
                         }}
@@ -797,67 +816,64 @@ const PowerlistPage = () => {
 
                           {/* Fallback Initials UI (more premium than generic logo) */}
                           <div
-                            className="w-full h-full items-center justify-center flex flex-col gap-4 text-white"
+                            className="w-full h-full items-center justify-center flex flex-col gap-3 sm:gap-4 text-white"
                             style={{
                               backgroundColor: getFallbackColor(nomination.publication_name),
                               display: imageUrl ? 'none' : 'flex'
                             }}
                           >
-                            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-4xl font-bold">
+                            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center text-2xl sm:text-4xl font-bold">
                               {getInitials(nomination.publication_name)}
                             </div>
-                            <span className="text-lg font-medium opacity-80">{nomination.publication_name}</span>
+                            <span className="text-sm sm:text-lg font-medium opacity-80 px-4 text-center line-clamp-1">{nomination.publication_name}</span>
                           </div>
 
                           {/* Dark overlay for better text readability */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
 
                           {/* Industry Badge */}
-                          <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 flex flex-col gap-2">
+                          <div className="absolute top-2 sm:top-3 left-2 sm:left-3 z-20">
                             {nomination.industry && (
-                              <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-500 text-white text-[10px] sm:text-xs font-medium rounded-full">
+                              <span className="px-2 py-0.5 sm:px-3 sm:py-1 bg-blue-500 text-white text-[10px] sm:text-xs font-medium rounded-full shadow-sm">
                                 {nomination.industry}
                               </span>
                             )}
                           </div>
                         </div>
 
-
-
-
                         {/* Bottom Content Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 sm:p-5 text-white">
+                        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 sm:p-4 lg:p-5 text-white">
                           {/* Name */}
-                          <div className="mb-2 sm:mb-3">
-                            <h3 className="text-base sm:text-xl font-bold text-white mb-1 sm:mb-2 group-hover:text-blue-200 transition-colors line-clamp-1">
+                          <div className="mb-1.5 sm:mb-2">
+                            <h3 className="text-sm sm:text-base lg:text-lg font-bold text-white group-hover:text-blue-200 transition-colors line-clamp-1">
                               {nomination.publication_name}
                             </h3>
                           </div>
 
                           {/* Description */}
-                          <p className="text-white/90 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
+                          <p className="text-white/90 text-xs sm:text-sm mb-2 line-clamp-1 sm:line-clamp-2">
                             {nomination.power_list_name}
-                            {nomination.description && (
-                              <span className="block text-white/70 text-[10px] sm:text-xs mt-1 line-clamp-1">
-                                {nomination.description}
-                              </span>
-                            )}
                           </p>
 
-                          {/* Location and Type Row */}
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center text-xs sm:text-sm text-white/80">
-                              <MapPin size={isMobile ? 12 : 14} className="mr-1" />
+                          {/* Location and Actions Row */}
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center text-[10px] sm:text-xs text-white/80 min-w-0 flex-shrink">
+                              <MapPin size={10} className="mr-1 flex-shrink-0" />
                               <span className="line-clamp-1">{nomination.location_region || t('powerlist.defaults.global')}</span>
                             </div>
 
-                            <div className="flex items-center gap-2 sm:gap-3">
-                              <div className="relative" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                              {/* Share Button */}
+                              <div className="relative share-menu-container" onClick={(e) => e.stopPropagation()}>
                                 <button
-                                  onClick={() => setActiveShareId(activeShareId === nomination.id ? null : nomination.id)}
-                                  className="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 text-white transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setActiveShareId(activeShareId === nomination.id ? null : nomination.id);
+                                  }}
+                                  className="p-1.5 rounded-md hover:bg-white/20 text-white transition-colors flex items-center justify-center"
+                                  title="Share"
                                 >
-                                  <Icon name="share" size={isMobile ? 14 : 18} />
+                                  <Icon name="share" size={14} />
                                 </button>
                                 {renderShareMenu(
                                   `${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`,
@@ -866,17 +882,16 @@ const PowerlistPage = () => {
                                   'right'
                                 )}
                               </div>
+
+                              {/* Month/Type Info */}
                               <div className="text-right">
-                                <div className="text-xs sm:text-sm font-medium text-white">
-                                  {nomination.tentative_month && (
-                                    <div className="flex items-center gap-1">
-                                      <Calendar size={isMobile ? 10 : 12} />
-                                      <span className="hidden sm:inline">{nomination.tentative_month}</span>
-                                      <span className="sm:hidden">{nomination.tentative_month.substring(0, 3)}</span>
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="text-[10px] sm:text-xs text-white/70 line-clamp-1">
+                                {nomination.tentative_month && (
+                                  <div className="flex items-center gap-0.5 text-[10px] sm:text-xs font-medium text-white">
+                                    <Calendar size={10} className="flex-shrink-0" />
+                                    <span>{nomination.tentative_month.substring(0, 3)}</span>
+                                  </div>
+                                )}
+                                <div className="text-[9px] sm:text-[10px] text-white/60 line-clamp-1">
                                   {nomination.company_or_individual}
                                 </div>
                               </div>
@@ -1046,12 +1061,16 @@ const PowerlistPage = () => {
                                     <span className="hidden sm:inline">{t('powerlist.table.view')}</span>
                                     <span className="sm:hidden">View</span>
                                   </button>
-                                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                                  <div className="relative share-menu-container" onClick={(e) => e.stopPropagation()}>
                                     <button
-                                      onClick={() => setActiveShareId(activeShareId === nomination.id ? null : nomination.id)}
-                                      className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveShareId(activeShareId === nomination.id ? null : nomination.id);
+                                      }}
+                                      className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors flex items-center justify-center"
+                                      title="Share"
                                     >
-                                      <Icon name="share" size={isMobile ? 14 : 16} />
+                                      <Icon name="share" size={14} />
                                     </button>
                                     {renderShareMenu(
                                       `${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`,
