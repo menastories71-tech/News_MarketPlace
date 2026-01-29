@@ -1,6 +1,10 @@
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import Icon from './Icon';
 
 const ShareButtons = ({ url, title, description, image, variant = 'default', showLabel = true, className = "", fullWidth = false, direction = 'up', onToggle }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [copied, setCopied] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
     useEffect(() => {
@@ -124,12 +128,5 @@ const ShareButtons = ({ url, title, description, image, variant = 'default', sho
         </div>
     );
 };
-
-const CheckCircle = ({ size }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-        <polyline points="22 4 12 14.01 9 11.01" />
-    </svg>
-);
 
 export default ShareButtons;
