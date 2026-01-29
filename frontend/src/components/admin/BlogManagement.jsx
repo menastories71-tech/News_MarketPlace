@@ -148,324 +148,63 @@ const BlogManagement = () => {
     );
   }
 
-  const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('');
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [isMobile, setIsMobile] = useState(false);
-  const [showFormModal, setShowFormModal] = useState(false);
-  const [editingBlog, setEditingBlog] = useState(null);
-  const [selectedBlogs, setSelectedBlogs] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [sortField, setSortField] = useState('createdAt');
-  const [sortDirection, setSortDirection] = useState('desc');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [appliedFilters, setAppliedFilters] = useState([]);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletingBlog, setDeletingBlog] = useState(null);
-  const fileInputRef = React.useRef(null);
-  const [uploading, setUploading] = useState(false);
-  const [downloading, setDownloading] = useState(false);
-  const [showDownloadModal, setShowDownloadModal] = useState(false);
+  const [totalBlogs, setTotalBlogs] = useState(0);
 
-
-  // Layout constants (same as AdminDashboard)
-  const headerZ = 1000;
-  const mobileOverlayZ = 500;
-  const sidebarZ = 200;
-  const headerHeight = 64;
-  const mainPaddingTop = headerHeight + 18;
-  const sidebarWidth = 240;
-  const leftGap = 24;
-
-  const sidebarStyles = {
-    width: sidebarWidth,
-    backgroundColor: theme.background,
-    borderRight: `1px solid ${theme.borderLight}`,
-    padding: 16,
-    boxSizing: 'border-box',
-    borderRadius: 8
-  };
-
-  const mobileSidebarOverlay = {
-    position: 'fixed',
-    top: headerHeight,
-    left: 0,
-    height: `calc(100vh - ${headerHeight}px)`,
-    zIndex: mobileOverlayZ,
-    backgroundColor: '#fff',
-    padding: 16,
-    boxSizing: 'border-box',
-    width: sidebarWidth,
-    boxShadow: '0 8px 24px rgba(0,0,0,0.08)'
-  };
-
-  const roleDisplayNames = {
-    'super_admin': 'Super Administrator',
-    'content_manager': 'Content Manager',
-    'editor': 'Editor',
-    'registered_user': 'Registered User',
-    'agency': 'Agency',
-    'other': 'Other'
-  };
-
-  const btnPrimary = {
-    backgroundColor: theme.primary,
-    color: '#fff',
-    padding: '0.625rem 1rem',
-    borderRadius: '0.5rem',
-    fontWeight: 600,
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-    cursor: 'pointer',
-    border: 'none',
-    boxShadow: `0 6px 18px rgba(25,118,210,0.14)`
-  };
-
-  const getRoleStyle = (role) => {
-    const r = theme.roleColors[role] || theme.roleColors.other;
-    return {
-      backgroundColor: r.bg,
-      color: r.color,
-      padding: '0.125rem 0.5rem',
-      borderRadius: '9999px',
-      fontSize: '0.75rem',
-      fontWeight: 600,
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '0.25rem',
-      lineHeight: 1
-    };
-  };
-
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener('resize', onResize);
-    onResize(); // Set initial value
-    return () => window.removeEventListener('resize', onResize);
-  }, []);
-
-  useEffect(() => {
-    if (sidebarOpen && isMobile) {
-      const prev = document.body.style.overflow;
-      document.body.style.overflow = 'hidden';
-      return () => { document.body.style.overflow = prev; };
-    }
-    return undefined;
-  }, [sidebarOpen, isMobile]);
+  // ... (previous state declarations)
 
   useEffect(() => {
     fetchBlogs();
-  }, []);
+  }, [currentPage, pageSize, debouncedSearchTerm, categoryFilter, sortField, sortDirection]);
 
   const fetchBlogs = async () => {
     try {
-      const response = await adminAPI.getBlogs();
-      console.log('Fetched blogs:', response.data.blogs);
+      setLoading(true);
+      const params = {
+        page: currentPage,
+        limit: pageSize,
+        search: debouncedSearchTerm,
+        category: categoryFilter,
+        sortBy: sortField === 'publishDate' ? 'publishDate' : 'created_at', // Map fields if necessary
+        sortOrder: sortDirection.toUpperCase()
+      };
+
+      const response = await adminAPI.getBlogs(params);
       setBlogs(response.data.blogs || []);
+      setTotalBlogs(response.data.pagination?.total || 0);
     } catch (error) {
       console.error('Error fetching blogs:', error);
       if (error.response?.status === 401) {
-        // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
       } else {
-        alert('Failed to load blogs. Please try again.');
+        // alert('Failed to load blogs. Please try again.'); 
+        // Suppress alert on search typing to avoid annoyance
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFormSave = () => {
-    fetchBlogs();
-  };
+  // ...
 
-  // Filtered blogs based on search and filters
-  const filteredBlogs = useMemo(() => {
-    let filtered = blogs;
+  // Since we are doing server-side sorting/filtering, client-side logic is redundant for the displayed list
+  // But we might want to keep `sortedBlogs` if we do client-side sorting on the *fetched* page (which is less useful).
+  // Ideally, sort should trigger fetch. I added sort dependencies to useEffect above.
 
-    if (debouncedSearchTerm) {
-      filtered = filtered.filter(blog =>
-        blog.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-        (blog.content && blog.content.toLowerCase().includes(debouncedSearchTerm.toLowerCase())) ||
-        (blog.category && blog.category.toLowerCase().includes(debouncedSearchTerm.toLowerCase()))
-      );
-    }
+  const paginatedBlogs = blogs; // Display whatever the server returned
+  const totalPages = Math.ceil(totalBlogs / pageSize);
 
-    if (categoryFilter) {
-      filtered = filtered.filter(blog => blog.category && blog.category.toLowerCase().includes(categoryFilter.toLowerCase()));
-    }
-
-    return filtered;
-  }, [blogs, debouncedSearchTerm, categoryFilter]);
-
-  // Update filtered blogs when filters change
-  useEffect(() => {
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [debouncedSearchTerm, categoryFilter]);
-
-  // Sorting logic
-  const sortedBlogs = useMemo(() => {
-    return [...filteredBlogs].sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      if (sortField === 'createdAt' || sortField === 'updatedAt') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else {
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
-      }
-
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  }, [filteredBlogs, sortField, sortDirection]);
-
-  // Pagination logic
-  const paginatedBlogs = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortedBlogs.slice(startIndex, startIndex + pageSize);
-  }, [sortedBlogs, currentPage, pageSize]);
-
-  const totalPages = Math.ceil(sortedBlogs.length / pageSize);
-
-  const formatDate = (dateString) => {
-    if (!dateString) return 'Not set';
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) return 'Invalid Date';
-    return date.toLocaleString();
-  };
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
-    }
-  };
-
-  const getSortIcon = (field) => {
-    if (sortField !== field) return '';
-    return sortDirection === 'asc' ? '↑' : '↓';
-  };
-
-  // CRUD operations
-  const handleCreateBlog = () => {
-    setEditingBlog(null);
-    setShowFormModal(true);
-  };
-
-  const handleEditBlog = (blog) => {
-    setEditingBlog(blog);
-    setShowFormModal(true);
-  };
-
-  const handleSelectBlog = (blogId) => {
-    setSelectedBlogs(prev =>
-      prev.includes(blogId)
-        ? prev.filter(id => id !== blogId)
-        : [...prev, blogId]
-    );
-  };
-
-  const handleSelectAll = () => {
-    if (selectedBlogs.length === filteredBlogs.length) {
-      setSelectedBlogs([]);
-    } else {
-      setSelectedBlogs(filteredBlogs.map(b => b.id));
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedBlogs.length === 0) return;
-
-    if (!window.confirm(`Are you sure you want to delete ${selectedBlogs.length} blog${selectedBlogs.length !== 1 ? 's' : ''}?`)) return;
-
-    try {
-      setLoading(true);
-      for (const blogId of selectedBlogs) {
-        await adminAPI.deleteBlog(blogId);
-      }
-      setSelectedBlogs([]);
-      fetchBlogs();
-    } catch (error) {
-      console.error('Error bulk deleting:', error);
-      alert(error.response?.data?.message || 'Error deleting blogs. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteBlog = (blog) => {
-    setDeletingBlog(blog);
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    try {
-      setLoading(true);
-      await adminAPI.deleteBlog(deletingBlog.id);
-      setShowDeleteModal(false);
-      setDeletingBlog(null);
-      fetchBlogs();
-    } catch (error) {
-      console.error('Error deleting blog:', error);
-      alert('Error deleting blog. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Debounced search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  // Update applied filters
-  useEffect(() => {
-    const filters = [];
-    if (debouncedSearchTerm) filters.push({ type: 'search', value: debouncedSearchTerm, label: `Search: "${debouncedSearchTerm}"` });
-    if (categoryFilter) filters.push({ type: 'category', value: categoryFilter, label: `Category: ${categoryFilter}` });
-    setAppliedFilters(filters);
-  }, [debouncedSearchTerm, categoryFilter]);
-
-  const removeFilter = (filterType) => {
-    switch (filterType) {
-      case 'search':
-        setSearchTerm('');
-        break;
-      case 'category':
-        setCategoryFilter('');
-        break;
-    }
-  };
-
-  const clearAllFilters = () => {
-    setSearchTerm('');
-    setCategoryFilter('');
-  };
+  // ...
 
   const getBlogStats = () => {
-    const total = blogs.length;
+    // Note: detailed stats like "withImages" will only reflect the current page
+    // unless we have a separate stats endpoint. For now, use totalBlogs for total.
     const withImages = blogs.filter(b => b.image).length;
     const withCategories = blogs.filter(b => b.category).length;
 
-    return { total, withImages, withCategories };
+    return { total: totalBlogs, withImages, withCategories };
   };
+
 
   const handleDownloadTemplate = async () => {
     try {

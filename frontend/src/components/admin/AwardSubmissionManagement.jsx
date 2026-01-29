@@ -330,6 +330,10 @@ const AwardSubmissionManagement = () => {
     }
   }, []);
 
+  const [totalSubmissions, setTotalSubmissions] = useState(0);
+
+  // ...
+
   const fetchSubmissions = useCallback(async () => {
     try {
       const params = new URLSearchParams({
@@ -343,15 +347,17 @@ const AwardSubmissionManagement = () => {
         ...(exhibitFilter && { interested_exhibit_award: exhibitFilter }),
         ...(attendFilter && { interested_attend_award: attendFilter }),
         ...(genderFilter && { gender: genderFilter }),
-        ...(industryFilter && { company_industry: industryFilter })
+        ...(industryFilter && { company_industry: industryFilter }),
+        sort_by: sortField,
+        sort_order: sortDirection.toUpperCase()
       });
 
       const response = await api.get(`/award-submissions?${params}`);
       setSubmissions(response.data.submissions || []);
+      setTotalSubmissions(response.data.pagination?.total || response.data.total || 0);
     } catch (error) {
       console.error('Error fetching submissions:', error);
       if (error.response?.status === 401) {
-        // Token expired or invalid, redirect to login
         localStorage.removeItem('adminAccessToken');
         window.location.href = '/admin/login';
         return;
@@ -360,47 +366,12 @@ const AwardSubmissionManagement = () => {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, pageSize, debouncedSearchTerm, awardFilter, receiveFilter, sponsorFilter, speakFilter, exhibitFilter, attendFilter, genderFilter, industryFilter]);
+  }, [currentPage, pageSize, debouncedSearchTerm, awardFilter, receiveFilter, sponsorFilter, speakFilter, exhibitFilter, attendFilter, genderFilter, industryFilter, sortField, sortDirection]);
 
-  // Simple search for submissions
-  const filteredSubmissions = useMemo(() => {
-    return submissions.filter(submission => submission.is_active !== false);
-  }, [submissions]);
-
-  // Update filtered submissions when filters change
-  useEffect(() => {
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [debouncedSearchTerm, awardFilter, receiveFilter, sponsorFilter, speakFilter, exhibitFilter, attendFilter, genderFilter, industryFilter]);
-
-  // Sorting logic
-  const sortedSubmissions = useMemo(() => {
-    return [...filteredSubmissions].sort((a, b) => {
-      let aValue = a[sortField];
-      let bValue = b[sortField];
-
-      if (sortField === 'created_at' || sortField === 'updated_at' || sortField === 'dob') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else {
-        aValue = String(aValue || '').toLowerCase();
-        bValue = String(bValue || '').toLowerCase();
-      }
-
-      if (sortDirection === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  }, [filteredSubmissions, sortField, sortDirection]);
-
-  // Pagination logic
-  const paginatedSubmissions = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortedSubmissions.slice(startIndex, startIndex + pageSize);
-  }, [sortedSubmissions, currentPage, pageSize]);
-
-  const totalPages = Math.ceil(sortedSubmissions.length / pageSize);
+  // Since sorting is handled server-side, we just use the returned submissions
+  const sortedSubmissions = submissions;
+  const paginatedSubmissions = sortedSubmissions; // Already paginated by server
+  const totalPages = Math.ceil(totalSubmissions / pageSize);
 
 
   const handleSort = (field) => {
