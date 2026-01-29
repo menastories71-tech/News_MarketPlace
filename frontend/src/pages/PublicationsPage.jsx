@@ -947,6 +947,7 @@ const PublicationsPage = () => {
                               image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
                               showLabel={false}
                               variant="outline"
+                              align="right"
                               size="sm"
                             />
                           </div>
@@ -1149,6 +1150,7 @@ const PublicationsPage = () => {
                                     image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
                                     showLabel={false}
                                     variant="outline"
+                                    align="right"
                                   />
                                 </div>
                               </div>
