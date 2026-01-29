@@ -169,6 +169,8 @@ const CareerManagement = () => {
   const [bulkActionLoading, setBulkActionLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCareer, setCurrentCareer] = useState(null);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingCareer, setEditingCareer] = useState(null);
   const fileInputRef = React.useRef(null);
 
   // Layout constants
@@ -266,9 +268,87 @@ const CareerManagement = () => {
     setCurrentPage(1);
   };
 
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) return '';
+    return sortDirection === 'asc' ? '↑' : '↓';
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatSalary = (salary) => {
+    if (!salary) return 'Not specified';
+    return `$${parseFloat(salary).toLocaleString()}`;
+  };
+
   const handleCreateCareer = () => {
-    setCurrentCareer(null);
-    setIsModalOpen(true);
+    setEditingCareer(null);
+    setShowFormModal(true);
+  };
+
+  const handleEditCareer = (career) => {
+    setEditingCareer(career);
+    setShowFormModal(true);
+  };
+
+  const handleFormSave = () => {
+    setShowFormModal(false);
+    setEditingCareer(null);
+    fetchCareers();
+  };
+
+  const handleApproveCareer = async (careerId) => {
+    if (!window.confirm('Are you sure you want to approve this career posting?')) return;
+
+    try {
+      await api.put(`/careers/${careerId}/approve`);
+      fetchCareers();
+    } catch (error) {
+      console.error('Error approving career:', error);
+      alert('Failed to approve career. Please try again.');
+    }
+  };
+
+  const handleRejectCareer = async (careerId) => {
+    const reason = prompt('Please provide a rejection reason:');
+    if (!reason || !reason.trim()) return;
+
+    try {
+      await api.put(`/careers/${careerId}/reject`, {
+        rejection_reason: reason.trim()
+      });
+      fetchCareers();
+    } catch (error) {
+      console.error('Error rejecting career:', error);
+      alert('Failed to reject career. Please try again.');
+    }
+  };
+
+  const handleDeleteCareer = async (careerId) => {
+    if (!window.confirm('Are you sure you want to delete this career posting? This action cannot be undone.')) return;
+
+    try {
+      await api.delete(`/careers/${careerId}`);
+      fetchCareers();
+    } catch (error) {
+      console.error('Error deleting career:', error);
+      alert('Failed to delete career. Please try again.');
+    }
   };
 
   useEffect(() => {

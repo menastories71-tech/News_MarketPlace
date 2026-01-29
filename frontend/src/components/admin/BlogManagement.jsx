@@ -165,8 +165,82 @@ const BlogManagement = () => {
   const [isMobile, setIsMobile] = useState(false);
   const [showDownloadModal, setShowDownloadModal] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [editingBlog, setEditingBlog] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingBlog, setDeletingBlog] = useState(null);
+  const fileInputRef = React.useRef(null);
 
-  // ... (previous state declarations)
+  // Layout constants
+  const headerHeight = 64;
+  const sidebarWidth = 280;
+  const leftGap = 24;
+  const mainPaddingTop = 40;
+  const headerZ = 40;
+  const sidebarZ = 50;
+  const mobileOverlayZ = 45;
+
+  const sidebarStyles = {
+    position: 'fixed',
+    top: headerHeight,
+    bottom: 0,
+    left: 0,
+    width: sidebarWidth,
+    backgroundColor: '#fff',
+    borderRight: `1px solid ${theme.borderLight}`,
+    zIndex: sidebarZ,
+    display: 'flex',
+    flexDirection: 'column',
+    transition: 'transform 0.3s ease-in-out',
+    boxShadow: '0 4px 6px rgba(0,0,0,0.02)'
+  };
+
+  const mobileSidebarOverlay = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: mobileOverlayZ,
+    display: isMobile && sidebarOpen ? 'block' : 'none'
+  };
+
+  const btnPrimary = {
+    backgroundColor: theme.primary,
+    color: '#fff',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '10px 20px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    boxShadow: '0 2px 4px rgba(25, 118, 210, 0.2)',
+    transition: 'all 0.2s'
+  };
+
+  const getRoleStyle = (role) => {
+    return {
+      display: 'inline-block',
+      padding: '4px 12px',
+      borderRadius: '20px',
+      fontSize: '12px',
+      fontWeight: '600',
+      textTransform: 'capitalize',
+      ...theme.roleColors[role] || theme.roleColors.other
+    };
+  };
+
+  const roleDisplayNames = {
+    super_admin: 'Super Admin',
+    content_manager: 'Content Manager',
+    editor: 'Editor',
+    registered_user: 'User',
+    agency: 'Agency'
+  };
 
   // Debounce search term
   useEffect(() => {
@@ -353,6 +427,46 @@ const BlogManagement = () => {
   const handleModalSave = () => {
     fetchBlogs();
     handleModalClose();
+  };
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field) => {
+    if (sortField !== field) return '';
+    return sortDirection === 'asc' ? '↑' : '↓';
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingBlog) return;
+    
+    try {
+      setLoading(true);
+      await adminAPI.deleteBlog(deletingBlog.id);
+      setShowDeleteModal(false);
+      setDeletingBlog(null);
+      fetchBlogs();
+    } catch (error) {
+      console.error('Error deleting blog:', error);
+      alert('Failed to delete blog. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
 
