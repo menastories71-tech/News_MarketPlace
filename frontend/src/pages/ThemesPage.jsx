@@ -745,16 +745,12 @@ const ThemesPage = () => {
                             <Eye size={16} />
                             {t('themes.card.viewProfile')}
                           </button>
-                          <div
-                            className="relative share-menu-container"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setActiveShareId(activeShareId === theme.id ? null : theme.id);
-                            }}
-                          >
+                          <div className="relative share-menu-container">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
+                                e.preventDefault();
+                                setActiveShareId(activeShareId === theme.id ? null : theme.id);
                               }}
                               className={`p-3 rounded-xl border transition-all duration-300 ${activeShareId === theme.id ? 'bg-[#1976D2] border-[#1976D2] text-white' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}
                             >
