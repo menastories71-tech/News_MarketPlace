@@ -89,11 +89,13 @@ main() {
 
 # Execute
 if [[ "$1" == "--monitor" ]]; then
-    log_message "👀 Monitoring mode started (checking every 5 minutes)..."
+    log_message "👀 Monitoring mode started (checking every 30 minutes)..."
     while true; do
         main
-        sleep 300
+        log_message "😴 Waiting 30 minutes for next check..."
+        sleep 1800
     done
 else
     main
 fi
+
