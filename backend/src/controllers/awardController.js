@@ -245,13 +245,13 @@ class AwardController {
   async delete(req, res) {
     try {
       const { id } = req.params;
-      const award = await AwardCreation.findById(id);
+      const award = await Award.findById(id);
 
       if (!award) {
         return res.status(404).json({ error: 'Award not found' });
       }
 
-      await award.destroy();
+      await award.delete();
       res.json({ message: 'Award deleted successfully' });
 
       // Trigger SEO and Sitemap update
