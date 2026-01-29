@@ -316,22 +316,22 @@ const BlogListingPage = () => {
                     onClick={() => navigate(`/blog/${createSlugPath(blog.title, blog.id)}`)}
                     onMouseEnter={() => setActiveCardId(blog.id)}
                     onMouseLeave={() => setActiveCardId(null)}
-                    className="group bg-white rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl hover:border-[#1976D2]/40 transition-all duration-700 hover:-translate-y-3 relative cursor-pointer"
-                    style={{ zIndex: activeCardId === blog.id ? 100 : 1 }}
+                    className={`group bg-white rounded-3xl shadow-xl border border-gray-100 hover:shadow-2xl hover:border-[#1976D2]/40 transition-all duration-700 hover:-translate-y-3 relative cursor-pointer ${activeShareId === blog.id ? 'z-[100]' : 'z-10'}`}
+                    style={{ zIndex: activeShareId === blog.id ? 100 : 10 }}
                   >
                     {/* Gradient Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-[#1976D2]/5 via-transparent to-[#9C27B0]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10"></div>
 
-                    {/* Image */}
-                    <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 relative overflow-hidden">
+                    {/* Image Container - Removed overflow-hidden to allow share menu to show */}
+                    <div className="aspect-[4/3] bg-gradient-to-br from-gray-100 to-gray-200 relative rounded-t-3xl">
                       {blog.image ? (
                         <img
                           src={blog.image}
                           alt={blog.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 rounded-t-3xl"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#E3F2FD] to-[#F3E5F5] flex items-center justify-center relative">
+                        <div className="w-full h-full bg-gradient-to-br from-[#E3F2FD] to-[#F3E5F5] flex items-center justify-center relative rounded-t-3xl">
                           <div className="text-center z-20">
                             <div className="w-20 h-20 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                               <Icon name="user" size="md" className="text-[#1976D2]" />
@@ -377,7 +377,7 @@ const BlogListingPage = () => {
                       </div>
 
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6 rounded-t-3xl">
                         <Link
                           to={`/blog/${createSlugPath(blog.title, blog.id)}`}
                           className="bg-white text-[#1976D2] px-8 py-3 rounded-full font-bold hover:bg-[#1976D2] hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-xl"
