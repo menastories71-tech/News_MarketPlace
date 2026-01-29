@@ -663,8 +663,7 @@ const ThemesPage = () => {
                   {sortedThemes.map((theme, index) => (
                     <motion.div
                       key={theme.id}
-                      onClick={() => handleThemeClick(theme)}
-                      className="bg-white rounded-2xl shadow-lg border hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group overflow-hidden relative"
+                      className="bg-white rounded-2xl shadow-lg border hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative"
                       style={{
                         borderColor: theme.borderLight,
                         boxShadow: '0 10px 25px rgba(2,6,23,0.08)'
@@ -750,6 +749,7 @@ const ThemesPage = () => {
                         {/* CTA Button */}
                         <div className="flex gap-2 items-center">
                           <button
+                            onClick={() => handleThemeClick(theme)}
                             className="flex-1 bg-gradient-to-r from-[#1976D2] to-[#1565C0] hover:from-[#1565C0] hover:to-[#0D47A1] text-white font-semibold py-3 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105"
                           >
                             <Eye size={16} />
@@ -859,9 +859,8 @@ const ThemesPage = () => {
                         {sortedThemes.map((theme, index) => (
                           <tr
                             key={theme.id}
-                            className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
+                            className="border-t hover:bg-gray-50 transition-colors"
                             style={{ borderColor: theme.borderLight }}
-                            onClick={() => handleThemeClick(theme)}
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
