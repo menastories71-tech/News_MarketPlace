@@ -397,13 +397,13 @@ const BlogManagement = () => {
 
   // Blog CRUD handlers
   const handleCreateBlog = () => {
-    setSelectedBlog(null);
-    setShowModal(true);
+    setEditingBlog(null);
+    setShowFormModal(true);
   };
 
   const handleEditBlog = (blog) => {
-    setSelectedBlog(blog);
-    setShowModal(true);
+    setEditingBlog(blog);
+    setShowFormModal(true);
   };
 
   const handleDeleteBlog = async (blog) => {
