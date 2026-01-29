@@ -466,81 +466,60 @@ const RadioPage = () => {
           {/* Radios Display */}
           {sortedRadios.length > 0 ? (
             <>
-              {/* Enhanced Grid View with Image Backgrounds */}
+              {/* Grid View with Restored Design */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 sm:gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {translatedRadios.map((radio, index) => {
                     return (
                       <motion.div
                         key={radio.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.4, delay: index * 0.05 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: index * 0.1 }}
                         onClick={() => handleRadioClick(radio)}
-                        className={`relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group h-[340px] ${activeShareId === radio.id ? 'z-[100]' : 'z-10'}`}
-                        style={{
-                          boxShadow: '0 8px 30px rgba(0,0,0,0.08)'
-                        }}
+                        className={`relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer group h-72 sm:h-80 ${activeShareId === radio.id ? 'z-[100]' : 'z-10'}`}
                       >
-                        {/* Internal Wrapper for Clipping Background and Effects */}
-                        <div className="absolute inset-0 rounded-2xl overflow-hidden shadow-inner">
-                          {/* Enhanced Background Image with Error Handling */}
-                          <div className="absolute inset-0">
-                            {radio.image_url ? (
-                              <img
-                                src={radio.image_url}
-                                alt={radio.radio_name}
-                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                  if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex';
-                                }}
-                              />
-                            ) : null}
+                        {/* Background Image Container with Overflow-Hidden */}
+                        <div className="absolute inset-0 rounded-2xl overflow-hidden">
+                          {radio.image_url ? (
+                            <img
+                              src={radio.image_url}
+                              alt={radio.radio_name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                if (e.target.nextElementSibling) e.target.nextElementSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : null}
 
-                            {/* Fallback logo */}
-                            <div
-                              className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200"
-                              style={{ display: radio.image_url ? 'none' : 'flex' }}
-                            >
-                              <img
-                                src="/logo.png"
-                                alt="Logo"
-                                className="w-1/2 h-1/2 object-contain opacity-40 group-hover:opacity-60 transition-opacity"
-                              />
-                            </div>
-
-                            {/* Dark overlay for better text readability */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent"></div>
+                          {/* Fallback logo */}
+                          <div
+                            className="w-full h-full flex items-center justify-center bg-slate-100"
+                            style={{ display: radio.image_url ? 'none' : 'flex' }}
+                          >
+                            <img
+                              src="/logo.png"
+                              alt="Logo"
+                              className="w-2/3 h-2/3 object-contain opacity-20"
+                            />
                           </div>
+
+                          {/* Dark overlay for image */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
                         </div>
 
-                        {/* Enhanced Status Badges */}
+                        {/* Status Badges */}
                         <div className="absolute top-4 left-4 z-20 flex flex-col gap-2 pr-4">
-                          <div className="flex flex-wrap gap-2">
-                            <span className="px-3 py-1 bg-[#1976D2] text-white text-[10px] font-bold rounded-full shadow-lg border border-white/20 whitespace-nowrap">
-                              {radio.frequency}
-                            </span>
-                            {radio.radio_language && (
-                              <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-bold rounded-full shadow-lg border border-white/20 whitespace-nowrap">
-                                {radio.radio_language}
-                              </span>
-                            )}
-                          </div>
-                          {radio.radio_popular_rj && (
-                            <div className="bg-black/40 backdrop-blur-md rounded-full px-3 py-1 flex items-center gap-1.5 self-start border border-white/10">
-                              <Icon name="user" size="xs" className="text-white" />
-                              <span className="text-white text-[10px] font-bold uppercase tracking-wider">
-                                {radio.radio_popular_rj}
-                              </span>
-                            </div>
-                          )}
+                          <span className="px-3 py-1 bg-[#1976D2] text-white text-[10px] font-bold rounded-full shadow-lg border border-white/20">
+                            {radio.frequency}
+                          </span>
                         </div>
 
-                        {/* Bottom Content Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 z-20 p-6 text-white">
-                          <div className="flex items-start justify-between gap-3 mb-3">
-                            <h3 className="text-xl font-black text-white group-hover:text-blue-200 transition-colors line-clamp-2 flex-1 leading-tight tracking-tight">
+                        {/* Bottom Content Overlay - Restored Layout */}
+                        <div className="absolute bottom-0 left-0 right-0 z-20 p-5 text-white bg-gradient-to-t from-black/80 via-black/40 to-transparent rounded-b-2xl">
+                          <div className="flex items-start justify-between gap-2 mb-2">
+                            <h3 className="text-xl font-bold text-white group-hover:text-blue-200 transition-colors line-clamp-1 flex-1 leading-tight">
                               {radio.radio_name}
                             </h3>
                             <div className="relative z-[150]" onClick={(e) => e.stopPropagation()}>
@@ -552,32 +531,28 @@ const RadioPage = () => {
                                 variant="ghost"
                                 direction="up"
                                 onToggle={(isOpen) => setActiveShareId(isOpen ? radio.id : null)}
-                                className="!p-2.5 text-white bg-white/10 backdrop-blur-lg rounded-full hover:bg-white hover:text-[#1976D2] transition-all shadow-lg active:scale-95"
+                                className="!p-1 text-white hover:text-blue-300 hover:bg-white/10"
                               />
                             </div>
                           </div>
 
                           {/* Description */}
-                          <p className="text-white/80 text-sm mb-4 line-clamp-2 font-medium leading-relaxed">
+                          <p className="text-white/90 text-sm mb-3 line-clamp-2 font-medium">
                             {radio.description || t('radio.card.broadcasting', { name: radio.radio_name, frequency: radio.frequency })}
                           </p>
 
-                          {/* Location and Action Row */}
-                          <div className="flex items-center justify-between pt-4 border-t border-white/20">
-                            <div className="flex items-center text-xs text-white/90 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md border border-white/10">
-                              <Icon name="map-pin" size="xs" className="mr-2" />
-                              <span className="font-black tracking-widest uppercase">{radio.emirate_state || 'UAE'}</span>
+                          {/* Location and Info Row */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center text-xs text-white/80 bg-white/10 px-2 py-1 rounded-lg backdrop-blur-sm">
+                              <Icon name="map-pin" size="xs" className="mr-1.5" />
+                              <span className="font-semibold uppercase tracking-wider">{radio.emirate_state || 'UAE'}</span>
                             </div>
 
-                            <button
-                              className="w-11 h-11 bg-white text-[#1976D2] rounded-full flex items-center justify-center shadow-xl hover:scale-110 active:scale-90 transition-all group/btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRadioClick(radio);
-                              }}
-                            >
-                              <Icon name="arrow-right" size="sm" className="group-hover/btn:translate-x-0.5 transition-transform" />
-                            </button>
+                            {radio.radio_language && (
+                              <div className="text-xs font-bold bg-emerald-500/80 px-2 py-1 rounded-lg backdrop-blur-sm border border-white/10">
+                                {radio.radio_language}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </motion.div>
