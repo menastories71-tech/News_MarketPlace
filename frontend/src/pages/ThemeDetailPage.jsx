@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { getIdFromSlug } from '../utils/slugify';
-// Removed ShareButtons import to implement manually
+import Icon from '../components/common/Icon';
 
 const ThemeDetailPage = () => {
   const { id } = useParams();

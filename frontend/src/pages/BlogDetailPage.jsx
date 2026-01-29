@@ -10,7 +10,7 @@ import Schema from '../components/common/Schema';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationObject, useTranslationArray } from '../hooks/useTranslation';
 import { getIdFromSlug, createSlugPath } from '../utils/slugify';
-// Removed ShareButtons import to implement manually
+import Icon from '../components/common/Icon';
 
 
 // Custom styles for blog content

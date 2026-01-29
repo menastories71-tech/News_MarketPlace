@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import Skeleton from '../components/common/Skeleton';
-// Removed ShareButtons import to implement manually
+import Icon from '../components/common/Icon';
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {

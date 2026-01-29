@@ -10,7 +10,7 @@ import Schema from '../components/common/Schema';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationArray } from '../hooks/useTranslation';
 import { createSlugPath } from '../utils/slugify';
-// Removed ShareButtons import to implement manually
+import { Clock } from 'lucide-react';
 
 
 const BlogListingPage = () => {
@@ -233,16 +233,19 @@ const BlogListingPage = () => {
                 className="w-full pl-12 pr-12 py-3.5 sm:py-4 border border-[#E0E0E0] rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-100 focus:border-[#1976D2] bg-white shadow-lg shadow-blue-900/5 transition-all"
               />
             </div>
-            <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-sm flex items-center gap-2">
+            <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-sm flex items-center gap-2 relative share-menu-container">
               <span className="text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
-              <ShareButtons
-                url={window.location.href}
-                title={t('blogs.pageTitle')}
-                description={t('blogs.heroSubtitle')}
-                showLabel={false}
-                variant="ghost"
-                size="sm"
-              />
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setActiveShareId(activeShareId === 'hero' ? null : 'hero');
+                }}
+                className="p-1.5 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors flex items-center justify-center"
+                title="Share this page"
+              >
+                <Icon name="share" size={16} />
+              </button>
+              {renderShareMenu(window.location.href, t('blogs.pageTitle'), 'hero')}
             </div>
           </div>
 
