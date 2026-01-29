@@ -652,14 +652,15 @@ const ThemesPage = () => {
                   {sortedThemes.map((theme, index) => (
                     <motion.div
                       key={theme.id}
-                      className="bg-white rounded-2xl shadow-lg border hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group overflow-hidden relative"
+                      className={`group bg-white rounded-2xl shadow-lg border hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative cursor-pointer ${activeShareId === theme.id ? 'z-[100]' : 'z-10'}`}
                       style={{
                         borderColor: theme.borderLight,
-                        boxShadow: '0 10px 25px rgba(2,6,23,0.08)'
+                        boxShadow: '0 10px 25px rgba(2,6,23,0.08)',
+                        zIndex: activeShareId === theme.id ? 100 : 10
                       }}
                     >
-                      {/* Gradient Background Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                      {/* Gradient Background Overlay - Added pointer-events-none to avoid blocking clicks */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl pointer-events-none"></div>
 
                       {/* Platform Badge - Top Left */}
                       <div className="absolute top-4 left-4 z-10">
@@ -769,8 +770,8 @@ const ThemesPage = () => {
                         </div>
                       </div>
 
-                      {/* Hover Effect Border */}
-                      <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-[#1976D2]/20 transition-all duration-300"></div>
+                      {/* Hover Effect Border - Added pointer-events-none to avoid blocking clicks */}
+                      <div className="absolute inset-0 rounded-2xl ring-2 ring-transparent group-hover:ring-[#1976D2]/20 transition-all duration-300 pointer-events-none"></div>
                     </motion.div>
                   ))}
                 </div>
