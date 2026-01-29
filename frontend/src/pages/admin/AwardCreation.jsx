@@ -1333,12 +1333,28 @@ const AwardCreationPage = () => {
               </div>
 
               {/* Pagination */}
-              {totalPages > 1 && (
-                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              {totalRecords > 0 && (
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
                   <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    Page {currentPage} of {totalPages} ({totalRecords} total records)
+                    Showing {Math.min((currentPage - 1) * pageSize + 1, totalRecords)} to {Math.min(currentPage * pageSize, totalRecords)} of {totalRecords} records
                   </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === 1 ? '#e5e7eb' : '#fff',
+                        color: currentPage === 1 ? theme.textSecondary : theme.primary,
+                        border: `1px solid ${currentPage === 1 ? '#e5e7eb' : theme.primary}`,
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      First
+                    </button>
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
@@ -1349,11 +1365,101 @@ const AwardCreationPage = () => {
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '14px',
+                        fontWeight: '600',
                         cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
                       }}
                     >
                       ← Previous
                     </button>
+                    
+                    {/* Page numbers */}
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                      {(() => {
+                        const pages = [];
+                        const maxVisible = 5;
+                        let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
+                        let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+                        
+                        if (endPage - startPage < maxVisible - 1) {
+                          startPage = Math.max(1, endPage - maxVisible + 1);
+                        }
+                        
+                        if (startPage > 1) {
+                          pages.push(
+                            <button
+                              key={1}
+                              onClick={() => setCurrentPage(1)}
+                              style={{
+                                padding: '8px 12px',
+                                backgroundColor: '#fff',
+                                color: theme.primary,
+                                border: `1px solid ${theme.borderLight}`,
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                minWidth: '40px'
+                              }}
+                            >
+                              1
+                            </button>
+                          );
+                          if (startPage > 2) {
+                            pages.push(<span key="ellipsis1" style={{ padding: '0 4px', color: theme.textSecondary }}>…</span>);
+                          }
+                        }
+                        
+                        for (let i = startPage; i <= endPage; i++) {
+                          pages.push(
+                            <button
+                              key={i}
+                              onClick={() => setCurrentPage(i)}
+                              style={{
+                                padding: '8px 12px',
+                                backgroundColor: i === currentPage ? theme.primary : '#fff',
+                                color: i === currentPage ? '#fff' : theme.textPrimary,
+                                border: `1px solid ${i === currentPage ? theme.primary : theme.borderLight}`,
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                minWidth: '40px'
+                              }}
+                            >
+                              {i}
+                            </button>
+                          );
+                        }
+                        
+                        if (endPage < totalPages) {
+                          if (endPage < totalPages - 1) {
+                            pages.push(<span key="ellipsis2" style={{ padding: '0 4px', color: theme.textSecondary }}>…</span>);
+                          }
+                          pages.push(
+                            <button
+                              key={totalPages}
+                              onClick={() => setCurrentPage(totalPages)}
+                              style={{
+                                padding: '8px 12px',
+                                backgroundColor: '#fff',
+                                color: theme.primary,
+                                border: `1px solid ${theme.borderLight}`,
+                                borderRadius: '6px',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                minWidth: '40px'
+                              }}
+                            >
+                              {totalPages}
+                            </button>
+                          );
+                        }
+                        
+                        return pages;
+                      })()}
+                    </div>
+                    
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
@@ -1364,10 +1470,27 @@ const AwardCreationPage = () => {
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '14px',
+                        fontWeight: '600',
                         cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
                       }}
                     >
                       Next →
+                    </button>
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === totalPages ? '#e5e7eb' : '#fff',
+                        color: currentPage === totalPages ? theme.textSecondary : theme.primary,
+                        border: `1px solid ${currentPage === totalPages ? '#e5e7eb' : theme.primary}`,
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      Last
                     </button>
                   </div>
                 </div>
