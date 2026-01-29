@@ -506,26 +506,20 @@ const PublicationsPage = () => {
       </section>
 
       {/* Main Content with Enhanced Layout */}
-      <div className="max-w-[1600px] mx-auto flex flex-col lg:flex-row relative px-2 sm:px-4 lg:px-6 py-4 sm:py-8">
-        {/* Enhanced Filters Sidebar - Slide over on Mobile/Tablet, Sticky on Desktop */}
-        <div
-          className={`fixed inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${sidebarOpen ? 'opacity-100 z-[100]' : 'opacity-0 pointer-events-none z-[-1]'}`}
-          onClick={() => setSidebarOpen(false)}
-        />
-
+      <div className={`max-w-[1600px] mx-auto ${isMobile ? 'flex flex-col' : 'flex'} relative px-2 sm:px-4 lg:px-6 py-4 sm:py-8`}>
+        {/* Enhanced Filters Sidebar */}
         <aside
-          className={`
-            fixed lg:sticky lg:top-24 top-0 left-0 h-full lg:h-[calc(100vh-120px)] 
-            w-[85vw] sm:w-[320px] lg:w-[350px]
-            bg-white z-[110] lg:z-10
-            transform transition-transform duration-300 ease-in-out
-            lg:transform-none
-            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-            overflow-y-auto lg:overflow-visible
-            flex flex-col border-r lg:border-none shadow-2xl lg:shadow-none
+          className={`${sidebarOpen ? (isMobile ? 'w-full' : 'w-[320px] lg:w-[350px]') : 'w-0'} 
+            transition-all duration-300 bg-white shadow-lg lg:shadow-none overflow-hidden
+            ${isMobile ? 'order-2 mb-6 rounded-lg border border-[#E0E0E0]' : 'border-r lg:border-none sticky top-24 h-[calc(100vh-120px)]'}
           `}
+          style={{
+            zIndex: 40,
+            opacity: sidebarOpen ? 1 : 0,
+            overflowY: isMobile ? 'visible' : 'auto'
+          }}
         >
-          <div className="p-6 h-full overflow-y-auto">
+          <div className="p-4 sm:p-6 h-full">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
                 <Icon name="filter" size="sm" className="text-[#1976D2]" />
@@ -534,7 +528,7 @@ const PublicationsPage = () => {
               {isMobile && (
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg text-[#757575]"
+                  className="p-2 hover:bg-gray-100 rounded-lg text-[#757575] transition-colors"
                 >
                   ×
                 </button>
@@ -754,7 +748,7 @@ const PublicationsPage = () => {
         </aside>
 
         {/* Main Content - Enhanced */}
-        <main className="flex-1 p-3 sm:p-6 lg:p-8 min-w-0">
+        <main className={`flex-1 p-3 sm:p-6 lg:p-8 min-w-0 ${isMobile ? 'order-1' : ''}`}>
           {/* Enhanced Controls Bar */}
           <div className="bg-white rounded-2xl shadow-sm border p-4 sm:p-6 mb-6" style={{
             borderColor: theme.borderLight,
@@ -764,7 +758,7 @@ const PublicationsPage = () => {
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 {isMobile && (
                   <button
-                    onClick={() => setSidebarOpen(true)}
+                    onClick={() => setSidebarOpen(!sidebarOpen)}
                     className="flex items-center gap-2 px-3 py-2 rounded-lg border bg-white shadow-sm hover:bg-gray-50 transition-colors"
                     style={{ borderColor: theme.borderLight }}
                   >
@@ -831,7 +825,7 @@ const PublicationsPage = () => {
             <>
               {/* Enhanced Grid View */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5 sm:gap-8">
                   {publications.map((publication, index) => (
                     <motion.div
                       key={publication.id || index}
