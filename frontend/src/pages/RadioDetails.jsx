@@ -8,7 +8,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/auth/AuthModal';
 import { getIdFromSlug } from '../utils/slugify';
-import ShareButtons from '../components/common/ShareButtons';
+// Removed ShareButtons import to implement manually
 import SEO from '../components/common/SEO';
 
 // Updated theme colors matching the color palette from PDF
@@ -92,6 +92,68 @@ const RadioDetails = () => {
       return;
     }
     setShowOrderModal(true);
+  };
+
+  // Local Share State
+  const [activeShareId, setActiveShareId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-100 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+      >
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
   };
 
   const handleOrderSubmit = async (e) => {
@@ -361,15 +423,15 @@ const RadioDetails = () => {
                   {/* Share Section - Moved to Top for better UX */}
                   <div className="flex flex-col items-center justify-center text-center gap-3 pb-6 border-b border-slate-100">
                     <span className="text-[11px] font-extrabold text-slate-500 uppercase tracking-[0.2em]">{t('common.share_station', 'Share Station')}</span>
-                    <div className="flex justify-center w-full">
-                      <ShareButtons
-                        url={window.location.href}
-                        title={translatedRadio?.radio_name || 'Radio Station'}
-                        description={translatedRadio?.description || ''}
-                        direction="down"
-                        variant="outline"
-                        className="!rounded-full !py-2.5 !px-8 shadow-sm hover:shadow-md border-slate-200"
-                      />
+                    <div className="flex justify-center w-full relative">
+                      <button
+                        onClick={() => setActiveShareId(activeShareId === 'details' ? null : 'details')}
+                        className="flex items-center gap-2 px-8 py-2.5 rounded-full border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300 transition-all font-bold shadow-sm"
+                      >
+                        <Icon name="share" size={18} />
+                        <span>{t('common.share', 'Share')}</span>
+                      </button>
+                      {renderShareMenu(window.location.href, translatedRadio?.radio_name, 'details')}
                     </div>
                   </div>
 

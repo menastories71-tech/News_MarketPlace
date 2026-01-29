@@ -8,7 +8,7 @@ import Icon from '../components/common/Icon';
 import api from '../services/api';
 import { createSlugPath } from '../utils/slugify';
 import SEO from '../components/common/SEO';
-import ShareButtons from '../components/common/ShareButtons';
+// Removed ShareButtons import to implement manually
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -109,6 +109,59 @@ const RadioPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Local Share State
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+      >
+        <div className="grid grid-cols-4 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={16} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={16} />
+          </button>
+        </div>
+      </motion.div>
+    );
   };
 
   // Enhanced search with debouncing
@@ -522,18 +575,22 @@ const RadioPage = () => {
                             <h3 className="text-xl font-bold text-white group-hover:text-blue-200 transition-colors line-clamp-1 flex-1 leading-tight">
                               {radio.radio_name}
                             </h3>
-                            <div className="relative z-[150]" onClick={(e) => e.stopPropagation()}>
-                              <ShareButtons
-                                url={`${window.location.origin}/radio/${createSlugPath(radio.radio_name, radio.id)}`}
-                                title={`${radio.radio_name} | Radio Station Broadcaster`}
-                                description={`Listen to ${radio.radio_name} on VaaS Solutions.`}
-                                showLabel={false}
-                                variant="ghost"
-                                direction="up"
-                                align="right"
-                                onToggle={(isOpen) => setActiveShareId(isOpen ? radio.id : null)}
-                                className="!p-1 text-white hover:text-blue-300 hover:bg-white/10"
-                              />
+                            <div className="relative">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveShareId(activeShareId === radio.id ? null : radio.id);
+                                }}
+                                className="!p-1.5 rounded-xl text-white hover:text-blue-300 hover:bg-white/10 transition-colors border border-white/20"
+                              >
+                                <Icon name="share" size={16} />
+                              </button>
+                              {renderShareMenu(
+                                `${window.location.origin}/radio/${createSlugPath(radio.radio_name, radio.id)}`,
+                                radio.radio_name,
+                                radio.id,
+                                'right'
+                              )}
                             </div>
                           </div>
 
@@ -663,15 +720,22 @@ const RadioPage = () => {
                                   <span className="text-sm" style={{ color: theme.textPrimary }}>
                                     {radio.frequency}
                                   </span>
-                                  <div className="relative z-30" onClick={(e) => e.stopPropagation()}>
-                                    <ShareButtons
-                                      url={`${window.location.origin}/radio/${createSlugPath(radio.radio_name, radio.id)}`}
-                                      title={`${radio.radio_name} | Radio Station Broadcaster`}
-                                      description={`Listen to ${radio.radio_name} on VaaS Solutions.`}
-                                      showLabel={false}
-                                      variant="ghost"
-                                      size="sm"
-                                    />
+                                  <div className="relative">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveShareId(activeShareId === radio.id ? null : radio.id);
+                                      }}
+                                      className="p-2 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+                                    >
+                                      <Icon name="share" size={16} />
+                                    </button>
+                                    {renderShareMenu(
+                                      `${window.location.origin}/radio/${createSlugPath(radio.radio_name, radio.id)}`,
+                                      radio.radio_name,
+                                      radio.id,
+                                      'right'
+                                    )}
                                   </div>
                                 </div>
                               </td>

@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Eye, ExternalLink, Award, Calendar, Building, Share2 } from 'lucide-react';
-import ShareButtons from './ShareButtons';
+import Icon from './Icon';
 import { createSlugPath } from '../../utils/slugify';
 
 // Updated theme colors matching the color palette from PDF
@@ -28,6 +28,71 @@ const theme = {
 };
 
 const AwardsListing = ({ award, index, onAwardClick, onApplyClick }) => {
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handleCopy = (e) => {
+    e.stopPropagation();
+    const url = window.location.origin + `/awards/${createSlugPath(award.award_name, award.id)}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareUrl = window.location.origin + `/awards/${createSlugPath(award.award_name, award.id)}`;
+  const shareTitle = award.award_name;
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = () => {
+    if (!isShareOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 right-0`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(shareUrl, shareTitle)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: p.color }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={handleCopy}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copied ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copied ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -115,14 +180,17 @@ const AwardsListing = ({ award, index, onAwardClick, onApplyClick }) => {
           >
             Apply
           </button>
-          <div onClick={(e) => e.stopPropagation()}>
-            <ShareButtons
-              url={window.location.origin + `/awards/${createSlugPath(award.award_name, award.id)}`}
-              title={award.award_name}
-              description={award.description}
-              showLabel={false}
-              variant="outline"
-            />
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsShareOpen(!isShareOpen);
+              }}
+              className="px-4 py-3 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-[#1976D2] transition-colors"
+            >
+              <Share2 size={20} />
+            </button>
+            {renderShareMenu()}
           </div>
         </div>
       </div>

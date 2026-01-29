@@ -11,7 +11,7 @@ import AuthModal from '../components/auth/AuthModal';
 import { useLanguage } from '../context/LanguageContext';
 import { useTranslationObject } from '../hooks/useTranslation';
 import { getIdFromSlug } from '../utils/slugify';
-import ShareButtons from '../components/common/ShareButtons';
+// Removed ShareButtons import to implement manually
 
 import {
   MapPin, Calendar, DollarSign, Building, User, Clock,
@@ -101,41 +101,68 @@ const CareerDetailPage = () => {
     setShowApplyModal(false);
   };
 
-  const handleShare = async () => {
-    const url = window.location.href;
-    const title = `${career.title} - ${career.company || 'Company'}`;
+  // Local Share State
+  const [activeShareId, setActiveShareId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: title,
-          text: `${t('careers.share')} ${translatedCareer.title}`,
-          url: url,
-        });
-      } catch (error) {
-        console.log('Error sharing:', error);
-        fallbackShare(url, title);
-      }
-    } else {
-      fallbackShare(url, title);
-    }
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
-  const fallbackShare = (url, title) => {
-    // Copy to clipboard as fallback
-    navigator.clipboard.writeText(url).then(() => {
-      alert(t('careers.linkCopied'));
-    }).catch(() => {
-      // Fallback for older browsers
-      const textArea = document.createElement('textarea');
-      textArea.value = url;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      alert(t('careers.linkCopied'));
-    });
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+      >
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
   };
+
 
   const handleSave = () => {
     if (!isAuthenticated) {
@@ -380,11 +407,21 @@ const CareerDetailPage = () => {
                   <ExternalLink size={18} />
                   {t('careers.applyNow')}
                 </button>
-                <ShareButtons
-                  url={window.location.href}
-                  title={`${career.title} - ${career.company || 'Company'}`}
-                  description={translatedCareer.description}
-                />
+                <div className="relative">
+                  <button
+                    onClick={() => setActiveShareId(activeShareId === 'career' ? null : 'career')}
+                    className="flex-1 px-6 py-3 border border-gray-300 rounded-lg font-medium hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                    style={{ color: theme.textPrimary }}
+                  >
+                    <Icon name="share" size={18} />
+                    {t('common.share', 'Share')}
+                  </button>
+                  {renderShareMenu(
+                    window.location.href,
+                    `${career.title} - ${career.company || 'Company'}`,
+                    'career'
+                  )}
+                </div>
                 <button
                   onClick={handleSave}
                   className={`px-6 py-3 border rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${isSaved ? 'bg-red-50 border-red-300 text-red-600' : 'border-gray-300 hover:bg-gray-50'

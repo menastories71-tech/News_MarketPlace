@@ -16,7 +16,7 @@ import { useTranslationArray } from '../hooks/useTranslation';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
 import { createSlugPath } from '../utils/slugify';
-import ShareButtons from '../components/common/ShareButtons';
+// Removed ShareButtons import to implement manually
 
 const EventsPage = () => {
   const { t, language } = useLanguage();
@@ -42,6 +42,68 @@ const EventsPage = () => {
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
   const [showApplicationModal, setShowApplicationModal] = useState(false);
   const [applicationRoleType, setApplicationRoleType] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Local Share State
+  const [activeShareId, setActiveShareId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 1024);
+    window.addEventListener('resize', onResize);
+    onResize();
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+      >
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
 
   useEffect(() => {
     fetchEvents();
@@ -234,16 +296,15 @@ const EventsPage = () => {
                 </button>
               </div>
               <div className="mt-4 flex justify-center">
-                <div className="bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+                <div className="bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3 relative">
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-r pr-3">{t('common.share', 'Share')}</span>
-                  <ShareButtons
-                    url={window.location.href}
-                    title={t('events.hero.title')}
-                    description={t('events.hero.desc')}
-                    showLabel={false}
-                    variant="ghost"
-                    size="sm"
-                  />
+                  <button
+                    onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
+                    className="p-1 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
+                  >
+                    <Icon name="share" size={18} />
+                  </button>
+                  {renderShareMenu(window.location.href, t('events.hero.title'), 'hero')}
                 </div>
               </div>
             </div>
@@ -417,15 +478,19 @@ const EventsPage = () => {
                           <div className={`px-4 py-2 rounded-2xl text-[10px] font-black tracking-[0.2em] font-primary uppercase shadow-sm ${event.is_free ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-blue-50 text-blue-600 border border-blue-100'}`}>
                             {event.is_free ? t('events.results.guestPass') : t('events.results.exclusive')}
                           </div>
-                          <div onClick={(e) => e.stopPropagation()} className="ml-2">
-                            <ShareButtons
-                              url={`${window.location.origin}/events/${createSlugPath(event.title, event.id)}`}
-                              title={event.title}
-                              description={event.description}
-                              showLabel={false}
-                              variant="outline"
-                              size="sm"
-                            />
+                          <div onClick={(e) => e.stopPropagation()} className="ml-2 relative">
+                            <button
+                              onClick={() => setActiveShareId(activeShareId === event.id ? null : event.id)}
+                              className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                            >
+                              <Icon name="share" size={18} />
+                            </button>
+                            {renderShareMenu(
+                              `${window.location.origin}/events/${createSlugPath(event.title, event.id)}`,
+                              event.title,
+                              event.id,
+                              'right'
+                            )}
                           </div>
                         </div>
 

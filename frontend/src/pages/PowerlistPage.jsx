@@ -18,7 +18,7 @@ import Skeleton from '../components/common/Skeleton';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
 import { createSlugPath } from '../utils/slugify';
-import ShareButtons from '../components/common/ShareButtons';
+// Removed ShareButtons import to implement manually
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -62,6 +62,60 @@ const PowerlistPage = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+
+  // Local Share State
+  const [activeShareId, setActiveShareId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+      >
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
 
   // Filter states - Updated for powerlist nominations
   const [industryFilter, setIndustryFilter] = useState('');
@@ -447,16 +501,15 @@ const PowerlistPage = () => {
                   </button>
                 )}
               </div>
-              <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-md shadow-slate-200/50 flex items-center gap-2">
+              <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-md shadow-slate-200/50 flex items-center gap-2 relative">
                 <span className="text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
-                <ShareButtons
-                  url={window.location.href}
-                  title={t('powerlist.hero.title')}
-                  description={t('powerlist.hero.desc')}
-                  showLabel={false}
-                  variant="ghost"
-                  size="sm"
-                />
+                <button
+                  onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
+                  className="p-1 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
+                >
+                  <Icon name="share" size={18} />
+                </button>
+                {renderShareMenu(window.location.href, t('powerlist.hero.title'), 'hero')}
               </div>
             </div>
 
@@ -793,16 +846,19 @@ const PowerlistPage = () => {
                             </div>
 
                             <div className="flex items-center gap-3">
-                              <div onClick={(e) => e.stopPropagation()}>
-                                <ShareButtons
-                                  url={`${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`}
-                                  title={nomination.power_list_name}
-                                  description={`${nomination.publication_name} - ${nomination.power_list_name}`}
-                                  showLabel={false}
-                                  variant="ghost"
-                                  size="sm"
-                                  className="!p-1 text-white hover:text-blue-300 hover:bg-white/10"
-                                />
+                              <div className="relative" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  onClick={() => setActiveShareId(activeShareId === nomination.id ? null : nomination.id)}
+                                  className="p-2 rounded-lg hover:bg-white/10 text-white transition-colors"
+                                >
+                                  <Icon name="share" size={18} />
+                                </button>
+                                {renderShareMenu(
+                                  `${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`,
+                                  nomination.power_list_name,
+                                  nomination.id,
+                                  'right'
+                                )}
                               </div>
                               <div className="text-right">
                                 <div className="text-sm font-medium text-white">
@@ -981,14 +1037,19 @@ const PowerlistPage = () => {
                                     <Eye size={14} />
                                     {t('powerlist.table.view')}
                                   </button>
-                                  <div onClick={(e) => e.stopPropagation()}>
-                                    <ShareButtons
-                                      url={`${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`}
-                                      title={nomination.power_list_name}
-                                      showLabel={false}
-                                      variant="ghost"
-                                      size="sm"
-                                    />
+                                  <div className="relative" onClick={(e) => e.stopPropagation()}>
+                                    <button
+                                      onClick={() => setActiveShareId(activeShareId === nomination.id ? null : nomination.id)}
+                                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                                    >
+                                      <Icon name="share" size={16} />
+                                    </button>
+                                    {renderShareMenu(
+                                      `${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`,
+                                      nomination.power_list_name,
+                                      nomination.id,
+                                      'right'
+                                    )}
                                   </div>
                                 </div>
                               </td>

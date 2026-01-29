@@ -12,7 +12,8 @@ import api from '../services/api';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
 import { createSlugPath } from '../utils/slugify';
-import ShareButtons from '../components/common/ShareButtons';
+import Icon from '../components/common/Icon';
+// Removed ShareButtons import to implement manually
 
 // Global error handler for ResizeObserver
 const resizeObserverErrHandler = (error) => {
@@ -76,6 +77,60 @@ const PodcastersList = () => {
   const [error, setError] = useState(null);
   const [showSubmissionForm, setShowSubmissionForm] = useState(false);
   const [activeTab, setActiveTab] = useState('approved'); // 'approved' or 'my-submissions'
+
+  // Local Share State
+  const [activeShareId, setActiveShareId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+      >
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
 
   useEffect(() => {
     const onResize = () => {
@@ -395,16 +450,15 @@ const PodcastersList = () => {
                   </button>
                 )}
               </div>
-              <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-sm flex items-center gap-2">
+              <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-sm flex items-center gap-2 relative">
                 <span className="text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
-                <ShareButtons
-                  url={window.location.href}
-                  title={t('podcasters.hero.title')}
-                  description={t('podcasters.hero.desc')}
-                  showLabel={false}
-                  variant="ghost"
-                  size="sm"
-                />
+                <button
+                  onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
+                  className="p-2 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
+                >
+                  <Icon name="share" size={18} />
+                </button>
+                {renderShareMenu(window.location.href, t('podcasters.hero.title'), 'hero')}
               </div>
             </div>
 
@@ -670,15 +724,22 @@ const PodcastersList = () => {
                             {t('podcasters.card.listenNow')}
                             <ExternalLink size={14} />
                           </button>
-                          <div onClick={(e) => e.stopPropagation()}>
-                            <ShareButtons
-                              url={`${window.location.origin}/podcasters/${createSlugPath(podcaster.podcast_name, podcaster.id)}`}
-                              title={podcaster.podcast_name}
-                              description={podcaster.podcast_focus_industry}
-                              showLabel={false}
-                              variant="ghost"
-                              size="sm"
-                            />
+                          <div className="relative" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setActiveShareId(activeShareId === podcaster.id ? null : podcaster.id);
+                              }}
+                              className="p-3 bg-slate-50 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"
+                            >
+                              <Icon name="share" size={18} />
+                            </button>
+                            {renderShareMenu(
+                              `${window.location.origin}/podcasters/${createSlugPath(podcaster.podcast_name, podcaster.id)}`,
+                              podcaster.podcast_name,
+                              podcaster.id,
+                              'right'
+                            )}
                           </div>
                         </div>
                       </div>

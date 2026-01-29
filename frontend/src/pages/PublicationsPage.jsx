@@ -13,7 +13,7 @@ import PublicationSubmissionForm from '../components/user/PublicationSubmissionF
 import Skeleton from '../components/common/Skeleton';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
-import ShareButtons from '../components/common/ShareButtons';
+// Removed ShareButtons import to implement manually for better control
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -97,6 +97,60 @@ const PublicationsPage = () => {
 
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  // Local Share State
+  const [activeShareId, setActiveShareId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-100 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '240px' : '300px' }}
+      >
+        <div className="grid grid-cols-4 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
 
   // Handle body scroll locking when mobile sidebar is open
   useEffect(() => {
@@ -431,17 +485,20 @@ const PublicationsPage = () => {
                 )}
               </div>
 
-              <div className="flex items-center justify-center p-2 px-4 rounded-2xl bg-white border-2 border-slate-100 shadow-lg shadow-blue-900/5 gap-3">
-                <span className="text-sm font-bold text-slate-500">{t('common.share', 'Share')}:</span>
-                <ShareButtons
-                  url={window.location.href}
-                  title={t('publications.hero.title')}
-                  description={t('publications.hero.desc')}
-                  showLabel={false}
-                  variant="ghost"
-                  size="sm"
-                  align={isMobile ? "center" : "right"}
-                />
+              <div className="relative flex flex-col items-center gap-3">
+                <div className="flex items-center justify-center p-2 px-6 rounded-2xl bg-white border-2 border-slate-100 shadow-lg shadow-blue-900/5 gap-3">
+                  <span className="text-sm font-bold text-slate-500 uppercase tracking-wider">{t('common.share', 'Share')}:</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveShareId(activeShareId === 'hero' ? null : 'hero');
+                    }}
+                    className="p-2.5 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors shadow-sm"
+                  >
+                    <Icon name="share" size={20} />
+                  </button>
+                </div>
+                {renderShareMenu(window.location.href, t('publications.hero.title'), 'hero')}
               </div>
             </div>
           </motion.div>
@@ -931,17 +988,22 @@ const PublicationsPage = () => {
                             <Icon name="eye" size={16} />
                             {t('publications.table.viewDetails')}
                           </button>
-                          <div onClick={(e) => e.stopPropagation()} className="flex">
-                            <ShareButtons
-                              url={window.location.origin + `/publications/${createSlugPath(publication.publication_name, publication.id)}`}
-                              title={publication.publication_name}
-                              description={publication.publication_primary_focus}
-                              image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
-                              showLabel={false}
-                              variant="outline"
-                              align="right"
-                              size="sm"
-                            />
+                          <div className="relative">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setActiveShareId(activeShareId === publication.id ? null : publication.id);
+                              }}
+                              className="p-2.5 px-3 rounded-xl border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+                            >
+                              <Icon name="share" size={18} />
+                            </button>
+                            {renderShareMenu(
+                              window.location.origin + `/publications/${createSlugPath(publication.publication_name, publication.id)}`,
+                              publication.publication_name,
+                              publication.id,
+                              'right'
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1134,16 +1196,22 @@ const PublicationsPage = () => {
                                   <Icon name="eye" size={14} className="inline mr-1" />
                                   {t('publications.table.view')}
                                 </button>
-                                <div onClick={(e) => e.stopPropagation()}>
-                                  <ShareButtons
-                                    url={window.location.origin + `/publications/${createSlugPath(publication.publication_name, publication.id)}`}
-                                    title={publication.publication_name}
-                                    description={publication.publication_primary_focus}
-                                    image={publication.image ? (publication.image.startsWith('http') ? publication.image : `https://vaas.solutions${publication.image.startsWith('/') ? '' : '/'}${publication.image}`) : 'https://vaas.solutions/logo.png'}
-                                    showLabel={false}
-                                    variant="outline"
-                                    align="right"
-                                  />
+                                <div className="relative">
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setActiveShareId(activeShareId === publication.id ? null : publication.id);
+                                    }}
+                                    className="p-2 px-3 rounded-lg border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
+                                  >
+                                    <Icon name="share" size={16} />
+                                  </button>
+                                  {renderShareMenu(
+                                    window.location.origin + `/publications/${createSlugPath(publication.publication_name, publication.id)}`,
+                                    publication.publication_name,
+                                    publication.id,
+                                    'right'
+                                  )}
                                 </div>
                               </div>
                             </td>

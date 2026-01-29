@@ -11,7 +11,7 @@ import { useLanguage } from '../context/LanguageContext';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
 import { useTranslationArray } from '../hooks/useTranslation';
-import ShareButtons from '../components/common/ShareButtons';
+// Removed ShareButtons import to implement manually
 
 // Enhanced theme colors inspired by VideoTutorials
 const theme = {
@@ -52,6 +52,60 @@ const PaparazziPage = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+
+  // Local Share State
+  const [activeShareId, setActiveShareId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
+
+  const handleCopy = (url, id) => {
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const sharePlatforms = [
+    { name: 'Telegram', icon: 'telegram', color: '#0088cc', link: (u, t) => `https://t.me/share/url?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'WhatsApp', icon: 'whatsapp', color: '#25D366', link: (u, t) => `https://api.whatsapp.com/send?text=${encodeURIComponent(t + '\n' + u)}` },
+    { name: 'Facebook', icon: 'facebook', color: '#1877F2', link: (u) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(u)}` },
+    { name: 'X', icon: 'x-logo', color: '#000000', link: (u, t) => `https://twitter.com/intent/tweet?url=${encodeURIComponent(u)}&text=${encodeURIComponent(t)}` },
+    { name: 'LinkedIn', icon: 'linkedin', color: '#0A66C2', link: (u) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(u)}` }
+  ];
+
+  const renderShareMenu = (url, title, id, align = 'center') => {
+    const isOpen = activeShareId === id;
+    if (!isOpen) return null;
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
+      >
+        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+          {sharePlatforms.map((p) => (
+            <a
+              key={p.name}
+              href={p.link(url, title)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              style={{ backgroundColor: p.color }}
+            >
+              <Icon name={p.icon} size={18} />
+            </a>
+          ))}
+          <button
+            onClick={() => handleCopy(url, id)}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+          >
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+          </button>
+        </div>
+      </motion.div>
+    );
+  };
 
   useEffect(() => {
     const onResize = () => {
@@ -198,16 +252,15 @@ const PaparazziPage = () => {
                 {t('paparazzi.submitNew')}
               </button>
 
-              <div className="bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3">
+              <div className="bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-3 relative">
                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-r pr-3">{t('common.share', 'Share')}</span>
-                <ShareButtons
-                  url={window.location.href}
-                  title={t('paparazzi.hero.title')}
-                  description={t('paparazzi.hero.subtitle')}
-                  showLabel={false}
-                  variant="ghost"
-                  size="sm"
-                />
+                <button
+                  onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
+                  className="p-1 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
+                >
+                  <Icon name="share" size={18} />
+                </button>
+                {renderShareMenu(window.location.href, t('paparazzi.hero.title'), 'hero')}
               </div>
             </div>
           </motion.div>
@@ -486,15 +539,19 @@ const PaparazziPage = () => {
                                   {t('paparazzi.card.viewProfile')}
                                 </a>
                               </div>
-                              <div onClick={(e) => e.stopPropagation()}>
-                                <ShareButtons
-                                  url={`${window.location.origin}/paparazzi/${createSlugPath(p.instagram_page_name, p.id)}`}
-                                  title={p.instagram_page_name}
-                                  description={`Check out this paparazzi: ${p.instagram_page_name}`}
-                                  showLabel={false}
-                                  variant="ghost"
-                                  size="sm"
-                                />
+                              <div onClick={(e) => e.stopPropagation()} className="relative">
+                                <button
+                                  onClick={() => setActiveShareId(activeShareId === p.id ? null : p.id)}
+                                  className="p-2 rounded-lg hover:bg-slate-100 text-[#757575] hover:text-[#212121] transition-colors"
+                                >
+                                  <Icon name="share" size={16} />
+                                </button>
+                                {renderShareMenu(
+                                  `${window.location.origin}/paparazzi/${createSlugPath(p.instagram_page_name, p.id)}`,
+                                  p.instagram_page_name,
+                                  p.id,
+                                  'right'
+                                )}
                               </div>
                             </div>
                           )}
@@ -610,15 +667,19 @@ const PaparazziPage = () => {
                                 >
                                   {t('paparazzi.table.viewDetails')}
                                 </button>
-                                <div onClick={(e) => e.stopPropagation()}>
-                                  <ShareButtons
-                                    url={`${window.location.origin}/paparazzi/${createSlugPath(p.instagram_page_name, p.id)}`}
-                                    title={p.instagram_page_name}
-                                    description={`Check out this paparazzi: ${p.instagram_page_name}`}
-                                    showLabel={false}
-                                    variant="ghost"
-                                    size="sm"
-                                  />
+                                <div onClick={(e) => e.stopPropagation()} className="relative">
+                                  <button
+                                    onClick={() => setActiveShareId(activeShareId === p.id ? null : p.id)}
+                                    className="p-2 bg-gray-100 rounded-lg text-gray-600 hover:bg-gray-200 transition-colors"
+                                  >
+                                    <Icon name="share" size={16} />
+                                  </button>
+                                  {renderShareMenu(
+                                    `${window.location.origin}/paparazzi/${createSlugPath(p.instagram_page_name, p.id)}`,
+                                    p.instagram_page_name,
+                                    p.id,
+                                    'right'
+                                  )}
                                 </div>
                               </div>
                             </td>
