@@ -299,6 +299,7 @@ const BlogManagement = () => {
   // But we might want to keep `sortedBlogs` if we do client-side sorting on the *fetched* page (which is less useful).
   // Ideally, sort should trigger fetch. I added sort dependencies to useEffect above.
 
+  const sortedBlogs = blogs; // Server returns already sorted/filtered blogs
   const paginatedBlogs = blogs; // Display whatever the server returned
   const totalPages = Math.ceil(totalBlogs / pageSize);
 
