@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
+import Icon from '../components/common/Icon';
 // Removed ShareButtons import to implement manually
 
 // Updated theme colors matching the color palette from PDF

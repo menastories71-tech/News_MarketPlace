@@ -65,6 +65,7 @@ const RealEstateProfessionalsList = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   // Filter states
   const [professionTypeFilter, setProfessionTypeFilter] = useState('');
@@ -73,8 +74,8 @@ const RealEstateProfessionalsList = () => {
   const [locationFilter, setLocationFilter] = useState('');
 
   // Sorting state
-  const [sortField, setSortField] = useState('first_name');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState('created_at');
+  const [sortDirection, setSortDirection] = useState('desc');
 
   // Local Share State
   const [activeShareId, setActiveShareId] = useState(null);
@@ -103,8 +104,8 @@ const RealEstateProfessionalsList = () => {
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
-          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
-        style={{ width: isMobile ? '220px' : '280px' }}
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : align === 'right' ? 'right-0' : 'left-0'}`}
+        style={{ width: isMobile ? '280px' : '320px' }}
       >
         <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
           {sharePlatforms.map((p) => (
@@ -131,7 +132,17 @@ const RealEstateProfessionalsList = () => {
   };
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 768);
+    const onResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width < 1024);
+
+      if (width < 1024) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
     window.addEventListener('resize', onResize);
     onResize();
     return () => window.removeEventListener('resize', onResize);
@@ -402,7 +413,7 @@ const RealEstateProfessionalsList = () => {
       <UserHeader onShowAuth={handleShowAuth} />
 
       {/* Enhanced Hero Section */}
-      <section className="relative py-4 md:py-6 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white border-b border-[#E0E0E0]">
+      <section className="relative py-8 md:py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-[#E3F2FD] to-white border-b border-[#E0E0E0]">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -410,45 +421,47 @@ const RealEstateProfessionalsList = () => {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-semibold text-[#212121] mb-4 tracking-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
               {t('realEstateProfessionals.title')}
             </h1>
-            <p className="text-base md:text-lg text-[#757575] max-w-2xl mx-auto leading-relaxed font-light mb-6">
+            <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light mb-8">
               {t('realEstateProfessionals.desc')}
             </p>
-            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4 mb-6">
+            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4 mb-8">
               {t('realEstateProfessionals.disclaimer')}
             </p>
 
             {/* Search Bar & Share Button */}
-            <div className="max-w-4xl mx-auto mt-6 flex flex-col md:flex-row items-center gap-4">
-              <div className="relative flex-1 w-full">
+            <div className="max-w-4xl mx-auto mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <div className="relative flex-1">
                 <input
                   type="text"
                   placeholder={t('realEstateProfessionals.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 border border-[#E0E0E0] rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white shadow-sm"
+                  className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white shadow-sm transition-all"
                 />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2" size={18} style={{ color: theme.textSecondary }} />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: theme.textSecondary }} />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#757575] hover:text-[#212121] transition-colors"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-[#757575] hover:text-[#212121] transition-colors"
                   >
                     ×
                   </button>
                 )}
               </div>
-              <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-sm flex items-center gap-2 relative">
-                <span className="text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
-                <button
-                  onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
-                  className="p-2 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
-                >
-                  <Icon name="share" size={18} />
-                </button>
-                {renderShareMenu(window.location.href, t('realEstateProfessionals.title'), 'hero')}
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-3 px-4 rounded-xl border border-[#E0E0E0] shadow-sm flex items-center gap-3 relative flex-1 sm:flex-none justify-center">
+                  <span className="text-sm font-medium text-[#757575] border-r pr-3">{t('common.share', 'Share')}:</span>
+                  <button
+                    onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
+                    className="p-1 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
+                  >
+                    <Icon name="share" size={20} />
+                  </button>
+                  {renderShareMenu(window.location.href, t('realEstateProfessionals.title'), 'hero', isMobile ? 'center' : 'right')}
+                </div>
               </div>
             </div>
           </motion.div>
@@ -456,17 +469,24 @@ const RealEstateProfessionalsList = () => {
       </section>
 
       {/* Main Content with Enhanced Layout */}
-      <div className={`${isMobile ? 'flex flex-col' : 'flex'}`}>
-        {/* Enhanced Filters Sidebar - 25% width */}
-        <aside className={`${sidebarOpen ? (isMobile ? 'w-full' : 'w-80') : 'w-0'} transition-all duration-300 bg-white shadow-lg overflow-hidden ${isMobile ? 'order-2' : ''}`} style={{
-          minHeight: isMobile ? 'auto' : 'calc(100vh - 200px)',
-          position: isMobile ? 'static' : 'sticky',
-          top: isMobile ? 'auto' : '80px',
-          zIndex: 10,
-          borderRight: isMobile ? 'none' : `1px solid ${theme.borderLight}`,
-          borderTop: isMobile ? `1px solid ${theme.borderLight}` : 'none',
-          width: isMobile ? '100%' : '25%'
-        }}>
+      <div className={`max-w-[1600px] mx-auto flex flex-col lg:flex-row relative`}>
+        {/* Mobile/Tablet Filters Overlay */}
+        <div
+          className={`fixed inset-0 bg-black/50 transition-opacity duration-300 lg:hidden ${sidebarOpen ? 'opacity-100 z-[100]' : 'opacity-0 pointer-events-none z-[-1]'}`}
+          onClick={() => setSidebarOpen(false)}
+        />
+
+        {/* Enhanced Filters Sidebar */}
+        <aside
+          className={`
+            fixed lg:sticky lg:top-20 top-0 left-0 h-full lg:h-[calc(100vh-80px)] 
+            bg-white shadow-2xl lg:shadow-none z-[110] lg:z-40
+            transition-transform duration-300 ease-in-out
+            ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0 lg:w-0 lg:hidden'}
+            w-[280px] sm:w-[320px] lg:w-[300px] flex-shrink-0
+            border-r border-gray-100
+          `}
+        >
           <div className="p-6 h-full overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
@@ -576,7 +596,7 @@ const RealEstateProfessionalsList = () => {
         </aside>
 
         {/* Main Content - Enhanced */}
-        <main className={`flex-1 p-6 min-w-0 ${isMobile ? 'order-1' : ''}`}>
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
           {/* Enhanced Controls Bar */}
           <div className="bg-white rounded-lg shadow-lg border p-6 mb-6" style={{
             borderColor: theme.borderLight,
@@ -592,8 +612,7 @@ const RealEstateProfessionalsList = () => {
                     style={{ borderColor: theme.borderLight }}
                   >
                     <Filter size={16} />
-                    <Filter size={16} />
-                    <span className="text-[#212121]">{t('realEstateProfessionals.filters.mobileTitle')}</span>
+                    <span className="text-[#212121] text-sm">{t('realEstateProfessionals.filters.mobileTitle')}</span>
                   </button>
                 )}
 
@@ -619,14 +638,16 @@ const RealEstateProfessionalsList = () => {
                   </button>
                 </div>
 
-                <span className="text-sm font-medium text-[#212121]">
-                  {t('realEstateProfessionals.controls.found', { count: sortedProfessionals.length })}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                  <span className="text-sm font-bold text-[#212121]">
+                    {t('realEstateProfessionals.controls.found', { count: sortedProfessionals.length })}
+                  </span>
                   {searchTerm && (
-                    <span className="ml-2 text-[#757575]">
+                    <span className="text-xs text-[#757575] line-clamp-1 italic">
                       {t('realEstateProfessionals.controls.for')} "{searchTerm}"
                     </span>
                   )}
-                </span>
+                </div>
               </div>
 
               {/* Enhanced Sort Dropdown */}
@@ -658,7 +679,7 @@ const RealEstateProfessionalsList = () => {
             <>
               {/* Enhanced Grid View */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {sortedProfessionals.map((professional, index) => (
                     <motion.div
                       key={professional.id}

@@ -37,9 +37,14 @@ const ThemeDetailPage = () => {
   const [activeShareId, setActiveShareId] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < 1024);
+    const onResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width < 768);
+      setIsTablet(width < 1024);
+    };
     window.addEventListener('resize', onResize);
     onResize();
     return () => window.removeEventListener('resize', onResize);
@@ -68,8 +73,8 @@ const ThemeDetailPage = () => {
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-100 p-3 
-          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
-        style={{ width: isMobile ? '220px' : '280px' }}
+          ${align === 'center' ? 'left-1/2 -translate-x-1/2' : align === 'right' ? 'right-0' : 'left-0'}`}
+        style={{ width: isMobile ? '240px' : '300px' }}
       >
         <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
           {sharePlatforms.map((p) => (
@@ -413,9 +418,9 @@ const ThemeDetailPage = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-sm border p-8">
                 {/* Theme Header */}
-                <div className="flex items-start gap-6 mb-8">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start text-center sm:text-left gap-6 mb-8">
                   <div
-                    className="w-20 h-20 rounded-xl flex items-center justify-center flex-shrink-0"
+                    className="w-24 h-24 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm"
                     style={{ backgroundColor: themeColors.primaryLight }}
                   >
                     <div style={{ color: themeColors.primary }}>

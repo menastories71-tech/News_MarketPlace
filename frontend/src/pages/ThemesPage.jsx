@@ -67,6 +67,7 @@ const ThemesPage = () => {
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [isTablet, setIsTablet] = useState(false);
 
   // Sorting state
   const [sortField, setSortField] = useState('created_at');
@@ -75,16 +76,17 @@ const ThemesPage = () => {
   useEffect(() => {
     const onResize = () => {
       const width = window.innerWidth;
-      setIsMobile(width < 1024);
+      setIsMobile(width < 768);
+      setIsTablet(width < 1024);
+
+      if (width < 1024) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
     };
     window.addEventListener('resize', onResize);
     onResize();
-
-    // Set initial sidebar state based on width
-    if (window.innerWidth < 1280) {
-      setSidebarOpen(false);
-    }
-
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
@@ -401,25 +403,25 @@ const ThemesPage = () => {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-semibold text-[#212121] mb-6 tracking-tight">
               {t('themes.hero.title')}
             </h1>
-            <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-lg md:text-xl text-[#757575] max-w-3xl mx-auto leading-relaxed font-light mb-8">
               {t('themes.hero.desc')}
             </p>
-            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4">
+            <p className="text-sm md:text-base text-[#FF9800] max-w-2xl mx-auto leading-relaxed font-medium mt-4 mb-8">
               {t('themes.hero.disclaimer')}
             </p>
 
             {/* Search Bar */}
-            <div className="max-w-2xl mx-auto mt-8">
-              <div className="relative">
+            <div className="max-w-4xl mx-auto mt-8 flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <div className="relative flex-1">
                 <input
                   type="text"
                   placeholder={t('themes.hero.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white"
+                  className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-xl text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white shadow-sm transition-all"
                 />
                 <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: theme.textSecondary }} />
                 {searchTerm && (
@@ -459,10 +461,10 @@ const ThemesPage = () => {
                 <Filter size={20} className="text-[#1976D2]" />
                 {t('themes.filters.title')}
               </h3>
-              {isMobile && (
+              {isTablet && (
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg text-[#757575]"
+                  className="p-2 hover:bg-gray-100 rounded-lg text-[#757575] text-2xl leading-none"
                 >
                   ×
                 </button>
@@ -582,14 +584,14 @@ const ThemesPage = () => {
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center gap-4">
                 {/* Mobile Filter Toggle */}
-                {isMobile && (
+                {isTablet && (
                   <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
                     className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-[#F5F5F5] hover:bg-[#E0E0E0] transition-colors"
                     style={{ borderColor: theme.borderLight }}
                   >
                     <Filter size={16} />
-                    <span className="text-[#212121]">{t('themes.controls.filters')}</span>
+                    <span className="text-[#212121] text-sm font-medium">{t('themes.controls.filters')}</span>
                   </button>
                 )}
 
@@ -615,14 +617,16 @@ const ThemesPage = () => {
                   </button>
                 </div>
 
-                <span className="text-sm font-medium text-[#212121]">
-                  {t('themes.controls.found', { count: totalCount })}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                  <span className="text-sm font-bold text-[#212121]">
+                    {t('themes.controls.found', { count: totalCount })}
+                  </span>
                   {searchTerm && (
-                    <span className="ml-2 text-[#757575]">
+                    <span className="text-xs text-[#757575] line-clamp-1 italic">
                       {t('themes.controls.for')} "{searchTerm}"
                     </span>
                   )}
-                </span>
+                </div>
               </div>
 
               {/* Enhanced Sort Dropdown */}
@@ -659,7 +663,7 @@ const ThemesPage = () => {
             <>
               {/* Modern Grid View */}
               {viewMode === 'grid' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8">
                   {sortedThemes.map((theme, index) => (
                     <motion.div
                       key={theme.id}
