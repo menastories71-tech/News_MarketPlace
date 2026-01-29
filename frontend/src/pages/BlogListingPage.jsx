@@ -62,52 +62,35 @@ const BlogListingPage = () => {
     const isOpen = activeShareId === id;
     if (!isOpen) return null;
 
-    // Position classes for responsive design
-    const positionClass = align === 'center'
-      ? 'left-1/2 -translate-x-1/2'
-      : 'right-0 sm:right-0';
-
     return (
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-2 sm:p-3 share-menu-container ${positionClass}`}
-        style={{
-          width: isMobile ? '180px' : '280px',
-          maxWidth: 'calc(100vw - 40px)'
-        }}
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 share-menu-container ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
+        style={{ width: isMobile ? '220px' : '280px' }}
         onClick={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
-        onMouseEnter={() => setActiveShareId(id)}
-        onTouchStart={(e) => e.stopPropagation()}
       >
-        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:flex md:flex-wrap items-center justify-center gap-2">
           {sharePlatforms.map((p) => (
             <a
               key={p.name}
               href={p.link(url, title)}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-              onTouchStart={(e) => e.stopPropagation()}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
               style={{ backgroundColor: p.color }}
             >
-              <Icon name={p.icon} size={isMobile ? 14 : 18} />
+              <Icon name={p.icon} size={16} />
             </a>
           ))}
           <button
             onClick={(e) => {
               e.stopPropagation();
-              e.preventDefault();
               handleCopy(url, id);
             }}
-            onMouseDown={(e) => e.stopPropagation()}
-            onTouchStart={(e) => e.stopPropagation()}
-            className={`w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
           >
-            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={isMobile ? 14 : 18} />
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={16} />
           </button>
         </div>
       </motion.div>
@@ -368,54 +351,39 @@ const BlogListingPage = () => {
                         </span>
                       </div>
 
-                      {/* Reading Time Badge */}
-                      <div className="absolute top-4 right-4 z-20">
-                        <span className="bg-black/60 backdrop-blur-sm text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1">
+                      {/* Reading Time and Share Badges */}
+                      <div className="absolute top-4 right-4 z-30 flex items-center gap-2">
+                        <span className="bg-black/40 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm">
                           <Clock className="w-3 h-3" />
                           5 min
                         </span>
+                        <div className="relative share-menu-container">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setActiveShareId(activeShareId === blog.id ? null : blog.id);
+                            }}
+                            className={`p-2 rounded-full backdrop-blur-md transition-all duration-300 shadow-sm ${activeShareId === blog.id ? 'bg-[#1976D2] text-white' : 'bg-black/40 text-white hover:bg-black/60'}`}
+                          >
+                            <Icon name="share" size={14} />
+                          </button>
+                          {renderShareMenu(
+                            `${window.location.origin}/blog/${createSlugPath(blog.title, blog.id)}`,
+                            blog.title,
+                            blog.id,
+                            'right'
+                          )}
+                        </div>
                       </div>
 
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6 gap-2">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end justify-center pb-6">
                         <Link
                           to={`/blog/${createSlugPath(blog.title, blog.id)}`}
-                          className="bg-white text-[#1976D2] px-6 py-3 rounded-full font-semibold hover:bg-[#1976D2] hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-lg"
+                          className="bg-white text-[#1976D2] px-8 py-3 rounded-full font-bold hover:bg-[#1976D2] hover:text-white transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-xl"
                         >
                           {t('blogs.readArticle')}
                         </Link>
-                        <div
-                          className="bg-white text-[#1976D2] p-2 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75 hover:bg-[#1976D2] hover:text-white share-menu-container"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setActiveShareId(activeShareId === blog.id ? null : blog.id);
-                          }}
-                          onMouseDown={(e) => e.stopPropagation()}
-                          onTouchStart={(e) => e.stopPropagation()}
-                          onMouseEnter={() => !isMobile && setActiveShareId(blog.id)}
-                          onMouseLeave={() => !isMobile && setActiveShareId(null)}
-                        >
-                          <div className="relative" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                              }}
-                              onMouseDown={(e) => e.stopPropagation()}
-                              onTouchStart={(e) => e.stopPropagation()}
-                              className="p-1 sm:p-2 rounded-full hover:bg-white/10 text-inherit transition-colors"
-                            >
-                              <Icon name="share" size={16} className="sm:w-[18px] sm:h-[18px]" />
-                            </button>
-                            {renderShareMenu(
-                              `${window.location.origin}/blog/${createSlugPath(blog.title, blog.id)}`,
-                              blog.title,
-                              blog.id,
-                              'right'
-                            )}
-                          </div>
-                        </div>
                       </div>
                     </div>
 
