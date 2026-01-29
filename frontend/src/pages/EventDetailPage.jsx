@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import SEO from '../components/common/SEO';
 import Schema from '../components/common/Schema';
-// Removed ShareButtons import to implement manually
+import Icon from '../components/common/Icon';
 
 const theme = {
     primary: '#1976D2',

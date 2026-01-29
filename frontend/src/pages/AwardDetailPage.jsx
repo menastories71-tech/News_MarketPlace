@@ -17,7 +17,7 @@ import {
   MapPin, Calendar, Users, Zap, Eye, Heart, User, Building,
   Mail, Phone, MessageSquare
 } from 'lucide-react';
-// Removed ShareButtons import to implement manually
+import Icon from '../components/common/Icon';
 import { useLanguage } from '../context/LanguageContext';
 import { getIdFromSlug } from '../utils/slugify';
 
