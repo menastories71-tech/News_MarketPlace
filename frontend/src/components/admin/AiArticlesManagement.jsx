@@ -173,6 +173,13 @@ const AiArticlesManagement = () => {
     }
   };
 
+  const stripHtml = (html) => {
+    if (!html) return '';
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-800';
@@ -526,9 +533,10 @@ const AiArticlesManagement = () => {
                                   {article.name}
                                 </div>
                               )}
+
                               {article.generated_content && (
                                 <div className="text-xs text-gray-500 mt-1 line-clamp-2">
-                                  {article.generated_content.substring(0, 100)}...
+                                  {stripHtml(article.generated_content).substring(0, 100)}...
                                 </div>
                               )}
                             </div>
@@ -718,7 +726,7 @@ const AiArticlesManagement = () => {
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Generated Content</label>
                       <div className="bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto">
-                        <div className="prose prose-sm max-w-none">
+                        <div className="prose prose-sm max-w-none [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:mb-2 [&_h2]:text-xl [&_h2]:font-bold [&_h2]:mb-2 [&_p]:mb-2 [&_li]:mb-1">
                           <div dangerouslySetInnerHTML={{ __html: selectedArticle.generated_content }} />
                         </div>
                       </div>
