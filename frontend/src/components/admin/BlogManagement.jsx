@@ -469,6 +469,33 @@ const BlogManagement = () => {
     }
   };
 
+  const clearAllFilters = () => {
+    setSearchTerm('');
+    setDebouncedSearchTerm('');
+    setCategoryFilter('');
+    setSortField('created_at');
+    setSortDirection('desc');
+    setCurrentPage(1);
+  };
+
+  const appliedFilters = [];
+  if (searchTerm) appliedFilters.push({ type: 'search', label: `Search: ${searchTerm}` });
+  if (categoryFilter) appliedFilters.push({ type: 'category', label: `Category: ${categoryFilter}` });
+
+  const removeFilter = (filterType) => {
+    switch (filterType) {
+      case 'search':
+        setSearchTerm('');
+        setDebouncedSearchTerm('');
+        break;
+      case 'category':
+        setCategoryFilter('');
+        break;
+      default:
+        break;
+    }
+  };
+
 
   const stats = getBlogStats();
 
