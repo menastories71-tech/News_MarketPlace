@@ -15,6 +15,7 @@ const { publicationSubmitLimit } = require('../middleware/rateLimit');
 // User routes (authenticated users can create and view publications)
 router.post('/', verifyToken, requirePublicationSubmissionRights, publicationSubmitLimit, publicationController.createValidation, publicationController.create);
 router.get('/', verifyToken, publicationController.getAll);
+router.get('/public', publicationController.getPublic);
 
 // Bulk operations routes (must come before parameterized routes to avoid conflicts)
 router.post('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), publicationController.bulkCreate);

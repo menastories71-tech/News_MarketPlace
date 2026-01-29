@@ -136,6 +136,33 @@ class RadioController {
     }
   }
 
+  // Get public radios (for sitemap and public browsing)
+  async getPublic(req, res) {
+    try {
+      const {
+        page = 1,
+        limit = 1000 // High limit for sitemap
+      } = req.query;
+
+      const filters = {};
+      const actualLimit = parseInt(limit);
+      const offset = (page - 1) * actualLimit;
+      const radios = await Radio.findAll(filters, '', [], actualLimit, offset);
+
+      res.json({
+        radios: radios.map(radio => radio.toJSON()),
+        pagination: {
+          page: parseInt(page),
+          limit: actualLimit,
+          total: radios.length
+        }
+      });
+    } catch (error) {
+      console.error('Get public radios error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get radio by ID
   async getById(req, res) {
     try {

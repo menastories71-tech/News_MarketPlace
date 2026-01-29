@@ -220,6 +220,39 @@ class PublicationController {
     }
   }
 
+  // Get public publications (for sitemap and public browsing)
+  async getPublic(req, res) {
+    try {
+      const {
+        page = 1,
+        limit = 1000 // High limit for sitemap
+      } = req.query;
+
+      const filters = {
+        status: 'approved',
+        is_active: true,
+        live_on_platform: true
+      };
+
+      const offset = (page - 1) * limit;
+      const publications = await Publication.findAll(filters, '', [], limit, offset);
+      const totalCount = await Publication.getCount(filters, '', []);
+
+      res.json({
+        publications: publications.map(pub => pub.toJSON()),
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: totalCount,
+          pages: Math.ceil(totalCount / limit)
+        }
+      });
+    } catch (error) {
+      console.error('Get public publications error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get publication by ID
   async getById(req, res) {
     try {

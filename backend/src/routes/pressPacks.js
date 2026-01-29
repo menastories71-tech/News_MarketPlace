@@ -12,6 +12,7 @@ const {
 
 // User routes (authenticated users can view press packs)
 router.get('/', verifyToken, pressPackController.getAll);
+router.get('/public', pressPackController.getPublic);
 
 // Bulk operations routes (must come before parameterized routes to avoid conflicts)
 router.post('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_publications'), pressPackController.bulkCreate);

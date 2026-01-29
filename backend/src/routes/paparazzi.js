@@ -46,6 +46,7 @@ router.put('/admin/:id/approve', verifyAdminToken, requireAdminPanelAccess, papa
 router.put('/admin/:id/reject', verifyAdminToken, requireAdminPanelAccess, paparazziController.reject);
 
 // User routes (authenticated users can view approved paparazzi and manage their own submissions)
+router.get('/public', paparazziController.getPublic);
 router.get('/', verifyToken, paparazziController.getAll); // Only approved paparazzi
 router.post('/', verifyToken, paparazziController.createValidation, paparazziController.create);
 router.get('/:id', verifyToken, paparazziController.getById);

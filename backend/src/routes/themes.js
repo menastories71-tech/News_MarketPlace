@@ -15,6 +15,7 @@ const { publicationSubmitLimit } = require('../middleware/rateLimit');
 // User routes (authenticated users can create and view themes)
 router.post('/', verifyToken, requirePublicationSubmissionRights, publicationSubmitLimit, themeController.createValidation, themeController.create);
 router.get('/', verifyToken, themeController.getAll);
+router.get('/public', themeController.getPublic);
 
 // Bulk operations routes (must come before parameterized routes to avoid conflicts)
 router.post('/bulk', verifyAdminToken, requireAdminPanelAccess, requireAdminPermission('manage_themes'), themeController.bulkCreate);

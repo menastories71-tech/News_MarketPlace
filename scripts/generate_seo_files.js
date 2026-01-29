@@ -4,8 +4,8 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '../frontend/public');
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-const SITE_URL = 'https://vaas.solutions';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const SITE_URL = process.env.SITE_URL || 'https://vaas.solutions';
 
 // Helper to parse existing sitemap and extract existing URLs
 function parseExistingSitemap(sitemapPath) {
@@ -43,11 +43,14 @@ async function generateFiles() {
                 }
                 const data = await response.json();
                 // Handle different response structures
-                return data[label] || data.nominations || data.eventCreations ||
-                    data.careers || data.awards || data.themes ||
-                    data.pressPacks || data.radios || data.paparazzis ||
-                    data.podcasters || data.realEstateProfessionals ||
-                    data.publishedWorks || [];
+                return data[label] || data.publications || data.blogs || data.events ||
+                    data.nominations || data.eventCreations ||
+                    data.careers || data.awards || data.themes || data.theme ||
+                    data.pressPacks || data.pressPack || data.radios || data.radio ||
+                    data.paparazzis || data.paparazzi ||
+                    data.podcasters || data.podcaster ||
+                    data.realEstateProfessionals || data.realEstateProfessional ||
+                    data.publishedWorks || data.publishedWork || [];
             } catch (err) {
                 console.error(`⚠️ Failed to fetch ${label}: ${err.message}`);
                 return null; // Return null to indicate failure (not empty array)
@@ -71,20 +74,20 @@ async function generateFiles() {
             realEstateProfessionals,
             publishedWorks
         ] = await Promise.all([
-            fetchSafe(`${API_URL}/publications/public`, 'publications'),
-            fetchSafe(`${API_URL}/blogs`, 'blogs'),
-            fetchSafe(`${API_URL}/events`, 'events'),
-            fetchSafe(`${API_URL}/powerlist-nominations/public`, 'nominations'),
-            fetchSafe(`${API_URL}/admin/event-creations/public`, 'eventCreations'),
-            fetchSafe(`${API_URL}/careers`, 'careers'),
-            fetchSafe(`${API_URL}/awards`, 'awards'),
-            fetchSafe(`${API_URL}/themes`, 'themes'),
-            fetchSafe(`${API_URL}/press-packs`, 'pressPacks'),
-            fetchSafe(`${API_URL}/radios`, 'radios'),
-            fetchSafe(`${API_URL}/paparazzis`, 'paparazzis'),
-            fetchSafe(`${API_URL}/podcasters`, 'podcasters'),
-            fetchSafe(`${API_URL}/real-estate-professionals`, 'realEstateProfessionals'),
-            fetchSafe(`${API_URL}/published-works`, 'publishedWorks')
+            fetchSafe(`${API_URL}/publications/public?limit=1000`, 'publications'),
+            fetchSafe(`${API_URL}/blogs?limit=1000`, 'blogs'),
+            fetchSafe(`${API_URL}/events?limit=1000`, 'events'),
+            fetchSafe(`${API_URL}/powerlist-nominations/public?limit=1000`, 'nominations'),
+            fetchSafe(`${API_URL}/admin/event-creations/public?limit=1000`, 'eventCreations'),
+            fetchSafe(`${API_URL}/careers?limit=1000`, 'careers'),
+            fetchSafe(`${API_URL}/awards?limit=1000`, 'awards'),
+            fetchSafe(`${API_URL}/themes/public?limit=1000`, 'themes'),
+            fetchSafe(`${API_URL}/press-packs/public?limit=1000`, 'pressPacks'),
+            fetchSafe(`${API_URL}/radios/public?limit=1000`, 'radios'),
+            fetchSafe(`${API_URL}/paparazzi/public?limit=1000`, 'paparazzis'),
+            fetchSafe(`${API_URL}/podcasters/approved?limit=1000`, 'podcasters'),
+            fetchSafe(`${API_URL}/real-estate-professionals?limit=1000`, 'realEstateProfessionals'),
+            fetchSafe(`${API_URL}/published-works?limit=1000`, 'publishedWorks')
         ]);
 
         const lastMod = new Date().toISOString().split('T')[0];

@@ -12,6 +12,7 @@ const {
 } = require('../middleware/auth');
 
 // User routes (authenticated users can view radios)
+router.get('/public', radioController.getPublic);
 router.get('/', verifyToken, radioController.getAll);
 
 // Admin routes (admins can manage all radios)

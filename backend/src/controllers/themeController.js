@@ -181,6 +181,36 @@ class ThemeController {
     }
   }
 
+  // Get public themes (for sitemap and public browsing)
+  async getPublic(req, res) {
+    try {
+      const {
+        page = 1,
+        limit = 1000 // High limit for sitemap
+      } = req.query;
+
+      const filters = {
+        status: 'approved',
+        is_active: true
+      };
+
+      const offset = (page - 1) * limit;
+      const themes = await Theme.findAll(filters, '', [], limit, offset);
+
+      res.json({
+        themes: themes.map(theme => theme.toJSON()),
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: themes.length
+        }
+      });
+    } catch (error) {
+      console.error('Get public themes error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get theme by ID
   async getById(req, res) {
     try {

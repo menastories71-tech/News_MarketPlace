@@ -266,6 +266,35 @@ class PressPackController {
     }
   }
 
+  // Get public press packs (for sitemap and public browsing)
+  async getPublic(req, res) {
+    try {
+      const {
+        page = 1,
+        limit = 1000 // High limit for sitemap
+      } = req.query;
+
+      const filters = {
+        is_active: true
+      };
+
+      const offset = (page - 1) * limit;
+      const pressPacks = await PressPack.findAll(filters, '', [], limit, offset);
+
+      res.json({
+        pressPacks: pressPacks.map(pp => pp.toJSON()),
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total: pressPacks.length
+        }
+      });
+    } catch (error) {
+      console.error('Get public press packs error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get press pack by ID
   async getById(req, res) {
     try {

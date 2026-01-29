@@ -148,6 +148,41 @@ class PaparazziController {
     }
   }
 
+  // Get public paparazzi entries (for sitemap and public browsing)
+  async getPublic(req, res) {
+    try {
+      const {
+        page = 1,
+        limit = 1000 // High limit for sitemap
+      } = req.query;
+
+      const pageNum = parseInt(page);
+      const limitNum = parseInt(limit);
+      const offset = (pageNum - 1) * limitNum;
+
+      const { count, rows } = await Paparazzi.findAndCountAll({
+        where: { status: 'approved' },
+        limit: limitNum,
+        offset,
+        sortBy: 'created_at',
+        sortOrder: 'DESC'
+      });
+
+      res.json({
+        paparazzi: rows.map(p => p.toJSON()),
+        pagination: {
+          page: pageNum,
+          limit: limitNum,
+          total: count,
+          pages: Math.ceil(count / limitNum)
+        }
+      });
+    } catch (error) {
+      console.error('Get public paparazzi error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
   // Get paparazzi by ID
   async getById(req, res) {
     try {
