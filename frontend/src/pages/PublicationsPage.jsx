@@ -786,7 +786,7 @@ const PublicationsPage = () => {
                     <Icon name="list" size={16} />
                   </button>
                 </div>
-                <span className="text-xs sm:text-sm font-bold text-[#757575] whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-bold text-[#757575] text-wrap">
                   {totalRecords} {t('publications.results.found')}
                 </span>
               </div>
