@@ -89,28 +89,34 @@ const PowerlistPage = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.9, y: 10 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 
+        className={`absolute bottom-full mb-3 z-[1000] bg-white rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] border border-slate-200 p-3 sm:p-4 
           ${align === 'center' ? 'left-1/2 -translate-x-1/2' : 'right-0'}`}
-        style={{ width: isMobile ? '220px' : '280px' }}
+        style={{ width: isMobile ? '260px' : '300px' }}
       >
-        <div className="grid grid-cols-3 sm:flex sm:flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
           {sharePlatforms.map((p) => (
             <a
               key={p.name}
               href={p.link(url, title)}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center text-white transition-transform hover:scale-110 active:scale-95 shadow-sm"
               style={{ backgroundColor: p.color }}
+              title={p.name}
             >
-              <Icon name={p.icon} size={18} />
+              <Icon name={p.icon} size={isMobile ? 16 : 18} />
             </a>
           ))}
           <button
             onClick={() => handleCopy(url, id)}
-            className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${copiedId === id ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center transition-all shadow-sm ${
+              copiedId === id
+                ? 'bg-emerald-500 text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+            title={copiedId === id ? 'Copied!' : 'Copy link'}
           >
-            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={18} />
+            <Icon name={copiedId === id ? 'check-circle' : 'link'} size={isMobile ? 16 : 18} />
           </button>
         </div>
       </motion.div>
@@ -491,7 +497,7 @@ const PowerlistPage = () => {
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-12 pr-12 py-4 border border-[#E0E0E0] rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-[#1976D2] focus:border-transparent bg-white shadow-md shadow-slate-200/50"
                 />
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2" size={20} style={{ color: theme.textSecondary }} />
+                <Search className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2" size={window.innerWidth < 640 ? 16 : 20} style={{ color: theme.textSecondary }} />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
@@ -501,13 +507,13 @@ const PowerlistPage = () => {
                   </button>
                 )}
               </div>
-              <div className="bg-white p-2 px-4 rounded-lg border border-[#E0E0E0] shadow-md shadow-slate-200/50 flex items-center gap-2 relative">
-                <span className="text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
+              <div className="bg-white p-2 px-3 sm:px-4 rounded-lg border border-[#E0E0E0] shadow-md shadow-slate-200/50 flex items-center gap-2 relative">
+                <span className="hidden sm:inline text-sm font-medium text-[#757575] border-r pr-2 mr-2">{t('common.share', 'Share')}:</span>
                 <button
                   onClick={() => setActiveShareId(activeShareId === 'hero' ? null : 'hero')}
                   className="p-1 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
                 >
-                  <Icon name="share" size={18} />
+                  <Icon name="share" size={isMobile ? 16 : 18} />
                 </button>
                 {renderShareMenu(window.location.href, t('powerlist.hero.title'), 'hero')}
               </div>
@@ -517,9 +523,9 @@ const PowerlistPage = () => {
             <div className="mt-8">
               <button
                 onClick={handleShowPowerlistForm}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors bg-[#00796B] text-white hover:bg-[#004D40]"
+                className="inline-flex items-center gap-2 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-medium transition-colors bg-[#00796B] text-white hover:bg-[#004D40] text-sm sm:text-base"
               >
-                <User size={18} />
+                <User size={isMobile ? 16 : 18} />
                 {t('powerlist.hero.submitProfile')}
               </button>
             </div>
@@ -546,8 +552,8 @@ const PowerlistPage = () => {
         >
           <div className="p-6 h-full overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-[#212121] flex items-center gap-2">
-                <Filter size={20} className="text-[#1976D2]" />
+              <h3 className="text-lg sm:text-xl font-bold text-[#212121] flex items-center gap-2">
+                <Filter size={isMobile ? 18 : 20} className="text-[#1976D2]" />
                 {t('powerlist.filters.title')}
               </h3>
               {isMobile && (
@@ -563,8 +569,8 @@ const PowerlistPage = () => {
             <div className="space-y-6">
               {/* Basic Filters */}
               <div className="bg-[#FAFAFA] rounded-lg p-4 border border-[#E0E0E0]">
-                <h4 className="font-semibold text-[#212121] mb-3 flex items-center gap-2">
-                  <Users size={16} className="text-[#1976D2]" />
+                <h4 className="font-medium sm:font-semibold text-sm sm:text-base text-[#212121] mb-3 flex items-center gap-2">
+                  <Users size={isMobile ? 14 : 16} className="text-[#1976D2]" />
                   {t('powerlist.filters.basic')}
                 </h4>
 
@@ -683,10 +689,10 @@ const PowerlistPage = () => {
                 {isMobile && (
                   <button
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg border bg-[#F5F5F5] hover:bg-[#E0E0E0] transition-colors"
+                    className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg border bg-[#F5F5F5] hover:bg-[#E0E0E0] transition-colors text-sm"
                     style={{ borderColor: theme.borderLight }}
                   >
-                    <Filter size={16} />
+                    <Filter size={14} />
                     <span className="text-[#212121]">{t('powerlist.controls.filters')}</span>
                   </button>
                 )}
@@ -695,28 +701,28 @@ const PowerlistPage = () => {
                 <div className="flex items-center bg-[#F5F5F5] rounded-lg p-1">
                   <button
                     onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded-md transition-colors ${viewMode === 'grid'
+                    className={`p-1.5 sm:p-2 rounded-md transition-colors ${viewMode === 'grid'
                       ? 'bg-white shadow-sm text-[#1976D2]'
                       : 'text-[#757575] hover:text-[#212121]'
                       }`}
                   >
-                    <Grid size={16} />
+                    <Grid size={isMobile ? 14 : 16} />
                   </button>
                   <button
                     onClick={() => setViewMode('list')}
-                    className={`p-2 rounded-md transition-colors ${viewMode === 'list'
+                    className={`p-1.5 sm:p-2 rounded-md transition-colors ${viewMode === 'list'
                       ? 'bg-white shadow-sm text-[#1976D2]'
                       : 'text-[#757575] hover:text-[#212121]'
                       }`}
                   >
-                    <List size={16} />
+                    <List size={isMobile ? 14 : 16} />
                   </button>
                 </div>
 
-                <span className="text-sm font-medium text-[#212121]">
+                <span className="text-xs sm:text-sm font-medium text-[#212121]">
                   {t('powerlist.controls.found', { count: totalCount })}
                   {searchTerm && (
-                    <span className="ml-2 text-[#757575]">
+                    <span className="ml-1 sm:ml-2 text-[#757575] hidden sm:inline">
                       {t('powerlist.controls.for')} "{searchTerm}"
                     </span>
                   )}
@@ -724,8 +730,8 @@ const PowerlistPage = () => {
               </div>
 
               {/* Enhanced Sort Dropdown */}
-              <div className="flex items-center gap-3">
-                <span className="text-sm font-medium text-[#757575]">{t('powerlist.controls.sortBy')}</span>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-xs sm:text-sm font-medium text-[#757575] hidden sm:inline">{t('powerlist.controls.sortBy')}</span>
                 <select
                   value={`${sortField}-${sortDirection}`}
                   onChange={(e) => {
@@ -733,7 +739,7 @@ const PowerlistPage = () => {
                     setSortField(field);
                     setSortDirection(direction);
                   }}
-                  className="px-4 py-2 border border-[#E0E0E0] rounded-lg text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
+                  className="px-2 sm:px-4 py-1.5 sm:py-2 border border-[#E0E0E0] rounded-lg text-xs sm:text-sm bg-white text-[#212121] focus:ring-2 focus:ring-[#1976D2] focus:border-[#1976D2]"
                 >
                   <option value="publication_name-asc">{t('powerlist.controls.sortOptions.publicationAsc')}</option>
                   <option value="publication_name-desc">{t('powerlist.controls.sortOptions.publicationDesc')}</option>
@@ -807,9 +813,9 @@ const PowerlistPage = () => {
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
                           {/* Industry Badge */}
-                          <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+                          <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-20 flex flex-col gap-2">
                             {nomination.industry && (
-                              <span className="px-3 py-1 bg-blue-500 text-white text-xs font-medium rounded-full">
+                              <span className="px-2 sm:px-3 py-0.5 sm:py-1 bg-blue-500 text-white text-[10px] sm:text-xs font-medium rounded-full">
                                 {nomination.industry}
                               </span>
                             )}
@@ -820,19 +826,19 @@ const PowerlistPage = () => {
 
 
                         {/* Bottom Content Overlay */}
-                        <div className="absolute bottom-0 left-0 right-0 z-20 p-5 text-white">
+                        <div className="absolute bottom-0 left-0 right-0 z-20 p-3 sm:p-5 text-white">
                           {/* Name */}
-                          <div className="mb-3">
-                            <h3 className="text-xl font-bold text-white mb-2 group-hover:text-blue-200 transition-colors line-clamp-1">
+                          <div className="mb-2 sm:mb-3">
+                            <h3 className="text-base sm:text-xl font-bold text-white mb-1 sm:mb-2 group-hover:text-blue-200 transition-colors line-clamp-1">
                               {nomination.publication_name}
                             </h3>
                           </div>
 
                           {/* Description */}
-                          <p className="text-white/90 text-sm mb-3 line-clamp-2">
+                          <p className="text-white/90 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">
                             {nomination.power_list_name}
                             {nomination.description && (
-                              <span className="block text-white/70 text-xs mt-1 line-clamp-1">
+                              <span className="block text-white/70 text-[10px] sm:text-xs mt-1 line-clamp-1">
                                 {nomination.description}
                               </span>
                             )}
@@ -840,18 +846,18 @@ const PowerlistPage = () => {
 
                           {/* Location and Type Row */}
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center text-sm text-white/80">
-                              <MapPin size={14} className="mr-1" />
-                              <span>{nomination.location_region || t('powerlist.defaults.global')}</span>
+                            <div className="flex items-center text-xs sm:text-sm text-white/80">
+                              <MapPin size={isMobile ? 12 : 14} className="mr-1" />
+                              <span className="line-clamp-1">{nomination.location_region || t('powerlist.defaults.global')}</span>
                             </div>
 
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2 sm:gap-3">
                               <div className="relative" onClick={(e) => e.stopPropagation()}>
                                 <button
                                   onClick={() => setActiveShareId(activeShareId === nomination.id ? null : nomination.id)}
-                                  className="p-2 rounded-lg hover:bg-white/10 text-white transition-colors"
+                                  className="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 text-white transition-colors"
                                 >
-                                  <Icon name="share" size={18} />
+                                  <Icon name="share" size={isMobile ? 14 : 18} />
                                 </button>
                                 {renderShareMenu(
                                   `${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`,
@@ -861,15 +867,16 @@ const PowerlistPage = () => {
                                 )}
                               </div>
                               <div className="text-right">
-                                <div className="text-sm font-medium text-white">
+                                <div className="text-xs sm:text-sm font-medium text-white">
                                   {nomination.tentative_month && (
                                     <div className="flex items-center gap-1">
-                                      <Calendar size={12} />
-                                      {nomination.tentative_month}
+                                      <Calendar size={isMobile ? 10 : 12} />
+                                      <span className="hidden sm:inline">{nomination.tentative_month}</span>
+                                      <span className="sm:hidden">{nomination.tentative_month.substring(0, 3)}</span>
                                     </div>
                                   )}
                                 </div>
-                                <div className="text-xs text-white/70">
+                                <div className="text-[10px] sm:text-xs text-white/70 line-clamp-1">
                                   {nomination.company_or_individual}
                                 </div>
                               </div>
@@ -994,9 +1001,10 @@ const PowerlistPage = () => {
                                       {nomination.publication_name}
                                     </div>
                                     {nomination.tentative_month && (
-                                      <div className="text-xs flex items-center gap-1" style={{ color: theme.textSecondary }}>
-                                        <Calendar size={10} />
-                                        Expected: {nomination.tentative_month}
+                                      <div className="text-[10px] sm:text-xs flex items-center gap-1" style={{ color: theme.textSecondary }}>
+                                        <Calendar size={isMobile ? 8 : 10} />
+                                        <span className="hidden sm:inline">Expected: {nomination.tentative_month}</span>
+                                        <span className="sm:hidden">{nomination.tentative_month}</span>
                                       </div>
                                     )}
                                   </div>
@@ -1028,21 +1036,22 @@ const PowerlistPage = () => {
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
                                   <button
-                                    className="px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                                    className="px-3 sm:px-4 py-1.5 sm:py-2 text-white rounded-lg text-xs sm:text-sm font-medium transition-colors flex items-center gap-1"
                                     style={{ backgroundColor: theme.primary }}
                                     onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                                     onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
                                     onClick={() => handlePowerlistClick(nomination)}
                                   >
-                                    <Eye size={14} />
-                                    {t('powerlist.table.view')}
+                                    <Eye size={isMobile ? 12 : 14} />
+                                    <span className="hidden sm:inline">{t('powerlist.table.view')}</span>
+                                    <span className="sm:hidden">View</span>
                                   </button>
                                   <div className="relative" onClick={(e) => e.stopPropagation()}>
                                     <button
                                       onClick={() => setActiveShareId(activeShareId === nomination.id ? null : nomination.id)}
-                                      className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
+                                      className="p-1.5 sm:p-2 rounded-lg hover:bg-slate-100 text-slate-500 transition-colors"
                                     >
-                                      <Icon name="share" size={16} />
+                                      <Icon name="share" size={isMobile ? 14 : 16} />
                                     </button>
                                     {renderShareMenu(
                                       `${window.location.origin}/power-lists/${createSlugPath(nomination.power_list_name, nomination.id)}`,
@@ -1065,15 +1074,15 @@ const PowerlistPage = () => {
           ) : (
             <div className="text-center py-20 bg-white rounded-lg shadow-lg border" style={{ borderColor: theme.borderLight }}>
               <div
-                className="w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6"
+                className="w-16 h-16 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6"
                 style={{ backgroundColor: theme.backgroundSoft }}
               >
-                <Award size={48} style={{ color: theme.textDisabled }} />
+                <Award size={isMobile ? 32 : 48} style={{ color: theme.textDisabled }} />
               </div>
-              <h3 className="text-2xl font-semibold mb-3" style={{ color: theme.textPrimary }}>
+              <h3 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3" style={{ color: theme.textPrimary }}>
                 {t('powerlist.empty.title')}
               </h3>
-              <p className="mb-6 max-w-md mx-auto" style={{ color: theme.textSecondary }}>
+              <p className="mb-4 sm:mb-6 max-w-md mx-auto text-sm sm:text-base px-4" style={{ color: theme.textSecondary }}>
                 {t('powerlist.empty.desc')}
               </p>
               <button
@@ -1081,7 +1090,7 @@ const PowerlistPage = () => {
                   setSearchTerm('');
                   clearAllFilters();
                 }}
-                className="text-white px-6 py-3 rounded-lg font-medium transition-colors"
+                className="text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
                 style={{ backgroundColor: theme.primary }}
                 onMouseEnter={(e) => e.target.style.backgroundColor = theme.primaryDark}
                 onMouseLeave={(e) => e.target.style.backgroundColor = theme.primary}
