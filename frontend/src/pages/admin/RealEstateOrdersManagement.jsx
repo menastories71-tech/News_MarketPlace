@@ -8,7 +8,7 @@ import api from '../../services/api';
 import {
   Search, Filter, Eye, Edit, CheckCircle, XCircle, Clock,
   TrendingUp, DollarSign, Users, BarChart3, Calendar,
-  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, FileText,
+  ArrowUpDown, ArrowUp, ArrowDown, ChevronDown, ChevronLeft, ChevronRight, FileText,
   User, Building, Crown, MessageCircle, Mail, Phone
 } from 'lucide-react';
 
@@ -63,6 +63,10 @@ const RealEstateOrdersManagement = () => {
     admin_comments: '',
     rejection_reason: ''
   });
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   // Layout constants
   const headerZ = 1000;
@@ -141,6 +145,11 @@ const RealEstateOrdersManagement = () => {
 
     return () => clearTimeout(debounceTimer);
   }, [searchTerm, statusFilter, dateFilter]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, dateFilter, sortField, sortDirection]);
 
   const fetchOrders = async () => {
     try {
@@ -297,6 +306,11 @@ const RealEstateOrdersManagement = () => {
       return aValue < bValue ? 1 : -1;
     }
   });
+
+  // Pagination logic
+  const totalRecords = sortedOrders.length;
+  const totalPages = Math.ceil(totalRecords / pageSize);
+  const paginatedOrders = sortedOrders.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   if (loading) {
     return (
@@ -583,7 +597,7 @@ const RealEstateOrdersManagement = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {sortedOrders.map((order, index) => (
+                      {paginatedOrders.map((order, index) => (
                         <tr
                           key={order.id}
                           className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
@@ -665,6 +679,53 @@ const RealEstateOrdersManagement = () => {
                     </tbody>
                   </table>
                 </div>
+
+                {/* Pagination Controls */}
+                {sortedOrders.length > 0 && (
+                  <div className="px-6 py-4 border-t flex flex-col sm:flex-row justify-between items-center gap-4" style={{ borderColor: theme.borderLight, backgroundColor: theme.backgroundSoft }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium" style={{ color: theme.textSecondary }}>Rows per page:</span>
+                      <select
+                        value={pageSize}
+                        onChange={(e) => {
+                          setPageSize(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        className="border rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        style={{ borderColor: theme.borderLight }}
+                      >
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </select>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: theme.textSecondary }}>
+                        {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalRecords)} of {totalRecords}
+                      </span>
+                      <div className="flex gap-1">
+                        <button
+                          onClick={() => setCurrentPage(curr => Math.max(1, curr - 1))}
+                          disabled={currentPage === 1}
+                          className={`p-1 rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+                          title="Previous Page"
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+                        <button
+                          onClick={() => setCurrentPage(curr => Math.min(totalPages, curr + 1))}
+                          disabled={currentPage === totalPages}
+                          className={`p-1 rounded ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-200'}`}
+                          title="Next Page"
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {sortedOrders.length === 0 && (
                   <div className="text-center py-20">
