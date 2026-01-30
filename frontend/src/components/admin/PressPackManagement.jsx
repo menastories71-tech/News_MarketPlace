@@ -180,7 +180,7 @@ const PressPackManagement = () => {
 
   const fetchPressPacks = async () => {
     try {
-      const response = await api.get('/press-packs/admin');
+      const response = await api.get('/press-packs/admin?limit=1000');
       setPressPacks(response.data.pressPacks || []);
     } catch (error) {
       console.error('Error fetching press packs:', error);
