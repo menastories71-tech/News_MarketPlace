@@ -1364,11 +1364,10 @@ const PublicationManagement = () => {
     });
   }, [filteredPublications, sortField, sortDirection]);
 
-  // Pagination logic
+  // Pagination logic - Server side pagination is used, so we don't slice again
   const paginatedPublications = useMemo(() => {
-    const startIndex = (currentPage - 1) * pageSize;
-    return sortedPublications.slice(startIndex, startIndex + pageSize);
-  }, [sortedPublications, currentPage, pageSize]);
+    return sortedPublications;
+  }, [sortedPublications]);
 
   const totalPages = Math.ceil(totalPublications / pageSize);
 
