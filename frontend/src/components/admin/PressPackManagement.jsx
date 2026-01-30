@@ -1024,44 +1024,114 @@ const PressPackManagement = () => {
               </div>
 
               {/* Pagination */}
-              {totalPages > 1 && (
-                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <button
-                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                      disabled={currentPage === 1}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
-                        color: currentPage === 1 ? '#9ca3af' : theme.textPrimary,
-                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      Previous
-                    </button>
+              {/* Pagination */}
+              {sortedPressPacks.length > 0 && (
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
 
-                    <span style={{ fontSize: '14px', color: theme.textSecondary }}>
-                      Page {currentPage} of {totalPages}
-                    </span>
+                      {/* Rows per page selector */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px', color: theme.textSecondary }}>Rows per page:</span>
+                        <select
+                          value={pageSize}
+                          onChange={(e) => {
+                            setPageSize(Number(e.target.value));
+                            setCurrentPage(1);
+                          }}
+                          style={{
+                            border: `1px solid ${theme.borderLight}`,
+                            borderRadius: '6px',
+                            padding: '6px 10px',
+                            fontSize: '14px',
+                            backgroundColor: '#fff',
+                            cursor: 'pointer',
+                            outline: 'none'
+                          }}
+                        >
+                          <option value={10}>10</option>
+                          <option value={25}>25</option>
+                          <option value={50}>50</option>
+                          <option value={100}>100</option>
+                        </select>
+                      </div>
 
-                    <button
-                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                      disabled={currentPage === totalPages}
-                      style={{
-                        padding: '8px 12px',
-                        border: '1px solid #d1d5db',
-                        borderRadius: '6px',
-                        backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
-                        color: currentPage === totalPages ? '#9ca3af' : theme.textPrimary,
-                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                        fontSize: '14px'
-                      }}
-                    >
-                      Next
-                    </button>
+                      {/* Pagination Controls */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{ fontSize: '14px', color: theme.textSecondary }}>
+                          {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, sortedPressPacks.length)} of {sortedPressPacks.length}
+                        </span>
+
+                        <div style={{ display: 'flex', gap: '4px' }}>
+                          <button
+                            onClick={() => setCurrentPage(1)}
+                            disabled={currentPage === 1}
+                            style={{
+                              padding: '6px',
+                              border: `1px solid ${theme.borderLight}`,
+                              borderRadius: '4px',
+                              backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
+                              color: currentPage === 1 ? '#9ca3af' : theme.textPrimary,
+                              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}
+                            title="First Page"
+                          >
+                            <span style={{ fontSize: '14px' }}>«</span>
+                          </button>
+                          <button
+                            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                            disabled={currentPage === 1}
+                            style={{
+                              padding: '6px',
+                              border: `1px solid ${theme.borderLight}`,
+                              borderRadius: '4px',
+                              backgroundColor: currentPage === 1 ? '#f3f4f6' : '#fff',
+                              color: currentPage === 1 ? '#9ca3af' : theme.textPrimary,
+                              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}
+                            title="Previous Page"
+                          >
+                            <span style={{ fontSize: '14px' }}>‹</span>
+                          </button>
+
+                          <button
+                            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                            disabled={currentPage === totalPages}
+                            style={{
+                              padding: '6px',
+                              border: `1px solid ${theme.borderLight}`,
+                              borderRadius: '4px',
+                              backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
+                              color: currentPage === totalPages ? '#9ca3af' : theme.textPrimary,
+                              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}
+                            title="Next Page"
+                          >
+                            <span style={{ fontSize: '14px' }}>›</span>
+                          </button>
+
+                          <button
+                            onClick={() => setCurrentPage(totalPages)}
+                            disabled={currentPage === totalPages}
+                            style={{
+                              padding: '6px',
+                              border: `1px solid ${theme.borderLight}`,
+                              borderRadius: '4px',
+                              backgroundColor: currentPage === totalPages ? '#f3f4f6' : '#fff',
+                              color: currentPage === totalPages ? '#9ca3af' : theme.textPrimary,
+                              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center'
+                            }}
+                            title="Last Page"
+                          >
+                            <span style={{ fontSize: '14px' }}>»</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
