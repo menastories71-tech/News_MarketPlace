@@ -339,7 +339,7 @@ const PressPackOrderManagement = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(25);
+  const [pageSize, setPageSize] = useState(10);
   const [message, setMessage] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
@@ -917,11 +917,26 @@ const PressPackOrderManagement = () => {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    Page {currentPage} of {totalPages} ({totalOrders} total orders)
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === 1 ? '#e5e7eb' : theme.primary,
+                        color: currentPage === 1 ? theme.textSecondary : '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}
+                      title="First Page"
+                    >
+                      <span style={{ fontSize: '14px' }}>«</span>
+                    </button>
+
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
@@ -937,6 +952,11 @@ const PressPackOrderManagement = () => {
                     >
                       ← Previous
                     </button>
+
+                    <span style={{ fontSize: '14px', color: theme.textSecondary, margin: '0 8px' }}>
+                      Page {currentPage} of {totalPages} ({totalOrders} total)
+                    </span>
+
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
@@ -951,6 +971,24 @@ const PressPackOrderManagement = () => {
                       }}
                     >
                       Next →
+                    </button>
+
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === totalPages ? '#e5e7eb' : theme.primary,
+                        color: currentPage === totalPages ? theme.textSecondary : '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}
+                      title="Last Page"
+                    >
+                      <span style={{ fontSize: '14px' }}>»</span>
                     </button>
                   </div>
                 </div>
