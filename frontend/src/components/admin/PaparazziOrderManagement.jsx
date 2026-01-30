@@ -661,6 +661,38 @@ const PaparazziOrderManagement = () => {
 
             {/* Orders Table */}
             <div style={{ backgroundColor: '#fff', borderRadius: '12px', boxShadow: '0 8px 20px rgba(2,6,23,0.06)', overflow: 'hidden' }}>
+              <div style={{ padding: '16px 20px', borderBottom: '1px solid #e5e7eb', backgroundColor: '#f8fafc' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: theme.textPrimary }}>
+                    Paparazzi Orders
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '13px', color: theme.textSecondary }}>Rows per page:</span>
+                    <select
+                      value={pageSize}
+                      onChange={(e) => {
+                        const newPageSize = parseInt(e.target.value);
+                        setPageSize(newPageSize);
+                        setCurrentPage(1);
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        backgroundColor: '#fff',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      <option value={10}>10 per page</option>
+                      <option value={25}>25 per page</option>
+                      <option value={50}>50 per page</option>
+                      <option value={100}>100 per page</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
               <div style={{ overflowX: 'auto', maxHeight: orders.length > 50 ? '600px' : 'auto', overflowY: orders.length > 50 ? 'auto' : 'visible' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
@@ -832,11 +864,26 @@ const PaparazziOrderManagement = () => {
 
               {/* Pagination */}
               {totalPages > 1 && (
-                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '14px', color: theme.textSecondary }}>
-                    Page {currentPage} of {totalPages} ({totalCount} total orders)
-                  </div>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #e5e7eb', backgroundColor: '#f8fafc', display: 'flex', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <button
+                      onClick={() => setCurrentPage(1)}
+                      disabled={currentPage === 1}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === 1 ? '#e5e7eb' : theme.primary,
+                        color: currentPage === 1 ? theme.textSecondary : '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}
+                      title="First Page"
+                    >
+                      <span style={{ fontSize: '16px', lineHeight: 1 }}>&laquo;</span>
+                    </button>
+
                     <button
                       onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                       disabled={currentPage === 1}
@@ -847,11 +894,17 @@ const PaparazziOrderManagement = () => {
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '14px',
-                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                        cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', gap: '4px'
                       }}
                     >
-                      ← Previous
+                      &larr; Previous
                     </button>
+
+                    <span style={{ fontSize: '14px', color: theme.textSecondary, margin: '0 8px' }}>
+                      Page {currentPage} of {totalPages} ({totalCount} total)
+                    </span>
+
                     <button
                       onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                       disabled={currentPage === totalPages}
@@ -862,10 +915,29 @@ const PaparazziOrderManagement = () => {
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '14px',
-                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', gap: '4px'
                       }}
                     >
-                      Next →
+                      Next &rarr;
+                    </button>
+
+                    <button
+                      onClick={() => setCurrentPage(totalPages)}
+                      disabled={currentPage === totalPages}
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: currentPage === totalPages ? '#e5e7eb' : theme.primary,
+                        color: currentPage === totalPages ? theme.textSecondary : '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                      }}
+                      title="Last Page"
+                    >
+                      <span style={{ fontSize: '16px', lineHeight: 1 }}>&raquo;</span>
                     </button>
                   </div>
                 </div>
