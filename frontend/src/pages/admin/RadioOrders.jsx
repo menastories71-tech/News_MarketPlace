@@ -3,6 +3,7 @@ import { useAdminAuth } from '../../context/AdminAuthContext';
 import Icon from '../../components/common/Icon';
 import Sidebar from '../../components/admin/Sidebar';
 import api from '../../services/api';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 // Brand colors from Color palette .pdf - using only defined colors
 const theme = {
@@ -512,6 +513,77 @@ const RadioOrders = () => {
                   </tbody>
                 </table>
               </div>
+
+              {/* Pagination Controls */}
+              {totalOrders > 0 && (
+                <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '16px', backgroundColor: '#fff' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '14px', color: theme.textSecondary }}>Rows per page:</span>
+                      <select
+                        value={pageSize}
+                        onChange={(e) => {
+                          setPageSize(Number(e.target.value));
+                          setCurrentPage(1);
+                        }}
+                        style={{
+                          border: `1px solid ${theme.borderLight}`,
+                          borderRadius: '4px',
+                          padding: '4px 8px',
+                          fontSize: '14px',
+                          outline: 'none',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <option value={10}>10</option>
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                      </select>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <span style={{ fontSize: '14px', color: theme.textSecondary }}>
+                        {(currentPage - 1) * pageSize + 1}-{Math.min(currentPage * pageSize, totalOrders)} of {totalOrders}
+                      </span>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        <button
+                          onClick={() => setCurrentPage(curr => Math.max(1, curr - 1))}
+                          disabled={currentPage === 1}
+                          style={{
+                            padding: '4px',
+                            border: `1px solid ${theme.borderLight}`,
+                            borderRadius: '4px',
+                            backgroundColor: currentPage === 1 ? '#f5f5f5' : '#fff',
+                            color: currentPage === 1 ? '#bdbdbd' : theme.textPrimary,
+                            cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                          }}
+                          title="Previous Page"
+                        >
+                          <ChevronLeft size={20} />
+                        </button>
+                        <button
+                          onClick={() => setCurrentPage(curr => Math.min(totalPages, curr + 1))}
+                          disabled={currentPage === totalPages}
+                          style={{
+                            padding: '4px',
+                            border: `1px solid ${theme.borderLight}`,
+                            borderRadius: '4px',
+                            backgroundColor: currentPage === totalPages ? '#f5f5f5' : '#fff',
+                            color: currentPage === totalPages ? '#bdbdbd' : theme.textPrimary,
+                            cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                          }}
+                          title="Next Page"
+                        >
+                          <ChevronRight size={20} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {orders.length === 0 && (
                 <div style={{ padding: '80px', textAlign: 'center', color: theme.textSecondary }}>
